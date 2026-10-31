@@ -1,0 +1,34 @@
+{
+  "40": {
+    "png": "portraits/040_cell_40_owner_v2.png",
+    "note": "Perfect Cell, owner fix of stray pixel (41,40) (final_r24/cell_40_owner_v2.png)"
+  },
+  "52": {
+    "png": "portraits/052_sp52_owner_v3.png",
+    "note": "Super Perfect Cell portrait, owner final v3 (2026-10-24)"
+  },
+  "63": {
+    "png": "portraits/063_goku_mid_A.png",
+    "note": "Goku base, mid remaster (r20, final_r20/goku_mid_A.png)"
+  },
+  "65": {
+    "png": "portraits/065_goku_ssj_65_owner_dl7.png",
+    "note": "Goku Super Saiyan, owner touch-up, near-white hair (final_r24/goku_ssj_65_owner_dl7.png)"
+  },
+  "106": {
+    "png": "portraits/106_vegeta_mid_A.png",
+    "note": "Vegeta, mid remaster (r20, final_r20/vegeta_mid_A.png)"
+  },
+  "115": {
+    "png": "portraits/115_gohan_ssj_mid_A.png",
+    "note": "Gohan gi Super Saiyan, mid remaster (r20, final_r20/gohan_ssj_mid_A.png)"
+  },
+  "117": {
+    "png": "portraits/117_gohan_ssj2_mid_A.png",
+    "note": "Gohan gi Super Saiyan 2 and Rage, mid remaster (r20, final_r20/gohan_ssj2_mid_A.png)"
+  },
+  "119": {
+    "png": "portraits/119_gohan_base_mid_A.png",
+    "note": "Gohan gi base, mid remaster (r20, final_r20/gohan_base_mid_A.png)"
+  }
+}

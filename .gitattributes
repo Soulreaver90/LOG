@@ -1,0 +1,13 @@
+# LOG keeps LF everywhere. Every tool, test and hygiene sweep in this project treats a CR byte as a defect.
+# This machine has core.autocrlf=true globally, which would rewrite the working copy to CRLF on the first
+# clone and break that rule before a single line of work happened. These rules win over that setting.
+
+* text=auto eol=lf
+
+# Binary assets: never touched, never line-ending converted.
+*.png binary
+*.gif binary
+*.bin binary
+*.gba binary
+*.sav binary
+*.ips binary

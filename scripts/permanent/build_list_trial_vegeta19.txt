@@ -1,0 +1,5 @@
+# Trial build: the dev list, then vegeta_19_reveal (log2_build.py --list scripts\permanent\build_list_trial_vegeta19.txt).
+# Approval = move the vegeta_19_reveal line into build_list_core.txt, which both masters include.
+# The include follows the dev list (test_vegeta_19_reveal).
+include build_list_dev.txt
+vegeta_19_reveal    # trial 2026-10-30: Vegeta goes Super Saiyan after his line to Android 19 (state 35, flash; no permanent form)

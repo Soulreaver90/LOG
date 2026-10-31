@@ -1,0 +1,3 @@
+# Alias of build_list_dev.txt: beam_struggle was approved into main in r40 (final, 2026-10-30). Kept so old commands and
+# notes that name this file still build; it lists no module of its own. Delete it when nothing names it.
+include build_list_dev.txt

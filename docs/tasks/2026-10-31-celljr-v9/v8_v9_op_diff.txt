@@ -1,0 +1,49 @@
+old = C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\builds\mockups\2026-10-24-celljr\log2_poc_r40_celljr_v8.gba
+new = C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\builds\mockups\2026-10-24-celljr\log2_poc_r40_celljr_v9.gba
+dropped op ext 46 (26) = 001a022e (4 bytes)
+
+===== X (fight start) =====
+  old rom:0x08914730  next 32  type 0  75 bytes
+  new rom:0x08914730  next 32  type 0  71 bytes
+  bytes 75 -> 71 (-4); ops 15 -> 14
+  old bytes minus one 001a022e equal the new bytes: True
+  ext 46 (26) count: old 1, new 0
+  op diff:
+    --- v8
+    +++ v9
+    -sound(id=26)  [C]
+  VERDICT: only the sound op is gone
+
+===== K1 (1 v 1 end) =====
+  old rom:0x089149C0  next 1  type 0  171 bytes
+  new rom:0x089149B8  next 1  type 0  167 bytes
+  bytes 171 -> 167 (-4); ops 31 -> 30
+  old bytes minus one 001a022e equal the new bytes: True
+  ext 46 (26) count: old 1, new 0
+  op diff:
+    --- v8
+    +++ v9
+    -sound(id=26)  [C]
+  VERDICT: only the sound op is gone
+
+===== F (finish) =====
+  old rom:0x089147E8  next 29  type 0  338 bytes
+  new rom:0x089147E4  next 29  type 0  334 bytes
+  bytes 338 -> 334 (-4); ops 62 -> 61
+  old bytes minus one 001a022e equal the new bytes: True
+  ext 46 (26) count: old 1, new 0
+  op diff:
+    --- v8
+    +++ v9
+    -sound(id=26)  [C]
+  VERDICT: only the sound op is gone
+
+===== base 8 MB =====
+  changed bytes: 5
+    rom:0x003E9E24  74 -> 68
+    rom:0x003E9E84  E4 -> D8
+    rom:0x003EA400  54 -> 48
+    rom:0x003EB7E8  DC -> D8
+    rom:0x0040DA94  B4 -> A8
+
+GATE: PASS

@@ -1,0 +1,6 @@
+# The DEV MASTER: the golden list with the work-in-progress gi art painted over sets 157-160.
+# Line 1 is the only difference from build_list.txt. Every trial list includes this file, so a trial
+# carries the gi art and keeps its own SHA-1.
+# Append new patches to build_list_core.txt, never here: this file holds one line of its own.
+gohan_gi            # dev: art\gi_base, gi_ssj_v2, gi_ssj2_aura and gi_rage_aura over the same four sets
+include build_list_core.txt

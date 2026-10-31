@@ -1,0 +1,25 @@
+# The shared tail of the two masters: every patch after the gi sets, in order, one per line.
+# build_list.txt (golden) and build_list_dev.txt (dev) differ only in line 1, so both apply these in this order.
+# Append new patches at the end so earlier allocations keep their addresses.
+ssj2_form
+gohan_portraits
+status_bonus
+ssj2_idle
+cutscene_portraits
+npc_gi
+rage_text
+art_inject          # art\tables\palette.json and art\tables\portraits.json; where portrait_remaster's first call was
+status_portrait
+rage_stats
+cellgames_ssj       # r27: Gohan and Goku in Super Saiyan through the Cell Games
+scene_drain_pause   # r27: no Super Saiyan or Super Saiyan 2 ki drain while a scene plays
+fullpower_ssj       # r28: Goku and Gohan stay Super Saiyan from the Time Chamber until Cell is beaten
+piccolo_gi_scene    # r29: on the Lookout, Piccolo gives Super Saiyan Gohan the gi (my storyboard)
+superperfect_cell   # r30: Cell returns from the self-destruct as Super Perfect Cell (set 58, 1.5x bolts)
+chamber_spar        # r37: Gohan (Demon Clothes) vs Goku sparring in map 6,70 (chamber fight prototype)
+bf_hud              # r39: Buu's Fury HUD look and boss bar look (HUD v2b data, approved)
+bf_ki_pool          # r39: one Super Saiyan ki pool, yellow over the EP row, Vegeta's hold on the pool (HUD v2b code)
+relay_cooldown      # r40: a scripted fighter change (ext 70) clears the party transform cooldown (my call: menu unchanged, plain)
+fullpower_hud       # r40: full-power Super Saiyan shows the yellow ki row, no aura loop for Goku and Gohan until Cell is beaten
+beam_struggle       # r40: grand beam struggle on map 14,4 BG0 (BF sphere, orbs, sway, soft flash; mockup v2)
+vegeta_ssj_scene    # r40: Vegeta goes Super Saiyan when he attacks Super Perfect Cell (seq 50 and seq 17; v5); after beam_struggle

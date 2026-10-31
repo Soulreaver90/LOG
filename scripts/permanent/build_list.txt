@@ -1,0 +1,6 @@
+# The GOLDEN MASTER: finished products only (log2_build.py --list, the default list).
+# Line 1 relocates Gohan's gi sets 157-160 with vanilla pixels, because the gi art is work in progress.
+# Dev work builds build_list_dev.txt, which swaps line 1 for gohan_gi and keeps every other module and order.
+# Every patch after line 1 lives in build_list_core.txt, so the two masters cannot drift apart.
+gohan_gi_vanilla    # golden: sets 157-160 relocated from vanilla, no gi art (final, 2026-10-31, the vanilla fill)
+include build_list_core.txt

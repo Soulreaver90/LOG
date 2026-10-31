@@ -1,0 +1,5 @@
+# Trial build: the dev list, then celljr_fight (log2_build.py --list scripts\permanent\build_list_trial.txt).
+# Approval = move the celljr_fight line into build_list_core.txt, which both masters include.
+# The include follows the dev list (test_celljr_fight).
+include build_list_dev.txt
+celljr_fight        # trial 2026-10-24: Cell spawns 7 Jrs, Gohan (SSJ2) fights 4 at once before Cell (final decisions 1-6)

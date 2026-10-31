@@ -1,0 +1,1431 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+3- Basics                                                                [A300]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+===============================================================================
+     3.1- Menu                                                           [A301]
+===============================================================================
+
+To access the menu, press the Start Button. You'll see the Status Screen in 
+
+which you can see the level, health, experience and stats of your character.
+The maximum level is level 50. Use the Directional Pad to switch character
+information. Press the L Button to look at you journal. You'll see all the
+quests you are doing. Press the Right Directional Button to see the quests that
+you completed. Press R to see all the items you collected. Press R or L twice
+to open the Option Menu.
+
+===============================================================================
+     3.2- Controls                                                       [A302]
+===============================================================================
+_______________________________________________________________________________
+            |
+ Button     | Command
+____________|__________________________________________________________________
+            |
+ A - Button | Use your regular attack or talk to some one. Confirm in menus.
+____________|__________________________________________________________________
+            |
+ B - Button | Use your KI attack. Cancel when you're in the menu.
+____________|__________________________________________________________________
+            |
+ L - Button | Use in menus to go one screen to the left. Switch between KI
+            | Attacks.
+____________|__________________________________________________________________
+            |
+ R - Button | Show map and use to go one screen to the right in the menu.
+____________|__________________________________________________________________
+            |
+ Select     | Open Scouter Window.
+____________|__________________________________________________________________
+            |
+ Start      | Open the menu.
+____________|__________________________________________________________________
+
+            |
+ D. Pad     | Move your character. Press twice to run.
+____________|__________________________________________________________________
+
+===============================================================================
+     3.3- The World Map                                                  [A303]
+===============================================================================
+
+In this screen you fly around above a world map. You'll see a little radar with
+stars on it. Every star is a new location you can go. Press A when you are
+above the entrance of an area to enter it.
+
+===============================================================================
+     3.4- Regular Screen                                                 [A304]
+===============================================================================
+
+In the top left corner you can see three bars. The red one represents your HP
+or Hit Points. It can be refilled with meat. The Green bar decreases every time
+you shoot a KI blast and is filled with the little yellow KI orbs you can find.
+The Blue bar represents your Experience. To fill it up you have to defeat
+enemies who walk around in the different areas. Next to that is a yellow box
+which fills up slowly. Your character can turn Super Saiyan/Namek with it. The
+second box shows if you can use KI and which blast you are using.
+
+Except those things you'll notice many things when you walk around like flight
+circles, Save Game Circles, breakable rocks among others. You'll also see gates
+with numbers on it. Those gates show which level you have to have to enter.
+
+===============================================================================
+     3.5- Save game                                                      [A305]
+===============================================================================
+
+In some places in the game you'll find a round white circle with a blue C on
+it. Go stand on it and press A. Now select Save. The game has now been saved.
+
+===============================================================================
+     3.6- Switch Characters                                              [A306]
+===============================================================================
+
+In some places in the game you'll find a round white circle with a blue C on
+it. Go stand on it and press A. Now select Switch Characters. Choose the
+character you want to use and press A. You'll now be using that character.
+
+===============================================================================
+     3.7- Options                                                        [A307]
+===============================================================================
+_______________________________________________________________________________
+                 |
+ Option          | Explanation
+_________________|_____________________________________________________________
+                 |
+ Text Speed      | Changes the speed the text appears on the screen.
+ Sound FX Volume | Changes the volume of the Sound Effects.
+ Music Volume    | Changes the volume of the Music.
+ Sleep           | Put the game in the sleep mode.
+ Credits         | Shows Credits.
+_________________|_____________________________________________________________
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+4 Walkthrough                                                            [A400]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+===============================================================================
+     4.1- Main Quest                                                     [A401]
+===============================================================================
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Trunks Saga:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+*******************************************************************************
+Outside Pepper Town
+*******************************************************************************
+
+Gohan tells you to destroy the boulder up ahead. So move forward and go to the
+next screen. You'll see a grey boulder. Press A to smash it. If you go up
+ahead and smash the second rock instead of the first one, you won't have to
+destroy two boulders and you skip a tiny part of the dialogue. If you
+destroyed the first boulder, use 2 KI Attacks with B on the second boulder.
+After talking to Gohan you can run forward and go talk with Gohan. Once you
+wake up again, stand on the flight circle and press A.
+
+*******************************************************************************
+Pepper Town
+*******************************************************************************
+
+Once you arrive in Pepper Town, go forward and take the first right. Go
+straight forward until you see a street on your left side. Enter the street.
+Go left immediately and watch how the Androids and Gohan are fighting.
+
+*******************************************************************************
+Goku's Home
+*******************************************************************************
+
+To proceed in the game you have to find your Math Book. It is lying in your
+parent's bedroom. Go through the door on the right and then up the stairs.
+You'll see the book lying on the table. Go back to studying and when you wake
+up again, go to the window and go outside.
+
+*******************************************************************************
+East District 439
+*******************************************************************************
+
+Go to the North and go past the save point. Go to the West where you'll find a
++1 Power Capsule. Then go to the East. There will appear a message how you can
+sprint. Go further till you see a Gate with a "1" on it. Smash it and go to
+the next screen. Go right and there you'll have to fight your first boss,
+Frieza.
+ ________________
+|                |
+| Frieza         |
+|________________|_____________________________________________________________
+|                |
+| HP:            | Beating Frieza is really easy. You have to constantly
+| EP:            | attack him. When he has only one quarter of his health bar
+| EXP: +20       | you better use all your KI blasts to be safe. This Dream
+| STR:           | Frieza isn't hard. Break the rocks when you are running low
+| POW:           | on KI or HP. With a bit of luck, you'll find the right
+| END:           | item. He has around 150 HP.
+|________________|_____________________________________________________________
+
+*******************************************************************************
+Goku's Home
+*******************************************************************************
+
+The telephone is ringing in the living room. Go there. After that go outside
+and go to the Level 2 Gate and enter the cave. Get in your armor. It is lying
+in the chest. Go through the white hole and follow the road.
+
+*******************************************************************************
+The World
+*******************************************************************************
+
+You'll see a radar on the screen in the right top corner. You'll see a green
+arrow which represents you. You usually have to go to the star on the radar.
+Fly to the star and press A when you're flying above the sign of the Northern
+Wastelands.
+
+******************************************************************************* 
+
+Northern Wastelands
+*******************************************************************************
+
+Go ahead. You'll come across two flying enemies. Don't approach them because
+they use an electrical whip or something like that. Shoot them down with your
+KI blasts. Then proceed to the next screen. Destroy the enemy and proceed.
+You'll come across a new kind of enemy, it looks like walking tiger. You have
+to be very quick to defeat them. After you defeat him, go to the left where
+you'll battle two more opponents. After that you'll normally level up to level
+3. You'll also see a broken bridge. You'll have to come back later here so
+remember this place. Go back and go to the right this time. If you go to the
+left in this part of the screen, you'll see a gate and a Namek. You can't go
+through the portal because you need Goku. Go to the right for the normal path
+and follow the path. You'll eventually come across another save point and a
+flight circle. Use them both.
+
+Now you'll get the chance to talk to every one. To proceed, go talk to Piccolo
+and then go up the mountain. But you'd better find the Capsule first of the
+south of where Tien and the gang are standing. After King Cold and Frieza are
+defeated, go to the flight circle and fly to the place where Trunks is
+waiting.
+
+*******************************************************************************
+East District 439
+*******************************************************************************
+
+After that long story of Trunks you'll go back to your home. You best train a
+bit in the south of the forest and when you want to proceed you have to go
+inside your home. You should at least have to level up till level 5. You can
+level up even more if you want. You'll come across some snakes and wolves
+there.
+
+*******************************************************************************
+Goku's Home
+*******************************************************************************
+
+After the talk between your mom and dad, go outside to train some more.
+
+*******************************************************************************
+East District 439
+*******************************************************************************
+
+Stand next to the World Map board to make Goku come and get you to leave.
+
+*******************************************************************************
+World
+*******************************************************************************
+
+Now you have to fly to the west for about a minute before you reach West City.
+
+*******************************************************************************
+West City
+*******************************************************************************
+
+You'll have to do much in West City. So it is best to start with the simple
+things. Go to Bulma. She lives in Capsule Corporation. You can find that in
+the East of the City.
+
+*******************************************************************************
+Capsule Corporation
+*******************************************************************************
+
+Once you entered Capsule Corporation trough the main entrance you have to go
+to the left and then up the stairs to level 2. You'll find Bulma on that
+floor. She'll ask you to pick up a part for her scouter part so go back to the
+town and look for the Electronics store on the map. Go there and ask for the
+piece. The man will give you the piece and you'll have to head back to Capsule
+Corporation. When you give it to her, she gives you the scouter. Go back
+downstairs. Talk to Mrs. Brief if you want to get some cookies. They heal 5
+HP. You can get as many as you want. You'll find a capsule in Bulma's room.
+
+Once you are downstairs, the receptionist will ask you to investigate a
+security leak. The Security office is located in the east. So go straight
+ahead and go through two doors. Talk to the Security officer. Go back to the
+stairs to where Bulma is and go to the third level. You can also go the
+basement level now, where you'll find a +3 Strength and a +3 Endurance
+Capsule. On the third level you'll notice that the West Tower is locked, so
+you'll need to go the other tower and press the Button to open the West Tower
+Door. While you're talking to him, he'll throw a capsule out of which a boss
+pops out.
+
+ ________________
+|                |
+| Wolf           |
+|________________|_____________________________________________________________
+|                |
+| HP: 400        | This isn't a hard boss. Just press him back in a corner by
+| EP: -          | smashing and then use up all your KI attacks. You'll have
+| EXP: +275      | reduced his health bar to 1/4 of it is original size.
+| STR: 11        |
+| POW: 1         |
+| END: 5         |
+|________________|_____________________________________________________________
+
+After that you can go back to the town to proceed the game or look at the
+central computer. I would go to the sparring centre.
+
+*******************************************************************************
+Sparring Arena
+*******************************************************************************
+
+Here you'll fight 3 of your friends. You can only win 3 times. Every time you
+win a +3 capsule. You don't get any experience points. If you want to easily,
+you'll need about level 10. You can also stand behind one of the poles so that
+they can't hit you but they can hit you.
+
+*******************************************************************************
+West City
+*******************************************************************************
+
+Go look in every house and you'll find some capsules you can use. You'll also
+get some extra side quests like pick up the newspaper and find my husband. In
+the top middle of the city you'll see a man by a dumpster. If you go in the
+ally you'll find a Golden Capsule. Next to the ally is a little park where a
+kid is running. Give him Hercule's Autograph when you get it. He will give you
+a Golden Capsule. If you go talk to Hercule he'll see he wants an Open Faced
+Club Sandwich from the Big Mouth where the man works who wants a newspaper.
+But the man at the newspaper isn't there. He is looking for his kid. So go the
+top right from the town where you'll here that a bus has had an accident.
+
+*******************************************************************************
+West City highway
+*******************************************************************************
+
+After the conversation you have to go to the right to find your third Golden
+Capsule, then return and take the other way. You should try to level up till
+around level 10 to 15 to be safe. Just follow the road until you come to a
+place with a three in the middle. Go to the top of the screen. This is a
+dangerous place because you have to battle 4 wolves at the same time. You best
+use your KI blasts. Then go the left and follow the path to find the first
+child. Go back to the place where you took the left road and go this time to
+the top. You'll come into a place where there are three wolves running around
+the second kid. Kill the wolves and save the kid. Then return back to the
+place where the two snakes and the two wolves were. Now go to the other road.
+You'll see some Red Ribbon bots flying, use your KI to blast them. If you go
+talk to Yajirobe, he'll give you a Senzu Bean. Go now to the top of the
+screen. Follow the road until you see a small cave. Enter it and talk to the
+third child. Go back outside and follow the Mountain Path again. Keep
+following it until you see a flight circle. Use it and you'll find the last
+child. Now you only have to return to the bus driver.
+
+*******************************************************************************
+West City
+*******************************************************************************
+
+Go to the newspaper stand and talk to the man behind the counter. He'll give
+you a free newspaper. After that, go to the Big Mouth restaurant. The owner
+will give you the sandwich that Hercule wants. He'll now ask you to bring him
+'Eyes of the lion'. If you go the Record store, the owner will tell you he
+doesn't have it. But he'll that it is maybe in the Antique Store and he is
+right, you can find it there. Go back and get the parade started. Now switch
+to Piccolo and go talk with the mayor or Goku about the Triceratops King. Go
+to the south of the city.
+
+*******************************************************************************
+Triceratops Jungle
+*******************************************************************************
+
+Break the green gate with the number 10 on it with Piccolo. You should level
+up till a level between 15 and 20. Follow the path and go south when you reach
+the first crossroads, you'll enter an area with a couple of lady bugs and
+Mercenaries. In the next area you'll find a Golden Capsule and you can return
+to the crossroad. Go over the bridge and go to the left to find Trunks' door.
+But for now, you have to go to the right. Go down and defeat all the foes.
+Proceed further down. After you defeat the Tiger Bandit you'll find a +1
+Endurance Capsule. Go back to where all the foes were. Now go to the west when
+you're there. Head down all the screens and follow the path over the water,
+you'll find a Golden Capsule. Go back to the waterfall you saw. Go through it.
+When you reach the fields, you have to watch out because there are
+Triceratopses passing. You can talk to the people in the farm. Go to the south
+and watch out for the Triceratopses.
+
+Now the hard part begins. When you enter you see that you're dealing with a
+labyrinth. You'll that three Triceratopses are coming towards you. Don't
+worry, they won't hit you. They'll turn before they're with you. Follow them
+and then hide in the hole in the crops until they come back and when they run
+back to the entrance, you have to hurry to the next ally. But watch out. If
+you stand there, another bunch of Triceratopses will hit you. So keep running
+to the east and you'll enter a new screen. Your best bet in this screen is to
+follow the Triceratopses that are running in the south of the screen. Follow
+them till the next ally and then concentrate on the top Triceratopses. When
+they run pass you, you have to hurry to the next ally. Follow that ally but
+don't go into the next one, until you saw the Triceratopses pass. Follow them
+until they go north, you have to go to the west then. Go to the right and then
+take another ally to the right. You'll see a situation identical to the first
+one now. Just follow the Triceratopses, hide in the hole and then continue
+when they're going to the other side. Hide in the last ally, not the first.
+After that you'll only have to pass one last group of Triceratopses. Continue
+to the next screen where you'll see the Triceratops King.
+ ________________
+|                |
+| Triceratops K. |
+|________________|_____________________________________________________________
+|                |
+| HP: 850        | The King has only one attack, his charge attack. It can be
+| EP: -          | prevented easily. When you hit him when he is charging the
+| EXP: +1,500    | attack, you just have to him to stop it. You can also hide
+| STR: 21        | in the entrance because he rarely manages to get in there.
+| POW: 1         | So you just have to fire blasts and throw punches at him to
+| END: 25        | defeat him.
+|________________|_____________________________________________________________
+
+Now you have to return to the town to talk to the mayor.
+
+*******************************************************************************
+West City
+*******************************************************************************
+
+After talking to mayor, you'll have to find the old man. If you go outside,
+you see him running, follow him and you'll get to the Warlord's Domain.
+
+*******************************************************************************
+Warlord's Domain
+*******************************************************************************
+
+I would recommend leveling Piccolo up till level 20 and Gohan till at least
+16. Follow the road and you'll come into an area with lots of enemies so watch
+out. You will found a Golden Capsule in the south West of the screen. This
+area has only one exit so it isn't hard to figure out where to go. Then go to
+the north in this area. You'll see a cave blocked by magic, remember it. The
+City Key is in there. If you go further north, you'll see a castle. Go around
+it and save the man. Go back to the last screen and go the west this time.
+Take on the two roads. Both of them will lead to the same place. So you should
+take the one to the West. Once you defeated the Henchmen in the next screen,
+you should continue west again. These roads are perfect for leveling up Gohan
+and Piccolo. I leveled both my Gohan and my Piccolo up from level 15 and level 
+
+17 to 20 on this spot in les than half an hour. On the beach you'll find a +1
+Strength Capsule. Go to the end of the beach and use the Flight Circle. In the
+house you'll find the old man. You'll also find a +3 Endurance Capsule in the
+chest. The old men will break the magic barrier of the cave. Get the key in
+the cave you saw earlier. Now you only have to return to the town.
+
+*******************************************************************************
+West City
+*******************************************************************************
+
+After you're talk to the mayor, Piccolo says that they'll go meet Goku. So go
+the World Map and fly to East District 439.
+
+*******************************************************************************
+East District 439
+*******************************************************************************
+
+Just go the top of the screen and you'll fly to Goku's home. You'll have a
+talk. After that you go inside. And when they come back out, the 3 year
+training is over. It is the end of the Trunks Saga Part of this walkthrough.
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Android Saga:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+*******************************************************************************
+East District 439
+*******************************************************************************
+
+Go Master Roshi's Island and talk to him. He'll teach Gohan and Piccolo a new
+attack.
+
+*******************************************************************************
+Master Roshi's island
+*******************************************************************************
+
+You'll find a Golden Capsule in the North East of the Island.
+
+*******************************************************************************
+Amenbo Island
+*******************************************************************************
+
+Fly from Master Roshi's Island to Amenbo Island. Talk to your friends. Use the
+flight circles. Then run down the road until you see the Androids.
+
+*******************************************************************************
+An asteroid
+*******************************************************************************
+
+You're now playing as Vegeta. Just go to the space ship and you'll go to
+Earth.
+
+*******************************************************************************
+Capsule Corporation
+*******************************************************************************
+
+First go to the mayor's home to pick up a Namek and a West City Apartments B
+access card, you'll find a second Namek there. Than go to the world map and
+fly to master Roshi to learn a new attack.
+
+*******************************************************************************
+Master Roshi's Island
+*******************************************************************************
+
+Talk to Master Roshi and then fly to the Southern Continent.
+
+*******************************************************************************
+Southern Continent
+*******************************************************************************
+
+I would recommend leveling up Vegeta till at least level 22. Take the road to
+the west to find your 10th Golden Capsule. If you go to the north, you have to
+follow the path until you reach the crossroads. If you go down at the
+crossroads, you'll come to the same place as when you went east from the
+original arrival place. If you to the north, you'll come to a place where
+there are a couple of Lady Bugs flying around. Kill them all to disable the
+Electric fence. Go to the next area and choose one of the exits there. They
+lead to the same place. After that, go to the left and follow you'll
+eventually come across the 11th Golden Capsule. Go back to the previous area
+and go up to the north.  If you go to the East from your arrival place, you'll
+eventually see a Level 15 Gate for Gohan. Come back later with him.
+ _______________
+|                |
+| Android 19     |
+|________________|_____________________________________________________________
+|                |
+| HP: 2,970      | For this fight your best bet is to use Vegeta. Hide after a
+| EP: Can use KI | rock and turn Vegeta in a Super Saiyan. Don't use a KI
+| EXP: +3,410    | blast because Android 19 absorbs them and heals him self
+| STR: 21        | like that. Just keep attacking him.
+| POW: 14        |
+| END: 11        |
+|________________|_____________________________________________________________
+
+After the fight with 19, switch Piccolo for Gohan and go to the level 15 gate
+of Gohan and level Gohan and Piccolo up to level 25. You'll find a +3 Strength
+Capsule in the cave. Continue your path after leaving the cave and you'll find
+a Golden Capsule but you have to defeat a T-Rex to get it. You will also find
+a +1 Endurance Capsule and +1 Power Capsule.
+
+Once you want to fight Android 20. Go to the place where you fought Android
+19. Go further north and save your game. Use the flight circle that is a bit
+further. Switch to the character with the highest stats. Look at the stats SSJ
+Vegeta is and compare. Accidentally my best character was Gohan at Level 25.
+ ________________
+|                |
+| Android 20     |
+|________________|_____________________________________________________________
+|                |
+| HP: 2,810      | Use the character with the highest stats but that is
+| EP: Can use KI | normal. Just pound away on 20. Use a KI blast when he fires
+| EXP: +5,000    | one at you so that it doesn't hit. To hit him, run at him,
+| STR: 24        | hit and flee. If you get the chance, keep attacking him but
+| POW: 19        | your health is very important so watch out for it. He'll
+| END: 14        | quit when he has only a bit of energy left.
+|________________|_____________________________________________________________
+
+Go to the world map and fly to the Northern Mountains.
+
+*******************************************************************************
+Northern Mountains
+*******************************************************************************
+
+You have to level up all your character to level 30 or higher in this area. If
+you go the next screen, you'll find a Level 25 Gohan Gate. Smash it. You'll
+see a Golden Capsule. Get it and then continue north. You'll find a +5
+Strength Capsule. Go back to the save point and go to the south, you'll find
+about seven warthogs guarding a Golden Capsule. Go back to the save point and
+go to the West. Continue that way until you come across 3 giant rocks that are
+blocking your path. Destroy a rock to go further. You'll see a Level 30 Gate
+for Piccolo. Remember it because after it, there is a hidden Namek. If you
+continue, you will find a +3 Power Capsule. If you go further, Android 20 will
+come to you.
+ _______________
+|                |
+| Android 20     |
+|________________|_____________________________________________________________
+|                |
+| HP: 1,900      | The fight with Android 20 is a bit easier this time. He has
+| EP: Can use KI | about 1,000 HP less than the last time. You'll have to
+| EXP: +7,000    | fight him more than once. You'll have to destroy 25% of his
+| STR: 25        | original health. You'll be able to save between the fights.
+| POW: 21        | You only get experience for the last fight.
+| END: 17        |
+|________________|_____________________________________________________________
+
+After your first fight with him, you'll reach an area with a save point. Go to
+the West to see a gate for Goku. You can beat the Tiger Bandits here to level
+up a level if you're close to a new level. Continue up north afterwards and
+you'll see Dr. Gero's Lab. It is locked by beams so you'll have to disable
+them by destroying 3 generators. Destroy the egg bots and go to the east.
+Destroy the first generator. If you further to the east, you'll have to fight
+Dr. Gero again. To the east of that, you'll find 2 Golden Capsules. If you go
+to the east, and then to the north, you'll find the second generator. You'll
+have to move the eggs to be able to destroy the generator but you have to do
+it quick because you have to pass by enemies. Once you have done that, return
+to the cave. Go to the west from there. Continue until you have to fight
+Android 20 again. Go over the bridge and get the Golden Capsule. Go to the
+next screen and go down there. You'll find a +3 Endurance Capsule. Talk to
+Yajirobe to get a Senzu Bean. Go back to the Level 50 Gate for Vegeta. Go to
+the west from there. Go to the South in the next screen. You'll find a +3
+Power Capsule. Go back to the previous area. Go completely to the west now,
+you'll find another Golden Capsule. Now you'll have 18 Golden Capsules. Go
+back to the previous crossroads and go north instead of west this time. Go
+through the cave and you'll reach a place with 6 switches. Turn the green, the
+blue and the black one on. They are the ones mentioned in the song. The door
+inside Vinnie's home will open up. You will find a capsule behind the home. Go
+inside and destroy the generator. The cave will be open now. Go inside and
+blast the door open.
+
+After the long talk, go north and go to the right to save your game if you
+want to. If you go to the left, you'll see a gate but you can't get in there
+yet. Go back and use the flight circle. Now you'll have to fight 18.
+ ________________
+|                |
+| Android 18     |
+|________________|_____________________________________________________________
+|                |
+| HP: 2,910      | You can use KI again to defeat her. Use the regular KI
+| EP: Can use KI | blasts of your characters or if you're playing as Piccolo,
+| EXP: + 8,875   | use the special beam Cannon. Although her HP is high, you
+| STR: 29        | won't have to that much damage. You only have to 1,455 HP
+| POW: 34        | of damage. That can be done with about 10 or 20 hits.
+| END: 27        |
+|________________|_____________________________________________________________
+
+*******************************************************************************
+World
+*******************************************************************************
+
+Fly to the new star on your radar. If you use one of the grey flight circles,
+you'll go to Korin. He'll say you can get a Senzu Bean from him if you give
+him three fish. So beat a couple of Alligators to get them. Go back to Kami's
+lookout.
+
+*******************************************************************************
+Kami's Lookout
+*******************************************************************************
+
+Go inside and through the first door you see. You'll now have found Kami.
+After the conversation between Gohan and Trunks, you get to control Trunks. Go
+the World Map and fly to Ginger Town.
+
+*******************************************************************************
+Outside Ginger Town
+*******************************************************************************
+
+Level Trunks up to around level 30. You can do it easier by going to Goku's
+gate in the Northern Mountains and kill the Triceratops through the wall. Go
+to the west and continue up north in the next screen. Save your game if you
+want to. Go to the West in the next screen. If you go to the North, you'll see
+the level 50 Gate for Gohan. If you continue after going west, you'll
+eventually reach the space ship.
+
+Go to the south east of this screen where you will find your 19th Golden
+Capsule. Go to the next screen and go to the south. In the next area, you can
+go up north where you'll find a fisherman who needs his bait. Now go back to
+the previous screen. Go to the west or east and go up. Follow the road and go
+to the North when you get the chance. You'll have found what came out of the
+time machine.
+
+*******************************************************************************
+World
+*******************************************************************************
+
+Once you gain control of Piccolo, you have to fly to Ginger Town. Destroy the
+green level 25 gate.
+
+*******************************************************************************
+Ginger Town
+*******************************************************************************
+
+Go inside and go to the west between two buildings. You will find a new Golden
+Capsule. Just go back to the main road to find Cell.
+ _______________
+|                |
+| Cell           |
+|________________|_____________________________________________________________
+|                |
+| HP: 5,210      | To defeat this Cell, you have to do 2,605 HP of damage.
+| EP: Can use KI | This is very hard because he can use your HP to heal him
+| EXP: +12,000   | elf. The best thing to do is to stay away from him and do
+| STR: 32        | damage by using your Special Beam Cannon. You'd better be
+| POW: 32        | over Level 30 for this fight.
+| END: 37        |
+|________________|_____________________________________________________________
+
+Fly to the Northern Mountains after talking to every one.
+
+*******************************************************************************
+Northern Mountains
+*******************************************************************************
+
+Go to the Level 30 Gate for Trunks which is located behind Dr. Gero's lab.
+Enter it. Pick up the design for the Androids from the table. Go into the
+second room and Trunks blows up Cell. Go to the third and last room where the
+computer is. This computer is also blasted by Trunks. Fly back to Master
+Roshi's Island and talk to everyone. Fly to Kami's Lookout and talk to Goku.
+Fly to Master Roshi's Island. Use the flight circle after the conversation.
+ ________________
+|                |
+| Android 17     |
+|________________|_____________________________________________________________
+|                |
+| HP: 3,550      | There are two ways to win this fight. You can use your
+| EP: Can use KI | Special Beam Cannon to hit him from a distance. The second
+| EXP: +15,000   | way is to become a Super Namek and attack from close range.
+| STR: 32        | After a while Android 18 will make a comment and you'll
+| POW: 39        | have to fly to next isle using the flight circle. Use a
+| END: 34        | Senzu Bean or a Cookie when you need it. If you run out of
+|                | KI just hide somewhere or wait when you have to use a
+|                | Flight Circle. He is beaten when he has only 25% of his HP.
+|________________|_____________________________________________________________
+
+*******************************************************************************
+Kami's lookout
+*******************************************************************************
+
+Go inside and go to the Hyperbolic Time Chamber and talk to everyone.
+
+*******************************************************************************
+Tropical Islands
+*******************************************************************************
+
+Use the flight circle on every island. Not a hard task except for the hard
+enemies. On the first island with pterodactyls, you'll have to find a Golden
+Capsule and a level 30 Gate for Vegeta. You have to destroy it to get to the
+Flight Circle which leads to Cell. If you go over the bridge nearby, you'll
+find a Namek.
+ ________________
+|                |
+| Cell 'Non pf'  |
+|________________|_____________________________________________________________
+|                |
+| HP: 4,890      | The key to victory in this fight is based on two things:
+| EP: Can use KI | switch back to Normal mode to gain speed again and use
+| EXP: +30,000   | your Big Bang Attack to do around 300 HP of damage. Hide
+| STR: 39        | behind rocks to regain KI to fire your Big Bang. You'll
+| POW: 41        | have to do about 3,200 HP of damage.
+| END: 46        |
+|________________|_____________________________________________________________
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Perfect Cell Saga:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ ________________
+|                |
+| Cell 'Perfect' |
+|________________|_____________________________________________________________
+|                |
+| HP: 5,160      | In this fight it is important to stay close to Cell. Trunks
+| EP: Can use KI | Power and Endurance stats are low and he doesn't have a
+| EXP: +40,000   | good energy attack like Vegeta so you'll have to stay in
+| STR: 44        | your USSJ form. You'll have to fight him two times and
+| POW: 46        | he is fully healed every time.
+| END: 50        |
+|________________|_____________________________________________________________
+
+Go to East District 439.
+
+*******************************************************************************
+East District 439
+*******************************************************************************
+
+Switch to Vegeta and go to his Level 30 Gate that you saw earlier. In this
+area, you will find one Missing Namek, one +1 Endurance Capsule and two Golden
+Capsules. To reach the Missing Namek, you'll have to go behind the trees. Go
+to Kami's lookout to find another missing Namek. That is the 6th Namek and the
+last you can collect without Goku. Now let's go get that last Golden Capsule.
+It is in West City Apartments A.
+
+*******************************************************************************
+Capsule Corporation
+*******************************************************************************
+
+Go see Dr. Briefs. Give him the Golden Capsules and he lets you keep one.
+After that go talk to Master Roshi. Go to talk to Bulma now and then go to the
+residence on Level 2. Go talk to Bulma again after the conversation. Now you
+have to collect the seven Dragon Balls. I would suggest training everyone to
+level 50 except Goku; level him up to Level 49. He'll get 600,000 Experience
+Points from Cooler.
+
+*******************************************************************************
+Dragon Balls
+*******************************************************************************
+
+The first Dragon Ball can be found in East District 439. Go to the Level 35
+Gate for Goku which you saw when you where there with Vegeta to find the
+Golden Capsules and the missing Namek. Once you are in the castle, go around
+the pond and go to the north. You'll come in an area where you can go to the
+north, the west and the east. Go to the East and the West. You'll see two
+pumps. Press the A Button when you are standing in front of them. Now you have
+to turn on three other statues. The first is located to the north of the
+screen where you could go East or West to the pumps. Now go back to the room
+with the pond and go to the East to disable the second statue and then to the
+west to disable the third. Now go to the pond where the water is gone and go
+down to pick up the Four Star Dragon Ball.
+ ________________
+|                |
+| General Tao    |
+|________________|_____________________________________________________________
+|                |
+| HP: 6,400      | This is a very hard battle. You can't hide because the
+| EP: Can use KI | Dodonpa Wave goes through everything. Use your Kamehameha
+| EXP: +50,000   | or close range attacks to kill him. I would suggest having
+| STR: 50        | at least one Senzu Bean with you.
+| POW: 55        |
+| END: 60        |
+|________________|_____________________________________________________________
+
+After leaving this place, go to the Northern Wastelands. Go to the Level 35
+Gate for Goku and turn the switch inside the cave on. Now go to the bridge and
+save the Namek. Go inside and find the two switches. Then go through the
+portal that just opened up. You'll find the One Star Dragon Ball.
+
+Fly to Ginger Town for the next Dragon Ball. Go the area where you found the
+space ship. Go to the next area. In that area you have to go down or up and
+then go to the west until you can't go further. Then go in the only direction
+you can go, where you'll find the five star Dragon Ball.
+
+After that fly to West City and go to the Warlord's Domain. Go to the second
+big location of that domain. In the South East you'll find it. 
+
+
+The next destination is Tropical Islands. You'll find the Dragon Ball on the
+last island. When you land there, go to the South and you'll find the Dragon
+Ball.
+
+You'll find your next Dragon Ball in the Snowy Highlands. Go to the North once
+you arrive there and use the flight circle. Keep going to the north and once
+you're in the area with the grey wolves, you'll see the Dragon Ball.
+
+The last Dragon Ball can be found behind another gate for Goku. This time it
+is in the Northern Mountains where you've been training by defeating the
+Triceratops. In the area with the T-Rex you'll find your last Dragon Ball.
+
+Now train all your characters. This is the perfect area to do it. If you
+trained all of your characters to Level 50, go to Dende's Lookout. Now go to
+Capsule Corporation if you've trained all of your characters. There you'll
+have to fight Cooler. Then use the Level 50 Gate to get Piccolo's statue.
+ ________________
+|                |
+| Cooler         |
+|________________|_____________________________________________________________
+|                |
+| HP: 10,200     | This is a disappointing fight. If you leveled up enough,
+| EP: Can use KI | you can defeat him with one continuous Kamehameha.
+| EXP: +600,000  |
+| STR: 75        |
+| POW: 85        |
+| END: 79        |
+|________________|_____________________________________________________________
+
+Go to the Northern Mountains to pick up Vegeta's Trophy. Outside Ginger Town,
+you'll find Gohan's Level 50 Gate. Then you have to go to the Level 50 Gate
+for Trunks, located in Triceratops Jungle. Once you found those four
+Trophies', go to East District 439 and enter the little house next to Goku's
+home with key you got on Namek. Now fly to the Cell Games Arena.
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Cell Games:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+The Cell Games are finally there. Break the Level 40 Gate and go inside.
+ ________________
+|                |
+| Cell 'Perfect' |
+|________________|_____________________________________________________________
+|                |
+| HP: 6,500      | Use your Kamehameha to do some serious damage if you raised
+| EP: Can use KI | your level like I told you to do. This shouldn't be a
+| EXP: +         | problem either then. After he lost 1/4 of his HP, he blows
+| STR: 50        | up the ring. After he lost 50% of his HP, Goku gives up.
+| POW: 55        | You'll have to do the same with Gohan after that.
+| END: 60        |
+|________________|_____________________________________________________________
+
+ ________________
+|                |
+| Cell Junior    |
+|________________|_____________________________________________________________
+|                |
+| HP: 4,990      | The Cell Juniors are easy to beat if you are over Level 40.
+| EP: Can use KI | Just attack him like you attacked Androids 19 and 20. You
+| EXP: +         | could occasionally use a KI attack. You have to fight one
+| STR: 46        | with Piccolo, one with Vegeta and one with Trunks.
+| POW: 50        |
+| END: 46        |
+|________________|_____________________________________________________________
+
+ ________________
+|                |
+| Cell 'Perfect' |
+|________________|_____________________________________________________________
+|                |
+| HP: 8,230      | This is an easy battle. All your stats are maxed because of
+| EP: Can use KI | the Super Saiyan Rage. This rage won't use up KI so you can
+| EXP: +500,000  | use as many KI attacks as you want like continuous
+| STR: 60        | Kamehameha. Once you run out of KI, you can do attacks of
+| POW: 59        | around 300 HP damage.
+| END: 65        |
+|________________|_____________________________________________________________
+
+Go train Hercule after you unlock him. Look at the Secrets section to find out
+how. Once he reaches level 50, go to ZZTV TV Building in West City. You can go
+to Dende's lookout to because the secret ending isn't that good and you can
+read it in my game script. Go talk to Dende to end the game. Wait until you
+get back to the main screen to turn the game off.
+
+===============================================================================
+     4.2- Side Quests                                                    [A402]
+===============================================================================
+
+You'll read about all these side quests in your Journal.
+
+*******************************************************************************
+Find the Math Book
+*******************************************************************************
+
+You'll have to find your math book to complete this Quest. It is lying in your
+parent's bedroom. Go through the door on the right and then up the stairs.
+You'll see the book lying on the table.
+
+*******************************************************************************
+Meet Krillin and the others in the Northern Wastelands
+*******************************************************************************
+
+Go ahead. You'll come across two flying enemies. Don't approach them because
+they use an electrical whip or something like that. Shoot them down with your
+KI blasts. Then proceed to the next screen. Destroy the enemy and proceed.
+You'll come across a new kind of enemy, it looks like walking tiger. You have
+to be very quick to defeat them. After you defeat him, go to the left where
+you'll battle two more opponents. After that you'll normally level up to level
+3. You'll also see a broken bridge. You'll have to come back later here so
+remember this place. Go back and go to the right this time. If you go to the
+left in this part of the screen, you'll see a gate and a Namek. You can't go
+through the portal because you need Goku. Go to the right for the normal path
+and follow the path. You'll eventually come across another save point and a
+flight circle. Use them both.
+
+*******************************************************************************
+Go to West City
+*******************************************************************************
+
+You just have to fly to West City on the World Map to do this side quest.
+
+*******************************************************************************
+See Bulma at Capsule Corporation
+*******************************************************************************
+
+Go to Bulma. She lives in Capsule Corporation. You can find that in the East
+of the City. Once you entered Capsule Corporation trough the main entrance you
+have to go to the left and then up the stairs to level 2. You'll find Bulma on
+that floor.
+
+*******************************************************************************
+Deliver Bulma's note to the Electronics Store
+*******************************************************************************
+
+She'll ask you to pick up a part for her scouter part so go back to the town
+and look for the Electronics store on the map. Go there and ask for the piece.
+The man will give you the piece
+
+*******************************************************************************
+Deliver the scouter part to Bulma
+*******************************************************************************
+
+You'll have to head back to Capsule Corporation. When you give it to her, she
+gives you the scouter.
+
+*******************************************************************************
+Investigate the Capsule Corporation Espionage
+*******************************************************************************
+
+Once you are downstairs, the receptionist will ask you to investigate a
+security leak. The Security office is located in the east. So go straight
+ahead and go through two doors. Talk to the Security officer. Go back to the
+stairs to where Bulma is and go to the third level. You can also go the
+basement level now, where you'll find a +3 Strength and a +3 Endurance
+Capsule. On the third level you'll notice that the West Tower is locked, so
+you'll need to go the other tower and press the Button to open the West Tower
+Door. While you're talking to him, he'll throw a capsule out of which a boss
+pops out.
+
+*******************************************************************************
+Find the 25 Golden Capsules for Dr. Briefs
+*******************************************************************************
+
+More information on these Golden Capsules can be found by using Ctrl + F and
+then putting Golden Capsules in the box.
+_______________________________________________________________________________
+                                |
+ Town                           | How many?
+________________________________|______________________________________________
+                                |
+ West City                      | 5
+ Warlord's Domain               | 2
+ Triceratops Jungle             | 2
+ Master Roshi's Island          | 1
+ Southern Continent             | 3
+ Northern Mountains             | 6
+ Outside Ginger town            | 2
+ Ginger town                    | 1
+ Tropical Islands               | 1
+ East District 439              | 2
+________________________________|______________________________________________
+
+*******************************************************************************
+Rescue the man kidnapped by the Warlord
+*******************************************************************************
+
+To succeed in this side quest you've to have defeated the Triceratops King. Go
+to the mayor after that. Once you go in there the City Key gets stolen. Follow
+the man until the Warlords Domain. On the second screen you have to follow the
+route that goes up to the north. You'll see a ruined castle. Go around in it
+and you find the man.
+
+*******************************************************************************
+Get the Hercule Parade started to gain access to Piccolo
+*******************************************************************************
+
+If you go talk to Hercule he'll see he wants an Open Faced Club Sandwich from
+the Big Mouth where the man works who wants a newspaper. But the man at the
+newspaper isn't there. He is looking for his kid. So go the top right from the
+town where you'll here that a bus has had an accident. After the conversation
+you have to go to the right to find your third Golden Capsule, then return and
+take the other way. You should try to level up till around level 10 to 15 to
+be safe. Just follow the road until you come to a place with a three in the
+middle. Go to the top of the screen. This is a dangerous place because you
+have to battle 4 wolves at the same time. You best use your KI blasts. Then go
+the left and follow the path to find the first child. Go back to the place
+where you took the left road and go this time to the top. You'll come into a
+place where there are three wolves running around the second kid. Kill the
+wolves and save the kid. Then return back to the place where the two snakes
+and the two wolves were. Now go to the other road. You'll see some Red Ribbon
+bots flying, use your KI to blast them. If you go talk to Yajirobe, he'll give
+you a Senzu Bean. Go now to the top of the screen. Follow the road until you
+see a small cave. Enter it and talk to the third child. Go back outside and
+follow the Mountain Path again. Keep following it until you see a flight
+circle. Use it and you'll find the last child. Now you only have to return to
+the bus driver. Go to the newspaper stand and talk to the man behind the
+counter. He'll give you a free newspaper. After that, go to the Big Mouth
+restaurant. The owner will give you the sandwich that Hercule wants. He'll now
+ask you to bring him 'Eyes of the lion'. If you go the Record store, the owner
+will tell you he doesn't have it. But he'll that it is maybe in the Antique
+Store and he is right, you can find it there. Go back and get the parade
+started.
+
+*******************************************************************************
+Get an Open Faced Club Sandwich for Hercule
+*******************************************************************************
+
+If you go talk to Hercule he'll see he wants an Open Faced Club Sandwich from
+the Big Mouth where the man works who wants a newspaper. But the man at the
+newspaper isn't there. He is looking for his kid. So go the top right from the
+town where you'll here that a bus has had an accident. After the conversation
+you have to go to the right to find your third Golden Capsule, then return and
+take the other way. You should try to level up till around level 10 to 15 to
+be safe. Just follow the road until you come to a place with a three in the
+middle. Go to the top of the screen. This is a dangerous place because you
+have to battle 4 wolves at the same time. You best use your KI blasts. Then go
+the left and follow the path to find the first child. Go back to the place
+where you took the left road and go this time to the top. You'll come into a
+place where there are three wolves running around the second kid. Kill the
+wolves and save the kid. Then return back to the place where the two snakes
+and the two wolves were. Now go to the other road. You'll see some Red Ribbon
+bots flying, use your KI to blast them. If you go talk to Yajirobe, he'll give
+you a Senzu Bean. Go now to the top of the screen. Follow the road until you
+see a small cave. Enter it and talk to the third child. Go back outside and
+follow the Mountain Path again. Keep following it until you see a flight
+circle. Use it and you'll find the last child. Now you only have to return to
+the bus driver.
+
+*******************************************************************************
+Save the four missing children at West City Highway
+*******************************************************************************
+
+After the conversation you have to go to the right to find your third Golden
+Capsule, then return and take the other way. You should try to level up till
+around level 10 to 15 to be safe. Just follow the road until you come to a
+place with a three in the middle. Go to the top of the screen. This is a
+dangerous place because you have to battle 4 wolves at the same time. You best
+use your KI blasts. Then go the left and follow the path to find the first
+child. Go back to the place where you took the left road and go this time to
+the top. You'll come into a place where there are three wolves running around
+the second kid. Kill the wolves and save the kid. Then return back to the
+place where the two snakes and the two wolves were. Now go to the other road.
+You'll see some Red Ribbon bots flying, use your KI to blast them. If you go
+talk to Yajirobe, he'll give you a Senzu Bean. Go now to the top of the
+screen. Follow the road until you see a small cave. Enter it and talk to the
+third child. Go back outside and follow the Mountain Path again. Keep
+following it until you see a flight circle. Use it and you'll find the last
+child. Now you only have to return to the bus driver.
+
+*******************************************************************************
+Find the Album Eyes of the lion and give it to Hercule
+*******************************************************************************
+
+Hercule will now ask you to bring him 'Eyes of the lion'. If you go the Record
+store, the owner will tell you he doesn't have it. But he'll that it is maybe
+in the Antique Store and he is right, you can find it there. Go back and get
+the parade started.
+
+*******************************************************************************
+Piccolo must talk to Goku or the mayor about a problem in the city
+*******************************************************************************
+
+Now switch to Piccolo and go talk with the mayor or Goku about the Triceratops
+King.
+
+*******************************************************************************
+Save the village from the Triceratops and report back to the mayor
+*******************************************************************************
+
+Break the green gate with the number 10 on it with Piccolo. You should level
+up till a level between 15 and 20. Follow the path and go south when you reach
+the first crossroads, you'll enter an area with a couple of lady bugs and
+Mercenaries. In the next area you'll find a Golden Capsule and you can return
+to the crossroad. Go over the bridge and go to the left to find Trunks' door.
+But for now, you have to go to the right. Go down and defeat all the foes.
+Proceed further down. After you defeat the Tiger Bandit you'll find a +1
+Endurance Capsule. Go back to where all the foes were. Now go to the west when
+you're there. Head down all the screens and follow the path over the water,
+you'll find a Golden Capsule. Go back to the waterfall you saw. Go through it.
+When you reach the fields, you have to watch out because there are
+Triceratopses passing. You can talk to the people in the farm. Go to the south
+and watch out for the Triceratopses.
+
+Now the hard part begins. When you enter you see that you're dealing with a
+labyrinth. You'll that three Triceratopses are coming towards you. Don't
+worry, they won't hit you. They'll turn before they're with you. Follow them
+and then hide in the hole in the crops until they come back and when they run
+back to the entrance, you have to hurry to the next ally. But watch out. If
+you stand there, another bunch of Triceratopses will hit you. So keep running
+to the east and you'll enter a new screen. Your best bet in this screen is to
+follow the Triceratopses that are running in the south of the screen. Follow
+them till the next ally and then concentrate on the top Triceratopses. When
+they run pass you, you have to hurry to the next ally. Follow that ally but
+don't go into the next one, until you saw the Triceratopses pass. Follow them
+until they go north, you have to go to the west then. Go to the right and then
+take another ally to the right. You'll see a situation identical to the first
+one now. Just follow the Triceratopses, hide in the hole and then continue
+when they're going to the other side. Hide in the last ally, not the first.
+After that you'll only have to pass one last group of Triceratopses. Continue
+to the next screen where you'll see the Triceratops King.
+ ________________
+|                |
+| Triceratops K. |
+|________________|_____________________________________________________________
+|                |
+| HP: 850        | The King has only one attack, his charge attack. It can be
+| EP: -          | prevented easily. When you hit him when he is charging the
+| EXP: +1,500    | attack, you just have to him to stop it. You can also hide
+| STR: 21        | in the entrance because he rarely manages to get in there.
+| POW: 1         | So you just have to fire blasts and throw punches at him to
+| END: 25        | defeat him.
+|________________|_____________________________________________________________
+
+Now you have to return to the town to talk to the mayor.
+
+*******************************************************************************
+Retrieve the City Key and return it to the mayor
+*******************************************************************************
+
+Follow the road and you'll come into an area with lots of enemies so watch
+out. You will found a Golden Capsule in the south West of the screen. This
+area has only one exit so it isn't hard to figure out where to go. Then go to
+the north in this area. You'll see a cave blocked by magic, remember it. The
+City Key is in there. If you go further north, you'll see a castle. Go around
+it and save the man. Go back to the last screen and go the west this time.
+Take on the two roads. Both of them will lead to the same place. So you should
+take the one to the West. Once you defeated the Henchmen in the next screen,
+you should continue west again. These roads are perfect for leveling up Gohan
+and Piccolo. I leveled both my Gohan and my Piccolo up from level 15 and level
+17 to 20 on this spot in les than half an hour. On the beach you'll find a +1
+Strength Capsule. Go to the end of the beach and use the Flight Circle. In the
+house you'll find the old man. He'll give you back the key. Now you only have
+to return to the town.
+
+*******************************************************************************
+Meet Goku in East District 439
+*******************************************************************************
+
+After you're talk to the mayor, Piccolo says that they'll go meet Goku. So go
+the World Map and fly to East District 439.
+
+*******************************************************************************
+Train with Master Roshi
+*******************************************************************************
+
+Go Master Roshi's Island and talk to him. He'll teach Gohan and Piccolo a new
+attack. Also go to Master Roshi with Vegeta to complete this.
+
+*******************************************************************************
+Intercept the Androids at Amenbo Island
+*******************************************************************************
+
+Fly from Master Roshi's Island to Amenbo Island. Talk to your friends. Then
+run down the road until you see the Androids.
+
+*******************************************************************************
+Meet up with the others on the Southern Continent
+*******************************************************************************
+
+Take the road to the west to find your 10th Golden Capsule. If you go to the
+north, you have to follow the path until you reach the crossroads. If you go
+down at the crossroads, you'll come to the same place as when you went east
+from the original arrival place. If you to the north, you'll come to a place
+where there are a couple of Lady Bugs flying around. Kill them all to disable
+the electric fence. Go to the next area and choose one of the exits there.
+They lead to the same place. After that, go to the left and follow you'll
+eventually come across the 11th Golden Capsule. Go back to the previous area
+and go up to the north.
+
+*******************************************************************************
+Find the Seven Missing Nameks and return to Capsule Corporation
+*******************************************************************************
+
+You can find the first Hidden Namek in the Mayor's home. You'll also find a
+West City Apartments B Key Card. Use it to go Apartments B and go to the top
+floor. The second Namek is located there. The third Namek is hidden behind a
+Green Level 30 Gate in the Northern Mountains. So you'll have to train Piccolo
+to Level 30 and then go inside to find the Namek. On the last of the Tropical
+Islands, you'll find a bridge nearby Vegeta's Level 30 Gate. Go over it to
+find another Namek. In East District 439 you'll be able to find another
+Missing Namek. You'll have to search good because you'll have to go through
+the trees to find him. The next destination is the Lookout where you'll find
+another Namek. You'll find the last Namek in the Northern Wastelands. Break
+through the orange door and go over the bridge that opened up. Save the Namek
+there and go to Capsule Corporation.
+
+*******************************************************************************
+Locate Dr. Gero's lab in the Northern Mountains
+*******************************************************************************
+
+If you go the next screen, you'll find a Level 25 Gohan Gate. Smash it. You'll
+see a Golden Capsule. Get it and then continue north. You'll find a +5
+Strength Capsule. Go back to the save point and go to the south, you'll find
+about seven warthogs guarding a Golden Capsule. Go back to the save point and
+go to the West. Continue that way until you come across 3 giant rocks that are
+blocking your path. Destroy a rock to go further. You'll see a Level 30 Gate
+for Piccolo. Remember it because after it, there is a hidden Namek. If you
+continue, you will find a +3 Power Capsule. If you go further, Android 20 will
+come to you. After your first fight with him, you'll reach an area with a save
+point. Go to the West to see a gate for Goku. You can beat the Tiger Bandits
+here to level up a level if you're close to a new level. Continue up north
+afterwards and you'll see Dr. Gero's Lab. Once the beams are disabled, you
+complete this quest.
+
+*******************************************************************************
+Destroy the three power generators to drop Dr. Gero's barrier
+*******************************************************************************
+
+If you go the next screen, you'll find a Level 25 Gohan Gate. Smash it. You'll
+see a Golden Capsule. Get it and then continue north. You'll find a +5
+Strength Capsule. Go back to the save point and go to the south, you'll find
+about seven warthogs guarding a Golden Capsule. Go back to the save point and
+go to the West. Continue that way until you come across 3 giant rocks that are
+blocking your path. Destroy a rock to go further. You'll see a Level 30 Gate
+for Piccolo. Remember it because after it, there is a hidden Namek. If you
+continue, you will find a +3 Power Capsule. If you go further, Android 20 will
+come to you. After your first fight with him, you'll reach an area with a save
+point. Go to the West to see a gate for Goku. You can beat the Tiger Bandits
+here to level up a level if you're close to a new level. Continue up north
+afterwards and you'll see Dr. Gero's Lab. It is locked by beams so you'll have
+to disable them by destroying 3 generators. Destroy the egg bots and go to the
+east. Destroy the first generator. If you further to the east, you'll have to
+fight Dr. Gero again. To the east of that, you'll find 2 Golden Capsules. If
+you go to the east, and then to the north, you'll find the second generator.
+You'll have to move the eggs to be able to destroy the generator but you have
+to do it quick because you have to pass by enemies. Once you have done that,
+return to the cave. Go to the west from there. Continue until you have to
+fight Android 20 again. Go over the bridge and get the Golden Capsule. Go to
+the next screen and go down there. You'll find a +3 Endurance Capsule. Talk to
+Yajirobe to get a Senzu Bean. Go back to the Level 50 Gate for Vegeta. Go to
+the west from there. Go to the South in the next screen. You'll find a +3
+Power Capsule. Go back to the previous area. Go completely to the west now,
+you'll find another Golden Capsule. Now you'll have 18 Golden Capsules. Go
+back to the previous crossroads and go north instead of west this time. Go
+through the cave and you'll reach a place with 6 switches. Turn the green, the
+blue and the black one on. They are the ones mentioned in the song. The door
+inside Vinnie's home will open up. You will find a capsule behind the home. Go
+inside and destroy the generator. The cave will be open now.
+
+*******************************************************************************
+Follow Androids 16, 17 and 18
+*******************************************************************************
+
+After the long talk, go north and go to the right to save your game if you
+want to. If you go to the left, you'll see a gate but you can't get in there
+yet. Go back and use the flight circle. Now you'll have to fight 18.
+
+*******************************************************************************
+Piccolo must see Kami at his lookout
+*******************************************************************************
+
+Go inside and through the first door you see. You'll now have found Kami.
+
+*******************************************************************************
+Investigate the Time Machine outside Ginger Town
+*******************************************************************************
+
+
+Go to the west and continue up north in the next screen after you went to
+Ginger Town. Save your game if you want to. Go to the West in the next screen.
+If you go to the North, you'll see the level 50 Gate for Gohan. If you
+continue after going west, you'll eventually reach the space ship.
+
+*******************************************************************************
+Find what came out of the Time Machine
+*******************************************************************************
+
+Go to the south east of this screen where you will find your 19th Golden
+Capsule. Go to the next screen and go to the south. In the next area, you can
+go up north where you'll find a fisherman who needs his bait. Now go back to
+the previous screen. Go to the west or east and go up. Follow the road and go
+to the North when you get the chance. You'll have found what came out of the
+time machine.
+
+*******************************************************************************
+Retrieve the bait from West City and return it to the fisherman in Ginger Town
+*******************************************************************************
+
+If you find the fisherman, fly to West City and go to his house. Pick up the
+bait and bring it back to him. You'll receive a Golden Capsule for it.
+
+*******************************************************************************
+Destroy the computer in Dr. Gero's lab
+*******************************************************************************
+
+Go to the Level 30 Gate for Trunks which is located behind Dr. Gero's lab.
+Enter it. Pick up the design for the Androids from the table. Go into the
+second room and Trunks blows up Cell. Go to the third and last room where the
+computer is. This computer is also blasted by Trunks.
+
+*******************************************************************************
+Check on Goku's progress at Master Roshi's Island
+*******************************************************************************
+
+Fly back to Master Roshi's Island and talk to everyone.
+
+*******************************************************************************
+Meet Goku at Kami's lookout
+*******************************************************************************
+
+Fly to Kami's Lookout and talk to Goku. He is waiting at the Hyperbolic Time
+Chamber.
+
+*******************************************************************************
+Intercept the Androids at Master Roshi's Island
+*******************************************************************************
+
+Fly to Master Roshi's Island.
+
+*******************************************************************************
+Meet Vegeta and Trunks outside of the Hyperbolic Time Chamber
+*******************************************************************************
+
+Go inside and go to the Hyperbolic Time Chamber and talk to everyone.
+
+*******************************************************************************
+Prevent Cell from absorbing 18
+*******************************************************************************
+
+Go to the star on the map. Go through all the islands and beat Cell to prevent
+him from absorbing 18.
+
+*******************************************************************************
+Meet Master Roshi at Capsule Corporation
+*******************************************************************************
+
+Fly to Capsule Corporation and talk to Master Roshi.
+
+*******************************************************************************
+Talk to Bulma in Dr. Briefs' workshop
+*******************************************************************************
+
+Go talk to her and she'll enhance your scouter.
+
+*******************************************************************************
+Meet up with the others in the Briefs' residence to hear Cell's announcement
+*******************************************************************************
+
+Go to the residence and watch the TV. This isn't very hard.
+
+*******************************************************************************
+Collect the Seven Dragon Balls
+*******************************************************************************
+
+The first Dragon Ball can be found in East District 439. Go to the Level 35
+Gate for Goku which you saw when you where there with Vegeta to find the
+Golden Capsules and the missing Namek. Once you are in the castle, go around
+the pond and go to the north. You'll come in an area where you can go to the
+north, the west and the east. Go to the East and the West. You'll see two
+pumps. Press the A Button when you are standing in front of them. Now you have
+to turn on three other statues. The first is located to the north of the
+screen where you could go East or West to the pumps. Now go back to the room
+with the pond and go to the East to disable the second statue and then to the
+west to disable the third. Now go to the pond where the water is gone and go
+down to pick up the Four Star Dragon Ball.
+ ________________
+|                |
+| General Tao    |
+|________________|_____________________________________________________________
+|                |
+| HP: 6,400      | This is a very hard battle. You can't hide because the
+| EP: Can use KI | Dodonpa Wave goes through everything. Use your Kamehameha
+| EXP: +50,000   | or close range attacks to kill him. I would suggest having
+| STR: 50        | at least one Senzu Bean with you.
+| POW: 55        |
+| END: 60        |
+|________________|_____________________________________________________________
+
+After leaving this place, go to the Northern Wastelands. Go to the Level 35
+Gate for Goku and turn the switch inside the cave on. Now go to the bridge and
+save the Namek. Go inside and find the two switches. Then go through the
+portal that just opened up. You'll find the One Star Dragon Ball.
+
+Fly to Ginger Town for the next Dragon Ball. Go the area where you found the
+space ship. Go to the next area. In that area you have to go down or up and
+then go to the west until you can't go further. Then go in the only direction
+you can go, where you'll find the five star Dragon Ball.
+
+After that fly to West City and go to the Warlord's Domain. Go to the second
+big location of that domain. In the South East you'll find it.
+
+The next destination is Tropical Islands. You'll find the Dragon Ball on the
+last island. When you land there, go to the South and you'll find the Dragon
+Ball.
+
+You'll find your next Dragon Ball in the Snowy Highlands. Go to the North once
+you arrive there and use the flight circle. Keep going to the north and once
+you're in the area with the grey wolves, you'll see the Dragon Ball.
+
+The last Dragon Ball can be found behind another gate for Goku. This time it
+is in the Northern Mountains where you've been training by defeating the
+Triceratops. In the area with the T-Rex you'll find your last Dragon Ball.
+
+*******************************************************************************
+Get the Dragon Radar from Bulma
+*******************************************************************************
+
+Go to Capsule Corp. and talk to Bulma.
+
+*******************************************************************************
+Return the Dragon Balls to Dende on the Lookout
+*******************************************************************************
+
+Fly to Dende's lookout and talk to him.
+
+*******************************************************************************
+Enter the Cell Games
+*******************************************************************************
+
+Fly to the Cell Games Arena once you are prepared enough.
+
+*******************************************************************************
+Talk to Dende on is lookout
+*******************************************************************************
+
+Go talk to Dende.

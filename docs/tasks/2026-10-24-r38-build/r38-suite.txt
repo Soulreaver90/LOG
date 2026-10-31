@@ -1,0 +1,39 @@
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,613)
+slot 2: East District 439 save point (map 2,29)  [postcell, leader Gohan]  zone 2 area 29 var 1 pos (248,285)
+slot 3: Capsule Corporation, post-Cell arrival (map 6,3)  [postcell, leader Gohan]  zone 6 area 3 var 1 pos (376,408)
+wrote C:\Users\JOSEPH~1\AppData\Local\Temp\tmpwvtr3ld3\postcell.sav (8192 bytes)
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,591)
+slot 2: Master Roshi's Island, world-map arrival (map 11,1)  [postcell, leader Gohan]  zone 11 area 1 var 1 pos (416,160)
+slot 3: Dende's Lookout, world-map arrival (map 9,1), before the Cell Games  [cellgames, leader Goku]  zone 9 area 1 var 1 pos (768,832)
+wrote C:\Users\JOSEPH~1\AppData\Local\Temp\tmpwvtr3ld3\cellgames.sav (8192 bytes)
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,591)
+slot 2: Master Roshi's Island, world-map arrival (map 11,1)  [postcell, leader Gohan]  zone 11 area 1 var 1 pos (416,160)
+slot 3: Dende's Lookout, world-map arrival (map 9,1), before the Cell Games  [cellgames, leader Goku]  zone 9 area 1 var 1 pos (768,832)
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,591)
+slot 2: Master Roshi's Island, world-map arrival (map 11,1)  [postcell, leader Gohan]  zone 11 area 1 var 1 pos (416,160)
+slot 3: Dende's Lookout, world-map arrival (map 9,1), before the Cell Games  [cellgames, leader Goku]  zone 9 area 1 var 1 pos (768,832)
+wrote C:\Users\JOSEPH~1\AppData\Local\Temp\tmpw3213dg0\cg.sav (8192 bytes)
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,591)
+slot 2: Master Roshi's Island, world-map arrival (map 11,1)  [postcell, leader Gohan]  zone 11 area 1 var 1 pos (416,160)
+slot 3: Dende's Lookout, world-map arrival (map 9,1), flag 191 just set  [cellgames2, leader Goku]  zone 9 area 1 var 1 pos (768,832)
+wrote C:\Users\JOSEPH~1\AppData\Local\Temp\tmpw3213dg0\cg2.sav (8192 bytes)
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,591)
+slot 2: Master Roshi's Island, world-map arrival (map 11,1)  [postcell, leader Gohan]  zone 11 area 1 var 1 pos (416,160)
+slot 3: Cell Games Arena, world-map arrival (map 14,1), flag 191 just set  [cellgames2, leader Goku]  zone 14 area 1 var 1 pos (264,304)
+wrote C:\Users\JOSEPH~1\AppData\Local\Temp\tmpw3213dg0\arena.sav (8192 bytes)
+slot 1: Capsule Corporation save point (map 6,1)  [postcell, leader Gohan]  zone 6 area 1 var 1 pos (432,591)
+slot 2: Master Roshi's Island, world-map arrival (map 11,1)  [postcell, leader Gohan]  zone 11 area 1 var 1 pos (416,160)
+slot 3: Dende's Lookout, world-map arrival (map 9,1), before the Cell Games  [cellgames, leader Goku]  zone 9 area 1 var 1 pos (768,832)
+wrote C:\Users\JOSEPH~1\AppData\Local\Temp\tmpe2q0d7u9\cellgames.sav (8192 bytes)
+no lock at C:\Users\JOSEPH~1\AppData\Local\Temp\tmpmi3soagr\locks\art\lock.json
+C:\Users\JOSEPH~1\AppData\Local\Temp\tmpmi3soagr\locks\art\lock.json
+0 difference(s)
+changed: b.png keys []
+1 difference(s)
+C:\Users\JOSEPH~1\AppData\Local\Temp\tmpmi3soagr\locks\art\lock.json
+0 difference(s)
+.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 605 tests in 123.649s
+
+OK

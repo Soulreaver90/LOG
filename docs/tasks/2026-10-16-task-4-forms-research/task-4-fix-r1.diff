@@ -1,0 +1,101 @@
+# Review package: snapshot fix-T4-R1 -> live
+
+ {fix-T4-R1 => _live}/docs/RE-BIBLE.md |  1 +
+ {fix-T4-R1 => _live}/docs/re-forms.md | 16 +++++++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/fix-T4-R1/docs/RE-BIBLE.md b/_live/docs/RE-BIBLE.md
+index ec721b2..03db0cb 100644
+--- a/fix-T4-R1/docs/RE-BIBLE.md
++++ b/_live/docs/RE-BIBLE.md
+@@ -137,20 +137,21 @@ Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `
+ | Apply writes u8 effective STR, POW, END to player +0x160, +0x161, +0x162 and speeds (x256) to +0x188, +0x18C; player +0x180 = current form object (`@0x080086A2`), +0x184 = drain accumulator | #form | C (values), L (speed meaning) | FRM |
+ | Super Saiyan tick `@0x08017306`: accumulator += 0xCCD per frame, EP -1 per overflow (every 20 frames), message 0x24 (revert) at EP 0 | #form | C | FRM |
+ | Base form tick `@0x08017028`: struct +0x08 -1 per frame; leader EP +3 %, others HP and EP +5 % every 596 frames | #form #save | C | FRM |
+ | Ability table `rom:0x1D9900`, 14 x 16 bytes: icon usable, icon not usable, test(record), action(record, player); literals `@0x08008024`, `@0x08008E8C` only. Ability 12 = Saiyan transform (Gohan, Vegeta, Trunks, Goku slot 2), 11 = Namek | #form #hud | C | FRM |
+ | Messages: 0x23 Saiyan transform state, 0x25 Namek transform, 0x24 revert; state table `@0x083B5278`; transform ends in `@0x0801563C` (transform(player,1)), revert in `@0x080157AE` | #form | C | FRM |
+ | Appearance +4 has one reader (`@0x08014D8C`); entry 5 +4 (Rage) is never read in play | #form char:gohan | C | FRM |
+ | Every appearance entry 0-21 is used (defaults, ext 73 sets, debug, +4/+5 chains); no free entry | #form #decision | L | FRM |
+ | `set:58` has 19 anims and lacks anims 9 (transform, set +0xDC) and 21 (revert, set +0x19C) that `set:59` has; a playable Super Saiyan 2 needs the set 59 layout | #sprite #form char:gohan | C | FRM |
+ | HUD icon: raw 0x200-byte 8bpp 32x16 image per ability; "Z" = `@0x086DAE7C` (usable), `@0x086DB07C` (dim); HUD routine `@0x08008BEE` builds 0x500 bytes from frame `@0x086D7B54` and DMAs to OBJ VRAM; HP, EP, EXP bar pixels overwrite parts of the icon | #hud | C | FRM |
+ | Task 6 plan: relocated appearance table with entry 22, entry 5 +4 = 22, step gate on ability 12 action `rom:0x1D99CC`, HUD hook `rom:0x8D14` + literal `rom:0x8E8C`; Thumb BL cannot reach the expansion area | #decision #form #hud | C (sites), O (design) | FRM |
++| Task 6 rules: new apply and tick are re-encodings with own pools (never patch shared pool `@0x080174A0`); gate keeps lr, reads the relocated table, skips the map word (Ruling 16); step EP cost >= 9 (8 EP drain during the 160-frame step); END bonus test 100 + bonus <= 127 (damage uses `0x80 - END` at `@0x0800F94E`) | #decision #form | C (code quotes), L (overflow margin `@0x0800F974`) | FRM |
+ | Owner memory check: Gohan EP `@0x03000EA0`, appearance `@0x03000EA4`, live STR/POW/END at `[@0x03001FA8]` +0x160..+0x162, cooldown `@0x03000E98`, `flag:195` at `@0x03000F5C` bit 3 | #form #save char:gohan | C | FRM |
+ 
+ ## 7. Save format `#save`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | EEPROM library `@0x080218E0` (identify), `@0x08021ACC` (read dword), `@0x08021CB0` (program dword); game uses 8 KB | #save | C | SAV |
+ | RAM shadow of the EEPROM at `@0x0203E000` (pointer at `@0x03003898`); game uses bytes 0x000-0x447 | #save | C | SAV |
+ | Checksum: Adler-32 `@0x0802153E`, mod 65521 at `@0x08027F1C` | #save | C | SAV |
+ | Options block at EEPROM 0x000 (4 bytes) + `adler32 + 0x12345678`; defaults 4, 6, 4, 0 | #save | C | SAV |
+diff --git a/fix-T4-R1/docs/re-forms.md b/_live/docs/re-forms.md
+index 125e27d..b0f1e97 100644
+--- a/fix-T4-R1/docs/re-forms.md
++++ b/_live/docs/re-forms.md
+@@ -189,29 +189,39 @@ All original bytes are from the base ROM. "X" is an address Task 6 allocates in
+ - With item 6, 0x08008D12 loads the hook address into r1 and `bl 0x8021d2a` (`bx r1`) enters it with r0 = record. The hook returns the icon pointer in r0. 0x08008D10 (`ldrb r0,[r5,#0x9]`) stays and is harmless. Bytes 0x8D1E-0x8D2D become dead.
+ - The hook must keep r4, r5, r7 (used after 0x08008D2E). r6 is dead: it is set again at 0x08008DA0 before any read, and the early exit 0x08008E5E does not read it.
+ - Full original HUD bytes rom:0x8D10-0x8D2D: `68 7A 5E 49 40 19 00 7E 00 01 46 18 B1 68 28 1C 19 F0 03 F8 00 28 01 D0 31 68 00 E0 71 68`.
+ 
+ ### New code and data in the expansion area
+ 
+ | Item | Spec |
+ |---|---|
+ | Form object | 4 bytes: address of the new vtable. ROM is safe: no method stores through r0. SS apply starts `080172b0 ldr r0,=0x086f7e50`, tick `08017306 ... add r0,r1,#0`, enter/leave `ldr r0,=0x086f7e50`. Every +0x10 user only reads it |
+ | Vtable (24 bytes) | Each word = target - vtable base: +0 apply\|1, +4 tick\|1, +8 0x08017377, +0xC 0x08017393, +0x10 0x080271E1, +0x14 0x08026391 (last two copied, not called) |
+-| Apply | Copy of 0x080172B0-0x08017305 with the three `add #0xa` at 0x080172CE, 0x080172D6, 0x080172DE set to `#0x14` (bytes `14 32`, `14 32`, `14 31`). Speed literals 0x3FE00000 and 0x40400000, or owner values |
+-| Tick | Copy of 0x08017306-0x08017375 with the accumulator literal 0xCCD (0x080174A0) set to 0x199A. It keeps the 0x24 skip test and the EP 0 to message 0x24 revert |
++| Apply | **Re-encoding** (not a byte copy) of the logic of 0x080172B0-0x08017305, with +20 (`#0x14`) in place of the three `add #0xa` at 0x080172CE, 0x080172D6, 0x080172DE. A byte copy crashes from 0x088xxxxx: the original loads pools 0x0801748C, 0x08017498, 0x0801749C pc-relative and BLs 0x080265C4 twice (0x080172EC, 0x080172F8). The new routine has its own literal pool (0x086F7E50, 0x3FE00000, 0x40400000 or owner speeds, 0x080265C5) |
++| Tick | **Re-encoding** of the logic of 0x08017306-0x08017375 with accumulator step 0x199A. The original loads pools 0x080174A0 and 0x0801748C and BLs 0x08021D2C twice (0x08017314, 0x08017368). It keeps the 0x24 skip test and the EP 0 to message 0x24 revert. **0x199A lives in the new routine's own pool. Never patch 0x080174A0 in place:** that pool belongs to the shared Super Saiyan tick, used by entries 5, 11, 16, 17 and 20 (Gohan, Vegeta, Trunks, Goku) |
++| Calls in new code | Every BL in a re-encoded routine becomes `ldr rN,=target` (bit 0 set) plus a local BL to a local `bx rN` stub inside the expansion area |
+ | Step gate (ability 12 action, r0 = record, r1 = player) | `e = table[record+8]`. If `e+0 bit 0` and `e+4 != e+5` and `[0x03000F5C] & 0x08` and `(s16)[record+4] >= 10`: send message 0x23 to the player (`ldr r2,[r1] ; ldr r3,[r2,#0x28] ; add r3,r2`, r0 = player, r1 = 0x23, bx). Else jump to 0x0801353D with r0, r1 unchanged. **Do not test the cooldown**: it is about 1280 right after Super Saiyan and does not fall while transformed |
+ | HUD icon (r0 = record, returns r0) | `id = record[0x18 + record[9]]`; `e = 0x081D9900 + 16 * id`; `ok = e.test(record)`; `icon = ok ? e[0] : e[4]`; if `id == 12` and `record[8] == 22`: `icon = ok ? Z2 : Z2dim`. Push and pop r4-r7 |
+ | Z2 icon pair | 2 x 0x200 bytes, raw 8bpp, 32 x 16, made from 0x086DAE7C and 0x086DB07C. Existing palette indices only. Keep every pixel in the HP, EP and EXP offset tables (section 4) |
+ 
+ > [!IMPORTANT]
+ > Thumb BL reaches only +/-4 MB. The game code is below 0x08030000, so neither direction reaches 0x08800000. Enter the expansion area only through absolute pointers (items 5 and 6, the vtable). Inside the expansion area, call base code with `ldr rN,=target|1` and a local `bx rN` stub. The base bx stubs are 0x08021D28 (r0), 0x08021D2A (r1), 0x08021D2C (r2), 0x08021D2E (r3). No assembler is installed: hand-encode and check each routine by disassembly (thumb.py), or use Ghidra's assembler from a script.
+ 
++### Task 6 requirements (controller Rulings 15 and 16)
++
++- **END cap.** Add a test that 100 + END bonus <= 127. The damage formula computes `0x80 - END` (`0800f94a ldrb r0,[r6,#0x2] ; mov r1,#0x80 ; sub r0,r1,r0`). With END 120, Super Saiyan 2 takes about 44 % of Super Saiyan damage (8/128 against 18/128).
++- **Attacker overflow** at 0x0800F974 (`mul r0,r5`): LIKELY safe only. The review sampled one descriptor family.
++- **Gate keeps lr.** The step gate must return correctly on both exits: the fall-through to 0x0801353D and the tail call through player vtable +0x28. ARMv4T Thumb cannot `pop {lr}`: pop into a low register, then `mov lr,rN`.
++- **Gate uses the relocated table.** Read the appearance entry through the relocated address, never 0x081D967C. Index 22 at the old base lands on the EXP table (rom:0x1D9834).
++- **Step EP cost >= 9.** The Super Saiyan tick keeps running during the 160-frame step state (it skips only state 0x24), so it drains 8 EP. With less than 9 EP the drain reaches 0 and sends message 0x24 mid-step.
++- **Map word (Ruling 16, decision).** The gate does not test the map-allowed word `[[0x086DB284]+0xC]` (= `[0x03002080+0xC]`). Vanilla skips it too while transformed (test 0x080134F2 returns 1 on +0 bit 0 before that check).
++
+ ### Suggested Task 6 tests
+ 
+ - `test_ssj2_gate_reads_flag_195`: the gate routine bytes load 0x03000F5C and test 0x08.
+ - `test_rage_entry_unchanged`: relocated entry 4 equals rom:0x1D96CC (20 bytes), and the reverse-lookup copy still finds 58 at index 4.
+ - `test_all_17_pools_repointed`: every word in item 1 equals the new table address, and rom:0x42F0 equals Task 5's copy.
+ - `test_entry5_plus4_is_22` and `test_entry22_revert_is_2`.
+ - `test_z2_icon_keeps_bar_pixels`: for every HP, EP and EXP table offset o with 0x300 <= o < 0x500, Z2[o - 0x300] equals Z[o - 0x300] (both icons of the pair).
+ - `test_ssj2_set_has_anim_9_and_21`.
+ 
+ ## 8. Search shapes and limits
+@@ -219,21 +229,21 @@ All original bytes are from the base ROM. "X" is an address Task 6 allocates in
+ - **Appearance table readers.** (1) Aligned words equal to 0x081D967C: 18 pools. (2) Aligned words inside 0x081D967D-0x081D9833: none. (3) Neighbor literals 0x081D9400-0x081D99FF: 0x081D9638 is a compressed block header (`01 00 00 00 80 47 00 00`), not an offset into the table. (4) For each of the 24 ldr sites, the next 48 instructions for +4, +5 and `cmp #0x16`. A site that builds the address from another base with an added constant would not appear.
+ - **Form object users.** Shape A: +0x10 reads after each table ldr (10 sites, all read only, 0x0800A9AE is a false positive on another table). Shape B: `add #0xff ; add #0x81/#0x85` (player +0x180/+0x184) in 0x08000000-0x0802FFFF: 2 player sites (0x08008704 store, 0x0800876A tick) plus form methods. The rest (0x0800B63E, 0x0800E3B6-0x0800E56E, 0x080105B6, 0x0801D31C) use +0x180 as a struct with fields +4, +8, +0xD (LIKELY another object class).
+ - **Messages 0x23, 0x24, 0x25.** `mov r1,#imm` followed by a bx stub call, 0x08000000-0x0803FFFF: 10 sites, all in sections 1 and 2. Code above 0x08040000, a message id from data or a register, and script ext ops that set a player state would not appear.
+ - **Callers of 0x08014D58:** Thumb BL scan: 2. No pointer words hold it.
+ 
+ ## 9. Open questions
+ 
+ 1. **Owner:** from Super Saiyan with flag 195, should B go up to Super Saiyan 2 (recommended) or revert? Should base go straight to Super Saiyan 2 instead?
+ 2. **Owner:** show "Z2" only while in Super Saiyan 2 (recommended), or also in Super Saiyan when the next press goes to Super Saiyan 2?
+ 3. **Owner:** Super Saiyan 2 speed (+0x188/+0x18C). Default: same as Super Saiyan (1.75 / 3.0).
+-4. **Owner:** EP needed for the step (default 10, like Super Saiyan). The step adds another 1280 to the cooldown, so after Super Saiyan 2 the wait is about 43 s.
++4. **Owner:** EP needed for the step (default 10, like Super Saiyan; never below 9, section 7). The step adds another 1280 to the cooldown, so after Super Saiyan 2 the wait is about 43 s.
+ 5. Which set Super Saiyan 2 shows: needs a set 59 layout (spiky hair art from set 58 on set 59 animations, or Task 5's gi Super Saiyan clone). Owner and Task 6.
+ 6. Portrait ids +2/+3 for entry 22: Super Saiyan (`3E 0D`) or Rage (`3D 0C`). Task 7.
+ 7. Can the game save while transformed? A save in Super Saiyan 2 stores record +8 = 22, which only the patched ROM can load. 0x08003ED4 reverts transformed non-leaders on load. Not traced for the leader.
+ 8. `[0x03002080+0xC]` (map allows transform): meaning SPECULATIVE.
+ 9. Message 0x21 (revert without animation, 0x0800833E): trigger not traced.
+ 10. Europe status screen form bonus: not traced.
+ 
+ ## Files
+ 
+ | File | Purpose |

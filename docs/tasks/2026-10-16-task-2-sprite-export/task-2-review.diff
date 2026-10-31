@@ -1,0 +1,412 @@
+# Review package: snapshot base-T2 -> live
+
+ {base-T2 => _live}/docs/RE-BIBLE.md                |   1 +
+ {base-T2 => _live}/docs/build-log.md               |  11 ++
+ /dev/null => _live/permanent/log2_sprites.py       | 189 +++++++++++++++++++++
+ /dev/null => _live/permanent/tests/test_sprites.py | 151 ++++++++++++++++
+ 4 files changed, 352 insertions(+)
+
+diff --git a/base-T2/docs/RE-BIBLE.md b/_live/docs/RE-BIBLE.md
+index b383eee..5cdae36 100644
+--- a/base-T2/docs/RE-BIBLE.md
++++ b/_live/docs/RE-BIBLE.md
+@@ -71,20 +71,21 @@ Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `
+ | Gohan's sprite object in capture 01 at `@0x020319A8`; frame buffer `@0x020315A0` (allocated at run time) | #sprite char:gohan | C | SPR |
+ | Copy from the WRAM buffer to OBJ VRAM is not traced | #sprite #open | O | SPR |
+ | Animation frame count and timing are not in the set header | #sprite #open | C | SPR |
+ | 150 sets walk cleanly; 11,598 records, 4,771 unique frames, all decode to w*h | #sprite | C | SPR |
+ | `set:53` Gohan Demon Clothes (purple gi, red), header `rom:0x285234`, 21 anims x 4 dirs, 288 records. Debug routine sets Gohan to it | #sprite char:gohan | L (look), C (debug) | SPR, SAV |
+ | `set:55` Gohan purple and white outfit (armor variant), header `rom:0x28FF38`, 21 x 4, 216 records | #sprite char:gohan #open | L | SPR |
+ | `set:56` Gohan battle armor, header `rom:0x299C48`, 21 x 4, 288 records; post-Cell appearance (script `@0x083EBFF8`) | #sprite char:gohan | C | SPR, SAV |
+ | `set:57` Gohan casual green, header `rom:0x2A1470`, 18 x 4, 200 records; Gohan's default appearance | #sprite char:gohan | C | SPR, SAV |
+ | `set:58` Super Saiyan Gohan, spiky hair, fewer animations (L: Rage / Super Saiyan 2), header `rom:0x2AB508`, 19 x 4, 204 records | #sprite char:gohan #form | L | SPR |
+ | `set:59` Super Saiyan Gohan, header `rom:0x2B69C8`, 22 x 4, 276 records | #sprite char:gohan #form | L | SPR |
++| `set:53` `set:55` `set:56` `set:58` `set:59` frame counts: every animation has the same count in all 4 dirs (2 to 7); null table entries at anims 10, 15, 19 (set 53, 56) and others; record totals 288, 216, 288, 204, 276 match `frames_of()`. Cloning with `clone_set` and raw type 0 frames decodes every record to w*h. Tool `scripts\permanent\log2_sprites.py` (`export`, `clone_set`); exports in `scratch\sprites\set<N>\` | #sprite #tool #codec char:gohan | C | build-log |
+ | `set:54` blond character in orange gi, header `rom:0x287EFC` (S: Super Saiyan Goku) | #sprite char:goku | S | SPR |
+ | `set:60` Goku (default appearance), `set:61` Super Saiyan Goku | #sprite char:goku | C (60), L (61) | SPR, SAV |
+ | `set:72` Hercule default | #sprite char:hercule | C | SAV |
+ | `set:103` Piccolo default; probe frame header `rom:0x304ADC` | #sprite char:piccolo | C | SPR |
+ | `set:128` Trunks (debug routine), `set:132` Trunks post-Cell | #sprite char:trunks | C (code), L | SAV |
+ | `set:137` and `set:138` Vegeta; `set:137` post-Cell | #sprite char:vegeta | C | SPR, SAV |
+ | `set:76`, `set:121`, `set:156` NPCs in capture 02 | #sprite | C | SPR |
+ | Unused prototype sprites: Super Vegeta and Super Trunks (down and side poses only) | #sprite char:vegeta char:trunks | O | RN |
+ | Trunks Sword Blast frames exist only for his first outfit; Super Saiyan Trunks uses the punch as a placeholder | #sprite char:trunks | O | RN |
+ | Goku Spirit Bomb facing down shows his old gi (L: LoG1 leftover) | #sprite char:goku | O | RN |
+diff --git a/base-T2/docs/build-log.md b/_live/docs/build-log.md
+index b8eb327..439a1d9 100644
+--- a/base-T2/docs/build-log.md
++++ b/_live/docs/build-log.md
+@@ -9,10 +9,21 @@ One line per build, appended by `scripts\permanent\log2_build.py`. Replaces comm
+ - Largest 0x00 run is 0xC98 bytes (rom:0x35970), under the 0x1000 minimum.
+ - Base build SHA-1: `18e0715dec419f3501c301511530d2edcd590f8b` (no patches, matches the No-Intro base).
+ 
+ ## Decision: 16 MB expansion (owner approved 2026-10-16)
+ 
+ - Every build is expanded to 16 MB (16777216 bytes): base ROM, 0xFF fill, then patches. A 16 MB padded ROM passed the anti-piracy point (East District 439 to the world map).
+ - The Allocator starts on the expansion region rom:0x800000, size 0x800000.
+ - Padded no-patch build SHA-1: `11616203341e2eabc82527c43b823b3e868c34b9` (the owner-tested ROM). First 8 MB equal the base byte for byte.
+ ## Builds
+ - 2026-10-16 18:55 build log2_hack.gba patches=none sha1=11616203341e2eabc82527c43b823b3e868c34b9
++
++## Task 2: sprite export, import and set cloning
++
++- Tool: scripts\permanent\log2_sprites.py (export, clone_set). Exports in scratch\sprites\set<N>\ (one PNG per unique frame header, plus manifest.json).
++- Frame counts per animation as anim:frames. Every animation has the same count in all 4 directions. Animations not listed have a null table entry.
++
++- set 53: 288 records (docs say 288). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 9:4 11:2 12:4 13:4 14:5 16:7 17:2 18:7 20:4
++- set 55: 216 records (docs say 216). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 11:2 12:4 13:4 14:5 17:2 20:4
++- set 56: 288 records (docs say 288). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 9:4 11:2 12:4 13:4 14:5 16:7 17:2 18:7 20:4
++- set 58: 204 records (docs say 204). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 13:4 16:7 18:7
++- set 59: 276 records (docs say 276). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 9:4 11:2 12:4 13:4 16:7 18:7 20:4 21:4
+diff --git a/_live/permanent/log2_sprites.py b/_live/permanent/log2_sprites.py
+new file mode 100644
+index 0000000..2935727
+--- /dev/null
++++ b/_live/permanent/log2_sprites.py
+@@ -0,0 +1,189 @@
++r"""
++log2_sprites.py - Export LoG II sprite sets to indexed PNGs, and clone a set with replaced frames.
++
++Usage:   py -3 -I log2_sprites.py export <rom.gba> <set_id|0xSET_OFF> <out_dir>
++Prints:  the manifest path and the frame count of each animation.
++API:     tiles_to_image(data, w, h, palette) -> PIL "P" image; image_to_tiles(img) -> bytes (exact inverse)
++         set_records(rom, set_off) -> [{anim, dir, index, rec, dx, dy, w, h, attr0, attr1, header}]
++         export_set(rom, set_off, out_dir) -> manifest path
++         clone_set(rom, src_set_off, frames, alloc) -> new set file offset
++Rules:   Pixels are 8bpp tiles in 1D order (w/8 tiles per row, 64 bytes a tile). Palette is the 512-byte
++         shared OBJ palette at rom:0x1DA6C8 (BGR555); color 0 is transparent.
++         A clone writes only into space handed out by the Allocator. New frames are raw type 0
++         ({u32 0, u32 len, data}; dispatcher @0x0801F394 copies `size` bytes from header + 8).
++         Every pointer written into a clone is a GBA address (file offset + 0x08000000).
++Source:  Set layout in docs\re-sprite-decompression.md "Sprite indexing". Reads through webfoot_decompress.
++"""
++import json
++import struct
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))  # isolated mode (-I) drops the script folder
++
++from rom_space import Allocator
++from webfoot_decompress import ROM_BASE, SET_TABLE, frames_of, read_record, read_set, rom_ptr, unpack_frame
++
++# ===== constants =====
++PALETTE_OFF = 0x1DA6C8
++PALETTE_LEN = 512
++RECORD_SIZE = 12
++
++
++# ===== tiles <-> image =====
++
++def tiles_to_image(data: bytes, w: int, h: int, palette: bytes):
++    """8bpp 1D-order tiles to a mode P image. `palette` is 256 BGR555 entries (512 bytes)."""
++    from PIL import Image
++    if w % 8 or h % 8 or len(data) != w * h:
++        raise ValueError(f"{len(data)} bytes do not make {w}x{h} tiles")
++    rows = [bytearray(w) for _ in range(h)]
++    tiles_x = w // 8
++    for t in range(len(data) // 64):
++        x0, y0 = (t % tiles_x) * 8, (t // tiles_x) * 8
++        for r in range(8):
++            rows[y0 + r][x0:x0 + 8] = data[t * 64 + r * 8:t * 64 + r * 8 + 8]
++    img = Image.frombytes("P", (w, h), b"".join(rows))
++    rgb = []
++    for c in struct.unpack_from("<256H", palette, 0):
++        rgb += [(c & 31) << 3, ((c >> 5) & 31) << 3, ((c >> 10) & 31) << 3]
++    img.putpalette(rgb)
++    img.info["transparency"] = 0
++    return img
++
++
++def image_to_tiles(img) -> bytes:
++    """Exact inverse of tiles_to_image. The image must be mode P with sides that are multiples of 8."""
++    if img.mode != "P":
++        raise ValueError(f"image mode {img.mode} is not P (indexed)")
++    w, h = img.size
++    if w % 8 or h % 8:
++        raise ValueError(f"{w}x{h} is not a multiple of 8")
++    px = img.tobytes()
++    tiles_x = w // 8
++    out = bytearray()
++    for t in range((w // 8) * (h // 8)):
++        x0, y0 = (t % tiles_x) * 8, (t // tiles_x) * 8
++        for r in range(8):
++            start = (y0 + r) * w + x0
++            out += px[start:start + 8]
++    return bytes(out)
++
++
++# ===== set walking =====
++
++def _lists(rom: bytes, s: dict):
++    """(table index, list start) for each non-null animation entry."""
++    return [(i, p) for i, p in enumerate(s["ptrs"]) if p is not None]
++
++
++def set_records(rom: bytes, set_off: int) -> list:
++    """Every record frames_of() reaches, in table order."""
++    s = read_set(rom, set_off)
++    starts = {p for _, p in _lists(rom, s)}
++    out = []
++    for i, start in _lists(rom, s):
++        anim, d = divmod(i, s["dirs"])
++        for n, (rec, r) in enumerate(frames_of(rom, start, starts - {start})):
++            out.append({"anim": anim, "dir": d, "index": n, "rec": rec, "dx": r["dx"], "dy": r["dy"],
++                        "w": r["w"], "h": r["h"], "attr0": r["attr0"], "attr1": r["attr1"], "header": r["hdr"]})
++    return out
++
++
++# ===== export =====
++
++def export_set(rom: bytes, set_off: int, out_dir: Path) -> Path:
++    """One indexed PNG per unique frame header, plus manifest.json. Returns the manifest path."""
++    out_dir = Path(out_dir)
++    out_dir.mkdir(parents=True, exist_ok=True)
++    palette = bytes(rom[PALETTE_OFF:PALETTE_OFF + PALETTE_LEN])
++    pngs = {}
++    manifest = []
++    for r in set_records(rom, set_off):
++        hdr = r["header"]
++        if hdr not in pngs:
++            _, _, data, _ = unpack_frame(rom, hdr)
++            name = f"frame_{hdr:06X}.png"
++            tiles_to_image(data, r["w"], r["h"], palette).save(out_dir / name, transparency=0)
++            pngs[hdr] = name
++        manifest.append({"anim": r["anim"], "dir": r["dir"], "index": r["index"], "dx": r["dx"], "dy": r["dy"],
++                         "w": r["w"], "h": r["h"], "attr0": r["attr0"], "attr1": r["attr1"],
++                         "header": hdr, "png": pngs[hdr]})
++    path = out_dir / "manifest.json"
++    path.write_text(json.dumps(manifest, indent=1), encoding="ascii")
++    return path
++
++
++# ===== clone =====
++
++def _gba(off: int) -> int:
++    return off + ROM_BASE
++
++
++def clone_set(rom: bytearray, src_set_off: int, frames: dict, alloc: Allocator) -> int:
++    """Copy header, animation table and record lists into allocated space.
++    `frames` maps an original frame header offset to new tile bytes (w*h long). Records using that
++    header get one shared new raw frame. Other records keep their original header pointer."""
++    s = read_set(rom, src_set_off)
++    table_end = s["table"] + 4 * len(s["ptrs"])
++    starts = {p for _, p in _lists(rom, s)}
++    new_hdr = {}                        # original header offset -> GBA address of the new raw frame
++    new_list = {}                       # original list start -> GBA address of the cloned list
++    pending = []                        # (list start, new offset), written after frames exist
++
++    for start in sorted(starts):
++        recs = list(frames_of(rom, start, starts - {start}))
++        if not recs:
++            continue
++        at = alloc.alloc(RECORD_SIZE * len(recs))
++        new_list[start] = _gba(at)
++        for k, (rec, r) in enumerate(recs):
++            dst = at + k * RECORD_SIZE
++            rom[dst:dst + 8] = rom[rec:rec + 8]
++            ptr = struct.unpack_from("<I", rom, rec + 8)[0]
++            if r["hdr"] in frames:
++                if r["hdr"] not in new_hdr:
++                    data = bytes(frames[r["hdr"]])
++                    if len(data) != r["w"] * r["h"]:
++                        raise ValueError(f"frame 0x{r['hdr']:06X}: {len(data)} bytes, record needs {r['w'] * r['h']}")
++                    f = alloc.alloc(8 + len(data))
++                    rom[f:f + 8 + len(data)] = struct.pack("<II", 0, len(data)) + data
++                    new_hdr[r["hdr"]] = _gba(f)
++                ptr = new_hdr[r["hdr"]]
++            struct.pack_into("<I", rom, dst + 8, ptr)
++
++    unknown = set(frames) - set(new_hdr)
++    if unknown:
++        raise ValueError("frame keys no record uses: " + ", ".join(f"0x{k:06X}" for k in sorted(unknown)))
++
++    head = alloc.alloc(table_end - src_set_off)
++    rom[head:head + table_end - src_set_off] = rom[src_set_off:table_end]
++    tbl = head + (s["table"] - src_set_off)
++    for i, p in _lists(rom, s):
++        if p in new_list:
++            struct.pack_into("<I", rom, tbl + 4 * i, new_list[p])
++    return head
++
++
++# ===== command line =====
++
++def _main(argv: list):
++    if len(argv) != 4 or argv[0] != "export":
++        print(__doc__)
++        return 1
++    rom = Path(argv[1]).read_bytes()
++    key = argv[2]
++    set_off = int(key, 16) if key.lower().startswith("0x") else rom_ptr(rom, SET_TABLE + 4 * (int(key) - 7))
++    path = export_set(rom, set_off, Path(argv[3]))
++    print(path)
++    counts = {}
++    for r in set_records(rom, set_off):
++        counts.setdefault((r["anim"], r["dir"]), 0)
++        counts[(r["anim"], r["dir"])] += 1
++    for (a, d), n in sorted(counts.items()):
++        print(f"anim {a} dir {d}: {n} frames")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(_main(sys.argv[1:]))
+diff --git a/_live/permanent/tests/test_sprites.py b/_live/permanent/tests/test_sprites.py
+new file mode 100644
+index 0000000..dbbe24c
+--- /dev/null
++++ b/_live/permanent/tests/test_sprites.py
+@@ -0,0 +1,151 @@
++r"""
++test_sprites.py - Tests for log2_sprites.py (Task 2).
++
++Run (from the LOG root):
++  py -3 -I -m unittest discover -s scripts\permanent\tests -t scripts\permanent -v
++Works on an in-memory copy of the base ROM padded to 16 MB. Writes nothing to disk except under a temp folder.
++"""
++import json
++import struct
++import tempfile
++import unittest
++from pathlib import Path
++
++from log2_sprites import PALETTE_OFF, clone_set, export_set, image_to_tiles, set_records, tiles_to_image
++from rom_space import Allocator
++from webfoot_decompress import ROM_BASE, SET_TABLE, read_set, rom_ptr, unpack_frame
++
++ROOT = Path(__file__).resolve().parents[3]
++BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
++FULL = 16777216
++SET_53, SET_56, SET_59 = 0x285234, 0x299C48, 0x2B69C8
++BASE_ROM = BASE.read_bytes()
++PALETTE = BASE_ROM[PALETTE_OFF:PALETTE_OFF + 512]
++
++
++def fresh():
++    rom = bytearray(BASE_ROM) + bytearray(b"\xFF" * (FULL - len(BASE_ROM)))
++    return rom, Allocator(FULL, [(0x800000, 0x800000)])
++
++
++def unique_frames(rom, set_off):
++    out = {}
++    for r in set_records(rom, set_off):
++        out.setdefault(r["header"], (unpack_frame(rom, r["header"])[2], r["w"], r["h"]))
++    return out
++
++
++def decoded_frames(rom, set_off):
++    return [(r["anim"], r["dir"], r["index"], r["dx"], r["dy"], r["w"], r["h"], r["attr0"], r["attr1"],
++             unpack_frame(rom, r["header"])[2]) for r in set_records(rom, set_off)]
++
++
++def changed_ranges(before, after):
++    out, i = [], 0
++    while i < len(before):
++        if before[i] != after[i]:
++            j = i
++            while j < len(before) and before[j] != after[j]:
++                j += 1
++            out.append((i, j))
++            i = j
++        else:
++            i += 1
++    return out
++
++
++class SpriteTests(unittest.TestCase):
++    def test_tiles_image_round_trip(self):                 # set 53, every frame
++        for hdr, (data, w, h) in unique_frames(BASE_ROM, SET_53).items():
++            self.assertEqual(image_to_tiles(tiles_to_image(data, w, h, PALETTE)), data, hex(hdr))
++
++    def test_image_pixel_order(self):
++        data = bytes(range(64)) + bytes(64)                # 16x8: tile 0 left, tile 1 right
++        img = tiles_to_image(data, 16, 8, PALETTE)
++        self.assertEqual(img.getpixel((1, 0)), 1)
++        self.assertEqual(img.getpixel((0, 1)), 8)
++        self.assertEqual(img.getpixel((8, 0)), 0)
++
++    def test_clone_unchanged_is_identical(self):           # set 56 cloned with no new frames
++        rom, alloc = fresh()
++        new = clone_set(rom, SET_56, {}, alloc)
++        self.assertEqual(decoded_frames(rom, new), decoded_frames(rom, SET_56))
++        a, b = read_set(rom, new), read_set(rom, SET_56)
++        self.assertEqual((a["dirs"], a["anims"]), (b["dirs"], b["anims"]))
++        self.assertEqual(rom[new:new + 12], rom[SET_56:SET_56 + 12])
++
++    def test_clone_every_record_decodes(self):             # Review Focus 5
++        rom, alloc = fresh()
++        frames = {h: bytes(len(d)) for h, (d, _, _) in unique_frames(rom, SET_59).items()}
++        new = clone_set(rom, SET_59, frames, alloc)
++        recs = set_records(rom, new)
++        self.assertEqual(len(recs), len(set_records(rom, SET_59)))
++        for rec in recs:
++            kind, size, data, _ = unpack_frame(rom, rec["header"])
++            self.assertEqual(kind, 0)
++            self.assertEqual(size, rec["w"] * rec["h"])
++            self.assertEqual(len(data), size)
++
++    def test_clone_replaces_only_chosen_frame(self):
++        rom, alloc = fresh()
++        src = unique_frames(rom, SET_59)
++        hdr = next(iter(src))
++        data, w, h = src[hdr]
++        marker = bytes([7]) * len(data)
++        new = clone_set(rom, SET_59, {hdr: marker}, alloc)
++        old_recs, new_recs = set_records(rom, SET_59), set_records(rom, new)
++        for o, n in zip(old_recs, new_recs):
++            got = unpack_frame(rom, n["header"])[2]
++            want = marker if o["header"] == hdr else unpack_frame(rom, o["header"])[2]
++            self.assertEqual(got, want)
++            if o["header"] != hdr:
++                self.assertEqual(n["header"], o["header"])  # untouched records keep the original pointer
++        self.assertEqual(len({n["header"] for o, n in zip(old_recs, new_recs) if o["header"] == hdr}), 1)
++
++    def test_clone_pointers_are_gba_addresses(self):
++        rom, alloc = fresh()
++        new = clone_set(rom, SET_59, {}, alloc)
++        s = read_set(rom, new)
++        for i in range(s["anims"] * s["dirs"]):
++            raw = struct.unpack_from("<I", rom, s["table"] + 4 * i)[0]
++            self.assertTrue(raw == 0 or ROM_BASE <= raw < ROM_BASE + FULL)
++        for r in set_records(rom, new):
++            self.assertTrue(ROM_BASE <= struct.unpack_from("<I", rom, r["rec"] + 8)[0] < ROM_BASE + FULL)
++
++    def test_clone_rejects_wrong_length_and_unused_key(self):
++        rom, alloc = fresh()
++        hdr = next(iter(unique_frames(rom, SET_59)))
++        with self.assertRaises(ValueError):
++            clone_set(rom, SET_59, {hdr: b"\0"}, alloc)
++        with self.assertRaises(ValueError):
++            clone_set(rom, SET_59, {0x123450: b"\0"}, alloc)
++
++    def test_clone_writes_only_allocated_space(self):
++        rom, alloc = fresh()
++        frames = {h: bytes([1]) * len(d) for h, (d, _, _) in unique_frames(rom, SET_59).items()}
++        before = bytes(rom)
++        clone_set(rom, SET_59, frames, alloc)
++        used = alloc.used()
++        covered = bytearray(len(before))                  # adjacent allocations make one changed run
++        for o, n in used:
++            covered[o:o + n] = b"\x01" * n
++        for a, b in changed_ranges(before, rom):
++            self.assertTrue(all(covered[a:b]), f"0x{a:X}-0x{b:X} outside allocation")
++        self.assertGreaterEqual(min(o for o, _ in used), 0x800000)
++
++    def test_export_writes_manifest_and_pngs(self):
++        from PIL import Image
++        with tempfile.TemporaryDirectory() as tmp:
++            path = export_set(BASE_ROM, SET_56, Path(tmp))
++            man = json.loads(path.read_text())
++            self.assertEqual(len(man), len(set_records(BASE_ROM, SET_56)))
++            self.assertEqual(set(man[0]), {"anim", "dir", "index", "dx", "dy", "w", "h", "attr0", "attr1", "header", "png"})
++            self.assertEqual(len({m["png"] for m in man}), len({m["header"] for m in man}))
++            m = man[0]
++            img = Image.open(Path(tmp) / m["png"])
++            self.assertEqual((img.mode, img.size), ("P", (m["w"], m["h"])))
++            self.assertEqual(image_to_tiles(img), unpack_frame(BASE_ROM, m["header"])[2])
++
++
++if __name__ == "__main__":
++    unittest.main()

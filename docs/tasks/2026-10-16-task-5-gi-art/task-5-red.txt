@@ -1,0 +1,11 @@
+test_gi_covers_every_target_header (tests.test_gi.GiArtTests.test_gi_covers_every_target_header) ... ERROR
+test_gi_frames_are_indexed (tests.test_gi.GiArtTests.test_gi_frames_are_indexed) ... ERROR
+test_gi_frames_differ_from_armor (tests.test_gi.GiArtTests.test_gi_frames_differ_from_armor) ... ERROR
+test_gi_frames_keep_record_sizes (tests.test_gi.GiArtTests.test_gi_frames_keep_record_sizes) ... ERROR
+test_gi_uses_only_allowed_indices (tests.test_gi.GiArtTests.test_gi_uses_only_allowed_indices) ... ERROR
+test_appearance_2_resolves_to_gi_clone (tests.test_gi.GiPatchTests.test_appearance_2_resolves_to_gi_clone) ... skipped 'part 2, after owner art gate'
+test_armor_sets_untouched (tests.test_gi.GiPatchTests.test_armor_sets_untouched) ... skipped 'part 2, after owner art gate'
+test_z2_format (tests.test_gi.HudZ2Tests.test_z2_format) ... ERROR
+test_z2_keeps_bar_pixels (tests.test_gi.HudZ2Tests.test_z2_keeps_bar_pixels) ... ERROR
+Ran 9 tests in 0.009s
+FAILED (errors=7, skipped=2)

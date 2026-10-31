@@ -1,0 +1,864 @@
+{
+ "gi_ssj": {
+  "source": "122601.png row 1 column 4",
+  "recolor": {
+   "96": 97
+  },
+  "entry": 5,
+  "old_ids": [
+   62,
+   13
+  ],
+  "new_ids": [
+   115,
+   116
+  ],
+  "max_dialog_err": 3328,
+  "max_status_err": 5952,
+  "colors": [
+   {
+    "rgb": [
+     248,
+     248,
+     120
+    ],
+    "pixels": 693,
+    "dialog": 45,
+    "dialog_err": 0,
+    "status": 70,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     200,
+     248,
+     168
+    ],
+    "pixels": 593,
+    "dialog": 146,
+    "dialog_err": 1280,
+    "status": 92,
+    "status_err": 1024,
+    "status_by": "nearest"
+   },
+   {
+    "rgb": [
+     224,
+     152,
+     128
+    ],
+    "pixels": 574,
+    "dialog": 115,
+    "dialog_err": 0,
+    "status": 27,
+    "status_err": 128,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     248,
+     240
+    ],
+    "pixels": 355,
+    "dialog": 43,
+    "dialog_err": 0,
+    "status": 2,
+    "status_err": 64,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     128,
+     80,
+     24
+    ],
+    "pixels": 330,
+    "dialog": 23,
+    "dialog_err": 0,
+    "status": 38,
+    "status_err": 1536,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     184,
+     168
+    ],
+    "pixels": 267,
+    "dialog": 114,
+    "dialog_err": 0,
+    "status": 23,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     192,
+     192,
+     192
+    ],
+    "pixels": 250,
+    "dialog": 10,
+    "dialog_err": 0,
+    "status": 16,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     248,
+     248
+    ],
+    "pixels": 233,
+    "dialog": 2,
+    "dialog_err": 0,
+    "status": 2,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     112,
+     112,
+     112
+    ],
+    "pixels": 233,
+    "dialog": 13,
+    "dialog_err": 0,
+    "status": 12,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     104,
+     48,
+     16
+    ],
+    "pixels": 160,
+    "dialog": 113,
+    "dialog_err": 0,
+    "status": 38,
+    "status_err": 128,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     80,
+     208,
+     0
+    ],
+    "pixels": 96,
+    "dialog": 48,
+    "dialog_err": 0,
+    "status": 112,
+    "status_err": 2240,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     176,
+     40
+    ],
+    "pixels": 95,
+    "dialog": 38,
+    "dialog_err": 0,
+    "status": 73,
+    "status_err": 2944,
+    "status_by": "nearest"
+   },
+   {
+    "rgb": [
+     200,
+     128,
+     96
+    ],
+    "pixels": 69,
+    "dialog": 116,
+    "dialog_err": 0,
+    "status": 33,
+    "status_err": 1216,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     120,
+     0,
+     168
+    ],
+    "pixels": 68,
+    "dialog": 97,
+    "dialog_err": 3328,
+    "status": 232,
+    "status_err": 5312,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     88,
+     0,
+     120
+    ],
+    "pixels": 40,
+    "dialog": 97,
+    "dialog_err": 0,
+    "status": 232,
+    "status_err": 704,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     168,
+     32,
+     224
+    ],
+    "pixels": 13,
+    "dialog": 233,
+    "dialog_err": 0,
+    "status": 234,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     216,
+     216,
+     216
+    ],
+    "pixels": 9,
+    "dialog": 9,
+    "dialog_err": 0,
+    "status": 18,
+    "status_err": 384,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     144,
+     144,
+     144
+    ],
+    "pixels": 8,
+    "dialog": 12,
+    "dialog_err": 0,
+    "status": 13,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     48,
+     168,
+     0
+    ],
+    "pixels": 5,
+    "dialog": 49,
+    "dialog_err": 0,
+    "status": 108,
+    "status_err": 5952,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     0,
+     168,
+     24
+    ],
+    "pixels": 3,
+    "dialog": 57,
+    "dialog_err": 0,
+    "status": 108,
+    "status_err": 4224,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     168,
+     168,
+     168
+    ],
+    "pixels": 1,
+    "dialog": 11,
+    "dialog_err": 0,
+    "status": 14,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     120,
+     208,
+     120
+    ],
+    "pixels": 1,
+    "dialog": 149,
+    "dialog_err": 0,
+    "status": 97,
+    "status_err": 0,
+    "status_by": "game pair"
+   }
+  ]
+ },
+ "gi_ssj2": {
+  "source": "122601.png row 1 column 5",
+  "recolor": {
+   "80": 233,
+   "215": 97
+  },
+  "entry": 22,
+  "old_ids": [
+   61,
+   12
+  ],
+  "new_ids": [
+   117,
+   118
+  ],
+  "max_dialog_err": 17792,
+  "max_status_err": 17792,
+  "colors": [
+   {
+    "rgb": [
+     248,
+     248,
+     120
+    ],
+    "pixels": 573,
+    "dialog": 45,
+    "dialog_err": 0,
+    "status": 70,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     224,
+     152,
+     128
+    ],
+    "pixels": 486,
+    "dialog": 115,
+    "dialog_err": 0,
+    "status": 27,
+    "status_err": 128,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     48,
+     16,
+     168
+    ],
+    "pixels": 469,
+    "dialog": 233,
+    "dialog_err": 17792,
+    "status": 234,
+    "status_err": 17792,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     184,
+     168
+    ],
+    "pixels": 369,
+    "dialog": 114,
+    "dialog_err": 0,
+    "status": 23,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     128,
+     80,
+     24
+    ],
+    "pixels": 321,
+    "dialog": 23,
+    "dialog_err": 0,
+    "status": 38,
+    "status_err": 1536,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     192,
+     192,
+     192
+    ],
+    "pixels": 252,
+    "dialog": 10,
+    "dialog_err": 0,
+    "status": 16,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     248,
+     248
+    ],
+    "pixels": 245,
+    "dialog": 2,
+    "dialog_err": 0,
+    "status": 2,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     200,
+     248,
+     168
+    ],
+    "pixels": 241,
+    "dialog": 146,
+    "dialog_err": 1280,
+    "status": 92,
+    "status_err": 1024,
+    "status_by": "nearest"
+   },
+   {
+    "rgb": [
+     112,
+     112,
+     112
+    ],
+    "pixels": 233,
+    "dialog": 13,
+    "dialog_err": 0,
+    "status": 12,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     248,
+     240
+    ],
+    "pixels": 205,
+    "dialog": 43,
+    "dialog_err": 0,
+    "status": 2,
+    "status_err": 64,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     80,
+     208,
+     0
+    ],
+    "pixels": 186,
+    "dialog": 48,
+    "dialog_err": 0,
+    "status": 112,
+    "status_err": 2240,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     104,
+     48,
+     16
+    ],
+    "pixels": 170,
+    "dialog": 113,
+    "dialog_err": 0,
+    "status": 38,
+    "status_err": 128,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     32,
+     32,
+     64
+    ],
+    "pixels": 153,
+    "dialog": 211,
+    "dialog_err": 0,
+    "status": 143,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     48,
+     168,
+     0
+    ],
+    "pixels": 54,
+    "dialog": 49,
+    "dialog_err": 0,
+    "status": 108,
+    "status_err": 5952,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     176,
+     40
+    ],
+    "pixels": 49,
+    "dialog": 38,
+    "dialog_err": 0,
+    "status": 73,
+    "status_err": 2944,
+    "status_by": "nearest"
+   },
+   {
+    "rgb": [
+     32,
+     32,
+     120
+    ],
+    "pixels": 30,
+    "dialog": 97,
+    "dialog_err": 4160,
+    "status": 232,
+    "status_err": 2432,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     176,
+     96,
+     56
+    ],
+    "pixels": 15,
+    "dialog": 117,
+    "dialog_err": 0,
+    "status": 32,
+    "status_err": 384,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     200,
+     128,
+     96
+    ],
+    "pixels": 13,
+    "dialog": 116,
+    "dialog_err": 0,
+    "status": 33,
+    "status_err": 1216,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     216,
+     216,
+     216
+    ],
+    "pixels": 9,
+    "dialog": 9,
+    "dialog_err": 0,
+    "status": 18,
+    "status_err": 384,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     144,
+     144,
+     144
+    ],
+    "pixels": 9,
+    "dialog": 12,
+    "dialog_err": 0,
+    "status": 13,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     16,
+     120,
+     0
+    ],
+    "pixels": 6,
+    "dialog": 50,
+    "dialog_err": 0,
+    "status": 106,
+    "status_err": 5952,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     224,
+     96,
+     168
+    ],
+    "pixels": 5,
+    "dialog": 248,
+    "dialog_err": 0,
+    "status": 216,
+    "status_err": 1856,
+    "status_by": "nearest"
+   },
+   {
+    "rgb": [
+     168,
+     168,
+     168
+    ],
+    "pixels": 3,
+    "dialog": 11,
+    "dialog_err": 0,
+    "status": 14,
+    "status_err": 192,
+    "status_by": "game pair"
+   }
+  ]
+ },
+ "gi_base": {
+  "source": "drawn art gi_base_dialog_src.png",
+  "recolor": {},
+  "entry": 2,
+  "old_ids": [
+   59,
+   10
+  ],
+  "new_ids": [
+   119,
+   120
+  ],
+  "max_dialog_err": 0,
+  "max_status_err": 1664,
+  "colors": [
+   {
+    "rgb": [
+     0,
+     0,
+     0
+    ],
+    "pixels": 1262,
+    "dialog": 1,
+    "dialog_err": 0,
+    "status": 1,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     112,
+     168,
+     248
+    ],
+    "pixels": 741,
+    "dialog": 75,
+    "dialog_err": 0,
+    "status": 140,
+    "status_err": 896,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     248,
+     248
+    ],
+    "pixels": 254,
+    "dialog": 2,
+    "dialog_err": 0,
+    "status": 2,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     192,
+     192,
+     192
+    ],
+    "pixels": 248,
+    "dialog": 10,
+    "dialog_err": 0,
+    "status": 16,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     224,
+     152,
+     128
+    ],
+    "pixels": 246,
+    "dialog": 115,
+    "dialog_err": 0,
+    "status": 27,
+    "status_err": 128,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     112,
+     112,
+     112
+    ],
+    "pixels": 235,
+    "dialog": 13,
+    "dialog_err": 0,
+    "status": 12,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     72,
+     152,
+     248
+    ],
+    "pixels": 208,
+    "dialog": 76,
+    "dialog_err": 0,
+    "status": 163,
+    "status_err": 1664,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     248,
+     184,
+     168
+    ],
+    "pixels": 180,
+    "dialog": 114,
+    "dialog_err": 0,
+    "status": 23,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     88,
+     0,
+     120
+    ],
+    "pixels": 180,
+    "dialog": 97,
+    "dialog_err": 0,
+    "status": 232,
+    "status_err": 704,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     144,
+     192,
+     248
+    ],
+    "pixels": 179,
+    "dialog": 74,
+    "dialog_err": 0,
+    "status": 142,
+    "status_err": 640,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     120,
+     48,
+     0
+    ],
+    "pixels": 167,
+    "dialog": 35,
+    "dialog_err": 0,
+    "status": 38,
+    "status_err": 128,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     200,
+     128,
+     96
+    ],
+    "pixels": 104,
+    "dialog": 116,
+    "dialog_err": 0,
+    "status": 33,
+    "status_err": 1216,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     168,
+     32,
+     224
+    ],
+    "pixels": 58,
+    "dialog": 233,
+    "dialog_err": 0,
+    "status": 234,
+    "status_err": 0,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     216,
+     216,
+     216
+    ],
+    "pixels": 19,
+    "dialog": 9,
+    "dialog_err": 0,
+    "status": 18,
+    "status_err": 384,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     144,
+     144,
+     144
+    ],
+    "pixels": 8,
+    "dialog": 12,
+    "dialog_err": 0,
+    "status": 13,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     168,
+     168,
+     168
+    ],
+    "pixels": 6,
+    "dialog": 11,
+    "dialog_err": 0,
+    "status": 14,
+    "status_err": 192,
+    "status_by": "game pair"
+   },
+   {
+    "rgb": [
+     104,
+     48,
+     16
+    ],
+    "pixels": 1,
+    "dialog": 113,
+    "dialog_err": 0,
+    "status": 38,
+    "status_err": 128,
+    "status_by": "game pair"
+   }
+  ]
+ }
+}

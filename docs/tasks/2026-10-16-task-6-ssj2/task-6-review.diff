@@ -1,0 +1,1061 @@
+# Review package: snapshot base-T6 -> live
+
+ {base-T6 => _live}/docs/RE-BIBLE.md               |  18 +-
+ {base-T6 => _live}/docs/build-log.md              |   8 +
+ /dev/null => _live/permanent/patches/ssj2_form.py | 380 ++++++++++++++++++++++
+ /dev/null => _live/permanent/tests/test_ssj2.py   | 378 +++++++++++++++++++++
+ /dev/null => _live/permanent/thumb_dis.py         | 116 +++++++
+ 5 files changed, 896 insertions(+), 4 deletions(-)
+
+diff --git a/base-T6/docs/RE-BIBLE.md b/_live/docs/RE-BIBLE.md
+index 38e09bc..34321ca 100644
+--- a/base-T6/docs/RE-BIBLE.md
++++ b/_live/docs/RE-BIBLE.md
+@@ -17,21 +17,21 @@ Use these tag shapes. Each one is unique, so a plain text search finds every lin
+ | `rom:0x3B4E90` | A file offset in the ROM (address minus `0x08000000`) |
+ | `flag:195` | A story flag |
+ | `set:56` | A sprite set id |
+ | `pal:88` | A shared OBJ palette index |
+ | `char:gohan` | A character (`gohan`, `piccolo`, `vegeta`, `trunks`, `goku`, `hercule`) |
+ | `#codec` `#sprite` `#save` `#form` `#story` `#map` `#palette` `#hud` `#portrait` `#text` `#script` `#antipiracy` `#debug` `#tool` `#decision` `#open` | A topic |
+ | `game:bf` `game:log2eu` | A fact about Buu's Fury or the Europe LoG II. No game tag means LoG II USA |
+ 
+ Labels: **C** = CONFIRMED (proved, evidence in the source doc), **L** = LIKELY, **S** = SPECULATIVE, **O** = owner statement (from memory or play, not checked in the ROM).
+ 
+-Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `SAV` = `re-save-format.md`, `DES` = `2026-10-16-log-merge-design.md`, `OUT` = `re-outfit.md`, `FRM` = `re-forms.md`, `T5` = `scratch\sdd\slice1\task-5-report.md`, `T5P2` = `scratch\sdd\slice1\task-5-part2-report.md`. Add new docs to this list.
++Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `SAV` = `re-save-format.md`, `DES` = `2026-10-16-log-merge-design.md`, `OUT` = `re-outfit.md`, `FRM` = `re-forms.md`, `T5` = `scratch\sdd\slice1\task-5-report.md`, `T5P2` = `scratch\sdd\slice1\task-5-part2-report.md`, `T6` = `scratch\sdd\slice1\task-6-report.md`. Add new docs to this list.
+ 
+ ---
+ 
+ ## 2. ROMs and files
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | Base ROM LoG II USA, code ALFE, 8 MB, SHA-1 `18e0715dec419f3501c301511530d2edcd590f8b`, No-Intro verified | #tool #decision | C | RN |
+ | LoG II Europe, code ALFP, 8 MB, SHA-1 `db36ff52fcd63f753f9d66439aa3d2216701c326`, reference for the status screen bonus display | game:log2eu | C | RN |
+ | Buu's Fury USA, code BG3E, 8 MB, SHA-1 `f1c4b07554d2a3b1ad2f325307051e775ce68087` | game:bf | C | RN |
+@@ -164,55 +164,65 @@ Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `
+ | Base form tick `@0x08017028`: struct +0x08 -1 per frame; leader EP +3 %, others HP and EP +5 % every 596 frames | #form #save | C | FRM |
+ | Ability table `rom:0x1D9900`, 14 x 16 bytes: icon usable, icon not usable, test(record), action(record, player); literals `@0x08008024`, `@0x08008E8C` only. Ability 12 = Saiyan transform (Gohan, Vegeta, Trunks, Goku slot 2), 11 = Namek | #form #hud | C | FRM |
+ | Messages: 0x23 Saiyan transform state, 0x25 Namek transform, 0x24 revert; state table `@0x083B5278`; transform ends in `@0x0801563C` (transform(player,1)), revert in `@0x080157AE` | #form | C | FRM |
+ | Appearance +4 has one reader (`@0x08014D8C`); entry 5 +4 (Rage) is never read in play | #form char:gohan | C | FRM |
+ | Every appearance entry 0-21 is used (defaults, ext 73 sets, debug, +4/+5 chains); no free entry | #form #decision | L | FRM |
+ | `set:58` has 19 anims and lacks anims 9 (transform, set +0xDC) and 21 (revert, set +0x19C) that `set:59` has; a playable Super Saiyan 2 needs the set 59 layout | #sprite #form char:gohan | C | FRM |
+ | HUD icon: raw 0x200-byte 8bpp 32x16 image per ability; "Z" = `@0x086DAE7C` (usable), `@0x086DB07C` (dim); HUD routine `@0x08008BEE` builds 0x500 bytes from frame `@0x086D7B54` and DMAs to OBJ VRAM; HP, EP, EXP bar pixels overwrite parts of the icon | #hud | C | FRM |
+ | Task 6 plan: relocated appearance table with entry 22, entry 5 +4 = 22, step gate on ability 12 action `rom:0x1D99CC`, HUD hook `rom:0x8D14` + literal `rom:0x8E8C`; Thumb BL cannot reach the expansion area | #decision #form #hud | C (sites), O (design) | FRM |
+ | Task 6 rules: new apply and tick are re-encodings with own pools (never patch shared pool `@0x080174A0`); gate keeps lr, reads the relocated table, skips the map word (Ruling 16); step EP cost >= 9 (8 EP drain during the 160-frame step); END bonus test 100 + bonus <= 127 (damage uses `0x80 - END` at `@0x0800F94E`) | #decision #form | C (code quotes), L (overflow margin `@0x0800F974`) | FRM |
+ | Owner memory check: Gohan EP `@0x03000EA0`, appearance `@0x03000EA4`, live STR/POW/END at `[@0x03001FA8]` +0x160..+0x162, cooldown `@0x03000E98`, `flag:195` at `@0x03000F5C` bit 3 | #form #save char:gohan | C | FRM |
++| Form object init `@0x080232E4` stores vtables `@0x08024004`, `@0x08024E4C`, `@0x0802526C`, `@0x08024C58`, `@0x08024ABC` into `@0x030021E0` + 4 x i. No other aligned ROM word equals a form object or vtable address (only this pool `@0x08023304` and the appearance table), so no code compares the form object to a constant | #form | C (shape: aligned words; a computed compare would not appear) | T6 |
++| Only appearance entry 5 has +0 bit 0 set and +4 != +5 (all 22 entries read); entry 22 after Task 6 has +4 = +5 = 2 | #form char:gohan | C | T6 |
++| Ability action call `@0x08007F0A`: `ldr r2,[r5,#0xc] ; bl 0x8021d2c` with r0 = record, r1 = player; test call `@0x08007EFE` (bx r1) | #form #hud | C | T6 |
++| Super Saiyan and Rage enter (`@0x08017376`, `@0x08017158`) both start sound entry 55 (`0x080E15B0` + 0x294, 12-byte entries) on the sound object `[0x086F7E50]+0x5C4` through `@0x0801FC9C`; leave stops it through `@0x0801FC22`. No form method makes an object | #form | C | T6 |
++| Rage has no aura object attached to the player: the Rage form methods, ext 73 handler `@0x0800A8EC`, state 9 (ext 57 (0, 9)) and ext 46, 47, 49 make none. The Cell scene `@0x083EA33D`-`@0x083EA36F` also runs ext 42 (10), a screen-wide palette effect (L: flash), and ext 43 (10), a 12-byte scene task (vtable `@0x0802545C`, +8 = 10, L: a wait, not traced). The lightning is drawn in the `set:58` frames; `set:159` carries it in blue (T5). Task 6 builds no aura and does not copy the cutscene palette effect (vanilla Super Saiyan has none) | #form #sprite char:gohan set:58 set:159 | C (form methods, ext 73, state 9, ext 46/47/49), L (ext 42, ext 43) | T6 |
++| Super Namek tick `@0x08017400`: accumulator += 0xCCD; on overflow leader HP += 1 % and EP -= 1, message 0x24 at EP 0 (same shape as Super Saiyan plus HP regen) | #form char:piccolo | C | T6 |
++| Super Saiyan 2 build (`ssj2_form`): relocated appearance table with entry 22 (`01 9F 3D 0C 02 02` + entry 5 +6..+0xF + form object), entry 5 +4 = 22, 17 table literals repointed, `rom:0x42F0` kept on the gohan_gi copy; ROM form object + vtable (apply +20, speeds 1.75 / 3.0, tick step 0x199A = 6 EP/s, Super Saiyan enter and leave); step gate on `rom:0x1D99CC` (flag 195 at `@0x03000F5C` bit 3, EP >= 10, relocated table, leaf with bx tail jumps); HUD hook `rom:0x8D14` + `rom:0x8E8C` returns the Z2 icon pair for ability 12 in entry 22. In `log2_poc.gba`: table `rom:0x8637AC`, form object `rom:0x863978`, vtable `rom:0x86397C`, Z2 `rom:0x863994` / `rom:0x863B94`, code `rom:0x863D94` (apply), `rom:0x863DEE` (tick), `rom:0x863E5E` (gate), `rom:0x863E98` (HUD) | #form #hud #tool char:gohan set:159 | C (bytes, Ghidra disassembly), L (in-game) | T6 |
+ 
+ ## 7. Save format `#save`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | EEPROM library `@0x080218E0` (identify), `@0x08021ACC` (read dword), `@0x08021CB0` (program dword); game uses 8 KB | #save | C | SAV |
+ | RAM shadow of the EEPROM at `@0x0203E000` (pointer at `@0x03003898`); game uses bytes 0x000-0x447 | #save | C | SAV |
+ | Checksum: Adler-32 `@0x0802153E`, mod 65521 at `@0x08027F1C` | #save | C | SAV |
+ | Options block at EEPROM 0x000 (4 bytes) + `adler32 + 0x12345678`; defaults 4, 6, 4, 0 | #save | C | SAV |
+ | Slots at 0x10 + n*0x168: 0x164 bytes of the struct at `@0x03000E90` + u32 Adler-32 | #save | C | SAV |
+ | .sav file: each 8-byte block is byte-reversed against RAM | #save | C (owner loaded all 3 test slots, 2026-10-16) | SAV, DES |
+ | Slot load `@0x08003F9C`, slot write `@0x08003FEC`, save game `@0x08004030`, continue `@0x08001848` | #save | C | SAV |
+ | Struct +0x00 leader (0 Gohan, 1 Piccolo, 2 Vegeta, 3 Trunks, 4 Goku, 5 Hercule) | #save | C | SAV |
+ | Struct +0x02/+0x03/+0x04 map zone, area, variation; +0x160/+0x162 player x, y | #save #map | C | SAV |
+ | Struct +0x0C: 6 character records of 28 bytes (HP, max HP, EP, max EP, appearance, attack slot, STR/POW/END 8.8, EXP, flags) | #save | C | SAV |
+ | Record +0x18..+0x1B = ability id per slot (Gohan `04 03 0c 02`); struct +0x08 = transform cooldown (+8 per frame of the Saiyan transform, -1 per frame in base form) | #save #form | C | FRM |
+ | Struct +0xB4: story flags 0-399 (50 bytes); +0xE7 visited maps; +0x11A Scouter; +0x12B item counts | #save #story | C | SAV |
++| Struct `@0x03000E90` is fixed: the ROM table `@0x086F7E50` holds it at +4 (`rom:0x6F7E54` = `90 0E 00 03`). Flag test `@0x08003E42`: byte struct +0xB4 + n / 8, bit n & 7, so `flag:195` = `@0x03000F5C` bit 3 | #save #story | C | T6 |
+ | Level = from EXP table `rom:0x1D9834` (50 entries, cap 50). Level 40 needs EXP 2,727,775 | #save | C | SAV |
+ | Level-up routine `@0x08003CA0`; stats random per level, ranges at `rom:0x1D95F0`; stat cap 100 | #save | C | SAV |
+ | Tool: `scripts\permanent\log2_save.py` (`info`, `build`, `set`) | #tool #save | C | SAV |
+ | Test save `scratch\saves\log2_lv40_postcell.sav`, SHA-1 `3ecf1e40...`: post-Cell, all six at level 40; slot 1 Capsule Corp save point, slot 2 East District 439 save point, slot 3 Capsule Corp post-Cell spawn | #save #tool | C (owner loaded all 3) | SAV, DES |
+ 
+ ## 8. Story and script `#story`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | `flag:195` = Cell beaten (set at script `@0x083EC67B`, then load Capsule Corp zone 6 area 3 at 376, 408) | #story | C | SAV |
+ | `flag:196` = Lookout farewell (script `@0x083DCEF7`); flag 195 set and 196 clear = last playable point | #story | C | SAV |
+ | `flag:191` Dragon Balls returned to Dende; `flag:193` entered the Cell Games; `flag:158` start of the Dragon Ball quest | #story | C | SAV |
+ | `flag:68` selects East District 439 map variation 2 | #story #map | C | SAV |
+ | Quest table `rom:0x6D68E0` (16-byte entries) | #story | C | SAV |
+ | Script VM interpreter `@0x080092E4`; 30 base ops at `@0x083B5C00`; 145 ext ops at `@0x083B5D28` | #script | C | SAV |
+ | Script ops: 19/20 test flag, 27 set flag, 28 clear flag, 21 give item, 86 sets header +1 bit 1; ext 29 / 30 party add / remove; ext 35 load map; ext 73 set appearance (L) | #script | C (flag ops, ext 73 per OUT), L (29 / 30 meaning) | SAV, OUT |
+ | Map condition evaluator `@0x08003F06`; no test-and-clear conditions exist | #script #map | C | SAV |
+ | ext ops: 51 spawn NPC `(set, x, y)` through `@0x0800D6DE`; 70 and 115 set leader (`@0x0800A784`, `@0x0800A680`), 70 also reverts other forms; 73 `(character, set)`; 29 / 30 broadcast message 4 with `2n+1` / `2n` (`@0x08009740`, `@0x0800975E`). 34 ext ops take a set id (list in OUT `extscan.py`) | #script | C | OUT |
++| ext 46 (n) `@0x08009BF8` starts sound n, ext 47 (n) `@0x08009C54` stops it (table `@0x080E15B0`, 12-byte entries); ext 49 (n) `@0x08009C8A` plays music n (table `@0x081D4B2C`, 20-byte entries, `@0x08020A4C`); ext 57 (actor, n) `@0x08009FC4` queues a command (vtable `@0x08025BAC`) that sends message n to the actor and waits until it leaves state n; ext 42 (n) `@0x08009B5E` makes a 0x40C-byte object (vtable `@0x08024FC4`) that copies the BG and OBJ palettes (`@0x0800DA68`) | #script | C (handlers), L (ext 42 = screen flash) | T6 |
++| Player state 9 (power up, object `@0x03002174`, vtable `@0x08025B80`): enter `@0x08011D38` sets anim 9 (set +0xDC), tick `@0x08011D4A` runs 0xA0 frames, then sound 23 and the state end; no object spawn | #form #sprite | C | T6 |
+ | Chamber exit script `@0x083DB59F`: load map 9,1, spawn Goku `set:60` and Gohan `set:56` as NPCs, then ext 73 `(0, 56)` at `@0x083DB62B`. Leader is not Gohan (L) | #script #story char:gohan | C (script), L (leader) | OUT |
+ | Cell Games: NPC Gohan `set:56` from `@0x083E866C`, removed at `@0x083E939C`; ext 70 `(0)` at `@0x083E93A8` makes Gohan the player; Rage ext 73 `(0, 58)` at `@0x083EA369`; post-Cell ext 73 `(0, 56)` then ext 70 `(1)` at `@0x083EC00F` | #script #story char:gohan | C | OUT |
+ | No script names Gohan as actor id 1 by a constant; hits at `@0x083E3C65`, `@0x083E3E83`, `@0x083F3B8B` are text records and a pointer table | #script char:gohan | C | OUT |
+ | Dialog text sits inline in the script region as records (`NN 00 01 0X`, text, 00) | #script #text | L | OUT |
+ | Scratch script disassembler `scratch\re\save\sdis.py` | #tool #script | C | SAV |
+ 
+ ## 9. Maps `#map`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+@@ -234,21 +244,21 @@ Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `
+ | Anti-piracy check fires when Gohan first leaves East District 439 for the world map; source guesses a save type check | #antipiracy | O (wiki) | RN |
+ | Debug sound test has 44 tracks; track 20 "Super Saiyan Rage", 27 unused | #debug | O (wiki) | RN |
+ 
+ ## 10a. Community prior art `#community`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | Reddit user AceofheartsDev (about 2026-09): LoG II and Buu's Fury do NOT share one engine; they are "siblings, similar but different with their own individual quirks". Merge work must verify each system in both ROMs, not assume they match | #community game:bf #decision | O (community claim, unverified) | owner screenshot 2026-10-16 |
+ | Same user reports a binary ROM hack (no disassembly) that makes Super Saiyan 2 a playable form, gives Goku Kaioken, and gives Trunks and Vegeta Ascended forms. Possible reference or contact for later slices | #community #form | O (community claim, unverified) | owner screenshot 2026-10-16 |
+ | Their Super Saiyan 2 video (owner viewed): no transformation animation, yellow aura (not blue lightning), armor (no gi), plain "Z" icon. Our slice 1 targets all four: transform animation (set 59 layout, anim 9), blue lightning, gi, "Z2" icon | #community #form #hud | O | owner 2026-10-16 |
+-| Super Saiyan 2 lightning must be blue (owner). Check the Rage aura color in Task 6; if it is not blue, recolor it with existing blue palette indices | #form #palette #decision | O | owner 2026-10-16 |
++| Super Saiyan 2 lightning must be blue (owner). Check the Rage aura color in Task 6; if it is not blue, recolor it with existing blue palette indices. Answered in T6: Rage has no aura object; the lightning is sprite pixels, blue in `set:159` | #form #palette #decision | O | owner 2026-10-16, T6 |
+ 
+ ## 11. Captures and tools `#tool`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | mGBA save state layout (0.10.5): io 0x400, palette 0x800, OAM 0xC00, VRAM 0x1000, IWRAM 0x19000, WRAM 0x21000; total 0x61000 | #tool | C | RN |
+ | `scripts\permanent\state_dump.py`: extract a state into .bin regions and list OAM | #tool | C | RN |
+ | `scripts\permanent\rom_info.py`, `find_palettes.py`, `find_compressed.py` | #tool | C | RN |
+ | Capture 01 `scratch\captures\01-gohan-base\`: Gohan's bedroom, `set:57` | #tool | C | RN |
+ | Capture 02 `scratch\captures\02-gohan-gi\`: Cell Games Arena after the debug routine, Piccolo leader, NPCs | #tool | C | RN, SAV |
+@@ -284,18 +294,18 @@ Short form. Full wording in DES.
+ 
+ | Question | Tags | Plan task |
+ |---|---|---|
+ | Which code uses `set:55` and `set:56` (cutscene or playable): answered in OUT section 5 | #sprite char:gohan | Task 3 (done) |
+ | How appearance resolves to a set during play, and the patch site for the gi: answered in OUT sections 2 and 6 | #form | Task 3 (done) |
+ | Owner: Cell Games Arena NPC Gohan (map 14,1) stays in armor while another character leads. Acceptable? | #open #decision char:gohan | Task 5 |
+ | Owner: in the Cell Games, NPC Gohan is armor, the player Gohan is the gi from `@0x083E93A8`, then Rage, then armor post-Cell. Acceptable? | #open #decision char:gohan | Task 5 |
+ | Entry 5 (Super Saiyan) +4 = 4 (Rage `set:58`): never reached in play, answered in FRM section 2 | #form | Task 4 (done) |
+ | Form table, transform input, Rage event, ki drain: answered in FRM sections 1-3 | #form | Task 4 (done) |
+ | HUD "Z" icon storage and draw: answered in FRM section 4 | #hud | Task 4 (done) |
+-| Owner: Super Saiyan 2 step from Super Saiyan or from base; when "Z2" shows; Super Saiyan 2 speed and EP cost; which set Super Saiyan 2 shows (needs the set 59 layout) | #open #decision #form | Task 6 |
+-| Can the game save while the leader is transformed (record +8 = 22 after Task 6)? | #open #save #form | Task 6 |
++| Owner: Super Saiyan 2 step from Super Saiyan or from base; when "Z2" shows; Super Saiyan 2 speed and EP cost; which set Super Saiyan 2 shows: answered by Rulings 10-13 and built in Task 6 (step from Super Saiyan, Z2 in Super Saiyan 2, Super Saiyan speeds, EP 10, `set:159`) | #decision #form | Task 6 (done) |
++| Can the game save while the leader is transformed (record +8 = 22 after Task 6)? Not traced in Task 6; a save in Super Saiyan 2 loads only on the patched ROM (an unpatched ROM reads index 22 past the table) | #open #save #form | owner test |
+ | Portrait storage and format | #open #portrait | Task 7 |
+ | Free ROM space | #open | Task 1 |
+ | Copy from WRAM frame buffer to OBJ VRAM: answered in T5P2 | #sprite | Task 5 (done) |
+ | Controller ruling on the 18 gi SSJ2 frames over the 1024-byte player slot: answered by Ruling 35 (hair trimmed to 32x32) | #sprite char:gohan | Task 5 (done) |
+ | Animation timing data: frame counts and timing live in per-state tick routines (OUT section 7); only 3 animations traced | #open #sprite | none |
+ | Header +1 bits 1-2, record +0x14 bits 1-2 (struct +0x08 and record +0x18 answered in FRM) | #open #save | none |
+diff --git a/base-T6/docs/build-log.md b/_live/docs/build-log.md
+index cc6ba39..470944c 100644
+--- a/base-T6/docs/build-log.md
++++ b/_live/docs/build-log.md
+@@ -23,10 +23,18 @@ One line per build, appended by `scripts\permanent\log2_build.py`. Replaces comm
+ - Frame counts per animation as anim:frames. Every animation has the same count in all 4 directions. Animations not listed have a null table entry.
+ 
+ - set 53: 288 records (docs say 288). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 9:4 11:2 12:4 13:4 14:5 16:7 17:2 18:7 20:4
+ - set 55: 216 records (docs say 216). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 11:2 12:4 13:4 14:5 17:2 20:4
+ - set 56: 288 records (docs say 288). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 9:4 11:2 12:4 13:4 14:5 16:7 17:2 18:7 20:4
+ - set 58: 204 records (docs say 204). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 13:4 16:7 18:7
+ - set 59: 276 records (docs say 276). 0:2 1:4 2:4 3:4 4:4 5:3 6:4 7:4 8:4 9:4 11:2 12:4 13:4 16:7 18:7 20:4 21:4
+ - 2026-10-17 00:57 build log2_poc_gi.gba patches=gohan_gi sha1=40d66d64dfda1179365b094194083ff828f1b6dd
+ - 2026-10-17 00:58 build log2_poc_gi.gba patches=gohan_gi sha1=40d66d64dfda1179365b094194083ff828f1b6dd
+ - 2026-10-17 01:14 build log2_poc_gi.gba patches=gohan_gi sha1=40d66d64dfda1179365b094194083ff828f1b6dd
++- 2026-10-17 01:34 build log2_poc.gba patches=gohan_gi,ssj2_form sha1=86ae697b9b061480bbe3ffebab6e2b63b8e0a524
++
++## Task 6: usable Super Saiyan 2
++
++- Build: scratch\build\log2_poc.gba = gohan_gi + ssj2_form, SHA-1 `86ae697b9b061480bbe3ffebab6e2b63b8e0a524`. The gohan_gi stage alone still gives `40d66d64dfda1179365b094194083ff828f1b6dd`.
++- Base 8 MB changes against the gohan_gi build: the 17 appearance table literals, rom:0x1D99CC (ability 12 action), rom:0x8E8C (HUD literal) and rom:0x8D14-0x8D1D (HUD call). Nothing else.
++- Expansion: table rom:0x8637AC (23 entries), form object rom:0x863978, vtable rom:0x86397C, Z2 icons rom:0x863994 and rom:0x863B94, code rom:0x863D94-0x863EFF.
++- Tests: 57 OK (22 new in test_ssj2.py). New routines checked by thumb_dis.py and by a Ghidra import of the build (scratch\re\t6\ghidra_t6.txt).
+diff --git a/_live/permanent/patches/ssj2_form.py b/_live/permanent/patches/ssj2_form.py
+new file mode 100644
+index 0000000..218a830
+--- /dev/null
++++ b/_live/permanent/patches/ssj2_form.py
+@@ -0,0 +1,380 @@
++r"""
++ssj2_form.py - Patch: usable Super Saiyan 2 for Gohan after story flag 195 (Task 6, Rulings 10-17).
++
++Usage:   py -3 -I scripts\permanent\log2_build.py --out scratch\build\log2_poc.gba gohan_gi ssj2_form
++Input:   the ROM after patches.gohan_gi (alloc.notes["gohan_gi"]); scratch\art\hud_z2_usable.bin, hud_z2_dim.bin.
++API:     apply(rom, alloc) -> None; file offsets in alloc.notes["ssj2_form"].
++Method:  1. Copy the live appearance table (22 entries, with gohan_gi's sets 157 and 158) to the expansion
++            area, add entry 22 (set 159, form object below, +4 = +5 = 2) and set entry 5 +4 = 22.
++            Repoint the 17 table literals. rom:0x42F0 stays on gohan_gi's unchanged copy (ext op 73).
++         2. New form object (ROM word) and vtable: new apply (+20 STR, POW, END, Super Saiyan speeds) and
++            tick (drain step 0x199A = twice 0xCCD); enter and leave are the Super Saiyan sound methods.
++         3. Step gate on the ability 12 action (rom:0x1D99CC): in a form whose +4 differs from +5 (only
++            entry 5), flag 195 set and EP >= 10, send message 0x23 (transform); else run 0x0801353C.
++         4. HUD hook: rom:0x8E8C and rom:0x8D14 call a routine that returns the Z2 icon pair for ability 12
++            while the record is in entry 22, else the vanilla icon.
++Rules:   Source: docs\re-forms.md section 7. Every site is checked against its original bytes before any
++         write. New code enters only through absolute pointers and calls base code through local bx stubs.
++         Never touches the shared Super Saiyan pool 0x080174A0 or the Rage entry. Hand-assembled Thumb
++         (no assembler installed); tests\test_ssj2.py checks it with the separate decoder thumb_dis.py.
++"""
++import re
++import struct
++from pathlib import Path
++
++# ===== constants =====
++ROM_BASE = 0x08000000
++ART = Path(__file__).resolve().parents[3] / "scratch" / "art"
++APPEARANCE, ENTRY, ENTRIES = 0x1D967C, 20, 22
++SSJ, SSJ2, BASE_FORM = 5, 22, 2
++SSJ2_SET, RAGE_PORTRAITS = 159, bytes([0x3D, 0x0C])                         # Rulings 13 and 18
++TABLE_LITERALS = (0x1954, 0x1B3C, 0x3B30, 0x414C, 0x854C, 0x886C, 0x8B04, 0xA77C, 0xAA04, 0xB050,
++                  0xC804, 0x10F18, 0x112BC, 0x13574, 0x14FF4, 0x26458, 0x26474)
++REVERSE_LITERAL = 0x42F0                                                    # left on gohan_gi's copy
++ABILITY_12_ACTION, VANILLA_ACTION = 0x1D99CC, 0x0801353D
++HUD_LITERAL, ABILITY_TABLE = 0x8E8C, 0x081D9900
++HUD_BLOCK = (0x8D10, bytes.fromhex("687a5e494019007e00014618b168281c19f003f8002801d0316800e07168"))
++HUD_SITE = 0x8D14
++HUD_PATCH = bytes.fromhex("281c19f008f8011c07e0")   # add r0,r5,#0 ; bl 0x8021d2a ; add r1,r0,#0 ; b 0x8008d2e
++SSJ_ENTER, SSJ_LEAVE, SSJ_VT_10, SSJ_VT_14 = 0x08017377, 0x08017393, 0x080271E1, 0x08026391
++FLAG_195 = (0x03000F5C, 3)                          # struct 0x03000E90 + 0xB4 + 195 / 8, bit 195 & 7
++STEP_EP = 10                                        # Ruling 11; never below 9 (Ruling 15)
++DRAIN_STEP = 2 * 0xCCD                              # Super Saiyan accumulator step 0xCCD (@0x080174A0)
++SPEEDS = (0x3FE00000, 0x40400000)                   # 1.75 / 3.0, as Super Saiyan (Ruling 11)
++Z2_ICONS = ("hud_z2_usable.bin", "hud_z2_dim.bin")  # owner approved 2026-10-16 (Rulings 12, 17)
++ICON_LEN = 0x200
++
++# ===== new code (ARMv4T Thumb). Symbols in caps are filled in at assembly =====
++CODE = """
++apply:                      ; r1 = player. Re-encodes 0x080172B0 with +20 in place of +10
++    push {r4,lr}
++    add r4,r1,#0
++    ldr r0,=0x086f7e50
++    ldr r0,[r0,#0x4]
++    ldrb r1,[r0,#0x0]
++    lsl r3,r1,#3
++    sub r1,r3,r1
++    lsl r1,r1,#2
++    add r1,r1,r0
++    add r1,#0xc             ; r1 = leader record
++    ldrh r0,[r1,#0xa]
++    lsr r2,r0,#8
++    add r0,r4,#0
++    add r0,#0xff
++    add r0,#0x61            ; r0 = player +0x160
++    add r2,#0x14
++    strb r2,[r0,#0x0]
++    ldrh r2,[r1,#0xc]
++    lsr r2,r2,#8
++    add r2,#0x14
++    strb r2,[r0,#0x1]
++    ldrh r1,[r1,#0xe]
++    lsr r1,r1,#8
++    add r1,#0x14
++    strb r1,[r0,#0x2]
++    mov r1,#0x80
++    strb r1,[r0,#0x3]
++    strb r1,[r0,#0x4]
++    ldr r1,=SPEED_WALK
++    add r0,#0x28
++    ldr r2,=0x080265c5
++    bl stub_r2
++    add r0,r4,#0
++    add r0,#0xff
++    add r0,#0x8d
++    ldr r1,=SPEED_RUN
++    ldr r2,=0x080265c5
++    bl stub_r2
++    mov r0,#0x0
++    add r4,#0xff
++    add r4,#0x81
++    str r0,[r4,#0x4]
++    pop {r4,pc}
++tick:                       ; r1 = player. Re-encodes 0x08017306 with its own drain step
++    push {r3,r4,r5,lr}
++    add r5,r1,#0
++    add r0,r1,#0
++    ldr r1,[r1,#0x0]
++    ldr r2,[r1,#0x2c]
++    add r2,r2,r1
++    mov r1,#0x24
++    bl stub_r2              ; in state 0x24 (revert)? then skip
++    cmp r0,#0x0
++    bne tick_end
++    add r4,r5,#0
++    add r4,#0xff
++    add r4,#0x81
++    ldr r0,[r4,#0x4]
++    ldr r1,=DRAIN_STEP
++    add r0,r0,r1
++    str r0,[r4,#0x4]
++    lsr r0,r0,#16
++    beq tick_end
++    ldr r0,=0x086f7e50
++    ldr r0,[r0,#0x4]
++    ldrb r1,[r0,#0x0]
++    lsl r3,r1,#3
++    sub r1,r3,r1
++    lsl r1,r1,#2
++    add r0,r1,r0
++    add r0,#0xc
++    mov r3,#0x4
++    ldsh r2,[r0,r3]         ; EP
++    add r1,r0,#4
++    cmp r2,#0x1
++    bge tick_dec
++    mov r2,#0x0
++    strh r2,[r1,#0x0]
++    b tick_check
++tick_dec:
++    sub r2,#0x1
++    strh r2,[r1,#0x0]
++tick_check:
++    ldrh r1,[r0,#0x4]
++    cmp r1,#0x0
++    bne tick_mask
++    ldrh r0,[r0,#0x0]
++    cmp r0,#0x0
++    beq tick_mask
++    ldr r1,[r5,#0x0]
++    add r0,r5,#0
++    ldr r2,[r1,#0x28]
++    add r2,r2,r1
++    mov r1,#0x24
++    bl stub_r2              ; EP 0 and HP not 0: message 0x24 (revert)
++tick_mask:
++    ldr r0,[r4,#0x4]
++    lsl r0,r0,#16
++    lsr r0,r0,#16
++    str r0,[r4,#0x4]
++tick_end:
++    pop {r3,r4,r5,pc}
++gate:                       ; r0 = record, r1 = player. Leaf: r2, r3 only, lr untouched
++    ldrb r2,[r0,#0x8]
++    lsl r3,r2,#2
++    add r2,r3,r2
++    lsl r2,r2,#2
++    ldr r3,=TABLE
++    add r2,r2,r3            ; r2 = relocated entry
++    ldrb r3,[r2,#0x0]
++    lsl r3,r3,#31
++    beq gate_vanilla        ; not transformed
++    ldrb r3,[r2,#0x4]
++    ldrb r2,[r2,#0x5]
++    cmp r2,r3
++    beq gate_vanilla        ; no step target
++    ldr r2,=FLAG_ADDR
++    ldrb r2,[r2,#0x0]
++    lsl r2,r2,#FLAG_SHIFT
++    bpl gate_vanilla        ; flag 195 clear
++    mov r3,#0x4
++    ldsh r2,[r0,r3]
++    cmp r2,#STEP_EP
++    blt gate_vanilla
++    ldr r2,[r1,#0x0]
++    ldr r3,[r2,#0x28]
++    add r3,r3,r2
++    add r0,r1,#0
++    mov r1,#0x23
++    bx r3                   ; tail call: player message 0x23 (transform)
++gate_vanilla:
++    ldr r2,=0x0801353d
++    bx r2                   ; tail call: vanilla action, r0 and r1 unchanged
++hud:                        ; r0 = record, returns the icon in r0. Keeps r4-r7
++    push {r4,r5,r6,lr}
++    add r4,r0,#0
++    ldrb r0,[r4,#0x9]
++    add r0,r0,r4
++    ldrb r5,[r0,#0x18]      ; ability id of the selected slot
++    lsl r0,r5,#4
++    ldr r1,=0x081d9900
++    add r6,r0,r1
++    ldr r1,[r6,#0x8]
++    add r0,r4,#0
++    bl stub_r1              ; ability test(record)
++    cmp r5,#0xc
++    bne hud_vanilla
++    ldrb r1,[r4,#0x8]
++    cmp r1,#0x16
++    bne hud_vanilla
++    ldr r1,=Z2
++    cmp r0,#0x0
++    bne hud_done
++    ldr r1,=Z2_DIM
++    b hud_done
++hud_vanilla:
++    ldr r1,[r6,#0x0]
++    cmp r0,#0x0
++    bne hud_done
++    ldr r1,[r6,#0x4]
++hud_done:
++    add r0,r1,#0
++    pop {r4,r5,r6,pc}
++stub_r1:
++    bx r1
++stub_r2:
++    bx r2
++"""
++
++
++# ===== Thumb assembler (the subset CODE uses) =====
++
++def _reg(s: str) -> int:
++    if not re.fullmatch(r"r[0-7]", s):
++        raise ValueError(f"not a low register: {s}")
++    return int(s[1])
++
++
++def _rlist(s: str, extra: str) -> tuple:
++    regs = [r.strip() for r in s.strip("{}").split(",")]
++    has = extra in regs
++    return sum(1 << _reg(r) for r in regs if r != extra), has
++
++
++def _imm(s: str, syms: dict, bits: int, scale: int = 1) -> int:
++    s = s.lstrip("#")
++    v = syms[s] if s in syms else int(s, 0)
++    if v % scale or not 0 <= v // scale < 1 << bits:
++        raise ValueError(f"immediate {s} does not fit {bits} bits x{scale}")
++    return v // scale
++
++
++def _lines(src: str) -> list:
++    out = []
++    for raw in src.splitlines():
++        line = raw.split(";")[0].strip()
++        if line:
++            out.append(line)
++    return out
++
++
++def assemble(src: str, base: int, syms: dict) -> tuple:
++    """(code bytes, {label: GBA address}) for Thumb source at GBA address base; literal pool at the end."""
++    items, labels, pool, pc = [], {}, [], base
++    for line in _lines(src):
++        if line.endswith(":"):
++            labels[line[:-1]] = pc
++            continue
++        op, _, args = line.partition(" ")
++        items.append((pc, op, args.replace(" ", "")))
++        if op == "ldr" and "=" in args:
++            value = args.split("=")[1].strip()
++            value = syms[value] if value in syms else int(value, 0)
++            if value not in pool:
++                pool.append(value)
++        pc += 4 if op == "bl" else 2
++    pool_at = (pc + 3) & ~3
++    out = bytearray()
++    for pc, op, args in items:
++        out += _encode(pc, op, args.split(",") if not args.startswith("{") else [args], labels, syms, pool, pool_at)
++    out += b"\0" * (pool_at - base - len(out))
++    out += b"".join(struct.pack("<I", v) for v in pool)
++    return bytes(out), labels
++
++
++def _encode(pc: int, op: str, a: list, labels: dict, syms: dict, pool: list, pool_at: int) -> bytes:
++    h = lambda v: struct.pack("<H", v)                                   # noqa: E731
++    conds = {"beq": 0, "bne": 1, "bmi": 4, "bpl": 5, "bge": 10, "blt": 11, "bgt": 12, "ble": 13}
++    if op in ("push", "pop"):
++        mask, lr = _rlist(a[0], "lr" if op == "push" else "pc")
++        return h((0xB400 if op == "push" else 0xBC00) | lr << 8 | mask)
++    if op in ("lsl", "lsr") and len(a) == 3:
++        return h((0x0000 if op == "lsl" else 0x0800) | _imm(a[2], syms, 5) << 6 | _reg(a[1]) << 3 | _reg(a[0]))
++    if op in ("add", "sub") and len(a) == 3:
++        if a[2].startswith("#"):
++            return h((0x1C00 if op == "add" else 0x1E00) | _imm(a[2], syms, 3) << 6 | _reg(a[1]) << 3 | _reg(a[0]))
++        return h((0x1800 if op == "add" else 0x1A00) | _reg(a[2]) << 6 | _reg(a[1]) << 3 | _reg(a[0]))
++    if op in ("mov", "cmp", "add", "sub") and len(a) == 2 and a[1].startswith("#"):
++        return h({"mov": 0x2000, "cmp": 0x2800, "add": 0x3000, "sub": 0x3800}[op] | _reg(a[0]) << 8
++                 | _imm(a[1], syms, 8))
++    if op == "cmp" and len(a) == 2:
++        return h(0x4280 | _reg(a[1]) << 3 | _reg(a[0]))
++    if op == "bx":
++        return h(0x4700 | _reg(a[0]) << 3)
++    if op == "ldr" and a[1].startswith("="):
++        name = a[1][1:]
++        value = syms[name] if name in syms else int(name, 0)
++        lit = pool_at + 4 * pool.index(value)
++        return h(0x4800 | _reg(a[0]) << 8 | (lit - ((pc + 4) & ~3)) // 4)
++    if op == "ldsh":
++        rb, ro = a[1].strip("["), a[2].strip("]")
++        return h(0x5E00 | _reg(ro) << 6 | _reg(rb) << 3 | _reg(a[0]))
++    if op in ("ldr", "str", "ldrb", "strb", "ldrh", "strh"):
++        rb, off = a[1].strip("["), a[2].strip("]")
++        base, scale = {"str": (0x6000, 4), "ldr": (0x6800, 4), "strb": (0x7000, 1), "ldrb": (0x7800, 1),
++                       "strh": (0x8000, 2), "ldrh": (0x8800, 2)}[op]
++        return h(base | _imm(off, syms, 5, scale) << 6 | _reg(rb) << 3 | _reg(a[0]))
++    if op in conds:
++        off = (labels[a[0]] - (pc + 4)) // 2
++        if not -128 <= off < 128:
++            raise ValueError(f"{op} {a[0]} out of range")
++        return h(0xD000 | conds[op] << 8 | off & 0xFF)
++    if op == "b":
++        off = (labels[a[0]] - (pc + 4)) // 2
++        return h(0xE000 | off & 0x7FF)
++    if op == "bl":
++        off = labels[a[0]] - (pc + 4)
++        return h(0xF000 | (off >> 12) & 0x7FF) + h(0xF800 | (off >> 1) & 0x7FF)
++    raise ValueError(f"cannot encode {op} {','.join(a)}")
++
++
++# ===== patch =====
++
++def _expect(rom: bytearray, off: int, want: bytes) -> None:
++    if bytes(rom[off:off + len(want)]) != want:
++        raise ValueError(f"rom:0x{off:X} is {bytes(rom[off:off + len(want)]).hex()}, expected {want.hex()}")
++
++
++def _word(v: int) -> bytes:
++    return struct.pack("<I", v & 0xFFFFFFFF)
++
++
++def apply(rom: bytearray, alloc) -> None:
++    gi = alloc.notes["gohan_gi"]                                         # gohan_gi must run first (Ruling 14)
++    for off in TABLE_LITERALS:
++        _expect(rom, off, _word(APPEARANCE + ROM_BASE))
++    _expect(rom, REVERSE_LITERAL, _word(gi["appearance_copy"] + ROM_BASE))
++    _expect(rom, ABILITY_12_ACTION, _word(VANILLA_ACTION))
++    _expect(rom, HUD_LITERAL, _word(ABILITY_TABLE))
++    _expect(rom, *HUD_BLOCK)
++    _expect(rom, APPEARANCE + ENTRY * SSJ, bytes.fromhex("019e3e0d0402"))   # gi Super Saiyan 158, +4 = 4, +5 = 2
++    _expect(rom, APPEARANCE + ENTRY * BASE_FORM + 1, bytes([157]))
++    icons = [(ART / name).read_bytes() for name in Z2_ICONS]
++    if any(len(i) != ICON_LEN for i in icons):
++        raise ValueError("Z2 icon files must be 0x200 bytes each")
++
++    # 1. relocated appearance table with entry 22
++    table = alloc.alloc(ENTRY * (ENTRIES + 1))
++    obj = alloc.alloc(4 + 24)                                            # form object word, then its vtable
++    vtable = obj + 4
++    z2, z2_dim = alloc.alloc(ICON_LEN), alloc.alloc(ICON_LEN)
++    entry = bytearray(rom[APPEARANCE + ENTRY * SSJ:APPEARANCE + ENTRY * SSJ + ENTRY])
++    entry[1], entry[2:4], entry[4], entry[5] = SSJ2_SET, RAGE_PORTRAITS, BASE_FORM, BASE_FORM
++    entry[0x10:0x14] = _word(obj + ROM_BASE)
++    rom[table:table + ENTRY * ENTRIES] = rom[APPEARANCE:APPEARANCE + ENTRY * ENTRIES]
++    rom[table + ENTRY * ENTRIES:table + ENTRY * (ENTRIES + 1)] = entry
++    rom[table + ENTRY * SSJ + 4] = SSJ2
++
++    # 2-4. code, form object, vtable, icons
++    syms = {"TABLE": table + ROM_BASE, "Z2": z2 + ROM_BASE, "Z2_DIM": z2_dim + ROM_BASE,
++            "FLAG_ADDR": FLAG_195[0], "FLAG_SHIFT": 31 - FLAG_195[1], "STEP_EP": STEP_EP,
++            "DRAIN_STEP": DRAIN_STEP, "SPEED_WALK": SPEEDS[0], "SPEED_RUN": SPEEDS[1]}
++    size = len(assemble(CODE, ROM_BASE, syms)[0])
++    code = alloc.alloc(size)
++    blob, labels = assemble(CODE, code + ROM_BASE, syms)
++    rom[code:code + size] = blob
++    rom[obj:obj + 4] = _word(vtable + ROM_BASE)
++    targets = (labels["apply"] | 1, labels["tick"] | 1, SSJ_ENTER, SSJ_LEAVE, SSJ_VT_10, SSJ_VT_14)
++    rom[vtable:vtable + 24] = b"".join(_word(t - (vtable + ROM_BASE)) for t in targets)
++    rom[z2:z2 + ICON_LEN], rom[z2_dim:z2_dim + ICON_LEN] = icons
++
++    # 5. repoint
++    for off in TABLE_LITERALS:
++        rom[off:off + 4] = _word(table + ROM_BASE)
++    rom[ABILITY_12_ACTION:ABILITY_12_ACTION + 4] = _word(labels["gate"] | 1)
++    rom[HUD_LITERAL:HUD_LITERAL + 4] = _word(labels["hud"] | 1)
++    rom[HUD_SITE:HUD_SITE + len(HUD_PATCH)] = HUD_PATCH
++
++    alloc.notes["ssj2_form"] = {"table": table, "form_object": obj, "vtable": vtable, "code": code,
++                                "z2": z2, "z2_dim": z2_dim,
++                                **{k: v - ROM_BASE for k, v in labels.items() if not k.startswith(("tick_", "gate_", "hud_"))}}
+diff --git a/_live/permanent/tests/test_ssj2.py b/_live/permanent/tests/test_ssj2.py
+new file mode 100644
+index 0000000..8fb889c
+--- /dev/null
++++ b/_live/permanent/tests/test_ssj2.py
+@@ -0,0 +1,378 @@
++r"""
++test_ssj2.py - Tests for the usable Super Saiyan 2 patch (patches.ssj2_form), Task 6.
++
++Run (from the LOG root):
++  py -3 -I -m unittest discover -s scripts\permanent\tests -t scripts\permanent -v
++Builds scratch\build\test\ssj2.gba once (gohan_gi, ssj2_form; log: scratch\build\test\build-log-test.md) and
++the same two patches in memory, so the tests see the ROM before and after ssj2_form and its notes.
++Source:  docs\re-forms.md sections 1, 2 and 7 (patch sites, original bytes, Rulings 10-16).
++read_form reads the form behavior from code, never from the patch module: bonuses from the apply
++routine (add #imm or mov #imm before strb to player +0x160..+0x162), ki drain from the tick routine
++(the accumulator step loaded before `add r0,r0,rN`, counted only when the tick sends message 0x24).
++"""
++import re
++import struct
++import unittest
++from collections import namedtuple
++from pathlib import Path
++from unittest import mock
++
++import log2_build
++from log2_sprites import set_records
++from rom_space import Allocator
++from thumb_dis import dis, listing
++from webfoot_decompress import ROM_BASE, rom_ptr
++
++# ===== constants =====
++ROOT = Path(__file__).resolve().parents[3]
++BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
++BASE_ROM = BASE.read_bytes()
++ART = ROOT / "scratch" / "art"
++OUT = ROOT / "scratch" / "build" / "test" / "ssj2.gba"
++
++APPEARANCE, ENTRY, ENTRIES = 0x1D967C, 20, 22
++RAGE_FORM_ID, SSJ_FORM_ID, SSJ2_FORM_ID, BASE_FORM_ID = 4, 5, 22, 2   # appearance entries (re-forms.md 1)
++TABLE_LITERALS = (0x1954, 0x1B3C, 0x3B30, 0x414C, 0x854C, 0x886C, 0x8B04, 0xA77C, 0xAA04, 0xB050,
++                  0xC804, 0x10F18, 0x112BC, 0x13574, 0x14FF4, 0x26458, 0x26474)       # re-forms.md 7 item 1
++REVERSE_LITERAL = 0x42F0
++ABILITY_12_ACTION, VANILLA_ACTION = 0x1D99CC, 0x0801353D                             # item 5
++HUD_LITERAL, ABILITY_TABLE = 0x8E8C, 0x081D9900                                       # item 6
++HUD_SITE, HUD_OLD, HUD_NEW = 0x8D14, "4019007e00014618b168", "281c19f008f8011c07e0"  # item 7
++FORM_INIT = 0x080232E4          # stores the five IWRAM form objects' vtables (0x030021E0 + 4 * i)
++PLAYER_STATS = 0x161            # apply: `add r0,#0xff ; add r0,#0x61` = player +0x160, then strb [r0,#0..2]
++FLAG_BASE = 0x03000E90 + 0xB4   # flag n = byte FLAG_BASE + n / 8, bit n & 7 (@0x08003E42)
++SET_TABLE_LITERAL = 0x959C
++
++Form = namedtuple("Form", "entry methods code str_bonus pow_bonus end_bonus flat ki_drain")
++
++
++# ===== build (once) =====
++
++_CACHE = {}
++
++
++def built() -> dict:
++    """{"gi": ROM after gohan_gi, "rom": after ssj2_form, "notes": alloc.notes} built in memory and to OUT."""
++    if _CACHE:
++        return _CACHE
++    from patches import gohan_gi, ssj2_form
++    from tests.test_build import TEST_LOG, build
++    rom = bytearray(BASE_ROM) + b"\xFF" * (log2_build.ROM_SIZE - len(BASE_ROM))
++    alloc = Allocator(len(rom), log2_build.EXPANSION)
++    gohan_gi.apply(rom, alloc)
++    gi = bytes(rom)
++    ssj2_form.apply(rom, alloc)
++    with mock.patch.object(log2_build, "BUILD_LOG", TEST_LOG):
++        build(BASE, OUT, ["gohan_gi", "ssj2_form"])
++    _CACHE.update(gi=gi, rom=bytes(rom), notes=alloc.notes, file=OUT.read_bytes())
++    return _CACHE
++
++
++def built_rom(names=None) -> bytes:
++    return built()["rom"]
++
++
++def u32(rom: bytes, off: int) -> int:
++    return struct.unpack_from("<I", rom, off)[0]
++
++
++# ===== readers (from code and data, not from the patch) =====
++
++def table_of(rom: bytes) -> int:
++    """File offset of the appearance table the game reads (literal rom:0x1954)."""
++    return u32(rom, TABLE_LITERALS[0]) - ROM_BASE
++
++
++def entry_of(rom: bytes, e: int) -> bytes:
++    t = table_of(rom)
++    return rom[t + ENTRY * e:t + ENTRY * e + ENTRY]
++
++
++def vtable_of(rom: bytes, obj: int) -> int:
++    """Vtable address of a form object: a ROM word, or an IWRAM object set by FORM_INIT."""
++    if obj >= ROM_BASE:
++        return u32(rom, obj - ROM_BASE)
++    lines = [t for _, t in listing(rom, FORM_INIT, 15)]
++    vtables = [int(t.split("=")[1], 16) for t in lines if t.startswith("ldr r0,=")]
++    return vtables[(obj - 0x030021E0) // 4]
++
++
++def routine(rom: bytes, addr: int, limit: int = 120) -> list:
++    """Instruction texts from addr through the last exit (bx, pop {..pc} or b) past every branch target."""
++    out, far = [], addr
++    for a, text in listing(rom, addr, limit):
++        out.append(text)
++        m = re.match(r"b[a-z]{0,2} (0x[0-9a-f]+)$", text)
++        if m and not text.startswith("bl "):
++            far = max(far, int(m[1], 16))
++        if text.startswith(("bx ", "b ")) or text.startswith("pop") and "pc" in text:
++            if a >= far:
++                break
++    return out
++
++
++def read_form(rom: bytes, e: int) -> Form:
++    entry = entry_of(rom, e)
++    vt = vtable_of(rom, u32(entry, 0x10))
++    methods = tuple(((vt + struct.unpack_from("<i", rom, vt - ROM_BASE + 4 * i)[0]) & 0xFFFFFFFF) & ~1
++                    for i in range(4))
++    apply_code, tick_code = routine(rom, methods[0]), routine(rom, methods[1])
++    last, stats, flat = {}, [0, 0, 0], False
++    for text in apply_code:
++        m = re.match(r"(add|mov|lsr) (r\d),(#0x[0-9a-f]+|r\d,#\d+)$", text)
++        if m:
++            last[m[2]] = (m[1], int(m[3][1:], 16) if m[3].startswith("#") else 0)
++        m = re.match(r"strb (r\d),\[r0,#0x([0-2])\]$", text)
++        if m and m[1] in last:
++            op, imm = last[m[1]]
++            stats[int(m[2])] = imm if op in ("add", "mov") else 0
++            flat |= op == "mov"
++    drain = 0
++    if "mov r1,#0x24" in tick_code:
++        for a, b in zip(tick_code, tick_code[1:]):
++            m = re.match(r"ldr (r\d),=(0x[0-9a-f]+)$", a)
++            if m and b == f"add r0,r0,{m[1]}":
++                drain = int(m[2], 16)
++    return Form(entry, methods, (tuple(apply_code), tuple(tick_code)), *stats, flat, drain)
++
++
++def gate_parts(rom: bytes) -> dict:
++    """The step gate's table, flag address, flag bit, EP threshold and exits, read from its code."""
++    gate = u32(rom, ABILITY_12_ACTION) & ~1
++    code = routine(rom, gate, 40)
++    lits = [int(t.split("=")[1], 16) for t in code if "=" in t]
++    shift = next(int(t.split("#")[1]) for t in code if re.match(r"lsl r\d,r\d,#(2[4-9]|3[01])$", t)
++                 and not t.endswith("#31"))
++    ep = next(int(t.split("#")[1], 16) for t in code if re.match(r"cmp r\d,#0x", t))
++    return {"addr": gate, "code": code, "table": lits[0] - ROM_BASE, "flag_addr": lits[1],
++            "bit": 31 - shift, "ep": ep, "vanilla": lits[2]}
++
++
++def transform_step_condition(rom: bytes, from_form: int) -> tuple:
++    """("flag", n) when B in this form steps only with story flag n, else ("vanilla", None)."""
++    g = gate_parts(rom)
++    e = rom[g["table"] + ENTRY * from_form:g["table"] + ENTRY * from_form + ENTRY]
++    if not (e[0] & 1 and e[4] != e[5]):
++        return ("vanilla", None)
++    return ("flag", (g["flag_addr"] - FLAG_BASE) * 8 + g["bit"])
++
++
++# ===== expected disassembly (branch targets as +offset from the routine, named literals) =====
++
++EXPECTED = {
++    "apply": """push {r4,lr}|add r4,r1,#0|ldr r0,=0x086f7e50|ldr r0,[r0,#0x4]|ldrb r1,[r0,#0x0]|lsl r3,r1,#3
++        |sub r1,r3,r1|lsl r1,r1,#2|add r1,r1,r0|add r1,#0xc|ldrh r0,[r1,#0xa]|lsr r2,r0,#8|add r0,r4,#0
++        |add r0,#0xff|add r0,#0x61|add r2,#0x14|strb r2,[r0,#0x0]|ldrh r2,[r1,#0xc]|lsr r2,r2,#8|add r2,#0x14
++        |strb r2,[r0,#0x1]|ldrh r1,[r1,#0xe]|lsr r1,r1,#8|add r1,#0x14|strb r1,[r0,#0x2]|mov r1,#0x80
++        |strb r1,[r0,#0x3]|strb r1,[r0,#0x4]|ldr r1,=0x3fe00000|add r0,#0x28|ldr r2,=0x080265c5|bl STUB_R2
++        |add r0,r4,#0|add r0,#0xff|add r0,#0x8d|ldr r1,=0x40400000|ldr r2,=0x080265c5|bl STUB_R2|mov r0,#0x0
++        |add r4,#0xff|add r4,#0x81|str r0,[r4,#0x4]|pop {r4,pc}""",
++    "tick": """push {r3,r4,r5,lr}|add r5,r1,#0|add r0,r1,#0|ldr r1,[r1,#0x0]|ldr r2,[r1,#0x2c]|add r2,r2,r1
++        |mov r1,#0x24|bl STUB_R2|cmp r0,#0x0|bne +0x6e|add r4,r5,#0|add r4,#0xff|add r4,#0x81|ldr r0,[r4,#0x4]
++        |ldr r1,=0x0000199a|add r0,r0,r1|str r0,[r4,#0x4]|lsr r0,r0,#16|beq +0x6e|ldr r0,=0x086f7e50
++        |ldr r0,[r0,#0x4]|ldrb r1,[r0,#0x0]|lsl r3,r1,#3|sub r1,r3,r1|lsl r1,r1,#2|add r0,r1,r0|add r0,#0xc
++        |mov r3,#0x4|ldsh r2,[r0,r3]|add r1,r0,#4|cmp r2,#0x1|bge +0x48|mov r2,#0x0|strh r2,[r1,#0x0]|b +0x4c
++        |sub r2,#0x1|strh r2,[r1,#0x0]|ldrh r1,[r0,#0x4]|cmp r1,#0x0|bne +0x66|ldrh r0,[r0,#0x0]|cmp r0,#0x0
++        |beq +0x66|ldr r1,[r5,#0x0]|add r0,r5,#0|ldr r2,[r1,#0x28]|add r2,r2,r1|mov r1,#0x24|bl STUB_R2
++        |ldr r0,[r4,#0x4]|lsl r0,r0,#16|lsr r0,r0,#16|str r0,[r4,#0x4]|pop {r3,r4,r5,pc}""",
++    "gate": """ldrb r2,[r0,#0x8]|lsl r3,r2,#2|add r2,r3,r2|lsl r2,r2,#2|ldr r3,=TABLE|add r2,r2,r3
++        |ldrb r3,[r2,#0x0]|lsl r3,r3,#31|beq +0x36|ldrb r3,[r2,#0x4]|ldrb r2,[r2,#0x5]|cmp r2,r3|beq +0x36
++        |ldr r2,=0x03000f5c|ldrb r2,[r2,#0x0]|lsl r2,r2,#28|bpl +0x36|mov r3,#0x4|ldsh r2,[r0,r3]|cmp r2,#0xa
++        |blt +0x36|ldr r2,[r1,#0x0]|ldr r3,[r2,#0x28]|add r3,r3,r2|add r0,r1,#0|mov r1,#0x23|bx r3
++        |ldr r2,=0x0801353d|bx r2""",
++    "hud": """push {r4,r5,r6,lr}|add r4,r0,#0|ldrb r0,[r4,#0x9]|add r0,r0,r4|ldrb r5,[r0,#0x18]|lsl r0,r5,#4
++        |ldr r1,=0x081d9900|add r6,r0,r1|ldr r1,[r6,#0x8]|add r0,r4,#0|bl STUB_R1|cmp r5,#0xc|bne +0x2c
++        |ldrb r1,[r4,#0x8]|cmp r1,#0x16|bne +0x2c|ldr r1,=Z2|cmp r0,#0x0|bne +0x34|ldr r1,=Z2_DIM|b +0x34
++        |ldr r1,[r6,#0x0]|cmp r0,#0x0|bne +0x34|ldr r1,[r6,#0x4]|add r0,r1,#0|pop {r4,r5,r6,pc}""",
++    "stub_r1": "bx r1",
++    "stub_r2": "bx r2",
++}
++
++
++def normalized(rom: bytes, notes: dict, name: str, count: int) -> list:
++    """Disassemble a new routine; local targets become +offset, known addresses become names."""
++    start = notes[name] + ROM_BASE
++    names = {notes["table"] + ROM_BASE: "TABLE", notes["z2"] + ROM_BASE: "Z2", notes["z2_dim"] + ROM_BASE: "Z2_DIM",
++             notes["stub_r1"] + ROM_BASE: "STUB_R1", notes["stub_r2"] + ROM_BASE: "STUB_R2"}
++    end = start + 2 * count + 4
++
++    def sub(m):
++        v = int(m[0], 16)
++        if v in names:
++            return names[v]
++        return f"+{v - start:#x}" if start <= v < end and m.string.startswith("b") else m[0]
++    return [re.sub(r"0x[0-9a-f]+", sub, t) for _, t in listing(rom, start, count)]
++
++
++# ===== tests =====
++
++class Ssj2FormTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        b = built()
++        cls.gi, cls.rom, cls.notes = b["gi"], b["rom"], b["notes"]["ssj2_form"]
++        cls.gi_notes = b["notes"]["gohan_gi"]
++
++    # brief Step 1 tests
++
++    def test_ssj2_form_values(self):
++        f = read_form(self.rom, SSJ2_FORM_ID)
++        self.assertEqual((f.str_bonus, f.pow_bonus, f.end_bonus, f.flat), (20, 20, 20, False))
++        self.assertEqual(read_form(self.rom, SSJ_FORM_ID).ki_drain, 0xCCD)
++        self.assertEqual(f.ki_drain, 2 * read_form(self.rom, SSJ_FORM_ID).ki_drain)
++
++    def test_ssj2_gate_reads_flag_195(self):                # Review Focus 3
++        self.assertEqual(transform_step_condition(self.rom, from_form=SSJ_FORM_ID), ("flag", 195))
++        self.assertEqual(transform_step_condition(self.rom, from_form=BASE_FORM_ID), ("vanilla", None))
++        self.assertEqual(transform_step_condition(self.rom, from_form=SSJ2_FORM_ID), ("vanilla", None))
++        g = gate_parts(self.rom)
++        self.assertEqual((g["flag_addr"], g["bit"]), (0x03000F5C, 3))
++        self.assertEqual(g["vanilla"], VANILLA_ACTION)
++
++    def test_rage_unchanged(self):
++        self.assertEqual(read_form(self.rom, RAGE_FORM_ID), read_form(BASE_ROM, RAGE_FORM_ID))
++        self.assertEqual(entry_of(self.rom, RAGE_FORM_ID), BASE_ROM[APPEARANCE + 80:APPEARANCE + 100])
++        rage = read_form(self.rom, RAGE_FORM_ID)
++        self.assertEqual((rage.str_bonus, rage.flat, rage.ki_drain), (100, True, 0))
++
++    # Rulings 10, 11, 15 and 16
++
++    def test_end_ceiling_every_playable_form(self):         # Ruling 15: damage uses 0x80 - END
++        for e in range(ENTRIES + 1):
++            f = read_form(self.rom, e)
++            top = max(f.str_bonus, f.pow_bonus, f.end_bonus) if f.flat else 100 + f.end_bonus
++            self.assertLessEqual(top, 127, f"entry {e}")
++
++    def test_gate_reads_relocated_table_and_ep(self):       # Rulings 11 and 15
++        g = gate_parts(self.rom)
++        self.assertEqual(g["table"], table_of(self.rom))
++        self.assertNotEqual(g["table"], APPEARANCE)
++        self.assertEqual(g["ep"], 10)
++        self.assertGreaterEqual(g["ep"], 9)
++
++    def test_gate_keeps_lr(self):                            # Ruling 15: both exits are bx tail jumps
++        code = gate_parts(self.rom)["code"]
++        self.assertFalse([t for t in code if t.startswith(("push", "pop", "bl ", "mov lr"))])
++        self.assertEqual([t for t in code if t.startswith("bx")], ["bx r3", "bx r2"])
++
++    def test_gate_does_not_test_map_word(self):              # Ruling 16
++        code = gate_parts(self.rom)["code"]
++        self.assertFalse([t for t in code if "0x086db27c" in t or "0x03002080" in t])
++
++    def test_only_entry_5_steps(self):                       # the shared ability 12 action passes for others
++        rom, t = self.rom, table_of(self.rom)
++        steps = [e for e in range(ENTRIES + 1) if rom[t + ENTRY * e] & 1 and rom[t + ENTRY * e + 4] != rom[t + ENTRY * e + 5]]
++        self.assertEqual(steps, [SSJ_FORM_ID])
++
++    def test_entry5_plus4_is_22_and_entry22_reverts_to_2(self):
++        e5, e22 = entry_of(self.rom, SSJ_FORM_ID), entry_of(self.rom, SSJ2_FORM_ID)
++        self.assertEqual((e5[4], e5[5]), (22, 2))
++        self.assertEqual((e22[0], e22[1], e22[4], e22[5]), (1, 159, 2, 2))
++        self.assertEqual(e22[2:4], bytes([0x3D, 0x0C]))         # Ruling 13: Rage portraits until Task 7
++        self.assertEqual(e22[6:16], e5[6:16])
++
++    def test_entry22_set_is_gi_ssj2_with_anims_9_and_21(self):
++        table = u32(self.rom, SET_TABLE_LITERAL) - ROM_BASE
++        off = rom_ptr(self.rom, table + 4 * (159 - 7))
++        self.assertEqual(off, self.gi_notes["set_159"])
++        anims = {r["anim"] for r in set_records(self.rom, off)}
++        self.assertTrue({9, 21} <= anims)
++        self.assertEqual(struct.unpack_from("<H", self.rom, off)[0], 0x400)   # same slot as 157 and 158
++
++    def test_relocated_table_copies_live_table(self):        # Ruling 14
++        t, live = table_of(self.rom), self.gi[APPEARANCE:APPEARANCE + ENTRY * ENTRIES]
++        new = bytearray(self.rom[t:t + ENTRY * ENTRIES])
++        self.assertEqual(new[ENTRY * SSJ_FORM_ID + 4], 22)
++        new[ENTRY * SSJ_FORM_ID + 4] = 4
++        self.assertEqual(bytes(new), live)
++        self.assertEqual((live[ENTRY * 2 + 1], live[ENTRY * 5 + 1]), (157, 158))
++        self.assertEqual(self.rom[APPEARANCE:APPEARANCE + ENTRY * ENTRIES], live)   # old table kept as is
++
++    def test_reverse_lookup_still_finds_rage(self):          # Cell fight still forces Rage (ext 73 (0, 58))
++        copy = u32(self.rom, REVERSE_LITERAL) - ROM_BASE
++        self.assertEqual(copy, self.gi_notes["appearance_copy"])
++        self.assertEqual(next(e for e in range(ENTRIES) if self.rom[copy + ENTRY * e + 1] == 58), RAGE_FORM_ID)
++
++    def test_ssj2_form_object_and_vtable(self):
++        obj = u32(entry_of(self.rom, SSJ2_FORM_ID), 0x10)
++        self.assertEqual(obj, self.notes["form_object"] + ROM_BASE)
++        f, ssj = read_form(self.rom, SSJ2_FORM_ID), read_form(self.rom, SSJ_FORM_ID)
++        self.assertEqual(f.methods[:2], (self.notes["apply"] + ROM_BASE, self.notes["tick"] + ROM_BASE))
++        self.assertEqual(f.methods[2:], ssj.methods[2:])        # enter and leave: the Super Saiyan sound
++        vt = vtable_of(self.rom, obj) - ROM_BASE
++        words = struct.unpack_from("<6I", self.rom, vt)
++        self.assertEqual([(vt + ROM_BASE + w) & 0xFFFFFFFF for w in words],
++                         [self.notes["apply"] + ROM_BASE + 1, self.notes["tick"] + ROM_BASE + 1,
++                          0x08017377, 0x08017393, 0x080271E1, 0x08026391])
++
++    def test_ssj_tick_pool_untouched(self):                  # never patch the shared pool 0x080174A0
++        self.assertEqual(self.rom[0x17000:0x17500], BASE_ROM[0x17000:0x17500])
++        self.assertEqual(read_form(self.rom, SSJ_FORM_ID), read_form(BASE_ROM, SSJ_FORM_ID)._replace(
++            entry=entry_of(self.rom, SSJ_FORM_ID)))
++
++    # repointed literals and patch sites (fail closed)
++
++    def test_literals_repointed_from_old_values(self):
++        new_table = table_of(self.rom) + ROM_BASE
++        for off in TABLE_LITERALS:
++            self.assertEqual(u32(self.gi, off), APPEARANCE + ROM_BASE, f"rom:0x{off:X} before")
++            self.assertEqual(u32(self.rom, off), new_table, f"rom:0x{off:X} after")
++        self.assertEqual(len(set(TABLE_LITERALS)), 17)
++        self.assertEqual((u32(self.gi, ABILITY_12_ACTION), u32(self.rom, ABILITY_12_ACTION)),
++                         (VANILLA_ACTION, self.notes["gate"] + ROM_BASE + 1))
++        self.assertEqual((u32(self.gi, HUD_LITERAL), u32(self.rom, HUD_LITERAL)),
++                         (ABILITY_TABLE, self.notes["hud"] + ROM_BASE + 1))
++        self.assertEqual(self.gi[HUD_SITE:HUD_SITE + 10].hex(), HUD_OLD)
++        self.assertEqual(self.rom[HUD_SITE:HUD_SITE + 10].hex(), HUD_NEW)
++        self.assertEqual(u32(self.rom, REVERSE_LITERAL), u32(self.gi, REVERSE_LITERAL))
++
++    def test_apply_fails_closed(self):
++        from patches import ssj2_form
++        for off, junk in ((TABLE_LITERALS[5], b"\0\0\0\0"), (ABILITY_12_ACTION, b"\1\0\0\0"),
++                          (HUD_LITERAL, b"\0\0\0\0"), (HUD_SITE + 4, b"\xFF")):
++            rom = bytearray(self.gi)
++            rom[off:off + len(junk)] = junk
++            before = bytes(rom)
++            alloc = Allocator(len(rom), [(0xF00000, 0x100000)])
++            alloc.notes["gohan_gi"] = dict(self.gi_notes)
++            with self.assertRaises(ValueError, msg=f"rom:0x{off:X}"):
++                ssj2_form.apply(rom, alloc)
++            self.assertEqual(bytes(rom), before)
++        with self.assertRaises((ValueError, KeyError)):             # gohan_gi must run first
++            ssj2_form.apply(bytearray(self.gi), Allocator(len(self.gi), [(0xF00000, 0x100000)]))
++
++    def test_base_8mb_differs_only_at_patch_sites(self):
++        sites = {off: 4 for off in TABLE_LITERALS} | {ABILITY_12_ACTION: 4, HUD_LITERAL: 4, HUD_SITE: 10}
++        inside = {o for off, n in sites.items() for o in range(off, off + n)}
++        diff = [i for i in range(log2_build.BASE_SIZE) if self.gi[i] != self.rom[i]]
++        self.assertTrue(diff)
++        self.assertFalse([hex(i) for i in diff if i not in inside])
++
++    def test_new_data_in_expansion(self):
++        for key in ("table", "form_object", "vtable", "code", "z2", "z2_dim"):
++            self.assertGreaterEqual(self.notes[key], 0x800000, key)
++
++    def test_file_build_matches_memory_build(self):
++        self.assertEqual(built()["file"], self.rom)
++
++    # new code
++
++    def test_new_routines_disassemble_as_expected(self):
++        for name, text in EXPECTED.items():
++            want = [t.strip() for t in text.split("|")]
++            self.assertEqual(normalized(self.rom, self.notes, name, len(want)), want, name)
++
++    def test_hud_site_disassembles_as_expected(self):
++        self.assertEqual([t for _, t in listing(self.rom, 0x08008D10, 6)],
++                         ["ldrb r0,[r5,#0x9]", f"ldr r1,={self.notes['hud'] + ROM_BASE + 1:#010x}",
++                          "add r0,r5,#0", "bl 0x8021d2a", "add r1,r0,#0", "b 0x8008d2e"])
++
++    def test_z2_icons_in_rom(self):                          # owner-approved art, unchanged (Rulings 12, 17)
++        for key, name in (("z2", "hud_z2_usable.bin"), ("z2_dim", "hud_z2_dim.bin")):
++            off = self.notes[key]
++            self.assertEqual(off % 4, 0, key)                # the HUD copies it with 32-bit DMA (@0x08008DA4)
++            self.assertEqual(self.rom[off:off + 0x200], (ART / name).read_bytes(), key)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/_live/permanent/thumb_dis.py b/_live/permanent/thumb_dis.py
+new file mode 100644
+index 0000000..9439aea
+--- /dev/null
++++ b/_live/permanent/thumb_dis.py
+@@ -0,0 +1,116 @@
++r"""
++thumb_dis.py - Minimal ARMv4T Thumb disassembler over a ROM buffer (base, padded or patched).
++
++Usage:   py -3 -I scripts\permanent\thumb_dis.py <rom.gba> <hexaddr> [count]
++Output:  one line per instruction: address, raw bytes, text. Literal loads show the pool value.
++API:     dis(rom, addr) -> (text, size); listing(rom, addr, count) -> [(addr, text)]
++Rules:   addr is a GBA address (0x08xxxxxx). Text shapes match scratch\re\save\thumb.py, without
++         the pool address. Kept apart from the encoder in patches\ssj2_form.py on purpose: the tests
++         check new code with this decoder, so the two must not share code.
++"""
++import struct
++import sys
++from pathlib import Path
++
++# ===== constants =====
++ROM_BASE = 0x08000000
++REG = ["r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "sp", "lr", "pc"]
++COND = ["eq", "ne", "cs", "cc", "mi", "pl", "vs", "vc", "hi", "ls", "ge", "lt", "gt", "le", "al", "nv"]
++ALU = ["and", "eor", "lsl", "lsr", "asr", "adc", "sbc", "ror", "tst", "neg", "cmp", "cmn", "orr", "mul", "bic", "mvn"]
++
++
++def _u16(rom: bytes, a: int) -> int:
++    return struct.unpack_from("<H", rom, a - ROM_BASE)[0]
++
++
++def _u32(rom: bytes, a: int) -> int:
++    return struct.unpack_from("<I", rom, a - ROM_BASE)[0]
++
++
++def _rlist(m: int, extra: str = None) -> str:
++    regs = [REG[i] for i in range(8) if m >> i & 1] + ([extra] if extra else [])
++    return "{" + ",".join(regs) + "}"
++
++
++# ===== decoder =====
++
++def dis(rom: bytes, a: int) -> tuple:
++    """(text, size) for the Thumb instruction at GBA address a."""
++    h = _u16(rom, a)
++    top = h >> 11
++    rd, rs = h & 7, (h >> 3) & 7
++    if top < 3:
++        return f"{['lsl', 'lsr', 'asr'][top]} {REG[rd]},{REG[rs]},#{(h >> 6) & 31}", 2
++    if top == 3:
++        rn = (h >> 6) & 7
++        src = f"#{rn}" if h & 0x400 else REG[rn]
++        return f"{'sub' if h & 0x200 else 'add'} {REG[rd]},{REG[rs]},{src}", 2
++    if top < 8:
++        return f"{['mov', 'cmp', 'add', 'sub'][top - 4]} {REG[(h >> 8) & 7]},#{h & 0xFF:#x}", 2
++    if h >> 10 == 0x10:
++        return f"{ALU[(h >> 6) & 15]} {REG[rd]},{REG[rs]}", 2
++    if h >> 10 == 0x11:
++        op, d, s = (h >> 8) & 3, rd | ((h >> 4) & 8), (h >> 3) & 15
++        if op == 3:
++            return f"bx {REG[s]}", 2
++        return f"{['add', 'cmp', 'mov'][op]} {REG[d]},{REG[s]}", 2
++    if top == 9:
++        lit = ((a + 4) & ~3) + (h & 0xFF) * 4
++        value = _u32(rom, lit) if ROM_BASE <= lit < ROM_BASE + len(rom) - 3 else 0
++        return f"ldr {REG[(h >> 8) & 7]},={value:#010x}", 2
++    if h >> 12 == 5:
++        ro = (h >> 6) & 7
++        ops = ["strh", "ldsb", "ldrh", "ldsh"] if h & 0x200 else ["str", "strb", "ldr", "ldrb"]
++        return f"{ops[(h >> 10) & 3]} {REG[rd]},[{REG[rs]},{REG[ro]}]", 2
++    if h >> 13 == 3:
++        byte, load, off = h & 0x1000, h & 0x800, (h >> 6) & 31
++        return f"{'ldr' if load else 'str'}{'b' if byte else ''} {REG[rd]},[{REG[rs]},#{off if byte else off * 4:#x}]", 2
++    if h >> 12 == 8:
++        return f"{'ldrh' if h & 0x800 else 'strh'} {REG[rd]},[{REG[rs]},#{((h >> 6) & 31) * 2:#x}]", 2
++    if h >> 12 == 9:
++        return f"{'ldr' if h & 0x800 else 'str'} {REG[(h >> 8) & 7]},[sp,#{(h & 0xFF) * 4:#x}]", 2
++    if h >> 12 == 10:
++        return f"add {REG[(h >> 8) & 7]},{'sp' if h & 0x800 else 'pc'},#{(h & 0xFF) * 4:#x}", 2
++    if h >> 8 == 0xB0:
++        return f"{'sub' if h & 0x80 else 'add'} sp,#{(h & 0x7F) * 4:#x}", 2
++    if h >> 12 == 0xB and (h >> 9) & 3 == 2:
++        pop = h & 0x800
++        extra = ("pc" if pop else "lr") if h & 0x100 else None
++        return f"{'pop' if pop else 'push'} {_rlist(h & 0xFF, extra)}", 2
++    if h >> 12 == 0xC:
++        return f"{'ldmia' if h & 0x800 else 'stmia'} {REG[(h >> 8) & 7]}!,{_rlist(h & 0xFF)}", 2
++    if h >> 12 == 0xD:
++        c = (h >> 8) & 15
++        if c == 15:
++            return f"swi {h & 0xFF:#x}", 2
++        off = h & 0xFF
++        off -= 0x100 if off & 0x80 else 0
++        return f"b{COND[c]} {a + 4 + off * 2:#x}", 2
++    if top == 0x1C:
++        off = h & 0x7FF
++        off -= 0x800 if off & 0x400 else 0
++        return f"b {a + 4 + off * 2:#x}", 2
++    if top == 0x1E:
++        h2 = _u16(rom, a + 2)
++        if h2 >> 11 == 0x1F:
++            off = ((h & 0x7FF) << 12) | ((h2 & 0x7FF) << 1)
++            off -= 0x800000 if off & 0x400000 else 0
++            return f"bl {a + 4 + off:#x}", 4
++    return f".hword {h:#06x}", 2
++
++
++def listing(rom: bytes, a: int, count: int) -> list:
++    out = []
++    for _ in range(count):
++        text, size = dis(rom, a)
++        out.append((a, text))
++        a += size
++    return out
++
++
++if __name__ == "__main__":
++    data = Path(sys.argv[1]).read_bytes()
++    at = int(sys.argv[2], 16)
++    for addr, text in listing(data, at, int(sys.argv[3]) if len(sys.argv) > 3 else 40):
++        size = 4 if text.startswith("bl ") else 2
++        print(f"{addr:08x}  {data[addr - ROM_BASE:addr - ROM_BASE + size].hex():<8}  {text}")

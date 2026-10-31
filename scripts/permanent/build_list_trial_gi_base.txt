@@ -1,0 +1,5 @@
+# Trial build: the dev list, then gi_base_audit (log2_build.py --list scripts\permanent\build_list_trial_gi_base.txt).
+# Approval = move the gi_base_audit line into build_list_core.txt, or carry the frames into art\gi_base (then retire this
+# list). The include follows the dev list (test_gi_base_audit).
+include build_list_dev.txt
+gi_base_audit       # trial 2026-10-30: set 157 shows the 103 approved base-audit frames (art\base-audit\approved)

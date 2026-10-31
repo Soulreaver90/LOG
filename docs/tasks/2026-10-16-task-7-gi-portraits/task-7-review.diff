@@ -1,0 +1,712 @@
+# Review package: snapshot base-T7 -> live
+
+ {base-T7 => _live}/docs/RE-BIBLE.md                |  22 +-
+ {base-T7 => _live}/docs/build-log.md               |   9 +
+ /dev/null => _live/docs/re-portraits.md            | 102 +++++++++
+ .../permanent/patches/gohan_portraits.py           | 240 +++++++++++++++++++++
+ .../permanent/tests/test_portraits.py              | 214 ++++++++++++++++++
+ 5 files changed, 584 insertions(+), 3 deletions(-)
+
+diff --git a/base-T7/docs/RE-BIBLE.md b/_live/docs/RE-BIBLE.md
+index 34321ca..db91b75 100644
+--- a/base-T7/docs/RE-BIBLE.md
++++ b/_live/docs/RE-BIBLE.md
+@@ -17,21 +17,21 @@ Use these tag shapes. Each one is unique, so a plain text search finds every lin
+ | `rom:0x3B4E90` | A file offset in the ROM (address minus `0x08000000`) |
+ | `flag:195` | A story flag |
+ | `set:56` | A sprite set id |
+ | `pal:88` | A shared OBJ palette index |
+ | `char:gohan` | A character (`gohan`, `piccolo`, `vegeta`, `trunks`, `goku`, `hercule`) |
+ | `#codec` `#sprite` `#save` `#form` `#story` `#map` `#palette` `#hud` `#portrait` `#text` `#script` `#antipiracy` `#debug` `#tool` `#decision` `#open` | A topic |
+ | `game:bf` `game:log2eu` | A fact about Buu's Fury or the Europe LoG II. No game tag means LoG II USA |
+ 
+ Labels: **C** = CONFIRMED (proved, evidence in the source doc), **L** = LIKELY, **S** = SPECULATIVE, **O** = owner statement (from memory or play, not checked in the ROM).
+ 
+-Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `SAV` = `re-save-format.md`, `DES` = `2026-10-16-log-merge-design.md`, `OUT` = `re-outfit.md`, `FRM` = `re-forms.md`, `T5` = `scratch\sdd\slice1\task-5-report.md`, `T5P2` = `scratch\sdd\slice1\task-5-part2-report.md`, `T6` = `scratch\sdd\slice1\task-6-report.md`. Add new docs to this list.
++Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `SAV` = `re-save-format.md`, `DES` = `2026-10-16-log-merge-design.md`, `OUT` = `re-outfit.md`, `FRM` = `re-forms.md`, `T5` = `scratch\sdd\slice1\task-5-report.md`, `T5P2` = `scratch\sdd\slice1\task-5-part2-report.md`, `T6` = `scratch\sdd\slice1\task-6-report.md`, `POR` = `re-portraits.md`, `T7` = `scratch\sdd\slice1\task-7-report.md`. Add new docs to this list.
+ 
+ ---
+ 
+ ## 2. ROMs and files
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | Base ROM LoG II USA, code ALFE, 8 MB, SHA-1 `18e0715dec419f3501c301511530d2edcd590f8b`, No-Intro verified | #tool #decision | C | RN |
+ | LoG II Europe, code ALFP, 8 MB, SHA-1 `db36ff52fcd63f753f9d66439aa3d2216701c326`, reference for the status screen bonus display | game:log2eu | C | RN |
+ | Buu's Fury USA, code BG3E, 8 MB, SHA-1 `f1c4b07554d2a3b1ad2f325307051e775ce68087` | game:bf | C | RN |
+@@ -131,20 +131,36 @@ Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `
+ | `pal:34` `#a84800`, `pal:35` `#783000`: Piccolo's brown boots | #palette char:piccolo | C | RN |
+ | `pal:26` `#a80810`, `pal:30` `#f87070`: red | #palette | C | RN |
+ | `pal:72` `#0038b0`, `pal:77` `#2080f8`, `pal:195` `#2060c8`: blue | #palette | C | RN |
+ | `pal:79` `#4020d0`, `pal:80` `#3010a8`, `pal:81` `#200080`: Gohan battle suit blue | #palette char:gohan | C | RN |
+ | `pal:114`-`pal:117`: skin; `pal:40`-`pal:42`: yellow | #palette | C | RN |
+ | White and light grey entries (max channel >= 136, spread <= 48) that Gohan's armor sets use: `pal:2` (248,248,248), `pal:9` (216,216,216), `pal:10` (192,192,192), `pal:11` (168,168,168), `pal:12` (144,144,144), `pal:43` (248,248,240); `pal:13` and `pal:14` outline them. Light entries no Gohan set uses: 66, 122-124, 143, 144, 158, 159, 184, 185, 206-209, 219, 220, 241 | #palette char:gohan | C | T5 |
+ | Gohan armor groups: suit `pal:77`, `pal:79`, `pal:80`, `pal:81` (81 = outline); trim `pal:16`, `pal:40`-`pal:42`, `pal:46`, `pal:128`, `pal:131`, `pal:142` (`pal:46` is also a gold hair and aura color) | #palette char:gohan | C | T5 |
+ | `pal:191` (120,208,248): light blue of the Buu's Fury "3" glyph; the gi Super Saiyan 2 sparks use it with a white `pal:2` core | #palette #hud char:gohan | C | T5 |
+ | Generic color ramp table at `rom:0x1D9CA0`-`rom:0x1DA800` (not a character palette) | #palette | C | RN |
+ 
++## 5a. Portraits `#portrait`
++
++| Fact | Tags | Label | Src |
++|---|---|---|---|
++| `portrait(id)` `@0x0800BDCC` returns a frame header: id 0 none, id 1 leader and ids 2-7 party records through appearance +2 (`@0x08026440`), id > 7 the word at `@0x083EC9D4` + 4 x id; no upper bound (`cmp r0,#7 ; bgt` only) | #portrait #form | C | POR |
++| Portrait table block `rom:0x3EC9D0`: word 0 `0x03000E90` (read for ids 1-7), then 115 words for ids 0-114 (0-7 are 0). Only literal `rom:0xBE10` (`D0 C9 3E 08`); no other ROM word points into the block. `rom:0x3ECBA0` = `0x03001120` and `rom:0x3ECBA4` is the fade routine's RGB table (`@0x0800BE1C`), so the table cannot grow in place | #portrait | C | POR |
++| Portrait format: frame header type 1, size 0x1000, unpacks to 64x64 8bpp in row order (not tiles), e.g. `rom:0x6AF6A4` `01 00 00 00 00 10 00 00`; no portrait uses index 0 | #portrait #codec | C | POR |
++| All four portrait consumers unpack through `@0x0801F394` (`@0x08003A94`, `@0x0800BB3E`, `@0x08018CE4`, `@0x08019500`); type 0 copies via `@0x08021DF0`, an ARM memcpy for any alignment, so raw `{0, 0x1000, data}` portraits work | #portrait #codec | C | POR |
++| Appearance +2 = dialog portrait (only reader `@0x08026440`, literal `rom:0x26458`); dialog copies it to OBJ VRAM `0x06010000` (`@0x0800BB44`), shared OBJ palette `rom:0x1DA6C8` | #portrait #form #palette | C | POR |
++| Appearance +3 = status screen portrait (only reader `@0x08003A8C`, literal `rom:0x3B30`, status page `@0x0800379C`); drawn to BG VRAM `0x06006940` | #portrait #form | C | POR |
++| Status portraits (ids 8-25) use palette `rom:0x1D4F50` (81 indices); dialog portraits (ids 26-114) use the OBJ palette (183 indices, 168 among them). Same drawing per pair with indices remapped (58/9, 60/11: 4093 of 4096 px agree) | #portrait #palette | C (render, pairing) | POR |
++| `rom:0x1D4F50` is DMA'd to BG palette `0x05000000` at `@0x08011046` (menu init), with the OBJ palette to `0x05000200`; that this runs before the status page is not traced | #portrait #palette | C (bytes), L (order) | POR |
++| Gohan portrait ids (+2 / +3): entry 0 56/8, 1 58/9, 2 59/10, 3 60/11, 4 Rage 61/12, 5 Super Saiyan 62/13; entry 22 (Task 6) 61/12 | #portrait char:gohan | C | POR |
++| `data\reference\122601.png` (International) row 1: c4 Super Saiyan and c5 Super Saiyan 2 in the purple gi; c2 kid Demon clothes with neck piece; no teen gi base cell. None of these drawings is in the USA ROM. c4 and c5 use only OBJ palette colors except (200,248,168) | #portrait char:gohan | C (pixels), L (c5 = Super Saiyan 2, not Rage) | POR |
++| Portrait build (`gohan_portraits`, after `gohan_gi` and `ssj2_form`): block `rom:0x863F00` (struct word, ids 0-114 copied, 115-118 new), `rom:0xBE10` repointed; raw type 0 portraits 115 gi Super Saiyan dialog `rom:0x8640E0`, 116 status `rom:0x8650E8`, 117 gi Super Saiyan 2 dialog `rom:0x8660F0`, 118 status `rom:0x8670F8`; relocated appearance table `rom:0x8637AC` entry 5 +2/+3 = 115/116, entry 22 = 117/118; entry 2 keeps the armor 59/10 (no gi base source art). `log2_poc.gba` SHA-1 `345ae98c1145f669d936cad62cad8635467f3824` | #portrait #tool char:gohan | C (bytes, tests), L (in game) | T7, POR |
++
+ ## 6. Forms and appearance `#form`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | Appearance table `rom:0x1D967C`: 22 entries of 20 bytes. +0 bit 0 = transformed form, +1 = sprite set id, +4 = form to transform into, +5 = base form | #form #sprite | C (table, +1, +0), L (+4) | SAV |
+ | Character record +0x08 = appearance entry index; used at `@0x080042BC`, `@0x08003ED4` | #form #save | C | SAV |
+ | Gohan post-Cell appearance entry 2 = `set:56` (script `@0x083EBFF8`, ext op 73) | #form char:gohan | C (ext 73 `(0, 56)` at `@0x083EBFFC` and `@0x083DB62B`; `@0x080042BC` picks entry 2) | SAV, OUT |
+ | Gohan appearance entries: 0 `set:53`, 1 `set:55`, 2 `set:56` (+4 = 5), 3 `set:57`, 4 `set:58` Rage (+0 = 3), 5 `set:59` Super Saiyan (+4 = 4, +5 = 2). Bytes in OUT section 1 | #form char:gohan | C | OUT |
+ | Appearance +4 = transform target, +5 = revert target (`@0x08014D58`, `@0x08003ED4`); +0x10 = IWRAM form object, vtable +8 on enter, +0xC on leave; +6 = frame count, +7 = frame bound (`@0x0800850C`), +8 = frame bit mask and +0xC = a word (`@0x0800843C`, `@0x08008448`), all for state `@0x080083C2`; +2, +3 = image ids for `@0x0800BDCC` | #form | C | OUT |
+ | Every playable path reads appearance +1: map load `@0x0800C584`, player refresh `@0x080085FC`, set leader `@0x0800A680`, Switch Characters `@0x08011172`, transform `@0x08014D58`, menus `@0x08010BCE` and `@0x08001AB8`, ids 1-6 | #form #sprite char:gohan | C | OUT |
+@@ -170,21 +186,21 @@ Source docs: `RN` = `research-notes.md`, `SPR` = `re-sprite-decompression.md`, `
+ | HUD icon: raw 0x200-byte 8bpp 32x16 image per ability; "Z" = `@0x086DAE7C` (usable), `@0x086DB07C` (dim); HUD routine `@0x08008BEE` builds 0x500 bytes from frame `@0x086D7B54` and DMAs to OBJ VRAM; HP, EP, EXP bar pixels overwrite parts of the icon | #hud | C | FRM |
+ | Task 6 plan: relocated appearance table with entry 22, entry 5 +4 = 22, step gate on ability 12 action `rom:0x1D99CC`, HUD hook `rom:0x8D14` + literal `rom:0x8E8C`; Thumb BL cannot reach the expansion area | #decision #form #hud | C (sites), O (design) | FRM |
+ | Task 6 rules: new apply and tick are re-encodings with own pools (never patch shared pool `@0x080174A0`); gate keeps lr, reads the relocated table, skips the map word (Ruling 16); step EP cost >= 9 (8 EP drain during the 160-frame step); END bonus test 100 + bonus <= 127 (damage uses `0x80 - END` at `@0x0800F94E`) | #decision #form | C (code quotes), L (overflow margin `@0x0800F974`) | FRM |
+ | Owner memory check: Gohan EP `@0x03000EA0`, appearance `@0x03000EA4`, live STR/POW/END at `[@0x03001FA8]` +0x160..+0x162, cooldown `@0x03000E98`, `flag:195` at `@0x03000F5C` bit 3 | #form #save char:gohan | C | FRM |
+ | Form object init `@0x080232E4` stores vtables `@0x08024004`, `@0x08024E4C`, `@0x0802526C`, `@0x08024C58`, `@0x08024ABC` into `@0x030021E0` + 4 x i. No other aligned ROM word equals a form object or vtable address (only this pool `@0x08023304` and the appearance table), so no code compares the form object to a constant | #form | C (shape: aligned words; a computed compare would not appear) | T6 |
+ | Only appearance entry 5 has +0 bit 0 set and +4 != +5 (all 22 entries read); entry 22 after Task 6 has +4 = +5 = 2 | #form char:gohan | C | T6 |
+ | Ability action call `@0x08007F0A`: `ldr r2,[r5,#0xc] ; bl 0x8021d2c` with r0 = record, r1 = player; test call `@0x08007EFE` (bx r1) | #form #hud | C | T6 |
+ | Super Saiyan and Rage enter (`@0x08017376`, `@0x08017158`) both start sound entry 55 (`0x080E15B0` + 0x294, 12-byte entries) on the sound object `[0x086F7E50]+0x5C4` through `@0x0801FC9C`; leave stops it through `@0x0801FC22`. No form method makes an object | #form | C | T6 |
+ | Rage has no aura object attached to the player: the Rage form methods, ext 73 handler `@0x0800A8EC`, state 9 (ext 57 (0, 9)) and ext 46, 47, 49 make none. The Cell scene `@0x083EA33D`-`@0x083EA36F` also runs ext 42 (10), a screen-wide palette effect (L: flash), and ext 43 (10), a 12-byte scene task (vtable `@0x0802545C`, +8 = 10, L: a wait, not traced). The lightning is drawn in the `set:58` frames; `set:159` carries it in blue (T5). Task 6 builds no aura and does not copy the cutscene palette effect (vanilla Super Saiyan has none) | #form #sprite char:gohan set:58 set:159 | C (form methods, ext 73, state 9, ext 46/47/49), L (ext 42, ext 43) | T6 |
+ | Super Namek tick `@0x08017400`: accumulator += 0xCCD; on overflow leader HP += 1 % and EP -= 1, message 0x24 at EP 0 (same shape as Super Saiyan plus HP regen) | #form char:piccolo | C | T6 |
+-| Super Saiyan 2 build (`ssj2_form`): relocated appearance table with entry 22 (`01 9F 3D 0C 02 02` + entry 5 +6..+0xF + form object), entry 5 +4 = 22, 17 table literals repointed, `rom:0x42F0` kept on the gohan_gi copy; ROM form object + vtable (apply +20, speeds 1.75 / 3.0, tick step 0x199A = 6 EP/s, Super Saiyan enter and leave); step gate on `rom:0x1D99CC` (flag 195 at `@0x03000F5C` bit 3, EP >= 10, relocated table, leaf with bx tail jumps); HUD hook `rom:0x8D14` + `rom:0x8E8C` returns the Z2 icon pair for ability 12 in entry 22. In `log2_poc.gba`: table `rom:0x8637AC`, form object `rom:0x863978`, vtable `rom:0x86397C`, Z2 `rom:0x863994` / `rom:0x863B94`, code `rom:0x863D94` (apply), `rom:0x863DEE` (tick), `rom:0x863E5E` (gate), `rom:0x863E98` (HUD) | #form #hud #tool char:gohan set:159 | C (bytes, Ghidra disassembly), L (in-game) | T6 |
++| Super Saiyan 2 build (`ssj2_form`): relocated appearance table with entry 22 (`01 9F 3D 0C 02 02` + entry 5 +6..+0xF + form object), entry 5 +4 = 22, 17 table literals repointed, `rom:0x42F0` kept on the gohan_gi copy; ROM form object + vtable (apply +20, speeds 1.75 / 3.0, tick step 0x199A = 6 EP/s, Super Saiyan enter and leave); step gate on `rom:0x1D99CC` (flag 195 at `@0x03000F5C` bit 3, EP >= 10, relocated table, leaf with bx tail jumps); HUD hook `rom:0x8D14` + `rom:0x8E8C` returns the Z2 icon pair for ability 12 in entry 22. In `log2_poc.gba`: table `rom:0x8637AC`, form object `rom:0x863978`, vtable `rom:0x86397C`, Z2 `rom:0x863994` / `rom:0x863B94`, code `rom:0x863D94` (apply), `rom:0x863DEE` (tick), `rom:0x863E5E` (gate), `rom:0x863E98` (HUD). After T7, `log2_poc.gba` also holds `gohan_portraits`: entry 22 +2/+3 is 117/118 (`75 76`), entry 5 +2/+3 is 115/116; the offsets above are unchanged | #form #hud #tool char:gohan set:159 | C (bytes, Ghidra disassembly), L (in-game) | T6 |
+ 
+ ## 7. Save format `#save`
+ 
+ | Fact | Tags | Label | Src |
+ |---|---|---|---|
+ | EEPROM library `@0x080218E0` (identify), `@0x08021ACC` (read dword), `@0x08021CB0` (program dword); game uses 8 KB | #save | C | SAV |
+ | RAM shadow of the EEPROM at `@0x0203E000` (pointer at `@0x03003898`); game uses bytes 0x000-0x447 | #save | C | SAV |
+ | Checksum: Adler-32 `@0x0802153E`, mod 65521 at `@0x08027F1C` | #save | C | SAV |
+ | Options block at EEPROM 0x000 (4 bytes) + `adler32 + 0x12345678`; defaults 4, 6, 4, 0 | #save | C | SAV |
+ | Slots at 0x10 + n*0x168: 0x164 bytes of the struct at `@0x03000E90` + u32 Adler-32 | #save | C | SAV |
+@@ -296,16 +312,16 @@ Short form. Full wording in DES.
+ |---|---|---|
+ | Which code uses `set:55` and `set:56` (cutscene or playable): answered in OUT section 5 | #sprite char:gohan | Task 3 (done) |
+ | How appearance resolves to a set during play, and the patch site for the gi: answered in OUT sections 2 and 6 | #form | Task 3 (done) |
+ | Owner: Cell Games Arena NPC Gohan (map 14,1) stays in armor while another character leads. Acceptable? | #open #decision char:gohan | Task 5 |
+ | Owner: in the Cell Games, NPC Gohan is armor, the player Gohan is the gi from `@0x083E93A8`, then Rage, then armor post-Cell. Acceptable? | #open #decision char:gohan | Task 5 |
+ | Entry 5 (Super Saiyan) +4 = 4 (Rage `set:58`): never reached in play, answered in FRM section 2 | #form | Task 4 (done) |
+ | Form table, transform input, Rage event, ki drain: answered in FRM sections 1-3 | #form | Task 4 (done) |
+ | HUD "Z" icon storage and draw: answered in FRM section 4 | #hud | Task 4 (done) |
+ | Owner: Super Saiyan 2 step from Super Saiyan or from base; when "Z2" shows; Super Saiyan 2 speed and EP cost; which set Super Saiyan 2 shows: answered by Rulings 10-13 and built in Task 6 (step from Super Saiyan, Z2 in Super Saiyan 2, Super Saiyan speeds, EP 10, `set:159`) | #decision #form | Task 6 (done) |
+ | Can the game save while the leader is transformed (record +8 = 22 after Task 6)? Not traced in Task 6; a save in Super Saiyan 2 loads only on the patched ROM (an unpatched ROM reads index 22 past the table) | #open #save #form | owner test |
+-| Portrait storage and format | #open #portrait | Task 7 |
++| Portrait storage and format: answered in POR (Task 7) | #portrait | Task 7 (done) |
+ | Free ROM space | #open | Task 1 |
+ | Copy from WRAM frame buffer to OBJ VRAM: answered in T5P2 | #sprite | Task 5 (done) |
+ | Controller ruling on the 18 gi SSJ2 frames over the 1024-byte player slot: answered by Ruling 35 (hair trimmed to 32x32) | #sprite char:gohan | Task 5 (done) |
+ | Animation timing data: frame counts and timing live in per-state tick routines (OUT section 7); only 3 animations traced | #open #sprite | none |
+ | Header +1 bits 1-2, record +0x14 bits 1-2 (struct +0x08 and record +0x18 answered in FRM) | #open #save | none |
+diff --git a/base-T7/docs/build-log.md b/_live/docs/build-log.md
+index 94f6de1..26ccd59 100644
+--- a/base-T7/docs/build-log.md
++++ b/_live/docs/build-log.md
+@@ -32,10 +32,19 @@ One line per build, appended by `scripts\permanent\log2_build.py`. Replaces comm
+ - 2026-10-17 01:14 build log2_poc_gi.gba patches=gohan_gi sha1=40d66d64dfda1179365b094194083ff828f1b6dd
+ - 2026-10-17 01:34 build log2_poc.gba patches=gohan_gi,ssj2_form sha1=86ae697b9b061480bbe3ffebab6e2b63b8e0a524
+ 
+ ## Task 6: usable Super Saiyan 2
+ 
+ - Build: scratch\build\log2_poc.gba = gohan_gi + ssj2_form, SHA-1 `86ae697b9b061480bbe3ffebab6e2b63b8e0a524`. The gohan_gi stage alone still gives `40d66d64dfda1179365b094194083ff828f1b6dd`.
+ - Base 8 MB changes against the gohan_gi build: the 17 appearance table literals, rom:0x1D99CC (ability 12 action), rom:0x8E8C (HUD literal) and rom:0x8D14-0x8D1D (HUD call). Nothing else.
+ - Expansion: table rom:0x8637AC (23 entries), form object rom:0x863978, vtable rom:0x86397C, Z2 icons rom:0x863994 and rom:0x863B94, code rom:0x863D94-0x863EFF.
+ - Tests: 57 OK (22 new in test_ssj2.py); 59 OK after the review fix round, same SHA-1. New routines checked by thumb_dis.py and by a Ghidra import of the build (scratch\re\t6\ghidra_t6.txt).
+ - 2026-10-17 01:59 build log2_poc.gba patches=gohan_gi,ssj2_form sha1=86ae697b9b061480bbe3ffebab6e2b63b8e0a524
++- 2026-10-17 02:24 build log2_poc.gba patches=gohan_gi,ssj2_form,gohan_portraits sha1=345ae98c1145f669d936cad62cad8635467f3824
++
++## Task 7: gi portraits
++
++- Build: scratch\build\log2_poc.gba = gohan_gi + ssj2_form + gohan_portraits, SHA-1 `345ae98c1145f669d936cad62cad8635467f3824`. The Task 6 ROM is kept as scratch\build\log2_poc_t6.gba (SHA-1 `86ae697b9b061480bbe3ffebab6e2b63b8e0a524`).
++- Base 8 MB changes against the gohan_gi + ssj2_form build: rom:0xBE10 only (portrait table literal, 0x083EC9D0 to 0x08863F00; 3 bytes differ). Nothing else.
++- Expansion: portrait table block rom:0x863F00 (struct word, ids 0-114 copied, ids 115-118), raw type 0 portraits 115 rom:0x8640E0, 116 rom:0x8650E8, 117 rom:0x8660F0, 118 rom:0x8670F8. Relocated appearance table rom:0x8637AC: entry 5 +2/+3 = 115/116 (was 62/13), entry 22 +2/+3 = 117/118 (was 61/12). Entry 2 keeps 59/10 (no gi base source art).
++- Art: scratch\art\portraits\ (PNGs, manifest.json), review sheet scratch\art\portraits_review.png. Owner approval pending.
++- Tests: 74 OK (15 new in test_portraits.py).
+diff --git a/_live/docs/re-portraits.md b/_live/docs/re-portraits.md
+new file mode 100644
+index 0000000..2d8b90f
+--- /dev/null
++++ b/_live/docs/re-portraits.md
+@@ -0,0 +1,102 @@
++# LoG II portraits (USA, ALFE)
++
++Date: 2026-10-17. ROM SHA-1 `18e0715dec419f3501c301511530d2edcd590f8b`. Addresses are GBA addresses. "rom:0x..." is a file offset (address minus 0x08000000).
++
++Labels: **CONFIRMED** = proved here with quoted bytes or disassembly. **LIKELY** = strong evidence, not proved. **SPECULATIVE** = a guess.
++
++
++
++## Result in one paragraph
++
++Portraits use the sprite codec. Each one is a frame header `{u32 type, u32 size = 0x1000}` and a stream that unpacks to 64x64 pixels, 8 bits per pixel, in plain row order (not 8x8 tiles). One table of 115 words maps a portrait id to its header. Ids 1-7 are not table entries: id 1 is the party leader and ids 2-7 are party records 0-5, and both resolve through appearance +2. Appearance +2 is the dialog portrait (OBJ, shared OBJ palette rom:0x1DA6C8). Appearance +3 is the status screen portrait (BG, palette rom:0x1D4F50). Ids 8-25 are the 18 status portraits, ids 26-114 are dialog portraits. No portrait carries its own palette.
++
++---
++
++## 1. Lookup (CONFIRMED)
++
++`portrait(id)` at 0x0800BDCC returns a frame header pointer:
++
++```
++0800bdce  cmp r0,#0x0 ; bne         ; id 0 = none
++0800bdd4  ldr r1,=0x083ec9d0        ; pool rom:0xBE10 = d0 c9 3e 08
++0800bdd6  cmp r0,#0x1 ; bne
++0800bdda  ldr r0,[r1,#0x0]          ; word 0 = 0x03000E90 (save struct)
++0800bddc  ldrb r1,[r0,#0x0] ...     ; leader record
++0800bde8  bl 0x8026440              ; appearance +2 of the leader, then portrait() again
++0800bdee  cmp r0,#0x7 ; bgt
++0800bdf2  sub r0,#0x2 ...           ; ids 2-7 = record id-2
++0800be00  bl 0x8026440
++0800be06  ldr r1,=0x083ec9d0
++0800be08  lsl r0,r0,#2
++0800be0a  add r1,#0x4
++0800be0c  ldr r0,[r1,r0]            ; id > 7: word at 0x083EC9D4 + 4 * id
++```
++
++- There is no upper bound on the id (`cmp r0,#7 ; bgt` only).
++- 0x08026440 reads appearance +2: `0802644e ldrb r0,[r0,#0x2] ; bl 0x800bdcc`. Its table literal is rom:0x26458.
++- Table block rom:0x3EC9D0-0x3ECB9F: word 0 `0x03000E90`, then ids 0-114 (ids 0-7 are 0). The next word, rom:0x3ECBA0, is `0x03001120`, and rom:0x3ECBA4 is an RGB table read by the fade routine at 0x0800BE14 (`ldr r4,=0x083ecba4`). So the table cannot grow in place.
++- rom:0xBE10 is the only ROM word in 0x083EC9D0-0x083ECBA3 (aligned word scan of the whole ROM). A reader that computes the address another way would not appear.
++
++## 2. Format (CONFIRMED)
++
++- Every id 8-114 has a type 1 header with size 0x1000, for example rom:0x6AF6A4 `01 00 00 00 00 10 00 00`. Each stream ends where the next header starts (id 8: 860 packed bytes, next at rom:0x6AFA08).
++- The data is 64x64 linear 8bpp. All 107 decode with `webfoot_decompress.unpack_frame` and render as clean faces in row order. A 1D tile order renders noise. Render: `scratch\re\portraits\all_linear_1DA6C8.png`.
++- No index 0 pixel appears in any portrait (index 0 is transparent).
++- Every consumer unpacks through the dispatcher 0x0801F394 (r0 = header, r1 = destination): 0x08003A94 (status), 0x0800BB3E (dialog), 0x08018CE4 and 0x08019500 (two menu screens, ids from an object field). Type 0 copies `size` bytes from header + 8 through 0x08021DF0, an ARM memcpy that handles any alignment (`08021dfc ands r12,r0,#0x3`, `08021e28 ands r3,r1,#0x3`). So a raw type 0 portrait `{0, 0x1000, 4096 bytes}` works on all four paths.
++
++## 3. Who reads appearance +2 and +3 (CONFIRMED)
++
++| Reader | Byte | Use |
++|---|---|---|
++| 0x08026440 (`ldrb r0,[r0,#0x2]`), reached only from 0x0800BDCC ids 1-7 | +2 | Dialog speaker 1 (leader) and 2-7 (party records). Dialog unpacks at 0x0800BB3E, then copies to OBJ VRAM (`0800bb44 ldr r1,=0x06010000`, `bl 0x80236cc`) |
++| 0x08003A8C (`ldrb r0,[r0,#0x3]`, table literal rom:0x3B30) in status page 0x0800379C | +3 | Status screen: HP, EP, STR, POW, END bars (STR/POW/END from player +0x160 when the record is the leader), portrait to BG VRAM 0x06006940 (`bl 0x80236b4`) |
++
++- These are the only +2 and +3 readers. Source: the Task 3 appearance table sweep (OUT section 3, 18 literal pools and every BL to the table helpers). Both literals rom:0x26458 and rom:0x3B30 were repointed to the relocated table by `ssj2_form`.
++- Dialog speaker ids 1-7 resolve through the record's current appearance. So a cutscene shows the gi portrait only when Gohan's record is in a gi entry. No ext 73 call passes set 59 (`scratch\re\outfit\ext73.txt`), so entry 5 and entry 22 are reached only by the player transform. LIKELY: no cutscene dialog shows them.
++- The box style switch at 0x0800B25E tests the speaker id passed in (r5), not the resolved portrait id. New ids never reach it.
++
++## 4. Palettes
++
++| Portraits | Palette | Label | Proof |
++|---|---|---|---|
++| Ids 26-114 (dialog, appearance +2) | Shared OBJ palette rom:0x1DA6C8 | CONFIRMED | Dialog copies to OBJ VRAM 0x06010000. All 89 render correctly with it |
++| Ids 8-25 (status, appearance +3) | rom:0x1D4F50 | CONFIRMED (render and pairing) | All 18 render correctly with it and wrongly with the OBJ palette. Each is the same drawing as a dialog portrait with indices remapped: pairs 58/9 and 60/11 agree on 4093 of 4096 pixels |
++| rom:0x1D4F50 is the menu BG palette | DMA to 0x05000000 at 0x08011046 | CONFIRMED (bytes), LIKELY (that this init runs before the status page) | `08011046 ldr r1,=0x081d4f50 ; ldr r0,=0x040000d4 ; str r1,[r0] ; mov r1,#5 ; lsl r1,r1,#24 ; str r1,[r0,#4]`, then the OBJ palette to 0x05000200 |
++
++- Status portraits use 81 indices of rom:0x1D4F50. Dialog portraits use 183 indices of the OBJ palette, and index 168 (set at run time) is among them.
++- The status palette is not stored raw or as RGB triplets anywhere else, and no 512-byte compressed resource matches it (searches in `scratch\re\portraits\p5.py`, `p6.py`).
++
++## 5. Gohan portrait ids (CONFIRMED, from the appearance table)
++
++| Entry | Form | +2 dialog | +3 status |
++|---|---|---|---|
++| 0 | Demon clothes kid (set 53) | 56 | 8 |
++| 1 | Kid, blue shirt (set 55) | 58 | 9 |
++| 2 | Armor, post-chamber (set 56, gi set 157 after Task 5) | 59 | 10 |
++| 3 | Armor variant (set 57) | 60 | 11 |
++| 4 | Rage (set 58) | 61 | 12 |
++| 5 | Super Saiyan (set 59, gi set 158) | 62 | 13 |
++| 22 | Super Saiyan 2 (Task 6, set 159) | 61 | 12 |
++
++## 6. Reference sheet `data\reference\122601.png`
++
++- Cells are 64x64 at x = 4 + 68 x column, y = 4 + 68 x row. Each cell includes the grey frame, as the ROM portraits do.
++- Row 1 (Gohan): c0 kid white shirt, c1 kid armor, c2 kid Demon clothes with the white neck piece, c3 kid blue shirt, **c4 Super Saiyan in the purple gi**, **c5 Super Saiyan 2 in the purple gi**, c6 Super Saiyan with an orange gi. None of these drawings exists in the USA ROM (best pixel match under 2500 of 4096, `p8.py`, `p11.py`).
++- The International dialog art fits the USA OBJ palette: c4 and c5 use only OBJ colors except one light green, (200,248,168).
++- No cell shows teen Gohan in the gi in base form. c2 is the kid face with the neck piece the owner ruled out.
++
++## 7. Task 7 patch `gohan_portraits` (CONFIRMED bytes, LIKELY in game)
++
++- Runs after `gohan_gi` and `ssj2_form`. In `log2_poc.gba` (SHA-1 `345ae98c1145f669d936cad62cad8635467f3824`): block rom:0x863F00 (word 0 `0x03000E90`, ids 0-114 copied unchanged, ids 115-118 new); rom:0xBE10 = `00 3F 86 08`.
++- New ids, raw type 0 `{0, 0x1000, 4096 bytes}`: 115 gi Super Saiyan dialog (rom:0x8640E0), 116 gi Super Saiyan status (rom:0x8650E8), 117 gi Super Saiyan 2 dialog (rom:0x8660F0), 118 gi Super Saiyan 2 status (rom:0x8670F8).
++- Relocated appearance table rom:0x8637AC: entry 5 +2/+3 `3E 0D` to `73 74`, entry 22 `3D 0C` to `75 76`. Entry 2 keeps `3B 0A` (armor): the sheet has no teen gi base portrait.
++- Dialog art uses only OBJ indices that USA dialog portraits use (never 0 or 168). It matches the source exactly except the light green (200,248,168), error 1280 (squared RGB). Status art takes the game's own +2 to +3 index pairing, else the nearest status index; its largest error is 5952 on two dark greens (6 and 54 pixels). For (48,168,0) and (0,168,24) the game pair is worse than the nearest status index (4416 and 2688), so the rule, not the palette, causes those two errors. Per-color errors are in `scratch\art\portraits\manifest.json`.
++- The International gi is blue-violet (48,16,168), not the Piccolo purple of the gi sprites (`pal:88`, `pal:89`). The art is kept as ripped; the owner decides.
++- In-game display is not tested yet (owner test).
++
++## 8. Tools
++
++| File | Purpose |
++|---|---|
++| `scratch\re\portraits\p1.py`-`p11.py` | Throwaway scans: decode, layout, palette search, pairing, sheet matching |
++| `scripts\permanent\patches\gohan_portraits.py` | Task 7 patch: relocated portrait table and the new gi portraits |
+diff --git a/_live/permanent/patches/gohan_portraits.py b/_live/permanent/patches/gohan_portraits.py
+new file mode 100644
+index 0000000..c88bfb6
+--- /dev/null
++++ b/_live/permanent/patches/gohan_portraits.py
+@@ -0,0 +1,240 @@
++r"""
++gohan_portraits.py - Patch: gi portraits for playable Gohan in Super Saiyan and Super Saiyan 2 (Task 7).
++
++Usage:   py -3 -I scripts\permanent\patches\gohan_portraits.py art      (from the LOG root: makes the PNGs)
++         py -3 -I scripts\permanent\log2_build.py --out scratch\build\log2_poc.gba gohan_gi ssj2_form gohan_portraits
++Input:   art: data\reference\122601.png (read only) and the base ROM palettes. apply: scratch\art\portraits\*.png
++         and alloc.notes["ssj2_form"] (the relocated appearance table).
++Output:  art: scratch\art\portraits\<name>_dialog.png, <name>_status.png (indexed, ROM palette), manifest.json,
++         scratch\art\portraits_review.png. apply: file offsets in alloc.notes["gohan_portraits"].
++API:     make_art(base_rom) -> manifest    convert(base_rom, cell_rgb) -> (dialog, status, report)
++         load_art(name) -> (dialog bytes, status bytes)    apply(rom, alloc) -> None
++Method:  1. Source cells: 122601.png row 1, column 4 (Super Saiyan, purple gi) and column 5 (Super Saiyan 2).
++            The sheet has no teen gi base portrait, so entry 2 keeps the armor portraits (no invented art).
++         2. Dialog version (appearance +2, OBJ VRAM): each color to an OBJ palette index that a USA dialog
++            portrait (ids 26-114) already uses; exact color first, then nearest. Never index 0 or 168.
++         3. Status version (appearance +3, BG): each dialog index to the status index the game itself pairs it
++            with (the 18 appearance +2/+3 pairs), else the nearest status index ids 8-25 use.
++         4. Copy the portrait table block (rom:0x3EC9D0, struct word + ids 0-114) to the expansion area, add ids
++            115-118 as raw type 0 frames, point rom:0xBE10 at the copy, and set +2/+3 of entries 5 and 22 in the
++            relocated appearance table.
++Rules:   Source: docs\re-portraits.md. No palette is written. Every site is checked against its old bytes first.
++         Cutscenes keep the armor: they use raw speaker ids, and old ids 0-114 are copied unchanged.
++"""
++import json
++import struct
++import sys
++from collections import Counter, defaultdict
++from pathlib import Path
++
++from PIL import Image, ImageDraw
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # isolated mode (-I) drops the script folder
++
++from webfoot_decompress import ROM_BASE, unpack_frame  # noqa: E402
++
++# ===== constants =====
++ROOT = Path(__file__).resolve().parents[3]
++BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
++REFERENCE = ROOT / "data" / "reference" / "122601.png"
++ART = ROOT / "scratch" / "art" / "portraits"
++REVIEW = ROOT / "scratch" / "art" / "portraits_review.png"
++
++PORTRAIT_LITERAL = 0xBE10                    # pool of portrait() @0x0800BDCC, the block's only reference
++BLOCK, STRUCT_WORD = 0x3EC9D0, 0x03000E90    # word 0 (read for ids 1-7), then ids 0-114
++OLD_IDS, END_WORD = 115, 0x03001120          # rom:0x3ECBA0 holds END_WORD: the table cannot grow in place
++SIDE, SIZE = 64, 0x1000                      # 64x64, 8bpp, row order
++OBJ_PAL, STATUS_PAL = 0x1DA6C8, 0x1D4F50
++DIALOG_IDS, STATUS_IDS = range(26, OLD_IDS), range(8, 26)
++NEVER = {0, 168}                             # transparent; set at run time (RE-BIBLE section 5)
++APPEARANCE, ENTRY, ENTRIES = 0x1D967C, 20, 22
++PLUS2_LITERAL, PLUS3_LITERAL = 0x26458, 0x3B30   # @0x08026440 (+2) and @0x08003A8C (+3) table pools
++CELL = (4, 4, 68)                            # 122601.png: cell x = 4 + 68 * col, y = 4 + 68 * row
++MIN_VOTES = 4                                # a game pairing below this many pixels is noise
++# name: (sheet column, row, appearance entry, old +2/+3 (the armor portraits), new +2/+3)
++FORMS = {
++    "gi_ssj":  (4, 1, 5, (0x3E, 0x0D), (115, 116)),
++    "gi_ssj2": (5, 1, 22, (0x3D, 0x0C), (117, 118)),
++}
++BASE_ENTRY, BASE_PORTRAITS = 2, (0x3B, 0x0A)  # gi base: no source cell, left on the armor
++
++
++# ===== ROM readers =====
++
++def u32(rom: bytes, off: int) -> int:
++    return struct.unpack_from("<I", rom, off)[0]
++
++
++def palette(rom: bytes, off: int) -> list:
++    return [((c & 31) << 3, ((c >> 5) & 31) << 3, ((c >> 10) & 31) << 3)
++            for c in struct.unpack_from("<256H", rom, off)]
++
++
++def portrait(rom: bytes, pid: int, block: int = BLOCK) -> bytes:
++    """Pixels of portrait id pid (> 7) read through a table block like the one at rom:0x3EC9D0."""
++    hdr = u32(rom, block + 4 + 4 * pid) - ROM_BASE
++    data = unpack_frame(rom, hdr)[2]
++    if len(data) != SIZE:
++        raise ValueError(f"portrait {pid} unpacked to {len(data)} bytes")
++    return data
++
++
++def pairs(rom: bytes) -> list:
++    """(+2 dialog id, +3 status id) of every vanilla appearance entry."""
++    return [tuple(rom[APPEARANCE + ENTRY * e + 2:APPEARANCE + ENTRY * e + 4]) for e in range(ENTRIES)]
++
++
++# ===== conversion =====
++
++def _nearest(rgb: tuple, pal: list, allowed: set, use: Counter) -> int:
++    return min(allowed, key=lambda k: (sum((a - b) ** 2 for a, b in zip(rgb, pal[k])), -use[k], k))
++
++
++def _error(a: tuple, b: tuple) -> int:
++    return sum((x - y) ** 2 for x, y in zip(a, b))
++
++
++def convert(rom: bytes, cell: list) -> tuple:
++    """(dialog pixels, status pixels, report) for 64x64 RGB pixels. Deterministic."""
++    obj, stat = palette(rom, OBJ_PAL), palette(rom, STATUS_PAL)
++    use_obj, use_stat = Counter(), Counter()
++    for pid in DIALOG_IDS:
++        use_obj.update(portrait(rom, pid))
++    for pid in STATUS_IDS:
++        use_stat.update(portrait(rom, pid))
++    ok_obj, ok_stat = set(use_obj) - NEVER, set(use_stat) - NEVER
++    votes = defaultdict(Counter)
++    for d, s in pairs(rom):
++        for a, b in zip(portrait(rom, d), portrait(rom, s)):
++            votes[a][b] += 1
++    to_obj = {rgb: _nearest(rgb, obj, ok_obj, use_obj) for rgb in set(cell)}
++    dialog = bytes(to_obj[p] for p in cell)
++    to_stat, how = {}, {}
++    for k in set(dialog):
++        best = votes[k].most_common(1)
++        if best and best[0][1] >= MIN_VOTES and best[0][0] in ok_stat:
++            to_stat[k], how[k] = best[0][0], "game pair"
++        else:
++            to_stat[k], how[k] = _nearest(obj[k], stat, ok_stat, use_stat), "nearest"
++    status = bytes(to_stat[k] for k in dialog)
++    report = []
++    for rgb, n in sorted(Counter(cell).items(), key=lambda x: -x[1]):
++        k = to_obj[rgb]
++        report.append({"rgb": list(rgb), "pixels": n, "dialog": k, "dialog_err": _error(rgb, obj[k]),
++                       "status": to_stat[k], "status_err": _error(rgb, stat[to_stat[k]]), "status_by": how[k]})
++    return dialog, status, report
++
++
++def cell_pixels(col: int, row: int) -> list:
++    x, y = CELL[0] + CELL[2] * col, CELL[1] + CELL[2] * row
++    with Image.open(REFERENCE) as img:
++        return list(img.convert("RGB").crop((x, y, x + SIDE, y + SIDE)).get_flattened_data())
++
++
++def _indexed(px: bytes, pal: list) -> Image.Image:
++    img = Image.frombytes("P", (SIDE, SIDE), px)
++    img.putpalette([c for rgb in pal for c in rgb])
++    return img
++
++
++def load_art(name: str) -> tuple:
++    """(dialog pixels, status pixels) from the PNGs that make_art wrote."""
++    out = []
++    for kind in ("dialog", "status"):
++        with Image.open(ART / f"{name}_{kind}.png") as img:
++            if img.mode != "P" or img.size != (SIDE, SIDE):
++                raise ValueError(f"{name}_{kind}.png must be a {SIDE}x{SIDE} indexed PNG")
++            out.append(img.tobytes())
++    return tuple(out)
++
++
++def make_art(rom: bytes) -> dict:
++    ART.mkdir(parents=True, exist_ok=True)
++    obj, stat = palette(rom, OBJ_PAL), palette(rom, STATUS_PAL)
++    manifest = {}
++    rows = []
++    for name, (col, row, entry, old, new) in FORMS.items():
++        cell = cell_pixels(col, row)
++        dialog, status, report = convert(rom, cell)
++        _indexed(dialog, obj).save(ART / f"{name}_dialog.png")
++        _indexed(status, stat).save(ART / f"{name}_status.png")
++        manifest[name] = {"source": f"122601.png row {row} column {col}", "entry": entry,
++                          "old_ids": list(old), "new_ids": list(new),
++                          "max_dialog_err": max(c["dialog_err"] for c in report),
++                          "max_status_err": max(c["status_err"] for c in report), "colors": report}
++        src = Image.new("RGB", (SIDE, SIDE))
++        src.putdata(cell)
++        rows.append((f"{name} dialog: new id {new[0]} | armor id {old[0]} | source", _indexed(dialog, obj),
++                     _indexed(portrait(rom, old[0]), obj), src))
++        rows.append((f"{name} status: new id {new[1]} | armor id {old[1]} | source", _indexed(status, stat),
++                     _indexed(portrait(rom, old[1]), stat), src))
++    (ART / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="ascii", newline="\n")
++    _review(rows)
++    return manifest
++
++
++def _review(rows: list) -> None:
++    scale, pad, label = 4, 8, 16
++    w = 3 * SIDE * scale + 4 * pad
++    sheet = Image.new("RGB", (w, len(rows) * (SIDE * scale + label + pad) + pad), (48, 48, 48))
++    draw = ImageDraw.Draw(sheet)
++    for i, (text, *imgs) in enumerate(rows):
++        y = pad + i * (SIDE * scale + label + pad)
++        draw.text((pad, y), text, fill=(255, 255, 255))
++        for j, img in enumerate(imgs):
++            sheet.paste(img.convert("RGB").resize((SIDE * scale, SIDE * scale), Image.NEAREST),
++                        (pad + j * (SIDE * scale + pad), y + label))
++    sheet.save(REVIEW)
++
++
++# ===== patch =====
++
++def _expect(rom: bytearray, off: int, want: bytes) -> None:
++    if bytes(rom[off:off + len(want)]) != want:
++        raise ValueError(f"rom:0x{off:X} is {bytes(rom[off:off + len(want)]).hex()}, expected {want.hex()}")
++
++
++def _word(v: int) -> bytes:
++    return struct.pack("<I", v)
++
++
++def apply(rom: bytearray, alloc) -> None:
++    table = alloc.notes["ssj2_form"]["table"]                       # ssj2_form must run first (entry 22)
++    _expect(rom, PORTRAIT_LITERAL, _word(BLOCK + ROM_BASE))
++    _expect(rom, BLOCK, _word(STRUCT_WORD))
++    _expect(rom, BLOCK + 4 + 4 * OLD_IDS, _word(END_WORD))
++    for off in (PLUS2_LITERAL, PLUS3_LITERAL):
++        _expect(rom, off, _word(table + ROM_BASE))
++    _expect(rom, table + ENTRY * BASE_ENTRY + 2, bytes(BASE_PORTRAITS))
++    for name, (_, _, entry, old, _) in FORMS.items():
++        _expect(rom, table + ENTRY * entry + 2, bytes(old))
++    ok_obj = {k for pid in DIALOG_IDS for k in portrait(rom, pid)} - NEVER
++    ok_stat = {k for pid in STATUS_IDS for k in portrait(rom, pid)} - NEVER
++    art = {name: load_art(name) for name in FORMS}
++    for name, (dialog, status) in art.items():
++        if set(dialog) - ok_obj or set(status) - ok_stat:
++            raise ValueError(f"{name}: an index outside the colors the game uses for portraits")
++
++    ids = [pid for *_, new in FORMS.values() for pid in new]
++    if ids != list(range(OLD_IDS, OLD_IDS + len(ids))):
++        raise ValueError(f"new ids must follow id {OLD_IDS - 1} in order: {ids}")
++    block = alloc.alloc(4 + 4 * (OLD_IDS + len(ids)))
++    rom[block:block + 4 + 4 * OLD_IDS] = rom[BLOCK:BLOCK + 4 + 4 * OLD_IDS]
++    frames = {}
++    for name, (_, _, entry, _, new) in FORMS.items():
++        for pid, px in zip(new, art[name]):
++            hdr = alloc.alloc(8 + SIZE)
++            rom[hdr:hdr + 8 + SIZE] = _word(0) + _word(SIZE) + px      # raw type 0 (@0x0801F394)
++            rom[block + 4 + 4 * pid:block + 8 + 4 * pid] = _word(hdr + ROM_BASE)
++            frames[pid] = hdr
++        rom[table + ENTRY * entry + 2:table + ENTRY * entry + 4] = bytes(new)
++    rom[PORTRAIT_LITERAL:PORTRAIT_LITERAL + 4] = _word(block + ROM_BASE)
++    alloc.notes["gohan_portraits"] = {"block": block, "frames": frames}
++
++
++if __name__ == "__main__":
++    if sys.argv[1:] != ["art"]:
++        sys.exit(__doc__)
++    for form, m in make_art(BASE.read_bytes()).items():
++        print(f"{form}: ids {m['new_ids']} max error dialog {m['max_dialog_err']} status {m['max_status_err']}")
++    print(f"review sheet {REVIEW}")
+diff --git a/_live/permanent/tests/test_portraits.py b/_live/permanent/tests/test_portraits.py
+new file mode 100644
+index 0000000..04c1b8e
+--- /dev/null
++++ b/_live/permanent/tests/test_portraits.py
+@@ -0,0 +1,214 @@
++r"""
++test_portraits.py - Tests for the gi portrait patch (patches.gohan_portraits), Task 7.
++
++Run (from the LOG root):
++  py -3 -I -m unittest discover -s scripts\permanent\tests -t scripts\permanent -v
++Builds scratch\build\test\portraits.gba once (gohan_gi, ssj2_form, gohan_portraits; log:
++scratch\build\test\build-log-test.md) and the same patches in memory, so the tests see the ROM before and
++after gohan_portraits and its notes.
++Source:  docs\re-portraits.md. The readers below take the table and entries from the ROM (literals rom:0xBE10,
++rom:0x26458, rom:0x3B30), never from the patch module's notes.
++"""
++import struct
++import unittest
++from pathlib import Path
++from unittest import mock
++
++import log2_build
++from rom_space import Allocator
++from thumb_dis import listing
++from webfoot_decompress import ROM_BASE, unpack_frame
++
++# ===== constants =====
++ROOT = Path(__file__).resolve().parents[3]
++BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
++BASE_ROM = BASE.read_bytes()
++OUT = ROOT / "scratch" / "build" / "test" / "portraits.gba"
++
++PORTRAIT_FN, PORTRAIT_LITERAL = 0x0800BDCC, 0xBE10       # re-portraits.md 1
++OLD_BLOCK, STRUCT_WORD, OLD_IDS = 0x3EC9D0, 0x03000E90, 115
++PLUS2_LITERAL, PLUS3_LITERAL = 0x26458, 0x3B30           # re-portraits.md 3
++APPEARANCE, ENTRY, ENTRIES = 0x1D967C, 20, 23            # relocated table holds entry 22 (Task 6)
++OBJ_PAL, STATUS_PAL = 0x1DA6C8, 0x1D4F50
++NEW = {"gi_ssj": (5, (0x3E, 0x0D), (115, 116)), "gi_ssj2": (22, (0x3D, 0x0C), (117, 118))}
++BASE_ENTRY, ARMOR = 2, (0x3B, 0x0A)                      # gi base: no source cell, keeps the armor
++
++
++# ===== build (once) =====
++
++_CACHE = {}
++
++
++def built() -> dict:
++    """{"before": ROM after ssj2_form, "rom": after gohan_portraits, "notes", "file"} built in memory and to OUT."""
++    if _CACHE:
++        return _CACHE
++    from patches import gohan_gi, gohan_portraits, ssj2_form
++    from tests.test_build import TEST_LOG, build
++    rom = bytearray(BASE_ROM) + b"\xFF" * (log2_build.ROM_SIZE - len(BASE_ROM))
++    alloc = Allocator(len(rom), log2_build.EXPANSION)
++    gohan_gi.apply(rom, alloc)
++    ssj2_form.apply(rom, alloc)
++    before, notes_before = bytes(rom), {k: dict(v) for k, v in alloc.notes.items()}
++    gohan_portraits.apply(rom, alloc)
++    with mock.patch.object(log2_build, "BUILD_LOG", TEST_LOG):
++        build(BASE, OUT, ["gohan_gi", "ssj2_form", "gohan_portraits"])
++    _CACHE.update(before=before, notes_before=notes_before, rom=bytes(rom), notes=alloc.notes,
++                  file=OUT.read_bytes())
++    return _CACHE
++
++
++def u32(rom: bytes, off: int) -> int:
++    return struct.unpack_from("<I", rom, off)[0]
++
++
++# ===== readers (from the ROM) =====
++
++def block_of(rom: bytes) -> int:
++    return u32(rom, PORTRAIT_LITERAL) - ROM_BASE
++
++
++def portrait(rom: bytes, pid: int) -> tuple:
++    """(type, size, pixels) of portrait id pid as 0x0800BDCC finds it: word at block + 4 + 4 * id."""
++    kind, size, data, _ = unpack_frame(rom, u32(rom, block_of(rom) + 4 + 4 * pid) - ROM_BASE)
++    return kind, size, data
++
++
++def portraits_of(rom: bytes, entry: int, literal: int) -> bytes:
++    """+2 and +3 of an appearance entry in the table that literal (a reader's pool) points at."""
++    t = u32(rom, literal) - ROM_BASE
++    return rom[t + ENTRY * entry + 2:t + ENTRY * entry + 4]
++
++
++class PortraitTests(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        b = built()
++        cls.before, cls.rom, cls.notes = b["before"], b["rom"], b["notes"]["gohan_portraits"]
++        cls.notes_before = b["notes_before"]
++
++    # lookup and table
++
++    def test_lookup_has_no_upper_bound(self):                 # new ids 115-118 reach the table word
++        texts = [t for _, t in listing(self.rom, PORTRAIT_FN, 32)]
++        cmps = [t for t in texts if t.startswith("cmp r0,")]
++        self.assertEqual(cmps, ["cmp r0,#0x0", "cmp r0,#0x1", "cmp r0,#0x7"])
++        self.assertIn("bgt 0x800be06", texts)
++        self.assertEqual(self.rom[0xBDCC:0xBE10], BASE_ROM[0xBDCC:0xBE10])
++
++    def test_relocated_block_keeps_struct_word_and_old_ids(self):
++        block = block_of(self.rom)
++        self.assertGreaterEqual(block, 0x800000)
++        self.assertEqual(u32(self.rom, block), STRUCT_WORD)
++        self.assertEqual(self.rom[block:block + 4 + 4 * OLD_IDS], BASE_ROM[OLD_BLOCK:OLD_BLOCK + 4 + 4 * OLD_IDS])
++
++    def test_every_old_id_decodes_unchanged(self):            # cutscenes use raw ids 8-114
++        old = bytes(self.before)
++        for pid in range(8, OLD_IDS):
++            self.assertEqual(portrait(self.rom, pid), portrait(old, pid), pid)
++
++    def test_new_ids_decode_to_the_pngs(self):
++        from patches.gohan_portraits import load_art
++        for name, (_, _, ids) in NEW.items():
++            for pid, px in zip(ids, load_art(name)):
++                self.assertEqual(portrait(self.rom, pid), (0, 0x1000, px), pid)
++                self.assertEqual(u32(self.rom, block_of(self.rom) + 4 + 4 * pid) % 4, 0)
++
++    # appearance entries
++
++    def test_entries_point_at_new_ids(self):
++        for literal in (PLUS2_LITERAL, PLUS3_LITERAL):        # both readers see the same relocated table
++            self.assertEqual(u32(self.rom, literal), self.notes_before["ssj2_form"]["table"] + ROM_BASE)
++        for name, (entry, old, new) in NEW.items():
++            self.assertEqual(tuple(portraits_of(self.before, entry, PLUS2_LITERAL)), old, name)
++            self.assertEqual(tuple(portraits_of(self.rom, entry, PLUS2_LITERAL)), new, name)
++
++    def test_gi_base_keeps_armor_portraits(self):              # no gi base cell in 122601.png
++        self.assertEqual(tuple(portraits_of(self.rom, BASE_ENTRY, PLUS3_LITERAL)), ARMOR)
++
++    def test_other_entries_unchanged(self):
++        t0, t1 = u32(self.before, PLUS2_LITERAL) - ROM_BASE, u32(self.rom, PLUS2_LITERAL) - ROM_BASE
++        changed = [e for e in range(ENTRIES)
++                   if self.before[t0 + ENTRY * e:t0 + ENTRY * (e + 1)] != self.rom[t1 + ENTRY * e:t1 + ENTRY * (e + 1)]]
++        self.assertEqual(changed, [5, 22])
++
++    def test_apply_fails_closed(self):
++        from patches import gohan_portraits
++        table = self.notes_before["ssj2_form"]["table"]
++        for off, junk in ((PORTRAIT_LITERAL, b"\0\0\0\0"), (OLD_BLOCK, b"\0\0\0\0"),
++                          (OLD_BLOCK + 4 + 4 * OLD_IDS, b"\0\0\0\0"), (PLUS3_LITERAL, b"\0\0\0\0"),
++                          (table + ENTRY * 5 + 2, b"\x3F"), (table + ENTRY * 22 + 3, b"\x0D"),
++                          (table + ENTRY * BASE_ENTRY + 2, b"\x3C")):
++            rom = bytearray(self.before)
++            rom[off:off + len(junk)] = junk
++            before = bytes(rom)
++            alloc = Allocator(len(rom), [(0xF00000, 0x100000)])
++            alloc.notes.update({k: dict(v) for k, v in self.notes_before.items()})
++            with self.assertRaises(ValueError, msg=f"rom:0x{off:X}"):
++                gohan_portraits.apply(rom, alloc)
++            self.assertEqual(bytes(rom), before)
++        with self.assertRaises(KeyError):                         # ssj2_form must run first
++            gohan_portraits.apply(bytearray(self.before), Allocator(len(self.before), [(0xF00000, 0x100000)]))
++
++    def test_apply_rejects_index_outside_portrait_colors(self):
++        from patches import gohan_portraits
++        real = gohan_portraits.load_art
++        for bad, side in ((0, 0), (168, 0), (0, 1)):
++            def fake(name, bad=bad, side=side):
++                art = list(real(name))
++                art[side] = bytes([bad]) + art[side][1:]
++                return tuple(art)
++            rom = bytearray(self.before)
++            alloc = Allocator(len(rom), [(0xF00000, 0x100000)])
++            alloc.notes.update({k: dict(v) for k, v in self.notes_before.items()})
++            with mock.patch.object(gohan_portraits, "load_art", fake), self.assertRaises(ValueError):
++                gohan_portraits.apply(rom, alloc)
++            self.assertEqual(bytes(rom), self.before)
++
++    # art
++
++    def test_pngs_reproduce_from_reference(self):
++        from patches.gohan_portraits import FORMS, cell_pixels, convert, load_art
++        for name, (col, row, *_) in FORMS.items():
++            self.assertEqual(convert(BASE_ROM, cell_pixels(col, row))[:2], load_art(name), name)
++
++    def test_art_uses_only_portrait_colors(self):
++        from patches.gohan_portraits import load_art
++        used = {}
++        for key, ids in (("dialog", range(26, OLD_IDS)), ("status", range(8, 26))):
++            used[key] = {k for pid in ids for k in portrait(BASE_ROM, pid)[2]}
++        for name in NEW:
++            dialog, status = load_art(name)
++            self.assertFalse(set(dialog) - used["dialog"], name)
++            self.assertFalse(set(status) - used["status"], name)
++            self.assertFalse({0, 168} & (set(dialog) | set(status)), name)
++
++    # build
++
++    def test_base_8mb_differs_only_at_portrait_literal(self):
++        diff = [i for i in range(log2_build.BASE_SIZE) if self.before[i] != self.rom[i]]
++        self.assertTrue(diff)
++        self.assertFalse(set(diff) - set(range(PORTRAIT_LITERAL, PORTRAIT_LITERAL + 4)))
++
++    def test_palettes_unchanged(self):
++        for off in (OBJ_PAL, STATUS_PAL):
++            self.assertEqual(self.rom[off:off + 0x200], BASE_ROM[off:off + 0x200])
++
++    def test_new_data_only_in_free_expansion(self):
++        block = self.notes["block"]
++        spans = [(block, 4 + 4 * (OLD_IDS + 4))] + [(h, 8 + 0x1000) for h in self.notes["frames"].values()]
++        for start, n in spans:
++            self.assertGreaterEqual(start, 0x800000)
++            self.assertEqual(self.before[start:start + n], b"\xFF" * n, hex(start))
++        diff = [i for i in range(log2_build.BASE_SIZE, log2_build.ROM_SIZE) if self.before[i] != self.rom[i]]
++        table = self.notes_before["ssj2_form"]["table"]
++        spans += [(table + ENTRY * entry + 2, 2) for entry, *_ in NEW.values()]   # +2/+3 of entries 5 and 22
++        inside = {o for s, n in spans for o in range(s, s + n)}
++        self.assertFalse([hex(i) for i in diff if i not in inside])
++
++    def test_file_build_matches_memory_build(self):
++        self.assertEqual(built()["file"], self.rom)
++
++
++if __name__ == "__main__":
++    unittest.main()

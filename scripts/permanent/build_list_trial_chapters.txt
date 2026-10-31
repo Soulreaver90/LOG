@@ -1,0 +1,5 @@
+# Trial build: the dev list, then chapter_cards (log2_build.py --list scripts\permanent\build_list_trial_chapters.txt).
+# Approval = move the chapter_cards line into build_list_core.txt, after relay_cooldown.
+# The include follows the dev list (test_chapter_cards).
+include build_list_dev.txt
+chapter_cards       # trial 2026-10-25: chapter title card on Continue (BF chapter cards, stand-in song 25)

@@ -1,0 +1,102 @@
+# LOG .gitignore
+#
+# LOG is a personal ROM hack. The repository carries the code that BUILDS the hack, never the game data it
+# builds from or produces. Nothing here is a copyright notice: it is the list of what must never be pushed.
+#
+# CLAUDE.md names builds\, data\ and zhack\. The real rule is wider, so this file is the rule:
+# archive\ and scratch\ hold 446 ROM, save and state files between them, 3.3 GB and 1.3 GB.
+
+# ===== folders that hold game data =====
+# data\      the owner's own ROM dumps, rips and references. Never redistributable, and never written to.
+# builds\    every build ROM, with its .sav and savestates.
+# zhack\     another modder's hack: the source ROM, its IPS patch, and the study sheets taken from it.
+# archive\   dated copies of old builds, art rounds and snapshots. 3.3 GB, and full of ROMs.
+# scratch\   throwaway: test ROMs, sprite exports, ROM copies, the Python environment, Ghidra projects. 1.3 GB.
+builds/
+data/
+zhack/
+archive/
+scratch/
+
+# ===== game data by extension, anywhere =====
+# Belt and braces. A ROM, a save or a savestate that lands outside the folders above is still barred.
+# The Z Hack ROM proved the need: it sat in docs\, where no folder rule reached it.
+*.gba
+*.gb
+*.gbc
+*.sav
+*.srm
+*.ss[0-9]
+*.ips
+*.bps
+*.ups
+
+# BizHawk writes these two names during a capture run (scripts\permanent\emu\capture.py).
+*.SaveRAM
+*.State
+
+# ===== generated output =====
+# scripts\one-time\  one dated folder per study: 205 MB of probe listings, ROM copies and a Ghidra log.
+#                    The study reports in docs\tasks\ carry the findings, which is what a reader needs.
+# test-data\         the save files the tests read. They are game data.
+scripts/one-time/
+test-data/
+
+# ===== Python and editor =====
+__pycache__/
+*.pyc
+.pytest_cache/
+LOG.code-workspace
+
+# ===== art: finished work only =====
+# The zhack\ layout is the model: a finalized sprite list, not a working folder. Scratch art, working rounds,
+# mockup frames, review GIFs and ripped vanilla sheets never go up (owner, 2026-10-31).
+#
+# Three things are kept, and nothing else:
+#   1. build inputs      the patch modules read these, so a clone cannot build the ROM without them
+#   2. finished art      the finalized portraits and the master swatch
+#   3. art\tables\       palette.json and portraits.json, read by art_inject
+#
+# Gohan's gi sets are NOT finished art. They are here only because gohan_gi is line 1 of the main build
+# list. Remove the four gi lines below to drop them, and a clean clone then cannot build r40.
+art/*
+
+# --- build inputs ---
+!art/tables/
+
+# --- finished portraits: the 6 finals, the manifest and the owner's source drawing. Not work\ or remaster\ ---
+!art/portrait-sources/
+art/portrait-sources/*
+!art/portrait-sources/*.png
+!art/portrait-sources/manifest.json
+!art/portrait-sources/src/
+
+# --- the master swatch ---
+!art/base-audit/
+art/base-audit/*
+!art/base-audit/gi_master_swatch.png
+
+# --- build inputs that live at the top of art\ or in an art subfolder ---
+# Proven by building the exported index, not by reading the code: each line below is a file the main
+# build list actually opens. ssj2_form reads the two HUD icon blobs; superperfect_cell reads cell_aura.
+!art/hud_z2_usable.bin
+!art/hud_z2_dim.bin
+!art/cell_aura/
+art/cell_aura/*
+!art/cell_aura/scale_15/
+
+# The four gi art folders left on 2026-10-31, when the golden master stopped needing them.
+# Golden builds from vanilla pixels (gohan_gi_vanilla). The gi art is dev-only and stays on disk.
+# A clone can build the golden master. It cannot build dev, which is the point.
+
+# ===== local working files, not part of the hack =====
+# CLAUDE.md drives the local tooling. It is not something a modder cloning this needs, and the repository
+# should not carry assistant-specific files. It stays on disk and out of the repository.
+CLAUDE.md
+
+# Another modder's hack, kept for clean-room study only. Never published, never copied into our art.
+kai/
+
+# The ledger is my day-by-day work diary, not something a modder cloning this needs.
+# It stays on disk and keeps being written; it just does not go to the repository.
+docs/ledger/

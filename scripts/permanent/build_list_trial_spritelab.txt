@@ -1,0 +1,5 @@
+# Trial build: the dev list, then sprite_lab (log2_build.py --list scripts\permanent\build_list_trial_spritelab.txt).
+# The sprite lab is a debugging ROM, not a feature: it never goes into build_list_core.txt.
+# The include follows the dev list (test_sprite_lab).
+include build_list_dev.txt
+sprite_lab          # trial 2026-10-31: flat lab field on map 8,36, HUD off, fixed camera, gated on flag 350
