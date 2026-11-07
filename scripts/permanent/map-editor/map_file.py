@@ -8,7 +8,7 @@ Usage:   sys.path must hold scripts\permanent\map-editor (the folder name has a 
          save(doc, path) / load(path)         JSON, never overwriting, schema gated
          camera_pair(w, h) -> (+0x08, +0x0A)  the camera clamp, always computed
 Shape:   {"schema", "world": [w_px, h_px], "blocks": [bw, bh],
-          "layers": {"bg0".."bg3": {"priority", "cells": [u16 x grid]}},
+          "layers": {"bg0".."bg3": {"priority", "scroll", "offset", "cells": [u16 x grid]}},
           "collision": [u8 x 8192], "terrain": [u8 x 8192], "tiles": [[chunk, tile], ...],
           "animated": [{"first", "frames": [{"duration", "pixels": [u8]}]}],
           "stamps": [...], "blend": {...}, "unread": {...}, "dropped": ["note", ...]}
@@ -38,6 +38,19 @@ TILES:   slots 0 to len(tiles)-1 are the static +0x48 stream. An ANIMATED GROUP 
          write them back. Group order is kept: group k starts at countdown k + 1 (bible B1078).
          Groups may OVERLAP the static stream. One vanilla layout does it, map 6,99 with 5 groups
          over slots 1 to 49, so overlap is legal and is not reported.
+Census:  read_map then validate, run through THIS module over all 336 vanilla layouts on
+         2026-11-07: 334 give a sound document, map 6,99 gives an invalid one (its 1 x 1 art grid
+         cannot cover its 4096 x 3328 px world, which is true of the map and not of the reader),
+         and map 1,7 raises because its four records are all the overlay class, so it has no art.
+
+A BG layer record is carried whole too, because a layer is more than its cells. +0x00 is the class,
+         which decides whether the layer is editable at all; +0x04 and +0x08 are a SCROLL FACTOR where
+         0x400 is 1.0, not a size (bible tag BMS); +0x0C and +0x10 are a scroll OFFSET; +0x14 and +0x15
+         are the block grid; +0x18 on are the block pointers. Bytes +0x16 and +0x17 are zero in all
+         1294 vanilla tilemap layers, so nothing hides there. Scroll and offset earn their place: 21
+         layers scroll at something other than 1.0 and 364 carry a nonzero offset. Map 9,1 BG3 is the
+         witness, a parallax layer at 0x200. Dropping them would write it back as a 1:1 layer, which
+         looks right in a full-map render and is wrong the moment the camera moves.
 
 Layout offsets +0x00 to +0x4F, so nothing is lost by silence:
   carried   +0x00 +0x02 +0x03 blend | +0x04-+0x07 priorities | +0x08 +0x0A world | +0x0C +0x10
@@ -76,6 +89,7 @@ GROUP_MAX = 16                              # the IWRAM group state array holds 
 GROUP_MAX_TILES = 64                        # the group load buffer is 0x1000 bytes (bible B1078)
 LAYER_NAMES = ("bg0", "bg1", "bg2", "bg3")
 NEW_MAP_PRIORITY = 3                        # a new map draws every layer behind the player
+SCROLL_ONE = scene_probe.SCROLL_ONE         # 0x400 in a layer's +0x04 and +0x08 is 1.0, not a size
 TILE_INDEX = 0x3FF                          # a cell's tile bits; 0x400 and 0x800 flip, 0xF000 unused at 8bpp
 
 L_BLEND, L_ALPHA, L_PRIORITY = 0x00, 0x02, 0x04
@@ -122,7 +136,8 @@ def blank(blocks: tuple, world: tuple) -> dict:
     bw, bh = blocks
     cells = bw * BLOCK_TILES * bh * BLOCK_TILES
     return {"schema": SCHEMA, "world": [world[0], world[1]], "blocks": [bw, bh],
-            "layers": {name: {"priority": NEW_MAP_PRIORITY, "cells": [0] * cells}
+            "layers": {name: {"priority": NEW_MAP_PRIORITY, "scroll": [SCROLL_ONE, SCROLL_ONE],
+                              "offset": [0, 0], "cells": [0] * cells}
                        for name in LAYER_NAMES},
             "collision": [0] * GRID_BYTES, "terrain": [0] * GRID_BYTES,
             "tiles": [[0, 0]], "animated": [], "stamps": [],
@@ -206,6 +221,11 @@ def _check_layers(doc: dict, blocks: tuple, problems: list) -> None:
         elif not (isinstance(priority, int) and 0 <= priority <= 3):
             problems.append(f"layer {name} priority {priority!r}: the hardware has two priority "
                             f"bits, so 0 to 3")
+        for field in ("scroll", "offset"):
+            value = layer.get(field) if isinstance(layer, dict) else None
+            if not (isinstance(value, (list, tuple)) and len(value) == 2
+                    and all(isinstance(v, int) and 0 <= v <= 0xFFFFFFFF for v in value)):
+                problems.append(f"layer {name} {field}: expected two whole words, found {value!r}")
         cells = layer.get("cells") if isinstance(layer, dict) else None
         if not isinstance(cells, list):
             problems.append(f"layer {name} carries no cells")
@@ -234,8 +254,9 @@ def _check_reachable(bits: list, blocks: tuple, world: tuple, problems: list) ->
     """Open ground inside the art grid that the camera can never reach. The plateau, in one rule.
 
     An all-open frame is exempt: 13 vanilla layouts carry one, which means collision is unused
-    rather than that every cell is walkable. With that exemption the rule holds on 323 of 323
-    remaining vanilla layouts."""
+    rather than that every cell is walkable. Measured THROUGH THIS MODULE over all 336 vanilla
+    layouts on 2026-11-07, no layout reports this problem. The bound is the document's own block
+    grid, which includes parallax layers, so it checks a wider region than a scroll-1.0 bound."""
     if all(b == 0xFF for b in bits):
         return
     grid_w, grid_h = min(blocks[0] * BLOCK_PIXELS, GRID_CELLS * 8), min(blocks[1] * BLOCK_PIXELS,
@@ -423,6 +444,7 @@ def read_map(rom: bytes, zone: int, area: int, var: int = 1) -> dict:
                            f"cannot hold")
             continue
         layers[name] = {"priority": rom[off + L_PRIORITY + rec["bg"]],
+                        "scroll": list(rec["scroll"]), "offset": list(rec["offset"]),
                         "cells": _cells(rom, rec, blocks)}
 
     props = scene_probe.layout_props(rom, off)

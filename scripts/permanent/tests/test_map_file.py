@@ -229,9 +229,22 @@ class ReadMapTests(unittest.TestCase):
         self.assertEqual(map_file.tile_count(doc), W15_STATIC)
 
     def test_read_map_never_modifies_the_rom(self):
-        before = bytes(ROM)
-        map_file.read_map(ROM, 7, 15)
-        self.assertEqual(ROM, before)
+        """A bytearray, not bytes. Handing read_map an immutable buffer would make this test one
+        that cannot fail, whatever read_map did."""
+        writable = bytearray(ROM)
+        map_file.read_map(writable, 7, 15)
+        self.assertEqual(bytes(writable), ROM)
+
+    def test_read_map_carries_the_parallax_scroll_of_map_9_1(self):
+        """Map 9,1 BG3 scrolls at 0x200, half speed. A layer written back at 1.0 looks right in a
+        full-map render and is wrong the moment the camera moves."""
+        rec = scene_probe.layout_layers(ROM, layout_offset(9, 1))[3]
+        doc = map_file.read_map(ROM, 9, 1)
+        stored = struct.unpack_from("<4I", ROM, rec["at"] + 4)      # +0x04 +0x08 scroll, +0x0C +0x10 offset
+        self.assertEqual(stored[:2], (512, 512))
+        self.assertNotEqual(stored[:2], (map_file.SCROLL_ONE, map_file.SCROLL_ONE))
+        self.assertEqual(doc["layers"]["bg3"]["scroll"], list(stored[:2]))
+        self.assertEqual(doc["layers"]["bg3"]["offset"], list(stored[2:]))
 
     def test_read_map_reads_every_layer_priority_from_the_rom(self):
         doc = map_file.read_map(ROM, 7, 15)
