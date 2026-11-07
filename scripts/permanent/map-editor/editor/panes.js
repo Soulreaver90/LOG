@@ -6,11 +6,13 @@
   Seams for the tasks that follow, so neither has to rewrite this file's shape.
     onCanvasPointer(fn)  the tools get every pointer event on the map, in CELL coordinates,
                          with the button, so right click can paint collision.
-    addRightPanel(node)  Task 6's truth panel, and any later panel, appends itself to the right
-                         pane under the properties it already shows.
+    addRightPanel(node)  a later panel appends itself to the right pane under the properties it
+                         already shows. The truth panel's own controls are static markup in
+                         index.html, beside every other control on this page, and truth.js wires
+                         them by id.
     addToolbarItem(node) a later tool's controls go in the centre pane's second bar.
-    addOverlay(fn)       Task 6's shading draws onto the overlay canvas, which sits exactly over
-                         the map, without touching tools.js.
+    addOverlay(fn)       the truth panel's shading draws onto the overlay canvas, which sits
+                         exactly over the map, without touching tools.js.
     redraw()             redraw the visible canvas from the layer canvases.
     refreshCounts()      redraw the right pane after an edit changed the tile list.
 
@@ -29,6 +31,7 @@ import {
 } from "./state.js";
 import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas } from "./render.js";
 import * as tools from "./tools.js";
+import * as truth from "./truth.js";
 
 const BLOCK_CAP = 8;       // 8 blocks is 2048 px, which is where the 256 cell collision grid stops
 const THUMB = 48;          // the stamp preview box in the left pane, in CSS px
@@ -460,6 +463,9 @@ export async function start() {
     rebuildSheet: () => buildSheet(state.doc, state.assets, atlasFor),
     stampName: () => $("stampname").value.trim(),
   });
+  // The truth panel takes the same kind of host as the tools, so neither file imports this one
+  // and the three cannot form an import cycle. It reads the camera rule out of map_file.py here.
+  await truth.install({ addOverlay, paintOverlay, refreshCounts, canvas });
 
   await loadAssets();
   $("budget").textContent = state.assets.tile_budget;
@@ -487,7 +493,12 @@ export async function start() {
     const bh = blocks("bh");
     $("bw").value = bw;
     $("bh").value = bh;
-    ask(`/api/blank?bw=${bw}&bh=${bh}`, `new ${bw} x ${bh} blocks`);
+    // A blank map is solid everywhere, so the red wash covers it and everything painted on it is
+    // wall until Fill walkable runs. Saying so beats him asking why his field is not walkable.
+    ask(`/api/blank?bw=${bw}&bh=${bh}`, `new ${bw} x ${bh} blocks`).then(() => {
+      if (state.doc) status("a new map is SOLID everywhere. Press Fill walkable first, "
+                            + "then paint the art.", "info");
+    });
   };
   $("zoom").oninput = () => setView({ zoom: Number($("zoom").value) });
   $("openSaved").onclick = () =>
