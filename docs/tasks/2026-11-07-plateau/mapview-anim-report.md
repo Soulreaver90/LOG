@@ -1,6 +1,7 @@
 # map_view draws animated tile groups
 
-**Date:** 2026-11-07. **Branch:** `feature/map-editor`.
+**Date:** 2026-11-07. **Branch:** `feature/map-editor`. **Commit:** `c37247d` "Draw a map's animated
+tile groups", 7 files. Not pushed.
 
 `map_view` built its tile list from the layout `+0x48` static stream alone. A map also loads ANIMATED
 tile groups, which DMA their tiles to their own VRAM slots, usually past the stream. Every BG cell
@@ -106,6 +107,20 @@ be a cell that names an animated slot, or the tile stream work changed a static 
 - **6,99**: its 5 groups overlap slots 1 to 49 and overwrite them, which `map_view.tiles` now
   shows, but no cell of its one tilemap layer names those slots, so the picture is unchanged.
 
+**The pictures, to look at.** Rendered with `--no-collision --no-items`, so nothing but the art is
+on them:
+
+```
+C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\docs\tasks\2026-11-07-plateau\render\anim-fix\before_7_15.png
+C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\docs\tasks\2026-11-07-plateau\render\anim-fix\after_7_15.png
+C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\docs\tasks\2026-11-07-plateau\render\anim-fix\before_4_50.png
+C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\docs\tasks\2026-11-07-plateau\render\anim-fix\after_4_50.png
+C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\docs\tasks\2026-11-07-plateau\render\anim-fix\before_7_100.png
+C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG\docs\tasks\2026-11-07-plateau\render\anim-fix\after_7_100.png
+```
+
+The 7,15 pair is the clearest: look at the grass around tile cell (76, 46), map pixel (608, 368).
+
 ### A test that fails before and passes after
 
 `tests\test_map_view.py`, class `AnimatedGroupTests`. The expected pixels are read by walking the
@@ -140,13 +155,13 @@ map 6,99 it compared a group tile with the static tile under it. It is now
 ### The suite
 
 Run whole, with no pipe. The output went to a file with `> file 2>&1` and the shell's own exit code
-was read, because a pipe reports the pipe's exit code and a red suite then reads as green.
+was read and quoted, because a pipe reports the pipe's exit code and a red suite then reads as green.
 
 ```
 py -3.14 -P -m unittest discover -s <LOG>\scripts\permanent\tests -t <LOG>\scripts\permanent
 Ran 1581 tests in 339.994s
 FAILED (failures=1, skipped=3, expected failures=1)
-exit code 1
+exit=1
 ```
 
 **The one failure is not mine.** It is
@@ -164,9 +179,10 @@ Why it is not mine, with evidence rather than a shrug:
 - My `scene_probe` change is additive apart from one function: `layout_lines`, which only builds CLI
   text. `layout_lines` is called from `show_map` alone, and `show_map` from the CLI and
   `test_scene_probe` alone, which passes, 28 of 28.
-- The test builds `build_list_trial_ending.txt` in memory. That list and
-  `build_list_core.txt` are among the files already modified in this working tree by other work,
-  and `fullpower_ssj` is the module the failure names.
+- The test builds `build_list_trial_ending.txt` in memory. That list is itself UNTRACKED, new
+  uncommitted work, and it reaches `build_list_core.txt` through `build_list_dev.txt`.
+  `build_list_core.txt` is modified in this working tree. `fullpower_ssj` is the module the failure
+  names.
 
 It reproduces on its own in 3.2 seconds, `Ran 38 tests ... FAILED (failures=1)`, exit code 1, so it
 is a real state of this tree and not an artifact of a concurrent edit during the long run. Every
@@ -204,12 +220,17 @@ map design is untouched.
   dedup to `map_view` and `tile_stream`, and proving a build module byte-identical needs a rebuild
   and a SHA-1 compare of the master and trial lists. It is a clean follow-up task.
   The copies inside `tests\` are deliberate independent oracles and must stay.
-- **The working tree already carried uncommitted changes in `map_view.py`, `scene_probe.py` and
-  `test_tile_stream.py`** before I started, and `test_map_view.py` and the whole
-  `scripts\one-time\2026-11-07-plateau\` folder are untracked. My commit therefore carries other
-  work in those files that I could not separate from mine. `21_render_v4.py` is left changed in the
-  working tree and NOT committed, because committing one file out of an untracked folder is the
-  main loop's call.
+- **Commit `c37247d` carries work that is not mine.** `map_view.py`, `scene_probe.py` and
+  `test_tile_stream.py` already held uncommitted changes when I started, from today's map reader
+  and map editor work, and `test_map_view.py` was untracked. `scene_probe.py` shows 623 changed
+  lines in all and about 115 of them are mine. Git cannot separate them here, `git add -p` is
+  interactive and so unavailable, and the files had to be committed whole. The commit is on
+  `feature/map-editor` and is not pushed.
+- **`21_render_v4.py` is changed in the working tree and NOT committed.** It sits in the untracked
+  folder `scripts\one-time\2026-11-07-plateau\`, and committing one file out of an untracked folder
+  is the main loop's call, not mine.
+- **Other files in the tree are still modified by other work**, among them `build_list_core.txt`,
+  `scene_lib.py` and `scene_harness.py`. I staged file by file and touched none of them.
 - **The sampler's green test is a proxy.** The direct pixel comparison against frame 0 is the test
   above, which is the real check; the 509 count is the caller's own measurement rerun unchanged.
 - **Animation is not animated.** The render draws each group's FIRST frame. A still picture cannot
