@@ -431,10 +431,15 @@ function writePatch(patch, px, py, index) {
       }
     }
   }
+  // A STAMP ADDS WALLS AND NEVER REMOVES THEM. Only the cells the grab found SOLID are written.
+  // A grab captures a box, and most of that box is the open ground the object stands on, so
+  // writing the open cells too would punch a hole through any wall the box happened to cross.
+  // Measured: a rock dropped over a hand painted wall opened 12 cells of it. It also makes a
+  // grab from plain open ground change no collision at all, which is what it should do.
   if (!patch.collision) return;
   for (let y = 0; y < patch.h; y += 1) {
     for (let x = 0; x < patch.w; x += 1) {
-      putCollision(px + x, py + y, Boolean(patch.collision[y * patch.w + x]));
+      if (!patch.collision[y * patch.w + x]) putCollision(px + x, py + y, false);
     }
   }
 }
