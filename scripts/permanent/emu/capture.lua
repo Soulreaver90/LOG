@@ -3,7 +3,7 @@
 --
 -- Reads:   <CAPTURE_DIR>steps.txt, one step a line, forward slashes:
 --            wait <frames> | press <button> <frames> | shot <name> | read <addr> <width> <label>
---            savestate <path> | end
+--            write <addr> <width> <hex> | savestate <path> | loadstate <path> | end
 -- Writes:  <CAPTURE_DIR>result.txt, one line a step: <index> <frame> <kind> <detail>.
 --          A read wider than 8 bytes goes to <CAPTURE_DIR><label>.bin and the line names the file.
 --          Screenshots go to <CAPTURE_DIR>shots/<name>.png.
@@ -13,6 +13,9 @@
 local DIR = CAPTURE_DIR
 local SPEED = CAPTURE_SPEED or 100
 local INLINE = 8
+
+-- A load rewinds the frame counter, so the fps line must count from the loaded frame, not from boot.
+local first_frame = 0
 
 local out = io.open(DIR .. "result.txt", "wb")
 
@@ -99,6 +102,19 @@ local function do_read(index, addr, width, label)
   say(string.format("%d %d read %s 0x%08X file:%s.bin:%d", index, emu.framecount(), label, addr, label, width))
 end
 
+-- A write is always read back, because a write to a word the game rewrites every frame looks exactly
+-- like a write that never landed, and only the read-back line tells the two apart.
+local function do_write(index, addr, width, hexdata)
+  for i = 1, width do
+    local byte = tonumber(string.sub(hexdata, i * 2 - 1, i * 2), 16)
+    if byte == nil then error("write: not hex: " .. tostring(hexdata)) end
+    memory.write_u8(addr + i - 1, byte)
+  end
+  local back = hex(read_bytes(addr, width))
+  say(string.format("%d %d write %s 0x%08X wrote %s back %s", index, emu.framecount(),
+    string.format("w%d", width), addr, hexdata, back))
+end
+
 local function run_step(index, words)
   local kind = words[1]
   if kind == "wait" then
@@ -112,9 +128,22 @@ local function run_step(index, words)
     say(string.format("%d %d shot %s shots/%s.png", index, emu.framecount(), words[2], words[2]))
   elseif kind == "read" then
     do_read(index, tonumber(words[2]), tonumber(words[3]), words[4])
+  elseif kind == "write" then
+    do_write(index, tonumber(words[2]), tonumber(words[3]), words[4])
   elseif kind == "savestate" then
     savestate.save(words[2])
     say(string.format("%d %d savestate %s", index, emu.framecount(), words[2]))
+  elseif kind == "loadstate" then
+    -- savestate.load RETURNS false for a missing file and for an mGBA .ssN. It raises nothing, so an
+    -- unchecked call would leave the job running from a cold boot and every later step would lie.
+    -- Measured: a good load returns true. So anything that is not true is a refusal, and nil must fail
+    -- closed as well, or a changed return would quietly bring the cold boot back.
+    local loaded = savestate.load(words[2])
+    if loaded ~= true then
+      error("savestate.load refused " .. words[2] .. " (it returned " .. tostring(loaded) .. ")")
+    end
+    first_frame = emu.framecount()
+    say(string.format("%d %d loadstate %s", index, emu.framecount(), words[2]))
   elseif kind == "end" then
     say(string.format("%d %d end", index, emu.framecount()))
   else
@@ -124,7 +153,6 @@ end
 
 -- ===== the run =====
 local started = os.clock()
-local first_frame = 0
 
 local ok, err = pcall(function()
   pcall(function() client.speedmode(SPEED) end)

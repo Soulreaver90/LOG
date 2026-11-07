@@ -7,17 +7,28 @@ Job:     one key or step a line, '#' starts a comment, forward slashes in every 
                                    name <label>
          Steps (in order):         wait <frames>            press <button> <frames>
                                    shot <name>              read <addr> <width> <label>
-                                   savestate <path>         end
+                                   savestate <path>         loadstate <path>
+                                   write <addr> <width> <hex>
+                                   end
 API:     parse_job(text) -> Job          job_steps_text(job) -> the steps file capture.lua reads
          check_rom(path) -> Path         rewrite_config(text, base_dir, speed, run_dir) -> text
          install_writes(after) -> [Path] run(job, run_dir) -> Result
          biz_saveram_name(rom) -> str    seed_saveram(seed, rom, base_dir, pad_to) -> Path
+         rom_crc(path) -> int            state_rom_crc(path) -> int or None
+         check_savestates(job) -> [Path] check_loadstates(job, rom) -> [Path]
+         check_writes(job) -> [(addr, width, hex)]
 Rules:   the ROM must live under builds\. This tool never builds a ROM. It never writes inside the BizHawk
          install: the config copy's GBA "Base" entry is an absolute run folder, and every run checks the
          install for a file newer than its own marker.
+         savestate refuses a target that exists; loadstate refuses a source that does not, a source that
+         is not a BizHawk state, and a source made on another ROM. Both fail before BizHawk starts.
+         write only reaches IWRAM or EWRAM, so a job can change a game value but never a register, the
+         ROM or the BIOS. A run that writes is an ASSISTED run and must be reported as one.
 Traps:   console.log does not reach stdout under --chromeless, so result.txt is the only channel.
          BizHawk names a SaveRAM file after the ROM with every '_' turned into a space.
          A read wider than INLINE_WIDTH goes to <label>.bin, because a result line holds a value, not a dump.
+         savestate.load RETURNS false for a missing file and for an mGBA .ssN, and raises nothing
+         (scratch\capture\probestate\state.txt), so an unchecked load runs the job from a cold boot.
 """
 import argparse
 import json
@@ -25,6 +36,9 @@ import os
 import subprocess
 import sys
 import time
+import zipfile
+import zlib
+from compression import zstd
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -40,8 +54,15 @@ CAPTURE_LUA = Path(__file__).resolve().parent / "capture.lua"
 RUN_ROOT = log_paths.ROOT / "scratch" / "capture"
 DEFAULT_TIMEOUT = 900
 BUTTONS = ("A", "B", "Start", "Select", "Up", "Down", "Left", "Right", "L", "R")
-STEP_WORDS = ("wait", "press", "shot", "read", "savestate", "end")
+STEP_WORDS = ("wait", "press", "shot", "read", "write", "savestate", "loadstate", "end")
 INLINE_WIDTH = 8                 # a read this wide or narrower goes in result.txt; wider goes to <label>.bin
+WRITE_MAX = 8                    # a write carries its bytes on its own line, so it stays small
+WRITE_AREAS = ((0x02000000, 0x40000), (0x03000000, 0x8000))    # EWRAM, IWRAM: the only writable areas
+# A BizHawk .State is a zip. "Core.bin.zst" decompresses to the mGBA core state, and its u32 at
+# STATE_CRC_OFF is zlib.crc32 of the whole ROM file. Measured 2026-11-07 on three states.
+STATE_ZIP_MARK = "BizState 1.0"
+STATE_CORE = "Core.bin.zst"
+STATE_CRC_OFF = 12
 
 @dataclass
 class Job:
@@ -124,9 +145,22 @@ def parse_job(text: str) -> Job:
             if width < 1:
                 raise ValueError("read: width of 1 or more")
             job.steps.append((word, [addr, width, args[2]]))
-        elif word == "savestate":
+        elif word == "write":
+            if len(args) != 3:
+                raise ValueError("write: <addr> <width> <hex>")
+            addr, width = _int(word, args[0]), _int(word, args[1])
+            if not 1 <= width <= WRITE_MAX:
+                raise ValueError(f"write: width of 1 to {WRITE_MAX}, got {width}")
+            if len(args[2]) != 2 * width:
+                raise ValueError(f"write: {2 * width} hex digits for {width} bytes, got {args[2]!r}")
+            try:
+                bytes.fromhex(args[2])
+            except ValueError:
+                raise ValueError(f"write: not hex: {args[2]!r}")
+            job.steps.append((word, [addr, width, args[2].lower()]))
+        elif word in ("savestate", "loadstate"):
             if len(args) != 1:
-                raise ValueError("savestate: one path")
+                raise ValueError(f"{word}: one path")
             job.steps.append((word, [args[0]]))
         elif word == "end":
             if args:
@@ -169,6 +203,68 @@ def check_savestates(job: Job) -> list:
         if t.exists():
             raise FileExistsError(f"the savestate target already exists: {t}")
     return targets
+
+def rom_crc(path) -> int:
+    """zlib.crc32 of the whole ROM file. This is the value a BizHawk state carries."""
+    return zlib.crc32(Path(path).read_bytes())
+
+def state_rom_crc(path):
+    """The ROM crc32 inside a BizHawk state, or None when the file is not one we can read.
+
+    An mGBA .ssN state is a PNG, not a zip, so it lands on the None path and the caller refuses it.
+    """
+    try:
+        with zipfile.ZipFile(path) as z:
+            names = z.namelist()
+            if STATE_ZIP_MARK not in names or STATE_CORE not in names:
+                return None
+            core = zstd.decompress(z.read(STATE_CORE))
+    except (OSError, ValueError, zipfile.BadZipFile, zstd.ZstdError):
+        return None
+    if len(core) < STATE_CRC_OFF + 4:
+        return None
+    return int.from_bytes(core[STATE_CRC_OFF:STATE_CRC_OFF + 4], "little")
+
+def check_loadstates(job: Job, rom=None) -> list:
+    """Every loadstate source, after proving it exists, is a BizHawk state, and belongs to this ROM.
+
+    savestate.load returns false and raises nothing, so every one of these faults would otherwise
+    run the job from a cold boot and hand back a confident wrong picture.
+    """
+    sources = [Path(args[0]) for word, args in job.steps if word == "loadstate"]
+    if not sources:
+        return []
+    rom = Path(rom if rom else job.rom)
+    want = rom_crc(rom)
+    for s in sources:
+        if not s.exists():
+            raise FileNotFoundError(f"the loadstate source does not exist: {s}")
+        got = state_rom_crc(s)
+        if got is None:
+            raise ValueError(f"not a BizHawk state: {s}. BizHawk cannot load an mGBA .ssN state, "
+                             f"and it reports the refusal as a false return, not as an error.")
+        if got != want:
+            raise ValueError(f"the state belongs to another ROM: {s} carries crc32 0x{got:08x} and "
+                             f"{rom.name} is crc32 0x{want:08x}. A state loads only on the ROM "
+                             f"that made it.")
+    return sources
+
+def check_writes(job: Job) -> list:
+    """Every write step, after proving it lands wholly inside EWRAM or IWRAM.
+
+    A write that reached a register, the ROM or the BIOS would be a different kind of tool, and a run
+    that changes a game value is already an assisted run, so the reach stays as small as it can be.
+    """
+    out = []
+    for word, args in job.steps:
+        if word != "write":
+            continue
+        addr, width, data = args
+        if not any(base <= addr and addr + width <= base + size for base, size in WRITE_AREAS):
+            areas = ", ".join(f"0x{b:08X}-0x{b + s - 1:08X}" for b, s in WRITE_AREAS)
+            raise ValueError(f"the write 0x{addr:08X} + {width} is outside EWRAM and IWRAM ({areas})")
+        out.append((addr, width, data))
+    return out
 
 def install_writes(after: float, install=None) -> list:
     """Every file in the BizHawk install changed after the given time. An empty list is the pass."""
@@ -258,6 +354,8 @@ def parse_result(path) -> tuple:
 def run(job: Job, run_dir=None, seed_pad: int = 0, throttled: bool = False) -> Result:
     """Build the run folder, launch BizHawk with a timeout, and collect the artifacts."""
     rom = check_rom(job.rom)
+    check_loadstates(job, rom)
+    check_writes(job)
     for target in check_savestates(job):
         target.parent.mkdir(parents=True, exist_ok=True)
     if run_dir:
@@ -319,6 +417,9 @@ def main(argv=None):
     job = parse_job(Path(args.job).read_text(encoding="utf-8"))
     rom = check_rom(job.rom)
     if args.dry_run:
+        check_loadstates(job, rom)
+        check_savestates(job)
+        check_writes(job)
         print(f"job ok: rom {rom}, {len(job.steps)} steps, speed {job.speed}, timeout {job.timeout}")
         return 0
     res = run(job, args.run_dir, seed_pad=args.seed_pad, throttled=args.throttled)

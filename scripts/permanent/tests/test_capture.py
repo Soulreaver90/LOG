@@ -193,6 +193,118 @@ class TestSavestateGuard(unittest.TestCase):
             self.assertEqual(capture.check_savestates(job), [target])
 
 
+class TestLoadstateGuard(unittest.TestCase):
+    r"""The mirror of the savestate guard.
+
+    savestate.load returns false for a missing file and for an mGBA .ssN and raises nothing
+    (scratch\capture\probestate\state.txt), so every refusal here has to happen before BizHawk starts.
+    Expected values are restated, never imported: a BizHawk state is a zip holding "BizState 1.0" and
+    "Core.bin.zst", and the decompressed core carries the ROM's zlib.crc32 as a u32 at offset 12.
+    """
+    CRC_OFFSET = 12
+    REAL_STATE = (ROOT / "scripts" / "one-time" / "2026-10-30-capture-loop" / "states"
+                  / "card4_gohan_arrival.State")
+
+    def fake_state(self, path, crc):
+        """A zip with the two entries capture reads, carrying the given ROM crc32."""
+        import zipfile
+        from compression import zstd
+        core = bytearray(64)
+        core[self.CRC_OFFSET:self.CRC_OFFSET + 4] = int(crc).to_bytes(4, "little")
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("BizState 1.0", "1\r\n")
+            z.writestr("Core.bin.zst", zstd.compress(bytes(core)))
+        return path
+
+    def job_for(self, source):
+        return capture.parse_job(f"rom {str(GOOD_ROM).replace(chr(92), '/')}\n"
+                                 f"loadstate {str(source).replace(chr(92), '/')}\nend\n")
+
+    def test_loadstate_parses_as_a_step_with_one_path(self):
+        job = self.job_for("C:/tmp/some.State")
+        self.assertEqual([w for w, _ in job.steps], ["loadstate", "end"])
+        self.assertEqual(capture.job_steps_text(job).splitlines()[0], "loadstate C:/tmp/some.State")
+
+    def test_loadstate_with_two_paths_is_refused(self):
+        with self.assertRaises(ValueError):
+            capture.parse_job("rom x.gba\nloadstate a.State b.State\nend\n")
+
+    def test_a_missing_source_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(FileNotFoundError):
+                capture.check_loadstates(self.job_for(Path(tmp) / "gone.State"))
+
+    def test_a_file_that_is_not_a_bizhawk_state_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            mgba = Path(tmp) / "owner.ss1"              # mGBA writes its states as PNG, not as a zip
+            mgba.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+            with self.assertRaises(ValueError):
+                capture.check_loadstates(self.job_for(mgba))
+
+    def test_a_state_made_on_another_rom_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            other = self.fake_state(Path(tmp) / "other.State", 0xDEADBEEF)
+            with self.assertRaises(ValueError):
+                capture.check_loadstates(self.job_for(other))
+
+    def test_a_state_made_on_this_rom_is_returned(self):
+        import zlib as _zlib
+        want = _zlib.crc32(GOOD_ROM.read_bytes())
+        with tempfile.TemporaryDirectory() as tmp:
+            mine = self.fake_state(Path(tmp) / "mine.State", want)
+            self.assertEqual(capture.check_loadstates(self.job_for(mine)), [mine])
+
+    def test_a_job_with_no_loadstate_reads_no_rom(self):
+        job = capture.parse_job("rom x.gba\nwait 1\nend\n")
+        self.assertEqual(capture.check_loadstates(job), [])
+
+    def test_the_rom_crc_is_the_zlib_crc_of_the_whole_file(self):
+        self.assertEqual(capture.rom_crc(GOOD_ROM), 0x1C7733DC)
+
+    def test_a_real_bizhawk_state_names_the_rom_that_made_it(self):
+        if not self.REAL_STATE.exists():
+            self.skipTest("the measured BizHawk state is not in the tree")
+        self.assertEqual(capture.state_rom_crc(self.REAL_STATE), 0x1C7733DC)
+
+
+class TestWriteGuard(unittest.TestCase):
+    r"""A write may reach EWRAM 0x02000000 (256 KB) and IWRAM 0x03000000 (32 KB), and nothing else.
+
+    Expected bounds are restated here, never imported. A run that writes is an ASSISTED run.
+    """
+    def job_for(self, line):
+        return capture.parse_job(f"rom {str(GOOD_ROM).replace(chr(92), '/')}\n{line}\nend\n")
+
+    def test_a_write_inside_iwram_is_returned(self):
+        job = self.job_for("write 0x03000EF0 2 0100")
+        self.assertEqual(capture.check_writes(job), [(0x03000EF0, 2, "0100")])
+        self.assertEqual(capture.job_steps_text(job).splitlines()[0], "write 50335472 2 0100")
+
+    def test_a_write_inside_ewram_is_returned(self):
+        self.assertEqual(capture.check_writes(self.job_for("write 0x0203FFFF 1 ff")),
+                         [(0x0203FFFF, 1, "ff")])
+
+    def test_a_write_that_runs_off_the_end_of_iwram_is_refused(self):
+        with self.assertRaises(ValueError):
+            capture.check_writes(self.job_for("write 0x03007FFF 2 0000"))
+
+    def test_a_write_to_a_register_or_the_rom_is_refused(self):
+        for line in ("write 0x04000000 2 0000", "write 0x08000000 4 00000000",
+                     "write 0x05000000 2 0000", "write 0x00000000 1 00"):
+            with self.assertRaises(ValueError):
+                capture.check_writes(self.job_for(line))
+
+    def test_a_write_with_the_wrong_digit_count_or_bad_hex_is_refused(self):
+        for line in ("write 0x03000000 2 01", "write 0x03000000 1 0100",
+                     "write 0x03000000 2 zzzz", "write 0x03000000 9 000000000000000000",
+                     "write 0x03000000 0 ", "write 0x03000000 2"):
+            with self.assertRaises(ValueError):
+                capture.parse_job(f"rom x.gba\n{line}\nend\n")
+
+    def test_a_job_with_no_write_returns_nothing(self):
+        self.assertEqual(capture.check_writes(self.job_for("wait 1")), [])
+
+
 class TestInstallWatch(unittest.TestCase):
     def test_a_file_written_after_the_marker_is_reported_and_an_old_one_is_not(self):
         import os

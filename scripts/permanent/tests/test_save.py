@@ -266,6 +266,61 @@ class CellGames2SetTests(unittest.TestCase):
         self.assertEqual(a3[ls.O_VISITED:ls.O_SCOUTER], self.s3[ls.O_VISITED:ls.O_SCOUTER])
 
 
+class FarewellPresetTests(unittest.TestCase):
+    r"""The save that sits one A press from the ending, and its automation twin.
+
+    Expected values are restated here. Dende is map 9,1 item 4 `rom:0x403F60`, set 36 at (760,416),
+    condition word 0x000100C3 = "flag 195 set". Story flag 195 must be SET and 196 CLEAR: 195 opens the
+    talk, and 196 would mean the ending has already run.
+    """
+    DENDE = (760, 416)
+
+    def slot(self, preset, n):
+        label, story, leader, zone, area, var, x, y = ls.PRESET_SETS[preset][n]
+        return ls.make_slot(story, leader, zone, area, var, x, y), (zone, area, x, y)
+
+    def test_slots_1_and_2_stand_below_dende_on_map_9_1(self):
+        for n in (0, 1):
+            _s, (zone, area, x, y) = self.slot("farewell", n)
+            self.assertEqual((zone, area), (9, 1))
+            self.assertEqual(x, self.DENDE[0])
+            self.assertEqual(y - self.DENDE[1], 32)
+
+    def test_flag_195_is_set_and_flag_196_is_clear(self):
+        for preset in ("farewell", "farewell_test"):
+            s, _ = self.slot(preset, 0)
+            self.assertEqual(ls.bit(s, ls.O_STORY, 195), 1, preset)
+            self.assertEqual(ls.bit(s, ls.O_STORY, 196), 0, preset)
+
+    def test_slot_3_of_the_play_preset_is_the_capsule_corp_save_point(self):
+        _s, (zone, area, _x, _y) = self.slot("farewell", 2)
+        self.assertEqual((zone, area), (6, 1))
+
+    def test_the_automation_preset_holds_three_copies_of_the_same_spot(self):
+        rows = ls.PRESET_SETS["farewell_test"]
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(set(rows)), 1)
+        self.assertEqual(rows[0][3:], (9, 1, 1) + (760, 448))
+
+    def test_the_automation_party_is_out_of_the_level_40_range_on_purpose(self):
+        s, _ = self.slot("farewell_test", 0)
+        trunks = s[ls.O_CHARS + 3 * ls.CHAR_SIZE:ls.O_CHARS + 4 * ls.CHAR_SIZE]
+        hp, max_hp = struct.unpack_from("<2H", trunks, 0)
+        strength, power, endurance = struct.unpack_from("<3H", trunks, 0x0A)
+        self.assertEqual((hp, max_hp), (9999, 9999))
+        self.assertEqual((strength, power), (200 * 256, 200 * 256))
+        self.assertEqual(endurance, 0x289F)   # the level 40 END, left alone on purpose
+        play, _ = self.slot("farewell", 0)
+        play_trunks = play[ls.O_CHARS + 3 * ls.CHAR_SIZE:ls.O_CHARS + 4 * ls.CHAR_SIZE]
+        self.assertEqual(struct.unpack_from("<H", play_trunks, 0)[0], 1181)   # the level 40 record
+
+    def test_the_play_preset_party_is_the_level_40_party(self):
+        play, _ = self.slot("farewell", 0)
+        post, _ = self.slot("farewell", 2)
+        chars = slice(ls.O_CHARS, ls.O_CHARS + 6 * ls.CHAR_SIZE)
+        self.assertEqual(play[chars], post[chars])
+
+
 class JournalEvaluatorTests(unittest.TestCase):
     def test_quest_table_has_43_entries_with_text(self):
         names = [n for n, _ in ls.journal(bytes(ls.SLOT_SIZE), BASE_ROM)]

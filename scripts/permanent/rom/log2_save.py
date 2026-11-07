@@ -3,14 +3,17 @@ log2_save.py - Read, check and write Dragon Ball Z: The Legacy of Goku II (USA, 
 
 Usage:   py -3 -I log2_save.py info    <file.sav> [--flags]
          py -3 -I log2_save.py journal <file.sav> <rom.gba>
-         py -3 -I log2_save.py build   <base.sav> <out.sav> [--set cellgames|cellgames2|cellgames2_arena|postcell]
+         py -3 -I log2_save.py build   <base.sav> <out.sav>
+                                       [--set cellgames|cellgames2|cellgames2_arena|postcell|spritelab]
+                                       [--set farewell|farewell_test]
          py -3 -I log2_save.py set     <in.sav> <out.sav> <slot 1-3> key=value [key=value ...]
 Keys:    leader=0-5  map=zone,area,var  pos=x,y  flag+=N  flag-=N  item=id,count  visited=all|none
 Prints:  info: options block, then each slot: checksum, header, map, position, party, flags, items.
          journal: each slot's quests as the Journal shows them (quest table run on the slot's flags and items).
 Writes:  build: a level 40 test save (3 slots, see PRESET_SETS). Default set "cellgames"; "postcell" rebuilds
          the first test save byte for byte; "cellgames2" is the flag 191 slot 3 with the arena maps unvisited
-         (log2_lv40_cellgames_v2.sav). set: one slot edited, checksum redone.
+         (log2_lv40_cellgames_v2.sav); "farewell" puts slots 1 and 2 beside Dende on map 9,1, one A press
+         from the ending. set: one slot edited, checksum redone.
          Bytes the game never writes (0x008-0x00F, 0x448 onward) are copied from the input file.
          Refuses to write under a data folder or over an existing file.
 Layout:  docs\research\re-save-format.md. Addresses below are GBA addresses in the USA ROM (SHA-1 18e0715d...).
@@ -123,11 +126,34 @@ for _hexrec in LV40_RECORDS:
 # Stories whose slots start with the HUD off: slot +1 bit 1 is the HUD bit that ext 86 toggles
 # (@0x0800AB82 through @0x080040AA, which builds the HUD object on 1). CONFIRMED (bible section 6).
 HUD_OFF_STORIES = {"spritelab"}
+# ===== The automation story: a party no enemy can stop =====
+# The ending hands the player the SAVE's own Trunks record (`ext 70 (3)`, bible B0592), so a save is the
+# only lever that changes how hard the ending's fights are without touching a patch module.
+# A capture macro cannot win them at level 40: Android 18 holds her spot, the player walks past her, and
+# a toe to toe brawl drains Trunks from 1181 HP to 0 in about 2,000 frames (`scratch\capture\job_13_brawl`).
+# These records raise HP, EP and the two ATTACK stats so a macro can reach the Cell fight.
+# A run on this story proves the CHAIN and the CARDS. It proves NOTHING about the balance of a fight.
+# Record +0 HP, +2 max HP, +4 EP, +6 max EP, +0x0A STR, +0x0C POW, +0x0E END, stats in 1/256 units.
+# END IS LEFT ALONE, and that is the whole lesson of the first try. With END at 200.00 the ending's
+# Android 18 took Trunks from 9999 HP to 0 inside 1,300 frames (`scratch\capture\job_16_tbrawl`), which
+# is the opposite of what a defence stat should do. An incoming hit whose damage goes negative and is
+# then read as unsigned is the shape that fits, so the safe move is to raise only the two attack stats.
+O_REC_HP, O_REC_STR, O_REC_POW = 0, 0x0A, 0x0C
+TEST_HP, TEST_STAT = 9999, 200 * 256
+TEST_RECORDS = []
+for _hexrec in LV40_RECORDS:
+    _rec = bytearray.fromhex(_hexrec)
+    struct.pack_into("<HH", _rec, O_REC_HP, TEST_HP, TEST_HP)
+    struct.pack_into("<HH", _rec, O_REC_EP, LAB_EP, LAB_EP)
+    struct.pack_into("<H", _rec, O_REC_STR, TEST_STAT)
+    struct.pack_into("<H", _rec, O_REC_POW, TEST_STAT)
+    TEST_RECORDS.append(_rec.hex())
 STORIES = {
     "postcell": (POSTCELL_FLAGS, LV40_RECORDS),
     "cellgames": (CELLGAMES_FLAGS, LV40_RECORDS[:5] + [HERCULE_DEFAULT]),
     "cellgames2": (CELLGAMES_FLAGS, LV40_RECORDS[:5] + [HERCULE_DEFAULT]),
     "spritelab": (POSTCELL_FLAGS + [(LAB_FLAG, LAB_FLAG)], LAB_RECORDS),
+    "farewell_test": (POSTCELL_FLAGS, TEST_RECORDS),
 }
 UNVISITED = {"cellgames2": ARENA_VISITED}   # story -> visited bits left clear
 PRESET_SETS = {
@@ -169,6 +195,31 @@ PRESET_SETS["spritelab"] = [
     ("Ginger Town white road, real scenery (map 10,1)", "postcell", 0, 10, 1, 1, 352, 488),
     ("Sprite lab, second slot (map 8,36)", "spritelab", 0, 8, 36, 1, 236, 180),
 ]
+# ===== The farewell save: as close to the ending as the engine allows =====
+# The ending is a SCRIPT SEQUENCE, not a place, so no save can start inside it. The last point a save
+# can hold is the step before the trigger, and this preset is that step.
+# The trigger: map 9,1 item 4 rom:0x403F60 is Dende, set 36 at (760,416), condition word 0x000100C3 =
+# "flag 195 set" (B1204 decodes the word), and it starts talk table rom:0x3DD044. Sequence 88 of that
+# table sets flag 196 and sequence 89 is a type 5 jump into the ending table rom:0x3B8140 (B0337,
+# B0965, B0977). So ONE A press on Dende runs the whole ending. CONFIRMED (item bytes, bible rows).
+# Flag 196 is NOT set here. Setting it would only spawn the ending's map NPCs (B1174, B1205) and would
+# leave the ending script unrun, which is a save that looks right and plays wrong.
+# (760,448) is 32 px below Dende on open floor: every cell in a 160 px square around Dende is open
+# except two prop cells at y 360 (collision frame of map 9,1, scripts\one-time\2026-11-07-finale-testpath).
+# Slots 1 and 2 are the same spot, because no save point lies between the farewell and the ending
+# (B0985), so a lost run costs the whole ending and a spare slot is the only cure.
+FAREWELL_SPOT = (760, 448)
+PRESET_SETS["farewell"] = [
+    ("Dende's Lookout, below Dende, one A press from the ending (map 9,1)",
+     "postcell", 0, 9, 1, 1, *FAREWELL_SPOT),
+    ("The same spot again, the spare run (map 9,1)", "postcell", 0, 9, 1, 1, *FAREWELL_SPOT),
+    ("Capsule Corporation save point (map 6,1)", "postcell", 0, 6, 1, 1, 432, 591),
+]
+# The same spot for an automated capture run, with the overpowered party. Never hand this to the owner
+# as a play test: it answers "does the chain run", never "is the fight fair".
+PRESET_SETS["farewell_test"] = [
+    (f"Automation only: the farewell spot with a {TEST_HP} HP party (map 9,1)",
+     "farewell_test", 0, 9, 1, 1, *FAREWELL_SPOT)] * 3
 DEFAULT_SET = "cellgames"
 
 # ===== Journal (quest table, CONFIRMED: loop 0x08004A86-0x08004AE4) =====
