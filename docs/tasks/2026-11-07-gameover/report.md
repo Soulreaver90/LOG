@@ -155,7 +155,7 @@ byte runs that differ from the baseline: 2
 ```
 
 Two runs, both declared. The run at `rom:0x8870` is 3 bytes, not 4, because the old and the new table
-are both in bank `0x08`. **Below `rom:0x800000` this module writes three bytes and nothing else.** The
+are both in bank `0x08`. **Below `rom:0x800000` this module writes ONE WORD, `rom:0x8870`, and nothing else. Three of its four bytes change.** The
 vanilla table, vanilla record 0 and the `@Game Saved!` record are byte identical to the baseline, and
 `@^You have died!` still reads as it did.
 
@@ -170,20 +170,31 @@ builds\mockups\2026-11-07-gameover\log2_gameover_v1.gba
 builds\mockups\2026-11-07-gameover\log2_gameover_v1.sav
 ```
 
+**I did not walk this route.** Steps 1 to 3 are INHERITED from the plateau trial save and the
+`ending_fight` and `future_androids` docstrings. Steps 5 and 6 are EXPECTED, not observed.
+
 1. Open the ROM in mGBA. The `.sav` is the plateau trial save, so the route is the one that already
    works for the plateau build.
 2. Continue on **slot 1**: Gohan leads, map 6,1 at (432,591), level 40, flag 195 set (Cell beaten) and
-   flag 196 clear (the final goodbye not yet done).
+   flag 196 clear (the final goodbye not yet done). These values I DID read, with `log2_save.py info`.
 3. Play the farewell. The future epilogue runs. Trunks fights future 18, then future 17, then Cell on
-   the plateau.
+   the plateau. INHERITED: this is the plateau trial's own route and I did not play it.
 4. **Take a save state the moment the Cell fight starts.** No save point lies between the Lookout
-   farewell and the ending (bible B0985), so a loss costs the whole farewell otherwise.
+   farewell and the ending (bible B0985, a decode), so a loss costs the whole farewell otherwise.
 5. To lose on purpose: put the pad down. Cell is HP 5210 with AI 80 and Trunks will not heal, so he
-   dies on his own. Do not press anything.
-6. About 200 frames after the Trunks HP reaches 0 the screen fades, the death screen loads, and the two
-   cards come up in place of "You have died!". A is the advance, as in any box.
+   should die on his own. Do not press anything. EXPECTED from the stats, not observed.
+6. About 200 frames after the Trunks HP reaches 0 the screen should fade, the death screen load, and
+   the two cards come up in place of "You have died!". A advances a box, as in any box.
 
-To check the vanilla side in the same run: losing to future 18 or future 17 still shows
+That a loss in this fight reaches the game-over table at all is a decode, not a play test: the
+`ending_fight` docstring says it adds no loss handling, and bible B0985 reads the vanilla table.
+
+**No save-state shortcut.** His mid-fight state `log2_plateau_v4.ss1` was taken on
+`log2_plateau_v4.gba`, and that ROM differs from this trial in 12 byte runs besides my two, because
+`plateau` moved on to v5 after it. So the state does not belong to this ROM and the long route is the
+only one I can offer.
+
+To check the vanilla side in the same run: losing to future 18 or future 17 should still show
 "You have died!", because both of those fights are on map 1,100.
 
 ---
