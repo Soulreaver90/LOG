@@ -618,12 +618,19 @@ class DeathTables(unittest.TestCase):
 
     def test_neither_death_record_transitions(self):
         """The owner's emphasis: "she collapses -> Trunks blasts her, NO transition". So no fade, no
-        flash, no camera move, no camera hand-off, no map load and no teleport, in either record."""
+        flash, no camera move, no camera hand-off and no map load, in either record.
+
+        ext 62 left that list when the approach gained its reposition, so Android 17's OWN record is
+        checked for it by name here. Nothing in his record needs to move anybody, and an ext 62 that
+        appeared there would be a teleport nobody branched on."""
         rom = built()["rom"]
         for set_id in (A18_SET, A17_SET):
             used = {n for n, _ in ext_sequence(rom, built()["notes"]["deaths"][set_id])}
             self.assertFalse(used & set(NO_TRANSITION_OPS),
                              f"set {set_id}'s death record transitions: {sorted(used & set(NO_TRANSITION_OPS))}")
+        own = [op for _, op, arg in raw_ops(rom, built()["notes"]["deaths"][A17_SET] + 3)
+               if op == 2 and arg == 62]
+        self.assertEqual(own, [], "Android 17's own death record must carry no ext 62")
 
     def test_the_player_is_the_one_who_blasts_each_android(self):
         """ext 96 with the PLAYER as attacker is vanilla: rom:0x3E5224 fires attack(0, 28, 100) three

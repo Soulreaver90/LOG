@@ -1,5 +1,10 @@
 # Rung 4: the death beats
 
+> [!NOTE]
+> **The current build is v9, `log2_plateau_v9.gba`. Read section 11 first.** v8 is superseded
+> and should not be played: its walk crossed Trunks on 77 of the 177 cells that take the
+> walk-from-his-own-spot arm. Sections 1 to 9 are the rung 4 work and section 10 is v8.
+
 Built 2026-11-07. ROM `builds\mockups\2026-11-07-plateau\log2_plateau_v7.gba`,
 SHA-1 `5e28c890520e47ef1dccbc2639d49a771e3a7d60`, save paired and byte identical to v5's.
 
@@ -659,16 +664,22 @@ fifth-carrier finding is CONFIRMED rather than inferred.
 
 ### 11.5 All four arms, measured in the running game
 
-`v9_land.txt` boots v9 cold and saves its own state at the street (26,822 frames). Every row below is
-read out of RAM, not off a screenshot.
+`v9_land.txt` boots v9 cold and saves its own state at the street (26,822 frames). Every row below
+was captured on the v9 ROM and read out of RAM, not off a screenshot. The party is the
+`farewell_test` save, not the `farewell` preset the brief named: the real-strength party loses
+the fight, which is the finale task's own finding.
 
-| arm | the player when she dies | what the record should compute | what RAM says Android 17 did |
-|---|---|---|---|
-| already beside Trunks | (496,377) | inside the 88 x 52 box: do not move | stayed at (520,408) for 96 frames |
-| **visible, so no teleport** | **(419,454)** | stop `419 - 40 + 80` = **459**, row **454** | (484,435), then **(459,454)**, on Trunks' RIGHT |
-| teleported, camera free | (496,515) | enter 360, stop **456**, row **515** | (371,515), (419,515), **(456,515)** |
-| teleported, camera free | (420,550) | enter 284, stop **380**, row **550** | (301,550), (349,550), **(380,550)** |
-| teleported, camera clamped | (16,569) | enter -24, stop **72**, row **569** | (45,569), **(72,569)** |
+| arm | run | the player when she dies | what the record should compute | what RAM says Android 17 did |
+|---|---|---|---|---|
+| already beside Trunks | `v9_kill_close` | (496,377) | inside the 88 x 52 box: do not move | stayed at (520,408) until the fight started |
+| **visible, so no teleport** | `v9_kill_band` | **(419,454)** | stop `419 - 40 + 80` = **459**, row **454** | (484,435), then **(459,454)**, on Trunks' RIGHT |
+| teleported, camera free | `v9_kill_open` | (496,515) | enter 360, stop **456**, row **515** | (371,515), (419,515), **(456,515)** |
+| teleported, camera free | `v9_kill_band2` | (420,550) | enter 284, stop **380**, row **550** | (301,550), (349,550), **(380,550)** |
+| teleported, camera clamped | `v9_kill_edge` | (16,569) | enter **-24**, stop **72**, row **569** | **(-3,569)**, then (45,569), then **(72,569)** |
+
+The clamped run catches him 21 px off the entry, at a NEGATIVE world x, which is the entry point
+measured rather than inferred. The same five runs were made on v8 first; every one agrees with its v9
+twin except the band run, which is the arm v9 fixes.
 
 The middle row is the arm v8 broke and the one no earlier run had reached. Android 17 walks down and
 left from his own spot, stops 40 px to Trunks' RIGHT, and never passes him: shots `b010` to `b017` of
@@ -708,3 +719,18 @@ as known. `test_future_androids.py` is 44 tests, all green.
 
 The ROM rebuilds to the same SHA-1 twice, once after a comment-only edit, so the tree and the ROM
 agree.
+
+### 11.8 Three things in v9 that the numbers above do not say
+
+1. **The census scores the stop row, not the diagonal.** On the 177 cells that take the
+   walk-from-his-own-spot arm, Android 17 walks a diagonal from (520,408) to the stop, and the
+   "visible path" column samples the stop's row only. Those 177 cells are 3 % of the map, their walks
+   are short, and the crossing test covers the one failure mode that matters on them, but the
+   collision score for that arm is weaker than it is for the other.
+2. **`face_alt(PLAYER, 17)` is an ADDED BEAT.** Trunks now turns to Android 17 at the end, on every
+   path including the "he is already beside me" one the owner approved in v7. He has just fired at
+   Android 18 and would otherwise listen to 17 with his back turned. It is one op and no wait.
+3. **Two files this task touched are NOT in its commits.** `docs\backlog\active-todos.md` (item 9,
+   the BG art) and `docs\build-log.md` both carry other agents' edits as well as mine, so I left them
+   for the controller. `build-log.md` also gained lines for `v8_check.gba`, `v9_check.gba` and
+   `v9_check2.gba`, which were scratch reproducibility builds and should be deleted from it.
