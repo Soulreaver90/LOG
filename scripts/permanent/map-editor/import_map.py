@@ -64,6 +64,7 @@ import tile_stream                                                     # noqa: E
 ROM_BASE = map_view.ROM_BASE
 ROM_SIZE = 0x1000000                        # 16 MB: base, 0xFF fill, then patches
 ALLOC_REGION = (0x800000, 0xF00000)         # the expansion area; art_inject owns 0xF00000 and up
+GUARD_GAP = 0x400                           # see free_from: a build's last bytes may BE 0xFF
 
 # ===== CONFIG: the map table, read LIVE =====
 MAP_SIZE = 56
@@ -146,13 +147,19 @@ def map_table(rom: bytes) -> tuple:
 # ===== free space =====
 
 def free_from(rom: bytes) -> int:
-    """The first 4-aligned offset in the expansion area with nothing but 0xFF above it.
+    """A 4-aligned offset in the expansion area with nothing but 0xFF above it, plus a guard gap.
 
     Patches bump upward from rom:0x800000, so the tail is free. Starting after the LAST non-fill
-    byte wastes any hole a patch left and can never land on one, which is the safe direction."""
+    byte can never land in a hole a patch left, which is the safe direction.
+
+    THE GUARD GAP IS NOT SPARE ROOM. Fill and data that ends in 0xFF read the same, so the last
+    allocation's own tail looks free: measured on build_list_dev.txt, the end of the last
+    allocation is 20 bytes of 0xFF and this returned an offset INSIDE it. The 0xFF check in
+    `place` cannot see that, because those bytes are 0xFF. Pass `alloc` to skip the guess
+    entirely: a build's own Allocator knows where its data ends."""
     start, end = ALLOC_REGION
     used = len(bytes(rom[start:end]).rstrip(b"\xFF"))
-    return start + ((used + 3) & ~3)
+    return start + ((used + GUARD_GAP + 3) & ~3) if used else start
 
 
 class _Bump:

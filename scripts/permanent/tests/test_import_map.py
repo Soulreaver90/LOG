@@ -15,6 +15,7 @@ show that a reader FOLLOWS the table base. On that build the table is already at
 the count is already 328, so a reader pinned to the base constants finds the wrong table and still
 reads 327 plausible entries.
 """
+import hashlib
 import struct
 import sys
 import unittest
@@ -190,6 +191,26 @@ class RelocatedTableTests(unittest.TestCase):
         self.assertEqual(scene_probe.u32(self.after, import_map.ENTRY3_LITERAL),
                          self.new_table + 56 * import_map.ENTRY3 + ROM_BASE)
 
+    def test_every_word_that_landed_in_the_dead_table_and_moved_is_one_of_the_four(self):
+        """A second search shape, over the whole OLD table and not just its base.
+
+        `words_naming` only finds words naming one address, so it cannot see a literal pointing at
+        some other entry inside the table. This sweeps the range. It compares the two ROMs rather
+        than demanding an empty set, because 9 words of the base ROM's graphics and script data
+        happen to hold a value in this range and are not pointers. They sit in `before` too, where
+        the table is live, and they survived battle_arena's and ending_fight's relocations before
+        mine. What matters is that apply REMOVES exactly four and ADDS none."""
+        def landing_in(rom: bytes) -> set:
+            low = self.old_table + ROM_BASE
+            high = low + 56 * self.old_count
+            words = memoryview(rom[:len(rom) & ~3]).cast("I")
+            return {4 * i for i, word in enumerate(words) if low <= word < high}
+
+        was, now = landing_in(self.before), landing_in(self.after)
+        self.assertEqual(sorted(was - now),
+                         sorted(set(import_map.BASE_LITERALS) | {import_map.ENTRY3_LITERAL}))
+        self.assertEqual(sorted(now - was), [])
+
     def test_a_second_apply_finds_the_map_the_first_one_appended(self):
         again = import_map.apply(self.after, small_doc(), NEW_ZONE, NEW_AREA + 1)
         self.assertEqual(scene_probe.map_table(again)[1], self.old_count + 2)
@@ -206,8 +227,28 @@ class RelocatedTableTests(unittest.TestCase):
         self.assertEqual(stray[:8], [])
 
     def test_apply_leaves_the_rom_it_was_given_alone(self):
-        self.assertEqual(self.before, relocated_build())
-        self.assertIsNot(self.after, self.before)
+        """A bytearray, so the ROM given COULD be written. bytes could not, and would pass empty."""
+        given = bytearray(self.before)
+        was = hashlib.sha1(given).hexdigest()
+        import_map.apply(given, small_doc(), NEW_ZONE, NEW_AREA)
+        self.assertEqual(hashlib.sha1(given).hexdigest(), was)
+
+
+class FreeSpaceTests(unittest.TestCase):
+    """Where apply puts new data. Fill and data that ends in 0xFF read the same, so this is a trap."""
+
+    def test_free_space_starts_above_everything_the_build_allocated(self):
+        """build_list_dev.txt is the witness: its last allocation ends in 20 bytes of 0xFF, and a
+        plain backwards scan for a non-fill byte returns an offset inside it."""
+        for name in ("build_list_dev.txt", "build_list_trial_ending.txt"):
+            with self.subTest(name):
+                rom, alloc = log2_build.assemble(
+                    log2_build.BASE, log2_build.read_build_list(log2_build.BUILD_LIST.parent / name))
+                high = max(at + size for at, size in alloc.used())
+                self.assertGreaterEqual(import_map.free_from(bytes(rom)), high)
+
+    def test_an_untouched_expansion_area_is_free_from_its_start(self):
+        self.assertEqual(import_map.free_from(padded_base()), import_map.ALLOC_REGION[0])
 
 
 class ReadBackTests(unittest.TestCase):
