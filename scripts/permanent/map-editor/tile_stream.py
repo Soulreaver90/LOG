@@ -39,16 +39,28 @@ STREAM_PTR, TABLE_PTR = 0x48, 0x4C      # layout +0x48 the compressed tile list,
 
 
 def _pointer_at(rom: bytes, address: int) -> int:
-    """The ROM word at an address, read as an address. map_view keeps the same read as a private."""
+    """The ROM word at an ADDRESS, read as an address. map_view keeps the same read as a private.
+
+    The range check is the one guard against a file OFFSET arriving here. scene_probe.layouts
+    yields offsets and map_view.layout_of yields addresses, so the two are mixed up easily, and an
+    offset would otherwise read a plausible word from the wrong end of the ROM in silence."""
+    if not map_view.ROM_BASE <= address < map_view.ROM_BASE + len(rom):
+        raise ValueError(f"0x{address:08X} is not a ROM address: pass an address, not a file offset")
     return map_view.u32(rom, address - map_view.ROM_BASE)
 
 
 # ===== codec =====
 
 def decode_payload(payload: bytes) -> list:
-    """The (chunk, tile) pair of every entry of a delta coded +0x48 payload, in load order."""
+    """The (chunk, tile) pair of every entry of a delta coded +0x48 payload, in load order.
+
+    An odd length is refused rather than truncated. The loader would drop the stray byte, so a
+    truncating reader agrees with the game and still hides the real fault, which is a frame that
+    is not a tile list at all."""
+    if len(payload) % 2:
+        raise ValueError(f"a {len(payload)} byte payload is not a whole u16 list")
     count = len(payload) // 2
-    entries = list(struct.unpack(f"<{count}H", payload[:2 * count]))
+    entries = list(struct.unpack(f"<{count}H", payload))
     for i in range(1, count):
         entries[i] = (entries[i] + entries[i - 1] + 1) & 0xFFFF
     return [(e >> 8, e & 0xFF) for e in entries]
@@ -86,10 +98,18 @@ def tiles_of(rom: bytes, pairs: list, table: int) -> list:
 
     `table` is named by the caller, never defaulted: a default would be the base ROM's address, and
     a build that moved the table would then read a dead one. map_view keeps no map table constant
-    for the same reason."""
+    for the same reason.
+
+    A tile past the end of its chunk raises. No vanilla tile does it, measured over all 336 base
+    layouts, and a short slice would otherwise travel into a stream the editor writes and only
+    show up as missing pixels in game."""
     chunks, out = {}, []
     for chunk, tile in pairs:
         if chunk not in chunks:
             chunks[chunk] = map_view.frame(rom, _pointer_at(rom, table + 4 * chunk))
-        out.append(chunks[chunk][TILE_BYTES * tile:TILE_BYTES * (tile + 1)])
+        pixels = chunks[chunk][TILE_BYTES * tile:TILE_BYTES * (tile + 1)]
+        if len(pixels) != TILE_BYTES:
+            raise ValueError(f"chunk {chunk} holds {len(chunks[chunk]) // TILE_BYTES} tiles, "
+                             f"so tile {tile} runs past its end")
+        out.append(pixels)
     return out

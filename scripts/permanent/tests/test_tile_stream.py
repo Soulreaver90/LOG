@@ -8,6 +8,7 @@ The codec is read against the base ROM only. Nothing here builds or writes a ROM
 Map 6,99 is in the round trip on purpose: its stream repeats a tile with a 0xFFFF delta, so an
 encoder that assumes an ascending list passes the other three maps and corrupts that one.
 """
+import struct
 import sys
 import unittest
 from collections import Counter
@@ -25,6 +26,9 @@ ROUND_TRIP_MAPS = ((14, 1), (7, 15), (4, 50), (6, 99))
 MIXED_MAPS = ((14, 1), (7, 15))
 MAP_ENTRY_BYTES, MAP_ENTRY_COUNT = 56, 327      # the base ROM's map table, walked end to end
 LAYOUT_COUNT = 336              # distinct layouts those 327 entries reach, counted by walking the table
+CHUNK_COUNT = 168               # chunk frames in the shared table (bible B1080)
+SWAPPED_CHUNKS = (4, 80)        # two chunks map 14,1 loads, swapped to prove a moved table is followed
+SHORT_CHUNK = (167, 167)        # (chunk, tiles) of the one chunk that is not a full 256 tile frame
 
 
 def layout_of(zone: int, area: int) -> int:
@@ -35,6 +39,21 @@ def layout_of(zone: int, area: int) -> int:
 def payload_of(layout: int) -> bytes:
     """The raw +0x48 frame payload, read the way map_view reads it."""
     return map_view.frame(ROM, map_view.u32(ROM, layout + 0x48 - map_view.ROM_BASE))
+
+
+def moved_chunk_table(layout: int, left: int, right: int) -> tuple:
+    """(a ROM copy, the new table address) where `layout` names its own table with two chunks swapped.
+
+    The new table is appended past the end of the copy, so no real ROM byte moves and the only
+    edited word is the layout's +0x4C. In memory only: nothing here writes a ROM to disk."""
+    rom = bytearray(ROM)
+    table = bytearray(rom[tile_stream.CHUNK_TABLE - map_view.ROM_BASE:][:4 * CHUNK_COUNT])
+    for a, b in ((left, right), (right, left)):
+        table[4 * a:4 * a + 4] = ROM[tile_stream.CHUNK_TABLE - map_view.ROM_BASE + 4 * b:][:4]
+    moved = map_view.ROM_BASE + len(rom)
+    rom += table
+    struct.pack_into("<I", rom, layout + 0x4C - map_view.ROM_BASE, moved)
+    return bytes(rom), moved
 
 
 def busiest_foreign_chunk(pairs: list, other_chunks: set) -> tuple:
@@ -137,12 +156,60 @@ class MixedSourceTests(unittest.TestCase):
                          {tile_stream.chunk_table_of(ROM, layout + map_view.ROM_BASE)
                           for layout in layouts})
 
-    def test_chunk_table_of_reads_the_layout_not_the_constant(self):
-        """A build may relocate the table: on r40 map 14,4 names its own at 0x0890A92C. The reader
-        must follow the layout, so it is checked against the ROM word rather than the constant."""
+    def test_a_moved_chunk_table_is_followed_through_to_the_pixels(self):
+        """The base ROM cannot show this: every layout on it names CHUNK_TABLE, so a reader that
+        ignored the layout and returned the constant would pass any test run against the base.
+
+        r40 map 14,4 really does name its own table at 0x0890A92C, and the first version of this
+        test could not have caught that. So the move is made here instead, in a ROM copy held in
+        memory, with two chunk pointers swapped. Nothing is written to disk."""
         layout = layout_of(*MIXED_MAPS[0])
-        self.assertEqual(map_view.u32(ROM, layout + 0x4C - map_view.ROM_BASE),
-                         tile_stream.chunk_table_of(ROM, layout))
+        pairs = tile_stream.decode_stream(ROM, layout)
+        left, right = SWAPPED_CHUNKS
+        self.assertTrue({left, right} <= {chunk for chunk, _tile in pairs},
+                        "the swap must touch chunks this map really loads")
+
+        rom, moved = moved_chunk_table(layout, left, right)
+
+        self.assertEqual(moved, tile_stream.chunk_table_of(rom, layout))
+        self.assertNotEqual(tile_stream.CHUNK_TABLE, tile_stream.chunk_table_of(rom, layout))
+
+        swap = {left: right, right: left}
+        expected = tile_stream.tiles_of(ROM, [(swap.get(c, c), t) for c, t in pairs],
+                                        tile_stream.CHUNK_TABLE)
+        through_the_layout = tile_stream.tiles_of(rom, pairs,
+                                                  tile_stream.chunk_table_of(rom, layout))
+        self.assertEqual(expected, through_the_layout)
+        self.assertNotEqual(tile_stream.tiles_of(ROM, pairs, tile_stream.CHUNK_TABLE),
+                            through_the_layout, "the swap must change the pixels, or it proves nothing")
+
+
+class GuardTests(unittest.TestCase):
+    """The three silent wrong answers the codec used to give. Each must now raise."""
+
+    def test_an_odd_payload_is_refused_not_truncated(self):
+        with self.assertRaises(ValueError):
+            tile_stream.decode_payload(b"\x00\x01\x02")
+
+    def test_a_tile_past_the_end_of_its_chunk_is_refused(self):
+        """No vanilla tile does this, measured over all 336 base layouts, so only a written stream
+        can. A short slice would reach the game as missing pixels.
+
+        167 of the 168 chunks hold a full 256 tiles, so only the last one can overrun at all."""
+        chunk, tiles = SHORT_CHUNK
+        self.assertEqual(tiles, len(tile_stream.tiles_of(ROM, [(chunk, t) for t in range(tiles)],
+                                                         tile_stream.CHUNK_TABLE)))
+        with self.assertRaises(ValueError) as caught:
+            tile_stream.tiles_of(ROM, [(chunk, tiles)], tile_stream.CHUNK_TABLE)
+        self.assertIn(str(tiles), str(caught.exception))
+
+    def test_a_file_offset_where_an_address_belongs_is_refused(self):
+        """scene_probe.layouts yields file offsets and map_view.layout_of yields addresses."""
+        layout = layout_of(*MIXED_MAPS[0])
+        with self.assertRaises(ValueError):
+            tile_stream.decode_stream(ROM, layout - map_view.ROM_BASE)
+        with self.assertRaises(ValueError):
+            tile_stream.chunk_table_of(ROM, layout - map_view.ROM_BASE)
 
 
 if __name__ == "__main__":
