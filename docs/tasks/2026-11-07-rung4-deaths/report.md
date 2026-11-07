@@ -364,3 +364,220 @@ Play `log2_plateau_v7.gba`, not v6.
   guided. If it happens anyway, that is a finding worth the whole session.
 - Android 17 stopping inside a building or behind a wall. Measured at about 1 landing in 20 near
   the fight. Tell me where you were standing and I will move the spot.
+
+---
+
+## 10. v8: "it should follow a specific path or limited area"
+
+The owner play-tested v7. The beats worked. One defect, his words:
+
+> android 17 almost seemed to have walked off screen. When he approaches trunks, it should follow a
+> specific path or limited area
+
+and, the same day:
+
+> yeah restrict to the street, away from any existing collision items since there are some I think
+
+### 10.1 The cause is the PATH, not the stopping point
+
+The brief's call was that v7's endpoint `(px + 40, py)` could fall outside the view, and that the
+street is a vertical corridor. Both are wrong, and the measurement that says so is cheap.
+
+| Measured over all 5,683 open cells of map 1,100 (v7) | Value |
+|---|---|
+| cells where the branch walks him in | 5,476 |
+| cells where the v7 endpoint is OUTSIDE the view, inset 0 | **0** |
+| the same at a 16 px inset | **0** |
+| the same at a 24 px inset | **0** |
+| the camera clamps horizontally on | 264 cells |
+| the camera clamps vertically on | 0 cells |
+| the v7 walk, in pixels | median **304**, max 552 |
+| the fraction of that walk inside the view | median **31 %**, min 16 % |
+
+A walk of 304 px at one pixel a frame is five seconds, and he is outside the picture for about three
+and a half of them. That is what "almost seemed to have walked off screen" describes: not the place he
+stopped, but a long unconstrained diagonal from his own spot that only entered the view at its end.
+
+The street is not a vertical corridor either. Row by row, the collision frame gives a wide plaza at
+y 400-576 running x 16 to 744, a wall band at y 584-600 with a 120 px gap at x 440-560, and a second
+plaza at y 608-760.
+
+### 10.2 The rule v8 ships: one path, measured from the camera, never from the map
+
+The camera origin is the player minus (112,80), held inside the map (B1143, B1144). Everything is
+defined against that origin, so the walk is the same every time:
+
+| | map x | screen x |
+|---|---|---|
+| entry, where `ext 62` drops him | `max(px - 136, -24)` | **-24**, outside the left edge |
+| stop, where `ext 144` walks him | `max(px -  40,  72)` | **72**, 40 px left of Trunks |
+
+Both are on the player's own row, so the walk is level, 96 px, about a second and a half, and he is
+inside the view for all but the first 16 px of it. He always comes from Trunks' left and always stops
+at the same point on screen. The `max` is the LEFT camera clamp and nothing else: map 1,100 is
+1024 x 1280 and its open cells run x 16-744 and y 264-960, so the right clamp would need x >= 896 and
+the bottom clamp y >= 1200, and neither is reachable.
+
+The record branches twice, and both tests read the player, because Android 17 never moves off
+A17_SPOT until this record runs.
+
+1. **He is already beside Trunks** (the 88 x 52 box, unchanged from the build the owner approved):
+   he speaks and does not move.
+2. **His DRAWN BOX has no pixel on screen** (x outside 385-639, or y outside 297-487, derived from
+   his 16 x 32 sprite, his spot and the view): only then does `ext 62` reposition him. When he is on
+   screen but not yet beside Trunks he walks from where he stands, which is at most one view away.
+
+`ext 62` is back in the record and it is not a transition. `sub_0800A44E` queues a 16-byte command on
+the actor's own queue. Its start `@0x0800E1DC` calls the actor's virtual `+0x30`, writes `x << 8` and
+`y << 8` to `+0x158` and `+0x15C`, and calls `+0x34`. Its done slot is `@0x08026498`,
+`mov r0,#1 ; bx lr`. It touches no camera, no fade, no facing and no animation, and it runs only while
+he is invisible.
+
+Unpacking the player's spot now uses `div`, and the operand order is CONFIRMED rather than assumed:
+`sub_0800904A` fetches its two operands exactly as `sub_08009022` (sub) does, r0 from the top slot and
+r1 from the one below, and `@0x08021F30` returns `r1 / r0` (B0502, B1966). So `a ; b ; div` is `a / b`.
+
+### 10.3 The census, v7 against v8, under ONE measure
+
+Both numbers below come from `landing_census.py`, which no longer restates the rule in Python. It
+walks every open cell, drives the SHIPPED bytecode through `run_branch` with `ext 143` answering that
+cell, and scores what the record actually decided. A cell counts as closed if the collision frame
+closes it within 8 px either side of his anchor, or if it falls inside a carrier footprint plus 8 px.
+
+| population | build | stop closed | stop or VISIBLE path closed | walk px | on screen |
+|---|---|---|---|---|---|
+| all 5,683 open cells | v7 | 13.2 % | 32.9 % | median 304, max 552 | median 31 %, min 16 % |
+| | **v8** | **10.6 %** | 33.3 % | median **96**, max 168 | median **77 %**, min **77 %** |
+| within 160 px of the talk spot | v7 | 4.3 % | 12.8 % | median 152 | median 61 %, min 33 % |
+| | **v8** | 4.5 % | **12.0 %** | median **96** | median **77 %** |
+| within 200 px of Android 18 | v7 | 10.6 % | 24.1 % | median 152 | median 63 %, min 41 % |
+| | **v8** | **5.5 %** | **14.7 %** | median **96** | median **77 %** |
+
+> [!NOTE]
+> The "stop or VISIBLE path" column scores only the part of the walk inside the view, which is the
+> only part anyone can see. That is generous to v7, whose real problem is the 69 % of its walk that
+> nobody sees. Read it beside the last two columns, not on its own.
+
+The landing near the fight is held: 4.3 % to 4.5 %, a difference of two cells in 1,165. Near
+Android 18 it improves by half. The residue is the map: on 8.1 % of all open cells NEITHER a 72 px
+level approach from the left nor one from the right is clear, because the rows at y 448-496 narrow to
+x 440-520 and the lower corridor at y 584-600 is only 120 px wide.
+
+### 10.4 The keep-out census, carrier by carrier
+
+`street_census.py` now reads items through `scene_probe.item`, which dispatches the position on the
+factory, so an enemy item reads its spot at `+0x0C` and an NPC item at `+0x08`. The earlier count in
+this report printed both enemy items at the wrong place.
+
+| carrier | where | map 1,100 (the clone) | map 1,2 (the source) |
+|---|---|---|---|
+| 1. layout props | layout `+0x24` / `+0x28` | **1**, rect (200,361)-(232,377), tile 0, priority 40 | the same 1 |
+| 2. break records | entry `+0x05` / `+0x18` | **0**, the search returned nothing | **0**, the search returned nothing |
+| 3. items | entry `+0x04` / `+0x14` | **4**: NPC 18 (472,408), NPC 17 (520,408), enemy 18 (472,408), enemy 17 (520,408) | **4** NPCs: set 54 (216,368), 18 (472,408), 17 (520,408), set 132 (496,648) |
+| 4. collision frame | layout `+0x34` | 5,683 open cells of 65,536 | the same frame |
+| 5. regions | entry `+0x03` / `+0x10` | **0**, the search returned nothing | **1** scene region, rect (-15,-7)-(360,584) |
+| 6. layout doors | layout `+0x40` / `+0x44` | **0**, the search returned nothing | **1** warp to map 2,22, rect (144,280)-(273,305) |
+| 7. pickups | entry `+0x06` / `+0x1C` | **0**, the search returned nothing | **0**, the search returned nothing |
+| 8. markers | entry `+0x07` / `+0x20` | **0**, the search returned nothing | **0**, the search returned nothing |
+
+Carriers 1 and 3 are the keep-outs the census applies, with an 8 px margin for his sprite. The one
+prop sits at x 200-232, which is 240 px west of the fight, and it is the sprite of map 1,2's own NPC
+set 54 at (216,368): the clone dropped the NPC and kept the prop.
+
+> [!WARNING]
+> **A FIFTH CARRIER EXISTS THAT NONE OF THESE EIGHT REACHES: the BG layer art.** The emulator found
+> it. At the far west of the street the collision frame calls the ground open, and the map draws a
+> tree canopy and a grass verge over it. In the `v8_kill_edge` run the player stood at (16,569) and
+> Android 17 walked to (45,569) and then (72,569), both read out of RAM, and **neither actor is drawn
+> in any frame of that run**. Screenshots are the only tool here that can see it, so the claim this
+> report makes is "17 is inside the VIEW", not "17 is visible". Logged in `active-todos.md`.
+
+### 10.5 Verified in the running game, not only in the tests
+
+Five capture runs on `log2_plateau_v8.gba`. A BizHawk state carries the ROM's crc32 and loads only on
+the ROM that made it, so the finale task's states could not be reused: `v8_land.txt` boots v8 cold,
+plays the farewell and the credits with the A macro and saves its own state at the street
+(26,822 frames). Every later run resumes that state. Android 18 is killed with the ki blast, which is
+the only attack measured to empty her bar.
+
+| run | the player when she dies | what the branch should do | what RAM says Android 17 did |
+|---|---|---|---|
+| `v8_kill_close` | (496,377) | inside the 88 x 52 box: speak, do not move | stayed at (520,408) through two dumps 96 frames apart |
+| `v8_kill_open` | (496,515) | invisible: enter at **360**, stop at **456**, row **515** | (371,515), then (419,515), then **(456,515)** |
+| `v8_kill_edge` | (16,569), camera clamped | invisible and clamped: enter at **-24**, stop at **72**, row **569** | (45,569), then **(72,569)** |
+| `v8_kill_far` | (496,527) | invisible | the shots show him enter at the left edge and stop beside Trunks |
+| `v8_kill_left` | (496,504) | invisible | the same, and the run went on to the plateau Cell fight |
+
+The two numeric rows are exact. `max(496 - 40, 72) = 456` and `max(16 - 40, 72) = 72` are what the
+record computed inside the game, on the player's own row both times, so the clamp arithmetic and the
+unclamped arithmetic are both confirmed in play and not only in `run_branch`.
+
+The screenshots show the beat the owner asked for: Trunks alone after the blast, then Android 17
+walking in from the left edge of the picture, then the two of them standing together while
+"It can't be!" comes up on his portrait. He is never seen arriving and never seen outside the view.
+
+| artefact | where |
+|---|---|
+| contact sheets, one frame every 24 | `scratch\capture\v8_kill_far-*\sheet.png`, `v8_kill_near-*`, `v8_kill_left-*` |
+| the walk at 2x and 3x | `scratch\capture\v8_kill_far-*\walk.png`, `v8_kill_edge-*\edge_walk.png` |
+| the tree that hides both actors | `scratch\capture\v8_kill_edge-*\edge_walk.png`, `edge_after.png` |
+| jobs | `scripts\one-time\2026-11-07-rung4-deaths\v8_*.txt`, `make_v8_jobs.py` |
+
+### 10.6 What v8 does NOT prove
+
+- **"On screen" is not "visible".** Section 10.4's warning. The BG art can cover him, and only a
+  screenshot shows it. I did not enumerate the BG tilemaps.
+- **The fourth path was not photographed.** "Visible, but not yet beside Trunks, so he walks from his
+  own spot with no teleport" is covered by `run_branch` over all 5,683 cells and by the unit tests,
+  but no capture run landed the player inside that band when Android 18 died.
+- **The residue is not zero.** On 12.0 % of the cells near the fight some 8 px sample of the visible
+  approach is closed ground, which means Android 17 clips a building edge for part of the walk. The
+  mover tests no collision (B0686), so this cannot fail; it can only look wrong. The floor for any
+  level 72 px approach on this map is 6.9 % near the talk spot, and that is with a free choice of side
+  the VM cannot make.
+- **`ext 144` blocking the script** is still read from behaviour, not from the queue code: the owner's
+  own play test of v7 showed the dialogue waiting for the walk.
+
+### 10.7 The build, the read-back and the suite
+
+| | |
+|---|---|
+| ROM | `builds\mockups\2026-11-07-plateau\log2_plateau_v8.gba` |
+| SHA-1 | `5523a36e5d7f569746164b34035dd2fbb7421778` |
+| save | `log2_plateau_v8.sav`, seeded from `log2_poc_r40.sav` |
+| list | `scripts\permanent\build_list_trial_plateau.txt` |
+| reproducible | a second build to a scratch path gives the same SHA-1 |
+
+`readback.py` reads both records back OUT of the built ROM through the live map table literal
+`rom:0xEBD8`. Android 18's record is at `rom:0x9408D0` and carries, after the blast, the four
+`set_var` writes, the two `jz` branches, `move_to` (`ext 62`) and `ext 144`, then both `face_alt`
+calls. Android 17's own record at `rom:0x9409B0` still has no branch at all.
+
+The suite: **1,647 tests, FAILED (failures=1, skipped=3, expected failures=1)**, so the unittest exit
+code is 1. The one failure is
+`test_battle_start.test_form_survives_the_leader_change`, on `record rom:0x89A9C0 (table
+rom:0x3DE6F4 word 32, map 9,3 region, fullpower_ssj)`. It names no file of mine, it is the failure
+the brief named as known, and it is the same record and the same message this task measured against
+the committed module on the v7 round. `test_future_androids.py` is 44 tests, all green, three of them
+new: each `jz` skips exactly its own arm, the whole-map proof that the reposition is never on screen
+and the stop always is, and a negative control that moves one view bound in the BUILT bytes and
+watches the teleport stop firing.
+
+> [!WARNING]
+> The suite ran while another agent was editing `scripts\permanent\map-editor\`. Nothing there is
+> mine and nothing there failed, but a run taken during another agent's edits can be green by luck.
+
+### 10.8 What the owner should check in v8
+
+1. Beat Android 18 **from well below her, near the bottom of the street.** Android 17 should walk in
+   from the LEFT edge of the picture, stop a short step to Trunks' left, and both should turn to face
+   each other before "It can't be!". You should never see him arrive, and never see him outside the
+   picture.
+2. Beat her **standing right next to her**, so Android 17 is already on screen. He should not move at
+   all: he just speaks from where he has been standing the whole time.
+3. Beat her **at the far west end of the street.** The walk should still work, and he should still
+   stop a short step to Trunks' left. Expect BOTH of you to be hidden behind the tree down there: that
+   is the map's own art over open ground, it is in the backlog, and it is not the walk.
+4. Time him. The walk should take about a second and a half, every time, from any spot. If it ever
+   feels like five seconds again, that is the old behaviour and I want to know.
+5. Nothing else changed. No fade, no camera move, no map reload anywhere in the beat.

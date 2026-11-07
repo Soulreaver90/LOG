@@ -65,9 +65,10 @@ Method:  Ending scene table rom:0x3B8140. Word 8 is the scripted beating of set 
             holds, turns Trunks to her, fires `ext 96` with the PLAYER as attacker, polls `ext 60`
             until the blast lands and removes her. It carries NO fade, NO camera op, NO `ext 62` and
             no map load, so the scene never leaves the ground the fight ended on. Android 18's record
-            then BRANCHES on whether Android 17 is on screen: the engine has no such op, so the test
-            compares the player's packed spot (`ext 143`) against 17's fixed spot, and `ext 144`
-            walks him in when he is outside the box. See off_screen(), walk_in(), blast() and death().
+            then brings Android 17 in. The engine has no "is this actor on screen" op, so the record
+            unpacks the player's spot (`ext 143`), works out where the view is, and either leaves 17
+            standing, walks him from where he stands, or drops him just outside the left edge of the
+            view with `ext 62` and walks him 96 px in. See approach(), blast() and death().
          8. Each enemy's death event table is a COPY OF THE LIVE 27 WORD ENDING TABLE with word 0 set
             to its own death record. The copy is taken AFTER words 8 and 11 are written, so Android
             18's table carries the real Android 17 fight at word 11, and both carry ending_fight's own
@@ -238,28 +239,35 @@ HANDBACK_HOLD = 60                                        # the wait each vanill
 # ===== constants: the death beats (rung 4) =====
 A17_SPOT = (520, 408)                                     # SOURCE_NPCS[A17] +8: where NPC 17 stands and waits
 BLAST_SPEED = 100                                         # vanilla's own n for a PLAYER blast, rom:0x3E523F
-# Where Android 17 stops when he walks in, as an offset from the player. The follow camera draws the
-# player at screen (112,80) (bible B1144), so this spot is screen (152,80): on screen and level with
-# Trunks, 40 px to his right.
-# THE OFFSET IS LEVEL, NOT DIAGONAL, AND THAT IS MEASURED. The walk's own mover step `@0x0800D28C`
-# adds a fixed velocity, counts frames down and then SNAPS the actor onto the target, testing no
-# collision at all, so a blocked walk cannot freeze, but it CAN leave Android 17 inside a building,
-# and word 11's `ext 104` would then build the enemy there.
-# `scripts\one-time\2026-11-07-rung4-deaths\landing_census.py` counted the landing over all 5,683
-# open cells of map 1,100: the first design, (40,-40), was closed on 19.7 % of them and on 22.0 % of
-# the cells within 160 px of the talk spot, including the talk spot itself. The street is a vertical
-# corridor, so going up walks into the buildings that line it. (40,0) is closed on 10.3 % and 4.9 %.
-WALK_IN_OFFSET = (40, 0)
-# Half extents of the "already on screen" box, again from screen (112,80) on a 240x160 view. They are
-# deliberately SMALLER than the real view, so the test errs toward walking him in. An unneeded walk-in
-# reads fine; a skipped one would leave the player listening to nobody.
-ON_SCREEN_X, ON_SCREEN_Y = 88, 52
+
+# ----- the approach: one path, measured in SCREEN space, not in map space -----
+# The follow camera puts its origin at the player minus (112,80) and clamps it to the map (B1143,
+# B1144), so every screen coordinate below is computable from the player's spot alone.
+CAM_OFFSET, SCREEN = (112, 80), (240, 160)
+# Android 17 enters ENTRY_INSET px OUTSIDE the left edge of the view and stops STOP_INSET px inside
+# it. Both are measured from the camera origin, so the walk is the SAME 96 px every time, it always
+# comes from the same side, and it always ends at the same point on screen: screen x 72, level with
+# Trunks at screen x 112. That is the owner's "specific path or limited area", 2026-11-07.
+ENTRY_INSET, STOP_INSET = 24, 72
+A17_BOX = (8, 32)                 # his drawn box: 8 px either side of the anchor, 32 px above it
+# The "he is already beside Trunks, so he just speaks" box. Unchanged from the build the owner
+# play-tested. Deliberately smaller than the view, so the test errs toward bringing him in.
+TALK_X, TALK_Y = 88, 52
+# The player spots from which Android 17's DRAWN BOX has no pixel on screen, derived from A17_SPOT,
+# A17_BOX, CAM_OFFSET and SCREEN. He is teleported only from inside this band, so the reposition can
+# never be seen. Outside it he walks from where he stands, which is what the owner already approved.
+GONE_X = (A17_SPOT[0] - A17_BOX[0] - SCREEN[0] + CAM_OFFSET[0] + 1,      # 385
+          A17_SPOT[0] + A17_BOX[0] + CAM_OFFSET[0] - 1)                  # 639
+GONE_Y = (A17_SPOT[1] - A17_BOX[1] - SCREEN[1] + CAM_OFFSET[1] + 1,      # 297
+          A17_SPOT[1] + CAM_OFFSET[1] - 1)                               # 487
 
 # The scene VM's four registers. `set_var n` (base op 3) writes slot n and `ext n` (n = 0 to 3) pushes
 # it back: both resolve to 0x03001FB0 + 4n. CONFIRMED from sub_0800B058 to sub_0800B06A (the set_var
 # slot table rom:0x3B5F70) and from sub_08009392 to sub_080093C8 (the ext 0 to ext 3 handlers).
-V_SPOT, V_DX, V_DY = 0, 1, 2
-OR, ADD, SUB, MUL, GT, LT = (bytes([n]) for n in (5, 7, 8, 9, 13, 15))
+# There are FOUR and no more: set_var 4 (sub_0800B070) writes through 0x03001FAC instead.
+V_SPOT, V_PY, V_PX, V_FLAG = 0, 1, 2, 3
+OR, ADD, SUB, MUL, DIV, GT, LT = (bytes([n]) for n in (5, 7, 8, 9, 10, 13, 15))
+HALF = 1 << 16                                            # the packed spot's x multiplier
 
 
 # ===== the new records =====
@@ -416,65 +424,109 @@ def jz(skip: int) -> bytes:
     return bytes([19, skip])
 
 
-def off_screen(spot: tuple, half_x: int, half_y: int) -> bytes:
-    """Leave 1 on the stack when `spot` is OUTSIDE the box around the player, and 0 when it is inside.
+def read_player() -> bytes:
+    """Put the player's x and y in V_PX and V_PY, and the left-clamp flag in V_FLAG.
 
-    THE ENGINE HAS NO "is this actor on screen" OP, and two independent searches agree. All 145 ext
-    handlers are profiled from the disassembly (docs\\research\\scene-vm-ext-ops.md), and the 18 that
-    return a value read flags, items, levels, random numbers, the character records or an actor spot.
-    A literal-pool sweep of the whole code region for 0x03001090 (the view struct), 0x083ED65C (the
-    pointer to it), 0x03000FF4, 0x030020C0 and 0x030020F4 finds only WRITERS, and the only ext
-    handlers among them are 31, 33, 34 and 35, all consumers. So a script cannot ask the engine the
-    owner's question. Limit: callees more than one level below a getter were not searched.
+    `ext 143 (set)` resolves the actor through `Sprite_Select @0x08009370`, calls
+    `Point_LoadScaled @0x0800791A` and pushes the two halves PACKED as `(x << 16) | (y & 0xFFFF)`.
+    CONFIRMED from `sub_08009E80`. `Sprite_Select` answers set 0 with the live player object itself,
+    and the player is a `mover` subclass, so his spot is at +0x158/+0x15C like every NPC's (B1710).
 
-    What a script CAN read is an actor's position. `ext 143 (set)` resolves the actor through
-    `Sprite_Select @0x08009370`, calls `Point_LoadScaled @0x0800791A`, and pushes the two halves
-    PACKED as `(x << 16) | (y & 0xFFFF)`. CONFIRMED from `sub_08009E80`. `Sprite_Select` answers set 0
-    with the live player object itself (`BNE loc_0800937E` falls through to the player pointer), and
-    the player is a `mover` subclass, so his spot really is at +0x158/+0x15C like every NPC's
-    (bible B1710, and the face-the-player step reads the player at those offsets, B1173).
+    Unpacking needs `div`, and the operand order is now CONFIRMED, not assumed. `sub_0800904A`
+    fetches its two operands exactly as `sub_08009022` (sub) does, r0 from the TOP slot and r1 from
+    the one below, and `@0x08021F30` returns r1 / r0 (B0502, B1966). So `a ; b ; div` is a / b, the
+    same reading order as `a ; b ; sub`.
 
-    So the honest equivalent is: the follow camera draws the player at screen (112,80) (B1144), the
-    view is 240x160, and Android 17 never moves off A17_SPOT. "17 is on screen" therefore becomes
-    "the player is inside a box around A17_SPOT", which this computes from the two packed spots.
+      V_PY = (spot * 65536) / 65536. The multiply is 32-bit, so the x half shifts straight out.
+      V_PX = (spot - V_PY) / 65536. The low half is now zero, so no borrow can reach the high half.
 
-    The arithmetic avoids `div`, whose operand order is only LIKELY (B1966):
-
-      dx:  V_SPOT - packed(spot). The low halves can borrow, so the high half of the answer is
-           (px - qx) or (px - qx - 1). That is a 1 px error, and the box has an 88 px half width.
-      dy:  (V_SPOT * 65536) - (spot_y << 16). The engine multiplies in 32 bits, so the x half shifts
-           straight out and the answer is EXACTLY (py - qy) << 16.
-
-    Each half is then compared against +-half << 16 with `gt` and `lt`, which test `second > top` and
-    `second < top`. The four answers are OR-ed, so the record leaves 1 when EITHER axis is outside.
-
-    Known error band: the view clamps at the map edges (B1143), so near an edge the player is no
-    longer drawn at screen (112,80) and this test is wrong by up to the clamp distance."""
-    packed = (spot[0] << 16) | (spot[1] & 0xFFFF)
+    V_FLAG is 1 exactly when the camera is clamped against the LEFT map edge, which is the one clamp
+    that can bite here: the camera origin is the player minus (112,80) held inside the map (B1143),
+    map 1,100 is 1024x1280, and its open cells run x 16-744 and y 264-960, so the right clamp needs
+    x >= 896 and the bottom clamp y >= 1200 and neither is reachable."""
     return (ext(143, PLAYER) + var_write(V_SPOT)
-            + var_read(V_SPOT) + push(packed) + SUB + var_write(V_DX)
-            + var_read(V_SPOT) + push(1 << 16) + MUL + push(spot[1] << 16) + SUB + var_write(V_DY)
-            + var_read(V_DX) + push(half_x << 16) + GT
-            + var_read(V_DX) + push(-(half_x << 16)) + LT + OR
-            + var_read(V_DY) + push(half_y << 16) + GT
-            + var_read(V_DY) + push(-(half_y << 16)) + LT + OR
-            + OR)
+            + var_read(V_SPOT) + push(HALF) + MUL + push(HALF) + DIV + var_write(V_PY)
+            + var_read(V_SPOT) + var_read(V_PY) + SUB + push(HALF) + DIV + var_write(V_PX)
+            + var_read(V_PX) + push(CAM_OFFSET[0]) + LT + var_write(V_FLAG))
 
 
-def walk_in(npc_set: int, offset: tuple) -> bytes:
-    """Walk `npc_set` from wherever he stands to the player's spot plus `offset`.
+def outside(slot: int, lo: int, hi: int) -> bytes:
+    """Leave 1 when variable `slot` is below `lo` or above `hi`, and 0 when it is inside.
+
+    `lt` and `gt` test SECOND against TOP (`sub_080090CA`, `sub_08009096`), so the variable is
+    pushed first and the bound second."""
+    return (var_read(slot) + push(lo) + LT
+            + var_read(slot) + push(hi) + GT + OR)
+
+
+def screen_x(back: int, floor_x: int) -> bytes:
+    """Leave `max(px - back, floor_x)` on the stack: a screen x turned back into a map x.
+
+    The camera origin is `max(px - 112, 0)` here, so a point `k` px inside the left edge of the view
+    is at map x `max(px - 112 + k, k)`, which is this with `back = 112 - k` and `floor_x = k`. The
+    maximum is taken WITHOUT a jump, as `a + (floor - a) * flag`, because V_FLAG is already the one
+    comparison both of this record's two call sites need: `px < 112` is the same test as
+    `px - 112 + k < k` for every k."""
+    a = var_read(V_PX) + push(back) + SUB
+    return a + push(floor_x) + a + SUB + var_read(V_FLAG) + MUL + ADD
+
+
+def approach(npc_set: int) -> bytes:
+    """Bring Android 17 to the same place on screen beside Trunks, from the same side, every time.
+
+    THE OWNER'S DEFECT, 2026-11-07: "android 17 almost seemed to have walked off screen. When he
+    approaches trunks, it should follow a specific path or limited area."
+
+    The measured cause is NOT the stopping point. Over all 5,683 open cells of map 1,100 the build he
+    played stopped 17 inside the view on every single one, even with a 24 px inset. What he saw was
+    the WALK: it started at A17_SPOT and ran to the player wherever he was, a median of 304 frames,
+    up to 552, and only 29 % of that straight line was ever inside the view. Android 17 spent about
+    three and a half seconds of a five second walk outside the picture and then arrived at its edge.
+
+    So the walk now starts just outside the left edge of the view and ends 72 px inside it:
+
+      ENTRY  map x `max(px - 136, -24)`, the player's own row     (24 px outside the left edge)
+      STOP   map x `max(px -  40,  72)`, the player's own row     (72 px inside it, 40 px from him)
+
+    Both are camera-relative, so the walk is 96 px and about one and a half seconds every time, 17 is
+    inside the view for all but the first 16 px of it, and he always comes from Trunks' left.
+
+    The record branches twice, and both tests are on the player's spot, because Android 17 never
+    moves off A17_SPOT until this record runs:
+
+      1. `outside(TALK_X, TALK_Y)` - he is already beside Trunks, so he just speaks and does not
+         move. That is the owner's rule of 2026-11-07 and the build he played already honoured it.
+      2. `outside(GONE_X, GONE_Y)` - his DRAWN BOX has no pixel on screen, so `ext 62` may place him
+         at the entry without anyone seeing it. When he IS on screen but not yet beside Trunks he
+         walks from where he stands, which is a short walk inside one view and needs no teleport.
+
+    `ext 62 (set, x, y)` is back in this record and it is NOT a transition. `sub_0800A44E` queues a
+    16-byte command on the actor's own queue; its start `@0x0800E1DC` calls the actor's virtual +0x30,
+    writes `x << 8` and `y << 8` to +0x158 and +0x15C, and calls +0x34. Its done slot is
+    `@0x08026498`, `mov r0,#1 ; bx lr`, so it costs one frame and blocks nothing. It touches no
+    camera, no fade, no facing and no animation, and it only ever runs while 17 is invisible.
 
     `ext 144` pops a set and a PACKED point and queues the very command `ext 53 walk` queues:
     `sub_08009EBA` and `sub_08009D4A` both end in `Record_NewFromWords(0, {x,y})` then
-    `Queue_Append @0x0800E04C`, and the only difference is where the pair comes from. CONFIRMED, and
-    vanilla pairs it with `ext 143` three times: record rom:0x3C56D4 on map 4,30 saves set 101's
-    spot, walks him away and walks him back, and two records on map 4,41 do the same with set 82.
+    `Queue_Append @0x0800E04C`, and the only difference is where the pair comes from. CONFIRMED.
+    `sub_08009EBA` reads the pair with `asr r2,r1,#16` and `lsl r1,#16 ; asr r1,#16`, so the high
+    half is a SIGNED x and the low half a signed y, which is why the stop is packed as
+    `stop_x * 65536 + py` and never as a bit-wise or.
 
-    The offset is folded into ONE constant, `(dx << 16) + dy`, and added to the packed player spot.
-    A negative dy would borrow out of the low half and land the carry in the high half, which is
-    still the right answer as long as `py + dy` stays positive; this map's walkable y never comes
-    near 40. WALK_IN_OFFSET is level today, so no borrow happens at all."""
-    return push(npc_set) + var_read(V_SPOT) + push((offset[0] << 16) + offset[1]) + ADD + ext(144)
+    Trunks turns to him at the end, on both paths. He has just fired at Android 18 and would
+    otherwise be facing her death spot while 17 speaks from the other side."""
+    enter = push(npc_set) + screen_x(CAM_OFFSET[0] + ENTRY_INSET, -ENTRY_INSET) + var_read(V_PY) + ext(62)
+    walk = (push(npc_set)
+            + screen_x(CAM_OFFSET[0] - STOP_INSET, STOP_INSET) + push(HALF) + MUL
+            + var_read(V_PY) + ADD + ext(144))
+    gone = outside(V_PX, *GONE_X) + outside(V_PY, *GONE_Y) + OR
+    away = (outside(V_PX, A17_SPOT[0] - TALK_X, A17_SPOT[0] + TALK_X)
+            + outside(V_PY, A17_SPOT[1] - TALK_Y, A17_SPOT[1] + TALK_Y) + OR)
+    move = gone + jz(len(enter)) + enter + walk
+    return (read_player()
+            + away + jz(len(move)) + move
+            + call("face_alt", npc_set, PLAYER)
+            + call("face_alt", PLAYER, npc_set))
 
 
 def blast(enemy_set: int) -> bytes:
@@ -520,10 +572,10 @@ def death(enemy_set: int, nxt: int, entrance: int = None) -> bytes:
     rom:0x3D8BC4 opens with, and the blast is what removes him.
 
     `entrance` is Android 17's set on Android 18's record and None on his own. When it is given, the
-    record branches: `off_screen()` leaves 1 when 17 is outside the box around the player, and `jz`
-    skips `walk_in()` when it leaves 0. The owner's rule, 2026-11-07: "if 17 is already on screen, he
-    just goes to his dialogue. If he is offscreen, then he walks onscreen, facing trunks". `face_alt`
-    runs on BOTH paths, because his face-the-player step struct does not tick while a scene plays.
+    record calls `approach()`, which carries the owner's rule of 2026-11-07, "if 17 is already on
+    screen, he just goes to his dialogue. If he is offscreen, then he walks onscreen, facing
+    trunks", and his correction of the same day, that the walk must follow one path. Both `face_alt`
+    calls run on EVERY path, because the face-the-player step struct does not tick during a scene.
 
     He speaks VANILLA'S OWN LINE. `nxt` is 9, and ending word 9 rom:0x3B7D2A is
     "It can't be!" on portrait 28, the portrait word 1 gives "ANDROID 17". Word 10 is Trunks'
@@ -536,11 +588,7 @@ def death(enemy_set: int, nxt: int, entrance: int = None) -> bytes:
             + blast(enemy_set))
     if entrance is None:
         return code(nxt, beat, face(PLAYER, DOWN), wait(HANDBACK_HOLD))
-    arrival = walk_in(entrance, WALK_IN_OFFSET)
-    return code(nxt, beat,
-                off_screen(A17_SPOT, ON_SCREEN_X, ON_SCREEN_Y), jz(len(arrival)), arrival,
-                call("face_alt", entrance, PLAYER),
-                wait(HANDBACK_HOLD))
+    return code(nxt, beat, approach(entrance), wait(HANDBACK_HOLD))
 
 
 def death_table(rom: bytes, death_at: int) -> bytes:
