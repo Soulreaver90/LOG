@@ -202,7 +202,8 @@ def _check_chunk_table(rom: bytes, word: int, pairs: list) -> int:
 
     A document read from a build that gave one map its own table (map 14,4 names 0x0890A92C) is
     sound, and it is still meaningless in a ROM where that address is fill. Every chunk the document
-    actually uses must hold a frame pointer here, or the import writes a map of another map's art."""
+    actually uses must hold a frame pointer here, so the import refuses rather than resolving the
+    pairs against a table the map never came from."""
     at = scene_probe.rom_offset(rom, word, "the document's chunk table")
     for chunk in sorted({c for c, _tile in pairs}):
         entry = _u32(rom, at + 4 * chunk)

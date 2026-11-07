@@ -32,11 +32,13 @@ PRIORITY is read, never defaulted. Layout bytes +0x04 to +0x07 are the BG0 to BG
          being the canopy that draws over the player.
 CHUNK TABLE, the provenance a tile pair cannot do without. A pair is (chunk, tile) in the table a
          layout names at +0x4C, and most layouts name the shared pool 0x084DF574. A BUILD may give
-         one map its own: map 14,4 of every current build list names 0x0890A92C. A document that did
-         not record its table had its pairs resolved against the pool, which drew another map's art
-         and raised nothing anywhere. So `chunk_table` is a field, `read_map` takes it from the
-         source layout, `blank` names the shared pool, and `validate` reports a document without it.
-         This is why SCHEMA is 2: a schema 1 file carries no table and loading one would be a guess.
+         one map its own: all 16 build lists give map 14,4 the table 0x0890A92C. A document that did
+         not record its table had its pairs resolved against the pool instead, so it named art it
+         never came from. Today's one witness EXTENDS the pool (168 equal entries plus a 169th), and
+         map 14,4 loads from the 169th, so the pool raises. A table that REPLACED an entry would
+         draw the wrong art in silence, and no build list has one. So `chunk_table` is a field,
+         `read_map` takes it from the source layout, `blank` names the shared pool, and `validate`
+         reports a document without it. This is why SCHEMA is 2: a schema 1 file carries no table.
 TILES:   slots 0 to len(tiles)-1 are the static +0x48 stream. An ANIMATED GROUP owns slots
          [first, first + tiles) and usually sits PAST the static stream: map 7,15 decodes 633
          static tiles and its cells name tile 894. A document without the group leaves those cells
@@ -166,14 +168,14 @@ def _pair_of_ints(value, name: str, problems: list) -> tuple:
 def _check_chunk_table(doc: dict, problems: list) -> None:
     """The table a document's (chunk, tile) pairs index. Without it a pair names no art at all.
 
-    A build may give one map its own table: map 14,4 of every current build names 0x0890A92C, not
-    the shared pool. Resolving its pairs against the pool draws another map's tiles and raises
-    nothing, which is why this is a field and not a default."""
+    A build may give one map its own table: all 16 build lists give map 14,4 0x0890A92C, not the
+    shared pool. Resolving a document's pairs against a table it did not come from names art it
+    never meant, which is why this is a field and not a default."""
     table = doc.get("chunk_table")
     if not isinstance(table, int) or not ADDRESS_LOW <= table < ADDRESS_HIGH:
         problems.append(f"chunk_table: expected the ROM address of a chunk table, found {table!r}. "
-                        f"A document that does not name its table resolves its tile pairs against "
-                        f"the shared pool and draws another map's art with no error")
+                        f"Without it a (chunk, tile) pair names no art, because a chunk number only "
+                        f"means something in the table the map was read from")
 
 
 def _check_tiles(doc: dict, problems: list) -> None:

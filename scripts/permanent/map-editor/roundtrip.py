@@ -14,10 +14,12 @@ CONTENT, NOT BYTES. The trip is read_map -> save -> load -> apply -> read_map, a
          compared as DECODED documents. A byte comparison of the blob cannot work: maps 6,1 and 4,50
          share one frame pointer, so re-encoding loses frame bytes without losing a single pixel.
 PIXELS, NOT PAIRS. A tile is (chunk, tile) in SOME chunk table, and a document that did not record
-         which one resolved its pairs against the shared pool. On every current build map 14,4 names
-         its own table at 0x0890A92C, so 72 of its tiles came back as another map's art with no
-         error anywhere. So `differences` resolves both sides to 64 byte PIXELS, each through its own
-         document's `chunk_table` in its own ROM, and a pair comparison is never enough.
+         which one resolved its pairs against the shared pool. Every build list gives map 14,4 its
+         own table at 0x0890A92C, so that map could not go back into a ROM at all. Measured: that
+         table copies the pool's 168 entries and adds a 169th, and map 14,4 loads from the 169th, so
+         today the pool RAISES rather than drawing quietly. A table that REPLACED an entry would be
+         silent, and no build list has one. So `differences` resolves both sides to 64 byte PIXELS,
+         each through its own document's `chunk_table` in its own ROM.
 WHOLE DOCUMENT. `CARRIED` plus `SKIPPED` must equal a document's keys, and `unknown_fields` reports
          anything else. A field added later and compared by nobody is how a round trip goes green
          while losing something.
@@ -29,8 +31,8 @@ Skipped: map 1,7 has no tilemap layer at all, so `read_map` refuses it, and map 
          the map and not of the reader, so they are reported as skipped and never as a pass.
 """
 import argparse
-import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 for _folder in (Path(__file__).resolve().parent, Path(__file__).resolve().parents[1]):
@@ -225,7 +227,13 @@ def _main(argv: list) -> int:
         print(f"map {row['map'][0]},{row['map'][1]} v{row['map'][2]} skipped: {row['skipped'][:110]}")
     print(f"\n{len(good)} of {len(rows)} layouts came back unchanged, {len(bad)} failed, "
           f"{len(skipped)} skipped")
-    print(f"{len(lost)} of the {len(good)} passes lost props, doors or a non-tilemap layer")
+    kinds = Counter()
+    for row in good:
+        for note in row["lost"]:
+            kinds["props" if "props" in note else
+                  "doors" if "doors" in note else "a non-tilemap layer"] += 1
+    print(f"{len(good) - len(lost)} of those {len(good)} came back with NOTHING lost; the other "
+          f"{len(lost)} lost " + ", ".join(f"{n} {k}" for k, n in sorted(kinds.items())))
     print(f"documents written to {folder}")
     return 1 if bad else 0
 

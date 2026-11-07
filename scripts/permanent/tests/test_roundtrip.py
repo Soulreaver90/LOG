@@ -35,6 +35,7 @@ import tile_stream                                                         # noq
 DEV_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_dev.txt"
 PRIVATE_TABLE = 0x0890A92C          # map 14,4's own chunk table in every current build
 PRIVATE_MAP = (14, 4)
+ROM_BASE = map_view.ROM_BASE
 _CACHE = {}
 
 
@@ -174,8 +175,12 @@ class ChunkTableTests(unittest.TestCase):
         entries and adds a 169th at 0x0890ACF4. Map 14,4 loads from that one, and the pool's word
         at the same index is 0x00000001, the next structure. So the shared pool cannot draw this
         map: it raises. A table that REPLACED an entry would draw the wrong art in silence, and no
-        build has one today."""
+        build list has one today."""
         rom = dev_build()
+        pool, private = tile_stream.CHUNK_TABLE - ROM_BASE, PRIVATE_TABLE - ROM_BASE
+        self.assertEqual(168, sum(scene_probe.u32(rom, private + 4 * c)
+                                  == scene_probe.u32(rom, pool + 4 * c) for c in range(168)))
+        self.assertEqual(1, scene_probe.u32(rom, pool + 4 * 168))
         doc = map_file.read_map(rom, *PRIVATE_MAP)
         self.assertIn(168, {chunk for chunk, _tile in doc["tiles"]})
         self.assertEqual(605, len(roundtrip.pixels(rom, doc)))
@@ -193,8 +198,8 @@ class ChunkTableTests(unittest.TestCase):
                          map_file.blank((1, 1), (256, 256))["chunk_table"])
 
     def test_a_private_chunk_table_map_survives_the_round_trip(self):
-        """The pixels, not the pairs. Before the document carried its table this put map 14,4's
-        indices against the shared pool and wrote 72 tiles of another map's art, with no error."""
+        """The pixels, not the pairs. Before the document carried its table, `apply` resolved map
+        14,4's 605 pairs against the shared pool, which this map never came from."""
         with tempfile.TemporaryDirectory() as folder:
             result = roundtrip.check(dev_build(), *PRIVATE_MAP, folder=folder)
         self.assertEqual([], result["problems"])
