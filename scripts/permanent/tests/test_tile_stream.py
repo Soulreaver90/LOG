@@ -23,7 +23,8 @@ import tile_stream                                                          # no
 ROM = map_view.BASE.read_bytes()
 ROUND_TRIP_MAPS = ((14, 1), (7, 15), (4, 50), (6, 99))
 MIXED_MAPS = ((14, 1), (7, 15))
-LAYOUT_COUNT = 336              # layouts the base ROM's map table reaches over zones 0-19, areas 0-119
+MAP_ENTRY_BYTES, MAP_ENTRY_COUNT = 56, 327      # the base ROM's map table, walked end to end
+LAYOUT_COUNT = 336              # distinct layouts those 327 entries reach, counted by walking the table
 
 
 def layout_of(zone: int, area: int) -> int:
@@ -60,7 +61,9 @@ class DecodeTests(unittest.TestCase):
                 pairs = tile_stream.decode_stream(ROM, layout)
                 expected = map_view.tiles(ROM, layout)
                 self.assertEqual(len(expected), len(pairs))
-                self.assertEqual(expected, tile_stream.tiles_of(ROM, pairs))
+                self.assertEqual(expected,
+                                 tile_stream.tiles_of(ROM, pairs,
+                                                      tile_stream.chunk_table_of(ROM, layout)))
 
     def test_every_vanilla_stream_fits_the_budget(self):
         for zone, area in ROUND_TRIP_MAPS:
@@ -112,27 +115,34 @@ class MixedSourceTests(unittest.TestCase):
         mixed = [pairs[m][i] for m, positions, _chunk in runs for i in positions]
         expected = [map_view.tiles(ROM, layout_of(*m))[i] for m, positions, _chunk in runs
                     for i in positions]
-        self.assertEqual(expected, tile_stream.tiles_of(ROM, mixed))
+        # Through the codec, not around it: the payload is what a built map would really carry.
+        shipped = tile_stream.decode_payload(tile_stream.encode_stream(mixed))
+        self.assertEqual(mixed, shipped)
+        self.assertEqual(expected, tile_stream.tiles_of(ROM, shipped, tile_stream.CHUNK_TABLE))
 
-    def test_every_vanilla_layout_names_the_one_chunk_table(self):
+    def test_every_layout_the_base_map_table_reaches_names_the_one_chunk_table(self):
         """A per map chunk table would sink mixing, so the claim is checked on all of them.
 
-        The count is pinned as well: a sweep that quietly stopped finding layouts would otherwise
-        pass on the handful it still reached."""
-        tables, found = set(), 0
-        for zone in range(20):
-            for area in range(120):
-                try:
-                    _index, entry = scene_probe.map_entry(ROM, zone, area)
-                    chain = scene_probe.layouts(ROM, entry)
-                except (ValueError, IndexError, KeyError):
-                    continue
-                for layout in chain or []:
-                    if layout is not None:
-                        tables.add(map_view.u32(ROM, layout + 0x4C))
-                        found += 1
-        self.assertEqual(LAYOUT_COUNT, found)
-        self.assertEqual({tile_stream.CHUNK_TABLE}, tables)
+        The populations are pinned too, because a sweep that quietly stopped finding layouts would
+        otherwise pass on the handful it still reached. The walk is the map table itself, not a
+        guess at which zone and area numbers exist."""
+        table, count = scene_probe.map_table(ROM)
+        layouts = set()
+        for k in range(count):
+            layouts.update(l for l in scene_probe.layouts(ROM, table + MAP_ENTRY_BYTES * k) or []
+                           if l is not None)
+        self.assertEqual(MAP_ENTRY_COUNT, count)
+        self.assertEqual(LAYOUT_COUNT, len(layouts))
+        self.assertEqual({tile_stream.CHUNK_TABLE},
+                         {tile_stream.chunk_table_of(ROM, layout + map_view.ROM_BASE)
+                          for layout in layouts})
+
+    def test_chunk_table_of_reads_the_layout_not_the_constant(self):
+        """A build may relocate the table: on r40 map 14,4 names its own at 0x0890A92C. The reader
+        must follow the layout, so it is checked against the ROM word rather than the constant."""
+        layout = layout_of(*MIXED_MAPS[0])
+        self.assertEqual(map_view.u32(ROM, layout + 0x4C - map_view.ROM_BASE),
+                         tile_stream.chunk_table_of(ROM, layout))
 
 
 if __name__ == "__main__":
