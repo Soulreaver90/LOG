@@ -239,9 +239,17 @@ HANDBACK_HOLD = 60                                        # the wait each vanill
 A17_SPOT = (520, 408)                                     # SOURCE_NPCS[A17] +8: where NPC 17 stands and waits
 BLAST_SPEED = 100                                         # vanilla's own n for a PLAYER blast, rom:0x3E523F
 # Where Android 17 stops when he walks in, as an offset from the player. The follow camera draws the
-# player at screen (112,80) (bible B1144), so this spot is screen (152,40): on screen, right of Trunks
-# and above him, which is the side the androids stand on in the vanilla staging.
-WALK_IN_OFFSET = (40, -40)
+# player at screen (112,80) (bible B1144), so this spot is screen (152,80): on screen and level with
+# Trunks, 40 px to his right.
+# THE OFFSET IS LEVEL, NOT DIAGONAL, AND THAT IS MEASURED. The walk's own mover step `@0x0800D28C`
+# adds a fixed velocity, counts frames down and then SNAPS the actor onto the target, testing no
+# collision at all, so a blocked walk cannot freeze, but it CAN leave Android 17 inside a building,
+# and word 11's `ext 104` would then build the enemy there.
+# `scripts\one-time\2026-11-07-rung4-deaths\landing_census.py` counted the landing over all 5,683
+# open cells of map 1,100: the first design, (40,-40), was closed on 19.7 % of them and on 22.0 % of
+# the cells within 160 px of the talk spot, including the talk spot itself. The street is a vertical
+# corridor, so going up walks into the buildings that line it. (40,0) is closed on 10.3 % and 4.9 %.
+WALK_IN_OFFSET = (40, 0)
 # Half extents of the "already on screen" box, again from screen (112,80) on a 240x160 view. They are
 # deliberately SMALLER than the real view, so the test errs toward walking him in. An unneeded walk-in
 # reads fine; a skipped one would leave the player listening to nobody.
@@ -411,10 +419,13 @@ def jz(skip: int) -> bytes:
 def off_screen(spot: tuple, half_x: int, half_y: int) -> bytes:
     """Leave 1 on the stack when `spot` is OUTSIDE the box around the player, and 0 when it is inside.
 
-    THE ENGINE HAS NO "is this actor on screen" OP. All 145 ext handlers were profiled from the
-    disassembly (docs\\research\\scene-vm-ext-ops.md); the 18 that return a value read flags, items,
-    levels, random numbers or the character records, and not one reads the view struct 0x03001090 or
-    the live camera word 0x03000FF4. So a script cannot ask the engine the owner's question.
+    THE ENGINE HAS NO "is this actor on screen" OP, and two independent searches agree. All 145 ext
+    handlers are profiled from the disassembly (docs\\research\\scene-vm-ext-ops.md), and the 18 that
+    return a value read flags, items, levels, random numbers, the character records or an actor spot.
+    A literal-pool sweep of the whole code region for 0x03001090 (the view struct), 0x083ED65C (the
+    pointer to it), 0x03000FF4, 0x030020C0 and 0x030020F4 finds only WRITERS, and the only ext
+    handlers among them are 31, 33, 34 and 35, all consumers. So a script cannot ask the engine the
+    owner's question. Limit: callees more than one level below a getter were not searched.
 
     What a script CAN read is an actor's position. `ext 143 (set)` resolves the actor through
     `Sprite_Select @0x08009370`, calls `Point_LoadScaled @0x0800791A`, and pushes the two halves
@@ -456,13 +467,13 @@ def walk_in(npc_set: int, offset: tuple) -> bytes:
     `ext 144` pops a set and a PACKED point and queues the very command `ext 53 walk` queues:
     `sub_08009EBA` and `sub_08009D4A` both end in `Record_NewFromWords(0, {x,y})` then
     `Queue_Append @0x0800E04C`, and the only difference is where the pair comes from. CONFIRMED, and
-    vanilla pairs it with `ext 143` three times (record rom:0x3C56D4 saves a spot, walks the actor
-    away and walks him back).
+    vanilla pairs it with `ext 143` three times: record rom:0x3C56D4 on map 4,30 saves set 101's
+    spot, walks him away and walks him back, and two records on map 4,41 do the same with set 82.
 
     The offset is folded into ONE constant, `(dx << 16) + dy`, and added to the packed player spot.
-    A negative dy borrows out of the low half and lands the carry in the high half, which is the
-    right answer: the sum is ((px + dx) << 16) + (py + dy) as long as py + dy stays positive, and
-    this map's walkable y never comes near 40."""
+    A negative dy would borrow out of the low half and land the carry in the high half, which is
+    still the right answer as long as `py + dy` stays positive; this map's walkable y never comes
+    near 40. WALK_IN_OFFSET is level today, so no borrow happens at all."""
     return push(npc_set) + var_read(V_SPOT) + push((offset[0] << 16) + offset[1]) + ADD + ext(144)
 
 

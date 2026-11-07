@@ -1,7 +1,17 @@
 # Rung 4: the death beats
 
-Built 2026-11-07. ROM `builds\mockups\2026-11-07-plateau\log2_plateau_v6.gba`,
-SHA-1 `25b384a2cfee4b567025239967e65e1442d1c6dc`, save paired and byte identical to v5's.
+Built 2026-11-07. ROM `builds\mockups\2026-11-07-plateau\log2_plateau_v7.gba`,
+SHA-1 `5e28c890520e47ef1dccbc2639d49a771e3a7d60`, save paired and byte identical to v5's.
+
+> [!WARNING]
+> **v7 cannot be rebuilt from git alone.** Its build list pulls in `plateau.py`, which is still
+> UNTRACKED. v7 holds it at SHA-1 `a7aae2d9f8bceea8361fef43192dc7125469fb25`, unchanged since
+> 12:21 PM, which is the same file v5 and v6 were built from. A rebuild after that file is
+> committed or changed will not match this SHA-1.
+
+> [!NOTE]
+> **v6 was built first and is superseded.** Its walk-in landed Android 17 inside a building 20 % of
+> the time. The census in section 5 found it, the offset changed, and v7 is the ROM to play.
 
 ---
 
@@ -10,7 +20,7 @@ SHA-1 `25b384a2cfee4b567025239967e65e1442d1c6dc`, save paired and byte identical
 Only `scripts\permanent\patches\future_androids.py` and its test. The two death records,
 which are word 0 of each android's own event table, were rewritten.
 
-| v5 | v6 |
+| v5 | v7 |
 | --- | --- |
 | `ext 88` ; `header_bit1(0)` ; `pose(set,3)` ; `wait(60)` | the same four ops |
 | `fade_out(30)` | **gone** |
@@ -55,24 +65,33 @@ because the scene had been built on an NPC, and the player does not need it.
 
 ## 3. "Is Android 17 on screen": the engine cannot answer, so I built the equivalent
 
-### What I checked first
+### What I checked, in two independent shapes
 
-All 145 ext handlers are already profiled from the byte-exact disassembly in
-`docs\research\scene-vm-ext-ops.md`. Eighteen of them return a value. I opened every one:
+**Shape A, the stack profile.** All 145 ext handlers are profiled from the byte-exact disassembly in
+`docs\research\scene-vm-ext-ops.md`. Eighteen return a value. I opened every one:
 
 | op | what it returns |
 | --- | --- |
 | 0-3 | the four scene variables at `0x03001FB0` |
 | 4-7 | `Opcode_PushOperandOne` to `Four` |
-| 8-16, 105-108, 126, 129 | fields of the character records (28-byte stride, `+0xC`, `+0xE`, `+0x10`, `+0x12`) |
+| 8-10 | bytes `+0`, `+1`, `+2` of the struct at `[global + 0x10]` |
+| 11, 12, 75 | byte `+0` of the struct at `[global + 0x20]` (the leader), and two table lookups on it |
+| 13-16, 105-108, 126, 129 | s16 fields `+0xC`, `+0xE`, `+0x10`, `+0x12` of a 28-byte record |
 | 17, 18 | `Random_Scale`, `Random_Below` |
-| 19, 20 | the flag bitmap |
-| 21, 22, 23 | item count, `Character_GetLevel`, visited |
-| 75, 131-133 | a table word, the level-up stat gains |
+| 19, 20, 21, 22, 23 | the flag bitmap, an item count, `Character_GetLevel`, a visited bit |
+| 131-133 | the level-up stat gains |
 | 143 | **an actor's spot** |
 
-**Not one reads the view struct `0x03001090` or the live camera word `0x03000FF4`.** CONFIRMED, by
-reading each handler. So there is no engine answer to reach from a script.
+**Shape B, a literal-pool search.** I searched the whole code region for the five words a camera
+reader would need: `0x03001090` (the view struct), `0x083ED65C` (the pointer to it), `0x03000FF4`
+(the live camera word), `0x030020C0` (the follow camera) and `0x030020F4`. Every loader is a
+WRITER. The only ext handlers among them are ext 31, 33, 34 and 35, and all four are consumers that
+push nothing. No getter calls any function that holds one of those literals.
+
+**The two shapes agree: no ext op reads the camera or the view.** So there is no engine answer to
+reach from a script. CONFIRMED for the 145 handlers by shapes A and B. Limit: callees more than one
+level below a getter were not searched, so an op that reached the camera through two helpers would
+not appear in either shape.
 
 ### The equivalent I chose, and why
 
@@ -116,18 +135,47 @@ jz 13                                       on screen: skip the walk-in
 > the player is no longer drawn at screen (112,80) and this test is wrong by up to the clamp
 > distance. I did not bake map 1,100's clamp extents in, because the error only ever adds a walk-in.
 
+### The branch is RUN, not just pinned
+
+`test_future_androids.run_branch()` executes the record's VM ops in 32 bits with `ext 143` answering
+a given spot, and reports which arm ran, the point `ext 144` unpacks, and the stack depth at the end
+op. `scene_harness` cannot do this job: its ext handling clears the whole stack, so a record that
+reads a value back with `ext 0` to `ext 3` loses it. The 32-bit wrap matters, because the exact-dy
+trick depends on the multiply dropping the x half.
+
+| player spot | result |
+| --- | --- |
+| (520,408), standing on 17 | no walk |
+| (608,408), inside the right edge | no walk |
+| (610,408), outside it | walk to (650,408) |
+| (430,408), outside the left edge | walk to (470,408) |
+| (520,460), on the bottom edge | no walk |
+| (520,461), one px past it | walk to (560,461) |
+| (600,400), the borrow case | no walk |
+| (496,504), the talk spot | walk to (536,504) |
+| (496,648), the player start | walk to (536,648) |
+
+The stack depth at the end op is 0 on every one of those spots and on Android 17's own record. That
+is load bearing: `@0x0800B19C` turns a single leftover value into the next table index.
+
+**A negative control is in the suite too**, because a green branch test proves nothing on its own.
+It widens the y half extent from 52 to 1000 IN THE BUILT BYTES, using an encoding of the same
+length so no later op moves, and asserts that the talk spot stops walking him in. If the branch were
+decided by anything other than the box, that control would still walk him.
+
 ### The entrance
 
 `ext 144 (set, packed)` walks an actor to a packed point. `sub_08009EBA` and `ext 53 walk`
 `sub_08009D4A` end in the same `Record_NewFromWords(0, {x,y})` and the same `Queue_Append`, so
 ext 144 IS a walk. CONFIRMED, instruction for instruction. Vanilla pairs it with `ext 143` three
-times; record `rom:0x3C56D4` saves a spot, walks the actor away and walks him back.
+times: `rom:0x3C56D9` (map 4,30, set 101) and two sites on map 4,41 (set 82), each saving a spot,
+walking the actor away and walking him back.
 
-He walks from (520,408), which is off screen by hypothesis, to the player's spot plus (40,-40), a
-single folded constant `(40 << 16) - 40 = 2621400` added to the packed player spot. That lands him
-at screen (152,40): on screen, to Trunks' right and above him, which is the side the androids stand
-on in the vanilla staging. `ext 56 face_alt (9, 0)` then turns him to the player, and it runs on
-BOTH arms of the branch because his face-the-player step struct does not tick while a scene plays.
+He walks from (520,408), which is off screen by hypothesis, to the player's spot plus (40,0), a
+single folded constant `40 << 16 = 2621440` added to the packed player spot. That lands him at
+screen (152,80): on screen and level with Trunks, 40 px to his right. `ext 56 face_alt (9, 0)` then
+turns him to the player, and it runs on BOTH arms of the branch because his face-the-player step
+struct does not tick while a scene plays.
 
 ### The dialogue is vanilla's own
 
@@ -163,21 +211,63 @@ face_alt(0, set) ; block_begin ; attack(0, set, 100) ; ext60(set) ; block_end ; 
 
 ---
 
-## 5. What I could not prove
+## 5. The defect the first build had, and the measurement that found it
+
+The walk-in target is computed from the player's live spot, so nobody hand-checks the line. I read
+the walk command end to end to find out what a blocked walk does:
+
+- the walk command's vtable is `0x08024A8C` (`B0691`), its done check is `@0x08010940`
+  (`ldr r0,[r0,#0x8] ; bx lr`) and its tick is `@0x0801090A`, which stores the mover's own answer
+  into command `+8`;
+- the walk move state `@0x0800D584` gives the mover the vtable `0x0802504C`, whose `+8` step is
+  **`@0x0800D28C`**. I read it. It adds the fixed velocity at mover `+4` and `+8` to the actor's
+  `+0x158` and `+0x15C`, decrements the u16 frame counter at mover `+0x10`, and **tests nothing
+  else**. On the frame the counter reaches zero it loads the s16 target at mover `+0xC` and `+0xE`,
+  shifts each left 8 and stores them straight into `+0x158` and `+0x15C`, SNAPPING the actor onto
+  the target, and returns 1. Every other frame it returns 0;
+- the frame count is `max(|dx|,|dy|) * 256 / speed` (`B1917`), and ext 53's speed is 0x100, so the
+  walk is 1 px a frame.
+
+Bible row `B0686` says the same thing, but it says it about ext 54. This reading is the ext 53 path,
+which is the path `ext 144` queues.
+
+**So a blocked walk cannot freeze: the done answer is the counter, never arrival. It can only END
+somewhere closed**, and word 11's `ext 104` would then build enemy Android 17 inside a building,
+where the player may not reach him.
+
+`scripts\one-time\2026-11-07-rung4-deaths\landing_census.py` counts that over every one of map
+1,100's 5,683 open cells:
+
+| offset | closed landings, whole map | closed landings within 160 px of the talk spot |
+| --- | --- | --- |
+| (40,-40), the v6 design | 1,120 (19.7 %) | 302 of 1,372 (22.0 %) |
+| **(40,0), what v7 ships** | **584 (10.3 %)** | **67 of 1,372 (4.9 %)** |
+
+The street is a vertical corridor lined with buildings, so going UP walks into them. Going level
+stays in the corridor. From (40,-40) the talk spot itself, Android 18's spot and Android 17's spot
+all landed CLOSED. From (40,0) all four named spots land OPEN.
+
+The residue is honest: 4.9 % of the cells near the fight still land closed, all of them where the
+player is hard against the right-hand buildings.
+
+---
+
+## 6. What I could not prove
 
 | claim | level | why |
 | --- | --- | --- |
 | The blast always reaches a downed android, so `ext 60` always ends | LIKELY | `B1963`: the scene blast's velocity is fixed toward the target's hurtbox centre at the fire tick, it does not home and it is NOT removed off screen. Vanilla already polls `ext 60` on a player-chosen distance (`rom:0x3D8BC4`). But `B1814` records a freeze when a scene blast misses, and I have not play-tested it |
 | `ext 56 face_alt` works with an enemy object as b | LIKELY | `B0741` found no vanilla site with an enemy as b |
-| The walk-in path does not cross closed collision | SPECULATIVE | `ext 53`-class walks are straight-line commands. On the androids' street the line from (520,408) to a spot beside Trunks is short and open, but I did not render the map: `map_view` is mid-fix and any picture would be wrong |
-| A far Android 17 arrives in a reasonable time | SPECULATIVE | a walk is 1 px a frame (`PGS`). 240 px is 4 seconds |
+| Android 17 can land inside a building | CONFIRMED, and measured | 10.3 % of the map, 4.9 % near the fight. Section 5. He walks THROUGH walls on the way, which is vanilla's own behaviour for every scripted walk |
+| A far Android 17 arrives in a reasonable time | CONFIRMED by arithmetic | `B1917`: frames = `max(|dx|,|dy|) * 256 / speed`, and ext 53's speed is 0x100, so 1 px a frame. 240 px is 4 seconds |
 | The on-screen test near a map edge | known error band | the camera clamp, section 3 |
+| Nothing was rendered | - | `map_view` is mid-fix in another agent's hands, so no picture of this map would be right. The census reads the collision frame directly instead |
 
 ---
 
-## 6. Evidence the build carries it
+## 7. Evidence the build carries it
 
-Read back OUT of `log2_plateau_v6.gba` with
+Read back OUT of `log2_plateau_v7.gba` with
 `scripts\one-time\2026-11-07-rung4-deaths\readback.py`, following the live map table literal
 `rom:0xEBD8` to map 1,100, its item list, each enemy item `+0x14`, the event struct `+4` and the
 death table's word 0:
@@ -200,7 +290,7 @@ death table's word 0:
     rom:0x940901  set_var(0)
     ... sub, mul, gt, lt, or over variables 0, 1 and 2 ...
     rom:0x940946  jz(13)                on screen: skip the walk-in
-    rom:0x94094A  push 9 ; ext 0 ; push 2621400 ; add ; ext 144
+    rom:0x94094A  push 9 ; ext 0 ; push 2621440 ; add ; ext 144
     rom:0x940959  ext 56 (9, 0)         Android 17 faces Trunks, on both arms
     rom:0x94095D  wait(frames=60)
     rom:0x94095F  end
@@ -212,8 +302,8 @@ death table's word 0:
 ```
 
 The push_list values in the built record are
-`[34079128, 65536, 26738688, 5767168, -5767168, 3407872, -3407872, 2621400, 9, 0]`, which are
-`(520<<16)|408`, `65536`, `408<<16`, `88<<16`, `-(88<<16)`, `52<<16`, `-(52<<16)`, `(40<<16)-40`,
+`[34079128, 65536, 26738688, 5767168, -5767168, 3407872, -3407872, 2621440, 9, 0]`, which are
+`(520<<16)|408`, `65536`, `408<<16`, `88<<16`, `-(88<<16)`, `52<<16`, `-(52<<16)`, `40<<16`,
 and the set and player ids of the closing `ext 56`. Every one is the designed constant.
 
 > [!WARNING]
@@ -223,27 +313,12 @@ and the set and player ids of the closing `ext 56`. Every one is the designed co
 
 ---
 
-## 7. What the owner should check when he plays it
-
-- Android 18 drops where she died, not back at the cutscene spot, and the screen never goes black.
-- Trunks turns to her and fires one blast, and she disappears when it lands.
-- The camera never jumps: it stays on Trunks from the end of the fight through the whole beat.
-- If Android 17 was already in view, he does not move. He just says "It can't be!".
-- If Android 17 was off screen, he walks in, stops to Trunks' upper right, and then speaks.
-- Android 17 is facing Trunks when he speaks, both ways round.
-- The second fight starts where 17 is standing, wherever that turned out to be.
-- Android 17's own death is the same beat with no walk-in, then Trunks turns to the camera for
-  "Now there's just one more thing that needs to be done."
-- **A freeze after Trunks fires means the blast missed.** Tell me where you were standing.
-
----
-
 ## 8. The suite
 
 `py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent`:
-**1608 tests, exit code 1, `FAILED (failures=1, skipped=3, expected failures=1)`.**
+**1620 tests, exit code 1, `FAILED (failures=1, skipped=3, expected failures=1)`.**
 
-`test_future_androids` is green at 40 tests, 5 of them new.
+`test_future_androids` is green at 43 tests, 8 of them new.
 
 > [!WARNING]
 > The one failure is NOT mine. It is
@@ -251,6 +326,41 @@ and the set and player ids of the closing `ext 56`. Every one is the designed co
 > `record rom:0x89A9C0 (table rom:0x3DE6F4 word 32, map 9,3 region, fullpower_ssj) runs
 > appearance(character=4, set=61) ... before leader(2)`. Nothing in that sweep touches the ending
 > table or map 1,100. PROVED, not assumed: I swapped `future_androids.py` back to its committed
-> version, ran `test_battle_start.py` alone, got the SAME single failure with the same address,
-> then restored my file and checked its SHA-1. `test_battle_start.py` is an untracked file another
-> agent added yesterday evening.
+> version, ran `test_battle_start.py` alone, got the SAME single failure at the same address, then
+> restored my file and checked its SHA-1. `test_battle_start.py` is an untracked file another agent
+> added yesterday evening.
+
+---
+
+## 9. What the owner should check when he plays it
+
+Play `log2_plateau_v7.gba`, not v6.
+
+**The 18 beat**
+
+- Android 18 drops where she died, not back at the cutscene spot, and the screen never goes black.
+- Trunks turns to her and fires one blast, and she disappears when it lands.
+- The camera never jumps: it stays on Trunks from the end of the fight through the whole beat.
+
+**Both arms of the 17 entrance.** The box is 88 px wide and 52 px tall around where 17 stands.
+
+- To see him STAND STILL: finish Android 18 while you are near 17's own row, within about
+  50 px above or below it and not more than about 80 px to either side. He should not move, and he
+  should just say "It can't be!".
+- To see him WALK IN: finish her down by the start spot, or well off to one side. He should walk on
+  screen, stop 40 px to Trunks' right and level with him, and only then speak.
+- Android 17 is facing Trunks when he speaks, both ways round.
+- The second fight starts where 17 is standing, wherever that turned out to be.
+
+**The 17 beat**
+
+- The same beat with no walk-in, then Trunks turns to the camera for "Now there's just one more
+  thing that needs to be done."
+
+**Three things that would be defects**
+
+- A freeze after Trunks fires means the blast missed. Tell me where you were standing.
+- A freeze while Android 17 walks in should be impossible, because the walk is counted and not
+  guided. If it happens anyway, that is a finding worth the whole session.
+- Android 17 stopping inside a building or behind a wall. Measured at about 1 landing in 20 near
+  the fight. Tell me where you were standing and I will move the spot.

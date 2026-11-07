@@ -18,7 +18,7 @@ import unittest
 import log2_build
 from patches import future_androids as F
 from scene import scene_probe as P
-from scene.scene_lib import record_end, words_naming
+from scene.scene_lib import record_end, words_naming, zigzag
 from tests.test_cellgames_ssj import ext_sequence, ops as raw_ops
 
 # ===== constants (the brief, the owner's words, and the base reads) =====
@@ -73,7 +73,7 @@ FIGHT17_OPS = [(104, (A17_SET, ENEMY_17)), (85, (A17_SET,)), (86, (1,)), (33, (P
 # just goes to his dialogue. If he is offscreen, then he walks onscreen, facing trunks".
 # Every number here is restated from the brief and the disassembly, never imported from the module.
 A17_SPOT, BLAST_SPEED = (520, 408), 100       # 17's own item spot; the n of vanilla's rom:0x3E523F
-WALK_IN_OFFSET = (40, -40)                    # where he stops, from the player: screen (152,40)
+WALK_IN_OFFSET = (40, 0)                      # where he stops, from the player: screen (152,80)
 ON_SCREEN_X, ON_SCREEN_Y = 88, 52             # half extents of the "already on screen" box
 V_SPOT, V_DX, V_DY = 0, 1, 2                  # scene variables: set_var n writes 0x03001FB0 + 4n
 JZ, END_OP = 19, 17
@@ -137,6 +137,67 @@ def death_ops(enemy_set, entrance=None):
 def record_ops(rom, rec):
     """[(op, arg)] of a type 0 record body, with every jz and jmp offset blanked to None."""
     return [(op, None if op in (JZ, 18) else arg) for _, op, arg in raw_ops(rom, rec + 3)]
+
+
+# ===== a 32-bit evaluator for the branch, because pinning the bytes does not run the decision =====
+# scene_harness cannot do this job: its ext handling clears the whole stack, so a record that reads
+# a value back with ext 0 to ext 3 loses it. This models only what the branch uses, in 32 bits,
+# because the exact-dy trick depends on the engine's multiply wrapping.
+BINARY_32 = {5: lambda a, b: int(bool(a) or bool(b)), 7: lambda a, b: a + b,
+             8: lambda a, b: a - b, 9: lambda a, b: a * b,
+             13: lambda a, b: int(a > b), 15: lambda a, b: int(a < b)}
+# How many values each plain ext op in a death record pops, from docs\research\scene-vm-ext-ops.md.
+EXT_ARITY = {52: 1, 55: 2, 56: 2, 57: 2, 60: 1, 63: 0, 64: 0, 69: 1, 86: 1, 88: 0, 96: 3}
+
+
+def _signed(v):
+    v &= 0xFFFFFFFF
+    return v - (1 << 32) if v & 0x80000000 else v
+
+
+def run_branch(rom, rec, player):
+    """Run the death record's VM ops with ext 143 answering `player`. Returns a dict with `walked`
+    (did the walk-in arm run), `target` (the (x, y) ext 144 unpacks), and `left` (the stack depth at
+    the record's end op, which MUST be 0: one leftover value becomes the next table index)."""
+    body = {at: (op, arg) for at, op, arg in raw_ops(rom, rec + 3)}
+    order = sorted(body)
+    stack, var, out, at = [], {}, {"walked": False, "target": None}, order[0]
+    for _ in range(400):
+        op, arg = body[at]
+        step = [a for a in order if a > at]
+        nxt = step[0] if step else None
+        if op in (0, 1):
+            stack.append(arg[0])
+        elif op == 29:
+            stack += list(arg)
+        elif op == 3:
+            var[arg] = stack.pop()
+        elif op == 2 and arg in (0, 1, 2, 3):
+            stack.append(var.get(arg, 0))
+        elif op == 2 and arg == 143:
+            stack[-1] = (player[0] << 16) | (player[1] & 0xFFFF)     # pops the set, pushes the spot
+        elif op == 2 and arg == 144:
+            packed, _set = stack.pop(), stack.pop()
+            out["target"] = (_signed(packed) >> 16, _signed((packed & 0xFFFF) << 16) >> 16)
+            out["walked"] = True
+        elif op == 2:
+            # Pop the documented arity, never "clear the stack": clearing would hide exactly the
+            # leftover value that op 17 would turn into a table index.
+            for _ in range(EXT_ARITY[arg]):
+                stack.pop()
+        elif op in BINARY_32:
+            b, a = stack.pop(), stack.pop()
+            stack.append(_signed(BINARY_32[op](a, b)))
+        elif op == JZ:
+            if not stack.pop():
+                nxt = arg                                            # raw_ops gives jz an ABSOLUTE target
+        elif op == END_OP:
+            out["left"] = len(stack)
+            return out
+        else:
+            raise AssertionError(f"rom:0x{at:X}: op {op} is not modelled by run_branch")
+        at = nxt
+    raise AssertionError(f"rom:0x{rec:X}: the record did not reach its end op")
 
 
 # The main game's own Android fights, which the owner ruled out of this work.
@@ -573,6 +634,58 @@ class DeathTables(unittest.TestCase):
         self.assertEqual([(op, arg) for _, op, arg in body[after:after + 2]],
                          _ext(56, A17_SET, PLAYER),
                          "both arms must face Android 17 at the player")
+
+    def test_the_branch_decides_the_way_the_box_says(self):
+        """RUNS the arithmetic, it does not read the bytes. 17 stands at (520,408) and the box is
+        88 by 52 around him, so the walk-in runs exactly when the player is outside it. The x half
+        carries a 1 px borrow error, so the x cases are picked clear of the edge."""
+        rom = built()["rom"]
+        rec = built()["notes"]["deaths"][A18_SET]
+        qx, qy = A17_SPOT
+        cases = ((qx, qy, False, "standing on 17"),
+                 (qx + ON_SCREEN_X - 8, qy, False, "inside the right edge"),
+                 (qx + ON_SCREEN_X + 8, qy, True, "outside the right edge"),
+                 (qx - ON_SCREEN_X - 8, qy, True, "outside the left edge"),
+                 (qx, qy + ON_SCREEN_Y, False, "on the bottom edge"),
+                 (qx, qy + ON_SCREEN_Y + 1, True, "one px below the bottom edge"),
+                 (qx, qy - ON_SCREEN_Y - 1, True, "one px above the top edge"),
+                 (qx + 80, qy - 8, False, "the borrow case: py below qy, inside the box"),
+                 (496, 504, True, "the talk spot, where the fight starts"),
+                 (496, 648, True, "the player start"))
+        for px, py, want_walk, why in cases:
+            run = run_branch(rom, rec, (px, py))
+            self.assertEqual(run["walked"], want_walk, f"({px},{py}) {why}")
+            self.assertEqual(run["left"], 0,
+                             f"({px},{py}) left {run['left']} value(s) on the stack: op 17 would turn"
+                             f" one of them into the next table index")
+            if want_walk:
+                self.assertEqual(run["target"], (px + WALK_IN_OFFSET[0], py + WALK_IN_OFFSET[1]),
+                                 f"({px},{py}) {why}: the ext 144 target")
+            else:
+                self.assertIsNone(run["target"], f"({px},{py}) {why}: nobody should walk")
+
+    def test_the_box_is_what_decides_and_not_something_else(self):
+        """A negative control, because a green branch test proves nothing on its own. Widening the y
+        half extent IN THE BUILT BYTES must flip the talk spot from walk-in to no walk. 1000 and 52
+        both encode in four varint bytes, so the record keeps its length and its jz offset."""
+        rom = built()["rom"]
+        rec = built()["notes"]["deaths"][A18_SET]
+        self.assertTrue(run_branch(rom, rec, (496, 504))["walked"], "the talk spot walks him in")
+        old = bytes([29, 1]) + zigzag(ON_SCREEN_Y << 16)
+        new = bytes([29, 1]) + zigzag(1000 << 16)
+        self.assertEqual(len(old), len(new), "the control must not move any later op")
+        mutant = bytearray(rom)
+        at = rom.index(old, rec, rec + 0x100)
+        mutant[at:at + len(old)] = new
+        self.assertFalse(run_branch(bytes(mutant), rec, (496, 504))["walked"],
+                         "a 1000 px tall box must leave him standing, so the y test is not read")
+
+    def test_android_17s_own_death_record_runs_clean_too(self):
+        """It has no branch, so the only thing to run is the stack: it must end empty."""
+        rom = built()["rom"]
+        run = run_branch(rom, built()["notes"]["deaths"][A17_SET], (496, 504))
+        self.assertEqual(run["left"], 0)
+        self.assertFalse(run["walked"])
 
     def test_the_on_screen_test_reads_the_player_and_17s_real_spot(self):
         """17 never moves off his item spot, so the question is only where the player is. ext 143
