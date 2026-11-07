@@ -1,0 +1,1 @@
+{"source_map": [7, 15], "pixels": [1280, 1280], "clamp": [1041, 1121], "walkable_cells": 8613, "walkable_box": [904, 848], "patch_cells": 1718, "patch_regions": 115, "bands": {"1": 25, "2-4": 13, "5-20": 43, "21+": 34}, "formations": {"rim": 129, "side": 27, "cavern": 16, "boulder": 8}, "satellites": 8}

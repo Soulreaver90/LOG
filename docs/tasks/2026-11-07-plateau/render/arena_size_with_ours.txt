@@ -1,0 +1,11 @@
+Walkable room in the maps where vanilla fights a boss
+  map 14,1   Cell Games, ring                   art 512x512: 1156 open cells, box 320 x 376 px, largest open square 144 px
+  map 14,3   Cell Games, Gohan against Cell     art 1280x1024: 4810 open cells, box 696 x 632 px, largest open square 264 px
+  map 14,4   Cell Games, the beam struggle      art 1280x1024: 4810 open cells, box 696 x 632 px, largest open square 264 px
+  map 12,4   Perfect Cell                       art 768x768: 1443 open cells, box 504 x 400 px, largest open square 128 px
+  map 12,6   Perfect Cell                       art 512x512: 1132 open cells, box 336 x 320 px, largest open square 192 px
+  map 11,4   Android 17                         art 1024x512: 1981 open cells, box 536 x 360 px, largest open square 200 px
+  map 11,5   Android 17                         art 1024x512: 50 open cells, box 80 x 56 px, largest open square 40 px
+  map 11,6   Android 17, rematch                art 1024x512: 1171 open cells, box 544 x 296 px, largest open square 128 px
+  map 7,15  Vegeta against Android 19          art 1280x1024: 2759 open cells, box 752 x 424 px, largest open square 128 px
+  map 7,100 OUR plateau, only in a build       art 1280x1280: 8613 open cells, box 904 x 848 px, largest open square 584 px
