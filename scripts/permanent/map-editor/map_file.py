@@ -7,7 +7,7 @@ Usage:   sys.path must hold scripts\permanent\map-editor (the folder name has a 
          validate(doc) -> ["problem", ...]    empty when the document is sound
          save(doc, path) / load(path)         JSON, never overwriting, schema gated
          camera_pair(w, h) -> (+0x08, +0x0A)  the camera clamp, always computed
-Shape:   {"schema", "world": [w_px, h_px], "blocks": [bw, bh],
+Shape:   {"schema", "world": [w_px, h_px], "blocks": [bw, bh], "chunk_table": address,
           "layers": {"bg0".."bg3": {"priority", "scroll", "offset", "cells": [u16 x grid]}},
           "collision": [u8 x 8192], "terrain": [u8 x 8192], "tiles": [[chunk, tile], ...],
           "animated": [{"first", "frames": [{"duration", "pixels": [u8]}]}],
@@ -30,6 +30,13 @@ PRIORITY is read, never defaulted. Layout bytes +0x04 to +0x07 are the BG0 to BG
          BGxCNT table 0x081DA8EC row 0 is 0x1C80, 0x1D80, 0x1E80, 0x1F80 with every priority bit
          clear, and the commit code adds those layout bytes in. Map 7,15 reads [3,1,3,3], its BG1
          being the canopy that draws over the player.
+CHUNK TABLE, the provenance a tile pair cannot do without. A pair is (chunk, tile) in the table a
+         layout names at +0x4C, and most layouts name the shared pool 0x084DF574. A BUILD may give
+         one map its own: map 14,4 of every current build list names 0x0890A92C. A document that did
+         not record its table had its pairs resolved against the pool, which drew another map's art
+         and raised nothing anywhere. So `chunk_table` is a field, `read_map` takes it from the
+         source layout, `blank` names the shared pool, and `validate` reports a document without it.
+         This is why SCHEMA is 2: a schema 1 file carries no table and loading one would be a guess.
 TILES:   slots 0 to len(tiles)-1 are the static +0x48 stream. An ANIMATED GROUP owns slots
          [first, first + tiles) and usually sits PAST the static stream: map 7,15 decodes 633
          static tiles and its cells name tile 894. A document without the group leaves those cells
@@ -55,7 +62,7 @@ A BG layer record is carried whole too, because a layer is more than its cells. 
 Layout offsets +0x00 to +0x4F, so nothing is lost by silence:
   carried   +0x00 +0x02 +0x03 blend | +0x04-+0x07 priorities | +0x08 +0x0A world | +0x0C +0x10
             animated | +0x14-+0x20 BG layers (tilemap only) | +0x30 +0x3C unread, verbatim
-            +0x34 collision | +0x38 terrain | +0x48 +0x4C tiles
+            +0x34 collision | +0x38 terrain | +0x48 tiles | +0x4C the chunk table they index
   computed  +0x08 +0x0A from world, +0x14-+0x20 block grids from blocks, +0x48 from tiles
   dropped   +0x24 +0x28 +0x2C props | +0x40 +0x44 doors | any non-tilemap BG layer
             Each one that holds data is named in doc["dropped"], so the loss is loud.
@@ -74,7 +81,7 @@ from scene import scene_probe                             # noqa: E402
 import tile_stream                                        # noqa: E402
 
 # ===== CONFIG =====
-SCHEMA = 1
+SCHEMA = 2                                  # 2 added chunk_table; a schema 1 file names no table
 BASE_ROM = map_view.BASE
 TILE_BUDGET = tile_stream.TILE_BUDGET       # 896 VRAM slots, the loader's 0x700 byte buffer
 TILE_BYTES = tile_stream.TILE_BYTES         # an 8x8 tile at 8bpp
@@ -90,6 +97,7 @@ LAYER_NAMES = ("bg0", "bg1", "bg2", "bg3")
 NEW_MAP_PRIORITY = 3                        # a new map draws every layer behind the player
 SCROLL_ONE = scene_probe.SCROLL_ONE         # 0x400 in a layer's +0x04 and +0x08 is 1.0, not a size
 TILE_INDEX = 0x3FF                          # a cell's tile bits; 0x400 and 0x800 flip, 0xF000 unused at 8bpp
+ADDRESS_LOW, ADDRESS_HIGH = map_view.ROM_BASE, map_view.ROM_BASE + 0x2000000   # a ROM address
 
 L_BLEND, L_ALPHA, L_PRIORITY = 0x00, 0x02, 0x04
 L_CAMERA = 0x08                             # +0x0C and +0x10, the groups, are scene_probe's
@@ -135,6 +143,7 @@ def blank(blocks: tuple, world: tuple) -> dict:
     bw, bh = blocks
     cells = bw * BLOCK_TILES * bh * BLOCK_TILES
     return {"schema": SCHEMA, "world": [world[0], world[1]], "blocks": [bw, bh],
+            "chunk_table": tile_stream.CHUNK_TABLE,
             "layers": {name: {"priority": NEW_MAP_PRIORITY, "scroll": [SCROLL_ONE, SCROLL_ONE],
                               "offset": [0, 0], "cells": [0] * cells}
                        for name in LAYER_NAMES},
@@ -152,6 +161,19 @@ def _pair_of_ints(value, name: str, problems: list) -> tuple:
         problems.append(f"{name}: expected two positive whole numbers, found {value!r}")
         return None
     return tuple(value)
+
+
+def _check_chunk_table(doc: dict, problems: list) -> None:
+    """The table a document's (chunk, tile) pairs index. Without it a pair names no art at all.
+
+    A build may give one map its own table: map 14,4 of every current build names 0x0890A92C, not
+    the shared pool. Resolving its pairs against the pool draws another map's tiles and raises
+    nothing, which is why this is a field and not a default."""
+    table = doc.get("chunk_table")
+    if not isinstance(table, int) or not ADDRESS_LOW <= table < ADDRESS_HIGH:
+        problems.append(f"chunk_table: expected the ROM address of a chunk table, found {table!r}. "
+                        f"A document that does not name its table resolves its tile pairs against "
+                        f"the shared pool and draws another map's art with no error")
 
 
 def _check_tiles(doc: dict, problems: list) -> None:
@@ -314,6 +336,7 @@ def validate(doc: dict) -> list:
             problems.append(f"a {blocks[0]} x {blocks[1]} block grid draws {grid[0]} x {grid[1]} px "
                             f"and cannot cover a world of {world[0]} x {world[1]} px")
 
+    _check_chunk_table(doc, problems)
     _check_tiles(doc, problems)
     _check_animated(doc, problems)
     _check_layers(doc, blocks, problems)
@@ -441,6 +464,7 @@ def read_map(rom: bytes, zone: int, area: int, var: int = 1) -> dict:
             "layers": layers,
             "collision": _frame(rom, scene_probe.u32(rom, off + L_COLLISION), "collision", GRID_BYTES),
             "terrain": _frame(rom, scene_probe.u32(rom, off + L_TERRAIN), "terrain", GRID_BYTES),
+            "chunk_table": tile_stream.chunk_table_of(rom, off + map_view.ROM_BASE),
             "tiles": [[chunk, tile] for chunk, tile
                       in tile_stream.decode_stream(rom, off + map_view.ROM_BASE)],
             "animated": _animated(rom, off),

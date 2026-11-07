@@ -191,14 +191,16 @@ class SaveAndLoadTests(unittest.TestCase):
         self.dir = Path(tempfile.mkdtemp(prefix="map_file_"))
 
     def test_load_refuses_a_document_from_another_schema(self):
-        path = self.dir / "future.json"
-        doc = small_doc()
-        doc["schema"] = 2
-        path.write_text(json.dumps(doc), encoding="utf-8")
-        with self.assertRaises(ValueError) as caught:
-            map_file.load(path)
-        self.assertIn("2", str(caught.exception))
-        self.assertIn(str(map_file.SCHEMA), str(caught.exception))
+        """Both ways: a newer file and the older one that carried no chunk_table."""
+        for found in (map_file.SCHEMA + 1, map_file.SCHEMA - 1):
+            path = self.dir / f"schema_{found}.json"
+            doc = small_doc()
+            doc["schema"] = found
+            path.write_text(json.dumps(doc), encoding="utf-8")
+            with self.assertRaises(ValueError) as caught:
+                map_file.load(path)
+            self.assertIn(str(found), str(caught.exception))
+            self.assertIn(str(map_file.SCHEMA), str(caught.exception))
 
     def test_save_then_load_returns_an_equal_document(self):
         doc = map_file.read_map(ROM, 7, 15)

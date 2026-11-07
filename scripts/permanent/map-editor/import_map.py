@@ -35,10 +35,11 @@ LAYOUT:  the struct is 0x50 bytes. Measured over all 336 vanilla layouts: every 
          record). plateau.py copies 0xCC, which carries 0x7C bytes of its donor's neighbour along.
          The layout is built from zeros here, never copied, because a copy is how a donor's camera
          pair, props and doors travel into a new map.
-TILES:   the +0x4C chunk table is the shared pool `tile_stream.CHUNK_TABLE`, and every (chunk, tile)
-         pair is resolved through it in the TARGET rom before a byte is written. A document does not
-         record which table its pairs index, so a map read from a build that gave itself a private
-         chunk table would resolve to the wrong pixels here. Pass `chunk_table` to name another one.
+TILES:   the +0x4C chunk table is the one the DOCUMENT names, and every (chunk, tile) pair is
+         resolved through it in the TARGET rom before a byte is written. A map composed from scratch
+         names the shared pool; a map read out of a build that gave itself a private table (map 14,4
+         names 0x0890A92C) names that one, and importing it into a ROM without that table is refused
+         rather than drawn from the pool. Pass `chunk_table` to override the document.
 Entry:   56 bytes built from zeros: no region, item, swap, pickup or marker list, and no enter,
          leave or variation script. Music, the banner and combat are not in the document by design
          (the owner: "no music or name"), so they are keyword arguments with the arena's values.
@@ -196,6 +197,23 @@ def _check_document(doc: dict) -> tuple:
     return pair
 
 
+def _check_chunk_table(rom: bytes, word: int, pairs: list) -> int:
+    """The file offset of the chunk table this document names, refused when THIS rom has not got it.
+
+    A document read from a build that gave one map its own table (map 14,4 names 0x0890A92C) is
+    sound, and it is still meaningless in a ROM where that address is fill. Every chunk the document
+    actually uses must hold a frame pointer here, or the import writes a map of another map's art."""
+    at = scene_probe.rom_offset(rom, word, "the document's chunk table")
+    for chunk in sorted({c for c, _tile in pairs}):
+        entry = _u32(rom, at + 4 * chunk)
+        if not scene_probe.is_pointer(entry) or entry - ROM_BASE >= len(rom):
+            raise ValueError(f"the document names chunk table 0x{word:08X}, and this ROM holds "
+                             f"0x{entry:08X} at its chunk {chunk}, which is not a frame pointer. "
+                             f"This map came from a build that carries its own chunk table, so it "
+                             f"can only go back into a ROM that carries it too")
+    return at
+
+
 def _check_rom(rom: bytes, zone: int, area: int) -> tuple:
     """The live table, checked the way every relocating module checks it. Returns (table, count)."""
     if len(rom) != ROM_SIZE:
@@ -344,9 +362,9 @@ def apply(rom: bytes, doc: dict, zone: int, area: int, *,
         out[at:at + len(data)] = data
         sites.append((at, len(data), name))
 
-    table_word = tile_stream.CHUNK_TABLE if chunk_table is None else chunk_table
+    table_word = doc["chunk_table"] if chunk_table is None else chunk_table
     pairs = [tuple(p) for p in doc["tiles"]]
-    scene_probe.chunk_tiles(rom, pairs, table_word - ROM_BASE)      # every pair must resolve here
+    scene_probe.chunk_tiles(rom, pairs, _check_chunk_table(rom, table_word, pairs))
 
     # One frame per DISTINCT block: a blank layer is 20 pointers at one frame, not 20 frames.
     frames, at = {}, {"layers": {}, "group_list": None, "chunk_table": table_word}
