@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOG Map Editor</title>
+<!-- An inline icon, so the browser does not ask for a favicon.ico that is not there and log a 404. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2315151a'/%3E%3Crect x='2' y='2' width='5' height='5' fill='%23f0a860'/%3E%3Crect x='9' y='2' width='5' height='5' fill='%237fc08a'/%3E%3Crect x='2' y='9' width='5' height='5' fill='%237fc08a'/%3E%3Crect x='9' y='9' width='5' height='5' fill='%23f0a860'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="editor/style.css">
+<!--
+  Run it with: py -3.14 -P scripts\permanent\map-editor\serve.py
+  A page on file:// cannot fetch its own assets, and the ROM reads belong in Python, so this page
+  needs serve.py. It composes maps and nothing else: Python owns the ROM at both ends.
+-->
+</head>
+<body>
+
+<header>
+  <h1>LOG Map Editor</h1>
+  <div class="sep"></div>
+
+  <label for="mapsel">Game map</label>
+  <select id="mapsel"></select>
+  <button id="open" class="go">Open a copy</button>
+
+  <div class="sep"></div>
+
+  <label for="bw">New blank</label>
+  <input id="bw" type="number" min="1" max="32" value="4" title="blocks across, 256 px each">
+  <input id="bh" type="number" min="1" max="32" value="4" title="blocks down, 256 px each">
+  <button id="new" class="go ghost">Start</button>
+
+  <div id="title">nothing open</div>
+</header>
+
+<div class="app">
+
+  <!-- ===== left: the tiles ===== -->
+  <section class="side">
+    <div class="grouphead">This map's tiles <span id="palette-count">0 loaded</span></div>
+    <div id="palette" class="tiles"></div>
+
+    <div class="grouphead">The whole pool</div>
+    <select id="chunksel"></select>
+    <div id="pool" class="tiles"></div>
+  </section>
+
+  <!-- ===== centre: the map ===== -->
+  <section class="stage">
+    <div class="bar" id="toolbar">
+      <label for="zoom">Zoom</label>
+      <input id="zoom" type="range" min="1" max="4" step="1" value="1">
+      <span id="zoomnote">1x</span>
+      <span id="where">cell -, -</span>
+    </div>
+    <div class="viewport"><canvas id="map" width="16" height="16"></canvas></div>
+    <footer><span id="status" class="info">loading ...</span></footer>
+  </section>
+
+  <!-- ===== right: layers, counts, properties ===== -->
+  <section class="insp">
+    <div class="grouphead">Tiles loaded</div>
+    <div id="tilecount" class="big">0 / <span id="budget">896</span></div>
+    <div id="tilesplit">nothing open</div>
+
+    <div class="grouphead">Layers</div>
+    <div id="layers"></div>
+
+    <div class="grouphead">Map</div>
+    <dl id="facts" class="facts"></dl>
+
+    <div class="grouphead">Notes <span id="problems-head"></span></div>
+    <ul id="problems"></ul>
+
+    <div id="panels"></div>
+  </section>
+
+</div>
+
+<script type="module">
+  import { start } from "./editor/panes.js";
+  start().catch((problem) => {
+    document.getElementById("status").className = "bad";
+    document.getElementById("status").textContent = `${problem}`;
+  });
+</script>
+</body>
+</html>
