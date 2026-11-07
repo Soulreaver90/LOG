@@ -60,6 +60,14 @@ Method:  Ending scene table rom:0x3B8140. Word 8 is the scripted beating of set 
          7. Words 8 and 11 become the four op battle start `scene_lib.battle_start()` emits, the shape
             25 of the 25 vanilla bar records use. No fade and no map load: the talk already stands on
             the fight's own ground, which is the defect the owner rejected on 2026-11-06.
+         7a. THE DEATH BEATS (rung 4, 2026-11-07). Each death record now carries the owner's own beat:
+            "18 fight -> she collapses -> Trunks blasts her, NO transition". The record poses her down,
+            holds, turns Trunks to her, fires `ext 96` with the PLAYER as attacker, polls `ext 60`
+            until the blast lands and removes her. It carries NO fade, NO camera op, NO `ext 62` and
+            no map load, so the scene never leaves the ground the fight ended on. Android 18's record
+            then BRANCHES on whether Android 17 is on screen: the engine has no such op, so the test
+            compares the player's packed spot (`ext 143`) against 17's fixed spot, and `ext 144`
+            walks him in when he is outside the box. See off_screen(), walk_in(), blast() and death().
          8. Each enemy's death event table is a COPY OF THE LIVE 27 WORD ENDING TABLE with word 0 set
             to its own death record. The copy is taken AFTER words 8 and 11 are written, so Android
             18's table carries the real Android 17 fight at word 11, and both carry ending_fight's own
@@ -81,8 +89,8 @@ Rules:   Every source byte is checked before the first write; a second run raise
 import hashlib
 import struct
 
-from scene.scene_lib import (battle_start, call, camera, code, ext, fade_in, leader, move_to, face,
-                             pose, record_end, relocate, remove, wait, walk_to, words_naming)
+from scene.scene_lib import (battle_start, call, camera, code, ext, fade_in, leader, face, pose, push,
+                             record_end, relocate, remove, wait, walk_to, words_naming)
 
 # ===== constants: the map table, read LIVE (battle_arena has already moved it) =====
 ROM_BASE = 0x08000000
@@ -214,19 +222,36 @@ ENEMY_18_ITEM, ENEMY_17_ITEM = 2, 3                       # closes the gap, and 
 PLAYER, TRUNKS = 0, 3                                     # set 0 is the player; Trunks' party id (ext 70)
 TRUNKS_BASE, TRUNKS_SSJ = 132, 133                        # his base and Super Saiyan appearance sets
 A18_SET, A17_SET = 11, 9
-DOWN, UP, LEFT = 0, 1, 2                                  # ext 55 facings (celljr_fight and chapter_cards agree)
+DOWN, UP = 0, 1                                           # ext 55 facings (celljr_fight and chapter_cards agree)
 POWER_UP = 9                                              # player state 9: the power up animation, 160 frames
 AURA_SOUND, FLASH = 55, 10                                # vanilla's own aura sound; GOKU_TRANSFORM's flash length
 NO_BANNER = 0xDD                                          # entry +0x0C: `CMP r0,#0xDD ; BEQ` skips the banner
 PLAYER_START = (496, 648)                                 # map 1,2 item 3's own spot: where NPC Trunks stood
 TRUNKS_SPOT = (496, 504)                                  # where the vanilla walk leaves him, beside the pair
 REVEAL_VIEW = (384, 552)                                  # vanilla's own ext 35 pair, read as the view origin
-TALK_VIEW = (384, 368)                                    # vanilla record 0's own camera park
 VIEW_SPEED = 2                                            # vanilla record 0's own camera speed
 REVEAL = 180                                              # == record 0's own vanilla fade_out
-COLLAPSE_HOLD, FADE = 60, 30                              # frames: the body holds, then a fade covers the swap
+COLLAPSE_HOLD = 60                                        # frames the body holds before the blast
 DOWN_STATE = 3                                            # Android 18's own death record opens with pose(11,3)
 HANDBACK_HOLD = 60                                        # the wait each vanilla beating ends on
+
+# ===== constants: the death beats (rung 4) =====
+A17_SPOT = (520, 408)                                     # SOURCE_NPCS[A17] +8: where NPC 17 stands and waits
+BLAST_SPEED = 100                                         # vanilla's own n for a PLAYER blast, rom:0x3E523F
+# Where Android 17 stops when he walks in, as an offset from the player. The follow camera draws the
+# player at screen (112,80) (bible B1144), so this spot is screen (152,40): on screen, right of Trunks
+# and above him, which is the side the androids stand on in the vanilla staging.
+WALK_IN_OFFSET = (40, -40)
+# Half extents of the "already on screen" box, again from screen (112,80) on a 240x160 view. They are
+# deliberately SMALLER than the real view, so the test errs toward walking him in. An unneeded walk-in
+# reads fine; a skipped one would leave the player listening to nobody.
+ON_SCREEN_X, ON_SCREEN_Y = 88, 52
+
+# The scene VM's four registers. `set_var n` (base op 3) writes slot n and `ext n` (n = 0 to 3) pushes
+# it back: both resolve to 0x03001FB0 + 4n. CONFIRMED from sub_0800B058 to sub_0800B06A (the set_var
+# slot table rom:0x3B5F70) and from sub_08009392 to sub_080093C8 (the ext 0 to ext 3 handlers).
+V_SPOT, V_DX, V_DY = 0, 1, 2
+OR, ADD, SUB, MUL, GT, LT = (bytes([n]) for n in (5, 7, 8, 9, 13, 15))
 
 
 # ===== the new records =====
@@ -366,35 +391,144 @@ def fight(enemy_set: int, enemy_item: int) -> bytes:
     return code(END_INDEX, battle_start(enemy_set=enemy_set, enemy_item=enemy_item, bar=enemy_set))
 
 
-def death(enemy_set: int, nxt: int, facing: int, tail: bytes = b"") -> bytes:
-    """Word 0 of an enemy's own death table: the bar and the HUD go, the android drops, and a fade
-    covers the restore of the vanilla geometry before the cutscene picks up again.
+def var_read(slot: int) -> bytes:
+    """Push scene variable `slot` (ext 0 to ext 3, reading 0x03001FB0 + 4n)."""
+    return ext(slot)
+
+
+def var_write(slot: int) -> bytes:
+    """Pop the top value into scene variable `slot` (base op 3)."""
+    return bytes([3, slot])
+
+
+def jz(skip: int) -> bytes:
+    """Base op 19: pop one value and jump `skip` bytes forward when it is zero."""
+    if not 0 <= skip <= 0xFF:
+        raise ValueError(f"a jz offset is one byte; {skip} does not fit")
+    return bytes([19, skip])
+
+
+def off_screen(spot: tuple, half_x: int, half_y: int) -> bytes:
+    """Leave 1 on the stack when `spot` is OUTSIDE the box around the player, and 0 when it is inside.
+
+    THE ENGINE HAS NO "is this actor on screen" OP. All 145 ext handlers were profiled from the
+    disassembly (docs\\research\\scene-vm-ext-ops.md); the 18 that return a value read flags, items,
+    levels, random numbers or the character records, and not one reads the view struct 0x03001090 or
+    the live camera word 0x03000FF4. So a script cannot ask the engine the owner's question.
+
+    What a script CAN read is an actor's position. `ext 143 (set)` resolves the actor through
+    `Sprite_Select @0x08009370`, calls `Point_LoadScaled @0x0800791A`, and pushes the two halves
+    PACKED as `(x << 16) | (y & 0xFFFF)`. CONFIRMED from `sub_08009E80`. `Sprite_Select` answers set 0
+    with the live player object itself (`BNE loc_0800937E` falls through to the player pointer), and
+    the player is a `mover` subclass, so his spot really is at +0x158/+0x15C like every NPC's
+    (bible B1710, and the face-the-player step reads the player at those offsets, B1173).
+
+    So the honest equivalent is: the follow camera draws the player at screen (112,80) (B1144), the
+    view is 240x160, and Android 17 never moves off A17_SPOT. "17 is on screen" therefore becomes
+    "the player is inside a box around A17_SPOT", which this computes from the two packed spots.
+
+    The arithmetic avoids `div`, whose operand order is only LIKELY (B1966):
+
+      dx:  V_SPOT - packed(spot). The low halves can borrow, so the high half of the answer is
+           (px - qx) or (px - qx - 1). That is a 1 px error, and the box has an 88 px half width.
+      dy:  (V_SPOT * 65536) - (spot_y << 16). The engine multiplies in 32 bits, so the x half shifts
+           straight out and the answer is EXACTLY (py - qy) << 16.
+
+    Each half is then compared against +-half << 16 with `gt` and `lt`, which test `second > top` and
+    `second < top`. The four answers are OR-ed, so the record leaves 1 when EITHER axis is outside.
+
+    Known error band: the view clamps at the map edges (B1143), so near an edge the player is no
+    longer drawn at screen (112,80) and this test is wrong by up to the clamp distance."""
+    packed = (spot[0] << 16) | (spot[1] & 0xFFFF)
+    return (ext(143, PLAYER) + var_write(V_SPOT)
+            + var_read(V_SPOT) + push(packed) + SUB + var_write(V_DX)
+            + var_read(V_SPOT) + push(1 << 16) + MUL + push(spot[1] << 16) + SUB + var_write(V_DY)
+            + var_read(V_DX) + push(half_x << 16) + GT
+            + var_read(V_DX) + push(-(half_x << 16)) + LT + OR
+            + var_read(V_DY) + push(half_y << 16) + GT
+            + var_read(V_DY) + push(-(half_y << 16)) + LT + OR
+            + OR)
+
+
+def walk_in(npc_set: int, offset: tuple) -> bytes:
+    """Walk `npc_set` from wherever he stands to the player's spot plus `offset`.
+
+    `ext 144` pops a set and a PACKED point and queues the very command `ext 53 walk` queues:
+    `sub_08009EBA` and `sub_08009D4A` both end in `Record_NewFromWords(0, {x,y})` then
+    `Queue_Append @0x0800E04C`, and the only difference is where the pair comes from. CONFIRMED, and
+    vanilla pairs it with `ext 143` three times (record rom:0x3C56D4 saves a spot, walks the actor
+    away and walks him back).
+
+    The offset is folded into ONE constant, `(dx << 16) + dy`, and added to the packed player spot.
+    A negative dy borrows out of the low half and lands the carry in the high half, which is the
+    right answer: the sum is ((px + dx) << 16) + (py + dy) as long as py + dy stays positive, and
+    this map's walkable y never comes near 40."""
+    return push(npc_set) + var_read(V_SPOT) + push((offset[0] << 16) + offset[1]) + ADD + ext(144)
+
+
+def blast(enemy_set: int) -> bytes:
+    """Trunks blasts the body: he turns to it, fires, the script waits for the hit, the body goes.
+
+    `ext 96 (attacker, target, n)` is the scene blast (bible B1963): at the fire tick it builds a
+    projectile whose velocity is fixed toward the target's hurtbox centre, and `ext 60 (target)`
+    polls until that blast overlaps that target (B1965). THE PLAYER AS ATTACKER IS VANILLA, not an
+    inference: record rom:0x3E5224 (map 11,6, table rom:0x3E6078 word 31) fires
+    `attack(0, 28, 100)` three times and polls `ext 60 (28)`. BLAST_SPEED is that record's own n.
+
+    A beaten enemy still acting is vanilla too. Android 18's OWN death record rom:0x3D8BC4 poses her
+    down, stands her back up and has HER fire `attack(11, 0, 100)` at the player, with `ext 60 (0)`
+    polling a target whose distance the player chose. So the poll is not new ground.
+
+    `ext 56 face_alt (a, b)` turns a toward b's +0x158/+0x15C once (B0741). It runs first because the
+    blast spawns at the attacker's hurtbox edge BY FACING (B1964), so a Trunks facing away would fire
+    from behind himself. LIKELY, not confirmed: B0741 found no vanilla site with an enemy as b.
+
+    NO FADE and NO CAMERA OP. The whole beat stands on the ground the fight ended on."""
+    return (call("face_alt", PLAYER, enemy_set)
+            + call("block_begin")
+            + call("attack", PLAYER, enemy_set, BLAST_SPEED)
+            + ext(60, enemy_set)
+            + call("block_end")
+            + remove(enemy_set))
+
+
+def death(enemy_set: int, nxt: int, entrance: int = None) -> bytes:
+    """Word 0 of an enemy's own death table: the bar and the HUD go, the android collapses, Trunks
+    blasts her, and the cutscene picks up with NO TRANSITION of any kind.
+
+    The owner's flow, 2026-11-07: "18 fight -> she collapses -> Trunks blasts her, NO transition".
+    So this record carries no `fade_out`, no `fade_in`, no `ext 31` camera park, no `ext 62` and no
+    map load. The v5 record had all four, and their only job was to snap the scene back to vanilla's
+    staging, which is the architecture the finale design says not to inherit. Nothing downstream
+    needs that staging: words 9, 10 and 12 are text records, word 11's `ext 104` builds Android 17
+    wherever he is standing, and word 13 opens with vanilla's own fade.
 
     The enemy types are not written, so both androids keep the BOSS death descriptor rom:0x086FF3C4,
-    which leaves a beaten boss standing at HP 0 with no AI instead of removing him. So the record
-    poses him down itself, holds, and removes him under the fade, which is the shape ending_fight's
-    own death record ships and the shape of Android 18's vanilla death record rom:0x3D8BC4.
+    which leaves a beaten boss standing at HP 0 with no AI instead of removing him. The record
+    therefore poses him down itself and holds, which is what Android 18's own vanilla death record
+    rom:0x3D8BC4 opens with, and the blast is what removes him.
 
-    The player is put back on TRUNKS_SPOT because a real fight leaves him wherever he was standing,
-    and the view is parked back on vanilla's own TALK_VIEW. `facing` is the direction the vanilla
-    beating left Trunks in: up toward the pair after 18, down toward the camera after 17.
+    `entrance` is Android 17's set on Android 18's record and None on his own. When it is given, the
+    record branches: `off_screen()` leaves 1 when 17 is outside the box around the player, and `jz`
+    skips `walk_in()` when it leaves 0. The owner's rule, 2026-11-07: "if 17 is already on screen, he
+    just goes to his dialogue. If he is offscreen, then he walks onscreen, facing trunks". `face_alt`
+    runs on BOTH paths, because his face-the-player step struct does not tick while a scene plays.
 
-    `tail` carries any other op the vanilla beating ended on. Word 8 closed with `face(9,2) ; wait(60)`,
-    so Android 18's record turns Android 17 to face left before the fade lifts, exactly as the cutscene
-    did. Word 11's own closing `face` named set 133, which is the player, and the record already turns
-    him through `facing`, so Android 17's record needs no tail.
+    He speaks VANILLA'S OWN LINE. `nxt` is 9, and ending word 9 rom:0x3B7D2A is
+    "It can't be!" on portrait 28, the portrait word 1 gives "ANDROID 17". Word 10 is Trunks'
+    "And this is for all the people you've killed!". No line is invented and none is moved.
 
-    `nxt` is the ending index the cutscene resumes at, so the hand-back is a plain next index and not
-    a jump: 9 after Android 18 and 12 after Android 17."""
-    return code(nxt,
-                ext(88), call("header_bit1", 0),
-                pose(enemy_set, DOWN_STATE), wait(COLLAPSE_HOLD),
-                call("fade_out", FADE),
-                remove(enemy_set),
-                move_to(PLAYER, *TRUNKS_SPOT), face(PLAYER, facing),
-                tail,
-                camera(*TALK_VIEW, VIEW_SPEED),
-                fade_in(FADE),
+    After Android 17 the hand-back is 12, Trunks' "Now there's just one more thing that needs to be
+    done.", and he turns to the camera for it as the vanilla beating's closing `face(133,0)` did."""
+    beat = (ext(88) + call("header_bit1", 0)
+            + pose(enemy_set, DOWN_STATE) + wait(COLLAPSE_HOLD)
+            + blast(enemy_set))
+    if entrance is None:
+        return code(nxt, beat, face(PLAYER, DOWN), wait(HANDBACK_HOLD))
+    arrival = walk_in(entrance, WALK_IN_OFFSET)
+    return code(nxt, beat,
+                off_screen(A17_SPOT, ON_SCREEN_X, ON_SCREEN_Y), jz(len(arrival)), arrival,
+                call("face_alt", entrance, PLAYER),
                 wait(HANDBACK_HOLD))
 
 
@@ -704,9 +838,10 @@ def apply(rom: bytearray, alloc) -> None:
 
     # 2. The death records and the two event tables. The tables are cut from the table words AS THEY
     #    NOW STAND, so Android 18's carries the real Android 17 fight at word 11.
-    dead18 = place(death(A18_SET, AFTER18_INDEX, UP, face(A17_SET, LEFT)),
-                   "Android 18's death record (hands back at word 9)")
-    dead17 = place(death(A17_SET, AFTER17_INDEX, DOWN), "Android 17's death record (hands back at word 12)")
+    dead18 = place(death(A18_SET, AFTER18_INDEX, entrance=A17_SET),
+                   "Android 18's death record (the blast, then the 17 entrance branch, hands back at word 9)")
+    dead17 = place(death(A17_SET, AFTER17_INDEX),
+                   "Android 17's death record (the blast, hands back at word 12)")
     table18 = place(death_table(rom, dead18), f"Android 18's event table ({TABLE_WORDS} words)")
     table17 = place(death_table(rom, dead17), f"Android 17's event table ({TABLE_WORDS} words)")
 

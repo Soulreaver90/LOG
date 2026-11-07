@@ -19,7 +19,7 @@ import log2_build
 from patches import future_androids as F
 from scene import scene_probe as P
 from scene.scene_lib import record_end, words_naming
-from tests.test_cellgames_ssj import ext_sequence
+from tests.test_cellgames_ssj import ext_sequence, ops as raw_ops
 
 # ===== constants (the brief, the owner's words, and the base reads) =====
 ROM_BASE = 0x08000000
@@ -36,7 +36,7 @@ PLAYER_START, TRUNKS_SPOT = (496, 648), (496, 504)
 A18_AT, A17_AT, GOHAN_AT = (472, 408), (520, 408), (216, 368)
 REVEAL_VIEW, TALK_VIEW, SPEED, REVEAL = (384, 552), (384, 368), 2, 180
 NO_BANNER, MUSIC_SCRIPT, WALK_IN_MUSIC = 0xDD, 0x083ED73C, 42
-COLLAPSE_HOLD, FADE, HANDBACK = 60, 30, 60
+COLLAPSE_HOLD, HANDBACK = 60, 60
 DOWN, UP = 0, 1
 POWER_UP, AURA_SOUND, FLASH = 9, 55, 10
 END_INDEX, AFTER18, AFTER17 = 26, 9, 12
@@ -68,11 +68,75 @@ NAME_OPS = [(55, (PLAYER, UP))]
 # Words 8 and 11: the four op battle start, the shape 25 of the 25 vanilla bar records use.
 FIGHT18_OPS = [(104, (A18_SET, ENEMY_18)), (85, (A18_SET,)), (86, (1,)), (33, (PLAYER,))]
 FIGHT17_OPS = [(104, (A17_SET, ENEMY_17)), (85, (A17_SET,)), (86, (1,)), (33, (PLAYER,))]
-# A death record: the bar and the HUD go, the android drops, and a fade covers the restore.
-def death_ops(enemy_set, facing, tail=()):
-    return [(88, ()), (86, (0,)), (57, (enemy_set, 3)), (69, (COLLAPSE_HOLD,)), (40, (FADE,)),
-            (52, (enemy_set,)), (62, (PLAYER,) + TRUNKS_SPOT), (55, (PLAYER, facing))] + list(tail) + [
-            (31, TALK_VIEW + (SPEED,)), (41, (FADE,)), (69, (HANDBACK,))]
+# ===== the death beats (rung 4, the owner's words of 2026-11-07) =====
+# "18 fight -> she collapses -> Trunks blasts her, NO transition" and "if 17 is already on screen, he
+# just goes to his dialogue. If he is offscreen, then he walks onscreen, facing trunks".
+# Every number here is restated from the brief and the disassembly, never imported from the module.
+A17_SPOT, BLAST_SPEED = (520, 408), 100       # 17's own item spot; the n of vanilla's rom:0x3E523F
+WALK_IN_OFFSET = (40, -40)                    # where he stops, from the player: screen (152,40)
+ON_SCREEN_X, ON_SCREEN_Y = 88, 52             # half extents of the "already on screen" box
+V_SPOT, V_DX, V_DY = 0, 1, 2                  # scene variables: set_var n writes 0x03001FB0 + 4n
+JZ, END_OP = 19, 17
+# No death record may carry one of these: a camera move, a camera hand-off, a map load, a fade, a
+# flash or a teleport. "NO transition" is the owner's emphasis and this is the list that enforces it.
+NO_TRANSITION_OPS = (31, 33, 35, 38, 39, 40, 41, 42, 43, 62)
+
+
+def _push(*vals):
+    """The push op the encoder emits: base op 0 for one small byte, base op 29 otherwise."""
+    if len(vals) == 1 and 0 <= vals[0] <= 0xFF:
+        return [(0, [vals[0]])]
+    return [(29, list(vals))]
+
+
+def _ext(n, *vals):
+    return (_push(*vals) if vals else []) + [(2, n)]
+
+
+def blast_ops(enemy_set):
+    """Trunks turns to the body, fires ext 96 as the PLAYER, ext 60 waits for the hit, the body goes."""
+    return (_ext(56, PLAYER, enemy_set) + _ext(63)
+            + _ext(96, PLAYER, enemy_set, BLAST_SPEED) + _ext(60, enemy_set) + _ext(64)
+            + _ext(52, enemy_set))
+
+
+def off_screen_ops(spot, half_x, half_y):
+    """Leave 1 on the stack when `spot` is outside the box around the player, and 0 when it is inside.
+
+    ext 143 pushes an actor's spot PACKED as (x << 16) | (y & 0xFFFF). dx comes from one subtraction
+    of the packed values and is right to 1 px; dy comes from multiplying both by 65536 first, which
+    shifts the x half out in 32 bits and makes the answer exact."""
+    packed = (spot[0] << 16) | spot[1]
+    return (_ext(143, PLAYER) + [(3, V_SPOT)]
+            + _ext(V_SPOT) + _push(packed) + [(8, None), (3, V_DX)]
+            + _ext(V_SPOT) + _push(1 << 16) + [(9, None)] + _push(spot[1] << 16) + [(8, None), (3, V_DY)]
+            + _ext(V_DX) + _push(half_x << 16) + [(13, None)]
+            + _ext(V_DX) + _push(-(half_x << 16)) + [(15, None), (5, None)]
+            + _ext(V_DY) + _push(half_y << 16) + [(13, None)]
+            + _ext(V_DY) + _push(-(half_y << 16)) + [(15, None), (5, None)]
+            + [(5, None)])
+
+
+def walk_in_ops(npc_set, offset):
+    """ext 144 walks an actor to a packed point: the player's spot plus one folded (dx << 16) + dy."""
+    return (_push(npc_set) + _ext(V_SPOT) + _push((offset[0] << 16) + offset[1])
+            + [(7, None)] + _ext(144))
+
+
+def death_ops(enemy_set, entrance=None):
+    """The whole death record, op by op, with the jz offset left out (it is pinned on its own)."""
+    beat = (_ext(88) + _ext(86, 0) + _ext(57, enemy_set, 3) + _ext(69, COLLAPSE_HOLD)
+            + blast_ops(enemy_set))
+    if entrance is None:
+        return beat + _ext(55, PLAYER, DOWN) + _ext(69, HANDBACK) + [(END_OP, None)]
+    return (beat + off_screen_ops(A17_SPOT, ON_SCREEN_X, ON_SCREEN_Y) + [(JZ, None)]
+            + walk_in_ops(entrance, WALK_IN_OFFSET) + _ext(56, entrance, PLAYER)
+            + _ext(69, HANDBACK) + [(END_OP, None)])
+
+
+def record_ops(rom, rec):
+    """[(op, arg)] of a type 0 record body, with every jz and jmp offset blanked to None."""
+    return [(op, None if op in (JZ, 18) else arg) for _, op, arg in raw_ops(rom, rec + 3)]
 
 
 # The main game's own Android fights, which the owner ruled out of this work.
@@ -448,21 +512,79 @@ class DeathTables(unittest.TestCase):
     def test_each_death_record_hands_back_to_the_right_cutscene_word(self):
         """18 at word 9 ("It can't be!") and 17 at word 12 ("Now there's just one more thing")."""
         rom = built()["rom"]
-        for set_id, nxt, facing, tail in ((A18_SET, AFTER18, UP, ((55, (A17_SET, 2)),)),
-                                          (A17_SET, AFTER17, DOWN, ())):
+        for set_id, nxt, entrance in ((A18_SET, AFTER18, A17_SET), (A17_SET, AFTER17, None)):
             rec = built()["notes"]["deaths"][set_id]
             self.assertEqual(rom[rec], nxt, f"set {set_id}")
-            self.assertEqual(ext_sequence(rom, rec), death_ops(set_id, facing, tail))
+            self.assertEqual(record_ops(rom, rec), death_ops(set_id, entrance), f"set {set_id}")
 
     def test_each_death_record_removes_its_own_beaten_android(self):
         """Both types keep the BOSS death descriptor, which leaves a beaten boss standing at HP 0, so
-        the record poses him down, holds, and removes him under a fade."""
+        the record poses him down, holds, and the blast is what removes him."""
         rom = built()["rom"]
         for set_id in (A18_SET, A17_SET):
             ops = ext_sequence(rom, built()["notes"]["deaths"][set_id])
             self.assertIn((52, (set_id,)), ops)
             other = A17_SET if set_id == A18_SET else A18_SET
             self.assertNotIn((52, (other,)), ops, "a death record must not remove the other android")
+
+    def test_neither_death_record_transitions(self):
+        """The owner's emphasis: "she collapses -> Trunks blasts her, NO transition". So no fade, no
+        flash, no camera move, no camera hand-off, no map load and no teleport, in either record."""
+        rom = built()["rom"]
+        for set_id in (A18_SET, A17_SET):
+            used = {n for n, _ in ext_sequence(rom, built()["notes"]["deaths"][set_id])}
+            self.assertFalse(used & set(NO_TRANSITION_OPS),
+                             f"set {set_id}'s death record transitions: {sorted(used & set(NO_TRANSITION_OPS))}")
+
+    def test_the_player_is_the_one_who_blasts_each_android(self):
+        """ext 96 with the PLAYER as attacker is vanilla: rom:0x3E5224 fires attack(0, 28, 100) three
+        times and polls ext 60 (28). ext 60 names the same android the attack named, because a blast
+        aimed at X can never end an ext 60 (Y)."""
+        rom = built()["rom"]
+        for set_id in (A18_SET, A17_SET):
+            ops = ext_sequence(rom, built()["notes"]["deaths"][set_id])
+            self.assertIn((96, (PLAYER, set_id, BLAST_SPEED)), ops, f"set {set_id} is not blasted")
+            self.assertIn((60, (set_id,)), ops, f"set {set_id}'s blast is never waited on")
+            self.assertIn((56, (PLAYER, set_id)), ops, "Trunks must turn to her before he fires")
+
+    def test_only_android_18s_record_branches_on_whether_17_is_on_screen(self):
+        """17 walks in only when he is off screen, which is the owner's rule. His own death record is
+        the last beat before the vanilla fade at word 13 and needs no branch."""
+        rom = built()["rom"]
+        jumps18 = [(op, arg) for _, op, arg in raw_ops(rom, built()["notes"]["deaths"][A18_SET] + 3)
+                   if op in (JZ, 18, 28)]
+        self.assertEqual(len(jumps18), 1, "exactly one branch, the 17 entrance")
+        self.assertEqual(jumps18[0][0], JZ, "the branch is jz: it skips the walk-in when 17 is on screen")
+        jumps17 = [op for _, op, _ in raw_ops(rom, built()["notes"]["deaths"][A17_SET] + 3)
+                   if op in (JZ, 18, 28)]
+        self.assertEqual(jumps17, [], "Android 17's own death record must not branch")
+
+    def test_the_jz_skips_exactly_the_walk_in(self):
+        """When 17 is on screen the record must land on the face op, not inside the walk-in."""
+        rom = built()["rom"]
+        rec = built()["notes"]["deaths"][A18_SET]
+        body = raw_ops(rom, rec + 3)
+        jz_at = next(i for i, (_, op, _) in enumerate(body) if op == JZ)
+        target = body[jz_at][2]
+        after = [at for at, _, _ in body].index(target)
+        self.assertEqual([(op, arg) for _, op, arg in body[jz_at + 1:after]],
+                         walk_in_ops(A17_SET, WALK_IN_OFFSET),
+                         "jz must skip the walk-in and nothing else")
+        self.assertEqual([(op, arg) for _, op, arg in body[after:after + 2]],
+                         _ext(56, A17_SET, PLAYER),
+                         "both arms must face Android 17 at the player")
+
+    def test_the_on_screen_test_reads_the_player_and_17s_real_spot(self):
+        """17 never moves off his item spot, so the question is only where the player is. ext 143
+        pushes a packed spot and the record compares it with 17's, packed the same way."""
+        rom = built()["rom"]
+        rec = built()["notes"]["deaths"][A18_SET]
+        ops = ext_sequence(rom, rec)
+        self.assertIn((143, (PLAYER,)), ops, "the test must read the PLAYER's spot")
+        values = {v for _, op, arg in raw_ops(rom, rec + 3) if op == 29 for v in arg}
+        self.assertIn((A17_SPOT[0] << 16) | A17_SPOT[1], values, "17's packed spot")
+        self.assertEqual(A17_SPOT, struct.unpack_from("<hh", rom, clone_items(rom)[NPC_17] + F.N_AT),
+                         "A17_SPOT must be the spot the clone's own NPC item carries")
 
     def test_nothing_in_the_ending_ever_jumps_to_word_0(self):
         """Word 0 of a death table is the death record, so an index 0 anywhere would run it again."""
