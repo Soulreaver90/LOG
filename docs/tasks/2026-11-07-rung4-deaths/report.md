@@ -581,3 +581,130 @@ watches the teleport stop firing.
 4. Time him. The walk should take about a second and a half, every time, from any spot. If it ever
    feels like five seconds again, that is the old behaviour and I want to know.
 5. Nothing else changed. No fade, no camera move, no map reload anywhere in the beat.
+
+---
+
+## 11. v9: the stop must not be on the far side of Trunks
+
+v8 was built, committed and measured before this was found. It is kept so the two can be compared.
+
+### 11.1 The regression v8 carried
+
+v8 stopped Android 17 at `px - 40`, Trunks' LEFT, on BOTH arms. On the arm where he is not
+teleported he starts from his own spot at x 520, so whenever the player stood left of 520 that walk
+went straight through him.
+
+| build | cells that walk him from his own spot | of those, the line passes within a sprite box of the player |
+|---|---|---|
+| v7 | 5,476 | 285 (5.2 %) |
+| v8 | 177 | **77 (43 %)** |
+| **v9** | 177 | **0** |
+
+v8 made the fault rarer and much denser: every cell that takes that arm is inside one view of Android
+17's spot, which is exactly the neighbourhood of the fight. A kill at (400,360) sent him from
+(520,408) to (360,360), through a Trunks standing at (400,360).
+
+Neither the census nor the whole-map test could see it. The player is not a keep-out, so no carrier
+names him, and the view test only asks whether 17 is inside the picture.
+
+### 11.2 The fix
+
+On the arm without the teleport he now stops on the side he is already standing on:
+
+```
+stop_x = max(px - 40, 72) + 80 * (px < 520) * (1 - gone)
+```
+
+`gone` is the same value the inner `jz` consumes, kept in register 0, which `read_player` finishes
+with. On the teleport arm `gone` is 1 and the term vanishes, so that arm is byte for byte the rule
+v8 shipped: he comes from the left edge of the view and stops at `px - 40`. The whole-map test now
+also asserts that no cell walks him through Trunks, and refuses to pass unless that arm is reached on
+at least 100 cells.
+
+### 11.3 The camera constant, read out of RAM
+
+Every bound in this record is derived from "the camera origin is the player minus (112,80)". That
+came from bible row B1144, which measured it on another map, and two other numbers were in play: the
+coordinator's (120,84) and `ext 39`'s own (112,76). An 8 px error would teleport Android 17 while
+part of his sprite still showed.
+
+So I read it, in three capture dumps taken while the player stood still.
+
+| run | player | camera `0x0300109C` / `0x030010A0` | player minus camera |
+|---|---|---|---|
+| `v8_kill_open` | (496,515) | (384,435) | (112,80) |
+| `v8_kill_edge` | (16,569) | (0,489) | (16,80), x clamped at 0 |
+| `v8_kill_close` | (496,377) | (384,297) | (112,80) |
+
+**(112,80) is right and the left clamp is right.** The same read settles the tree: with the camera at
+x 0 and the player at x 16 he IS inside the picture, so the art is what hides him, and the
+fifth-carrier finding is CONFIRMED rather than inferred.
+
+### 11.4 v9 against v7, the same census
+
+| population | build | stop closed | stop or VISIBLE path closed | walk px | on screen |
+|---|---|---|---|---|---|
+| all 5,683 open cells | v7 | 13.2 % | 32.9 % | median 304, max 552 | median 31 %, min 16 % |
+| | **v9** | **10.7 %** | 33.1 % | median **96**, max **104** | median **77 %**, min **77 %** |
+| within 160 px of the talk spot | v7 | 4.3 % | 12.8 % | median 152, max 256 | median 61 %, min 33 % |
+| | **v9** | 4.7 % | **11.4 %** | median **96**, max **96** | median **77 %** |
+| within 200 px of Android 18 | v7 | 10.6 % | 24.1 % | median 152, max 208 | median 63 %, min 41 % |
+| | **v9** | **5.8 %** | **14.2 %** | median **96**, max **104** | median **77 %** |
+
+> [!WARNING]
+> **Near the fight the landing is slightly WORSE, not held: 4.3 % to 4.7 %, about five cells in
+> 1,155.** The brief's number for v7 was 4.9 %; that was the old measure, which read one cell and no
+> carrier. 4.3 % is v7 re-scored the way v9 is scored, with a sprite-width margin and the carrier
+> footprints. Everywhere else the landing improves, and near Android 18 it almost halves.
+
+### 11.5 All four arms, measured in the running game
+
+`v9_land.txt` boots v9 cold and saves its own state at the street (26,822 frames). Every row below is
+read out of RAM, not off a screenshot.
+
+| arm | the player when she dies | what the record should compute | what RAM says Android 17 did |
+|---|---|---|---|
+| already beside Trunks | (496,377) | inside the 88 x 52 box: do not move | stayed at (520,408) for 96 frames |
+| **visible, so no teleport** | **(419,454)** | stop `419 - 40 + 80` = **459**, row **454** | (484,435), then **(459,454)**, on Trunks' RIGHT |
+| teleported, camera free | (496,515) | enter 360, stop **456**, row **515** | (371,515), (419,515), **(456,515)** |
+| teleported, camera free | (420,550) | enter 284, stop **380**, row **550** | (301,550), (349,550), **(380,550)** |
+| teleported, camera clamped | (16,569) | enter -24, stop **72**, row **569** | (45,569), **(72,569)** |
+
+The middle row is the arm v8 broke and the one no earlier run had reached. Android 17 walks down and
+left from his own spot, stops 40 px to Trunks' RIGHT, and never passes him: shots `b010` to `b017` of
+`scratch\capture\v9_kill_band-20261107-174059` show the walk and then the two of them standing
+together under "It can't be!".
+
+### 11.6 The build, and what the owner should check
+
+| | |
+|---|---|
+| ROM | `builds\mockups\2026-11-07-plateau\log2_plateau_v9.gba` |
+| SHA-1 | `fc24d2b5ebc162f61a520ccc2074562812b370a3` |
+| save | `log2_plateau_v9.sav`, seeded from `log2_poc_r40.sav` |
+| list | `scripts\permanent\build_list_trial_plateau.txt` |
+
+The checklist in 10.8 stands, with one case added and one changed.
+
+1. Beat Android 18 **from well below her**. Android 17 walks in from the LEFT edge of the picture and
+   stops a short step to Trunks' left.
+2. Beat her **standing right next to her**. Android 17 does not move at all; he speaks from where he
+   has been standing.
+3. **New: beat her standing well to her LEFT, a hundred pixels or so west of where 17 waits.** He
+   should walk down to you from his own spot and stop on your RIGHT, the side he came from. He must
+   never walk through you. That is the case v8 got wrong.
+4. Beat her **at the far west end of the street**. Expect both of you to be hidden behind the tree
+   down there. That is the map's own art over open ground, it is in the backlog, and it is not the
+   walk.
+5. Time him. About a second and a half from any spot, every time.
+
+### 11.7 The suite on v9
+
+**1,647 tests, FAILED (failures=1, skipped=3, expected failures=1)**, so the unittest exit code is 1.
+The one failure is `test_battle_start.test_form_survives_the_leader_change` on
+`record rom:0x89A9C0 (table rom:0x3DE6F4 word 32, map 9,3 region, fullpower_ssj)`. It is the same
+record and the same message as on the v7 and v8 runs, it names no file of mine, and the brief named it
+as known. `test_future_androids.py` is 44 tests, all green.
+
+The ROM rebuilds to the same SHA-1 twice, once after a comment-only edit, so the tree and the ROM
+agree.

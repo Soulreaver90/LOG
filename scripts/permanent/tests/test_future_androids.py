@@ -84,6 +84,7 @@ GONE_X = (A17_SPOT[0] - A17_HALF_W - SCREEN_W + CAM_X + 1, A17_SPOT[0] + A17_HAL
 GONE_Y = (A17_SPOT[1] - A17_TOP - SCREEN_H + CAM_Y + 1, A17_SPOT[1] + CAM_Y - 1)
 HALF = 1 << 16
 V_SPOT, V_PY, V_PX, V_FLAG = 0, 1, 2, 3       # scene variables: set_var n writes 0x03001FB0 + 4n
+V_GONE, SIDE_STEP = V_SPOT, 80                # the packed spot's slot, reused; and the left-to-right swing
 JZ, END_OP = 19, 17
 # No death record may carry one of these: a camera move, a camera hand-off, a map load, a fade or a
 # flash. "NO transition" is the owner's emphasis and this is the list that enforces it. ext 62 is NOT
@@ -136,9 +137,12 @@ def approach_ops(npc_set):
     """17 is left standing, walks from where he stands, or is dropped just outside the left edge of
     the view with ext 62 and walks 96 px in. Both face ops run on every path."""
     enter = _push(npc_set) + screen_x_ops(CAM_X + ENTRY_INSET, -ENTRY_INSET) + _ext(V_PY) + _ext(62)
-    walk = (_push(npc_set) + screen_x_ops(CAM_X - STOP_INSET, STOP_INSET)
+    side = (_push(SIDE_STEP) + _ext(V_PX) + _push(A17_SPOT[0]) + [(15, None), (9, None)]
+            + _push(1) + _ext(V_GONE) + [(8, None), (9, None)])
+    walk = (_push(npc_set) + screen_x_ops(CAM_X - STOP_INSET, STOP_INSET) + side + [(7, None)]
             + _push(HALF) + [(9, None)] + _ext(V_PY) + [(7, None)] + _ext(144))
-    gone = outside_ops(V_PX, *GONE_X) + outside_ops(V_PY, *GONE_Y) + [(5, None)]
+    gone = (outside_ops(V_PX, *GONE_X) + outside_ops(V_PY, *GONE_Y) + [(5, None), (3, V_GONE)]
+            + _ext(V_GONE))
     away = (outside_ops(V_PX, A17_SPOT[0] - TALK_X, A17_SPOT[0] + TALK_X)
             + outside_ops(V_PY, A17_SPOT[1] - TALK_Y, A17_SPOT[1] + TALK_Y) + [(5, None)])
     return (read_player_ops() + away + [(JZ, None)] + gone + [(JZ, None)] + enter + walk
@@ -688,7 +692,9 @@ class DeathTables(unittest.TestCase):
                              f"({px},{py}) left {run['left']} value(s) on the stack: op 17 would turn"
                              f" one of them into the next table index")
             if want_walk:
-                self.assertEqual(run["target"], (max(px - CAM_X + STOP_INSET, STOP_INSET), py),
+                stop = (max(px - CAM_X + STOP_INSET, STOP_INSET) if want_entry
+                        else px - 40 + SIDE_STEP * (px < A17_SPOT[0]))
+                self.assertEqual(run["target"], (stop, py),
                                  f"({px},{py}) {why}: the ext 144 target")
             else:
                 self.assertIsNone(run["target"], f"({px},{py}) {why}: nobody should walk")
@@ -700,15 +706,18 @@ class DeathTables(unittest.TestCase):
 
     def test_17_is_never_repositioned_where_anyone_could_see_it(self):
         """The whole point of the ext 62. Over EVERY open cell of map 1,100 the entry must be at
-        least his own half width outside the left edge of the view, and the stop must be inside it
-        with room for his sprite. The camera is the player minus (112,80) held inside the map."""
+        least his own half width outside the left edge of the view, the stop must be inside it with
+        room for his sprite, and the arm that walks him from his own spot must not take him THROUGH
+        Trunks. The camera is the player minus (112,80) held inside the map, which three capture
+        runs confirm in RAM: 0x0300109C and 0x030010A0 read (384,435), (0,489) and (384,297) with
+        the player at (496,515), (16,569) and (496,377)."""
         rom = built()["rom"]
         rec = built()["notes"]["deaths"][A18_SET]
         entry = P.map_entry(rom, CLONE_ZONE, CLONE_AREA)[1]
         layout = P.layouts(rom, entry)[0]
         width, height = P.map_bounds(rom, layout)
         _, _, bits = P.collision_bits(rom, layout)
-        seen, off_view, cells = [], [], 0
+        seen, off_view, through, cells, walks_himself = [], [], [], 0, 0
         for y in range(0, 2048, 8):
             for x in range(0, 2048, 8):
                 if not P.is_open(bits, x, y):
@@ -722,9 +731,20 @@ class DeathTables(unittest.TestCase):
                 if run["walked"] and not (cam[0] + A17_HALF_W <= run["target"][0]
                                           <= cam[0] + SCREEN_W - A17_HALF_W):
                     off_view.append((x, y))
+                if run["walked"] and run["entry"] is None:
+                    walks_himself += 1
+                    start, stop = A17_SPOT, run["target"]
+                    steps = max(abs(stop[0] - start[0]), abs(stop[1] - start[1])) or 1
+                    if any(abs(start[0] + (stop[0] - start[0]) * t // steps - x) <= A17_HALF_W + 4
+                           and abs(start[1] + (stop[1] - start[1]) * t // steps - y) <= A17_TOP // 2
+                           for t in range(0, steps + 1, 4)):
+                        through.append((x, y))
         self.assertGreater(cells, 5000, "the collision frame must really have been read")
+        self.assertGreater(walks_himself, 100,
+                           "the arm that walks him from his own spot must really be reached")
         self.assertEqual(seen, [], f"{len(seen)} cells show the reposition, first {seen[:1]}")
         self.assertEqual(off_view, [], f"{len(off_view)} cells stop him outside the view")
+        self.assertEqual(through, [], f"{len(through)} cells walk him through Trunks, first {through[:1]}")
 
     def test_the_geometry_is_what_decides_and_not_something_else(self):
         """A negative control, because a green branch test proves nothing on its own. Moving the

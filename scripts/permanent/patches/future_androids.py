@@ -266,6 +266,8 @@ GONE_Y = (A17_SPOT[1] - A17_BOX[1] - SCREEN[1] + CAM_OFFSET[1] + 1,      # 297
 # slot table rom:0x3B5F70) and from sub_08009392 to sub_080093C8 (the ext 0 to ext 3 handlers).
 # There are FOUR and no more: set_var 4 (sub_0800B070) writes through 0x03001FAC instead.
 V_SPOT, V_PY, V_PX, V_FLAG = 0, 1, 2, 3
+V_GONE = V_SPOT                   # the packed spot is finished with once V_PX and V_PY hold it
+SIDE_STEP = 2 * 40                # the swing from the player's left to his right, 40 px either way
 OR, ADD, SUB, MUL, DIV, GT, LT = (bytes([n]) for n in (5, 7, 8, 9, 10, 13, 15))
 HALF = 1 << 16                                            # the packed spot's x multiplier
 
@@ -471,6 +473,22 @@ def screen_x(back: int, floor_x: int) -> bytes:
     return a + push(floor_x) + a + SUB + var_read(V_FLAG) + MUL + ADD
 
 
+def own_side() -> bytes:
+    """Leave `80` when Android 17 must stop on the player's RIGHT instead of his left, else 0.
+
+    THE WALK MUST NOT CROSS TRUNKS. The stop is `px - 40`, which is Trunks' left, and on the arm
+    where 17 is NOT teleported he starts from his own spot at x 520. So whenever the player stands
+    left of 520 that walk goes straight through him. Measured on the v8 build: of the 177 open cells
+    that take the walk-from-his-own-spot arm, the straight line passes within a sprite box of the
+    player on 77. v7 had the mirror fault on 285 of its 5,476 walking cells.
+
+    So that arm stops on the side he is already on: `px - 40 + 80 * (px < 520)`. The teleport arm
+    always comes from the left edge of the view and always stops at `px - 40`, so the term is
+    multiplied by `1 - V_GONE` and vanishes there."""
+    return (push(SIDE_STEP) + var_read(V_PX) + push(A17_SPOT[0]) + LT + MUL
+            + push(1) + var_read(V_GONE) + SUB + MUL)
+
+
 def approach(npc_set: int) -> bytes:
     """Bring Android 17 to the same place on screen beside Trunks, from the same side, every time.
 
@@ -489,7 +507,9 @@ def approach(npc_set: int) -> bytes:
       STOP   map x `max(px -  40,  72)`, the player's own row     (72 px inside it, 40 px from him)
 
     Both are camera-relative, so the walk is 96 px and about one and a half seconds every time, 17 is
-    inside the view for all but the first 16 px of it, and he always comes from Trunks' left.
+    inside the view for all but the first 16 px of it, and he always comes from Trunks' left. When he
+    is NOT teleported he keeps his own spot as the start, and `own_side()` moves the stop to whichever
+    side of Trunks he is already on, so that walk never crosses him.
 
     The record branches twice, and both tests are on the player's spot, because Android 17 never
     moves off A17_SPOT until this record runs:
@@ -517,9 +537,10 @@ def approach(npc_set: int) -> bytes:
     otherwise be facing her death spot while 17 speaks from the other side."""
     enter = push(npc_set) + screen_x(CAM_OFFSET[0] + ENTRY_INSET, -ENTRY_INSET) + var_read(V_PY) + ext(62)
     walk = (push(npc_set)
-            + screen_x(CAM_OFFSET[0] - STOP_INSET, STOP_INSET) + push(HALF) + MUL
-            + var_read(V_PY) + ADD + ext(144))
-    gone = outside(V_PX, *GONE_X) + outside(V_PY, *GONE_Y) + OR
+            + screen_x(CAM_OFFSET[0] - STOP_INSET, STOP_INSET) + own_side() + ADD
+            + push(HALF) + MUL + var_read(V_PY) + ADD + ext(144))
+    gone = (outside(V_PX, *GONE_X) + outside(V_PY, *GONE_Y) + OR
+            + var_write(V_GONE) + var_read(V_GONE))
     away = (outside(V_PX, A17_SPOT[0] - TALK_X, A17_SPOT[0] + TALK_X)
             + outside(V_PY, A17_SPOT[1] - TALK_Y, A17_SPOT[1] + TALK_Y) + OR)
     move = gone + jz(len(enter)) + enter + walk
