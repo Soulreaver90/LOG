@@ -1,0 +1,7 @@
+# Trial list: the plateau trial plus the easter egg game-over card for a loss to Cell on map 7,100.
+# No module here is approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# The included list brings dev, battle_arena, ending_fight, future_androids and plateau, in that order.
+# gameover_card runs LAST: it reads the LIVE game-over table through the literal rom:0x8870, so
+# chamber_spar's words come with it, and it needs plateau's map 7,100 to exist.
+include build_list_trial_plateau.txt
+gameover_card
