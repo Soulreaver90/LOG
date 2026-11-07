@@ -26,8 +26,10 @@
   <div class="sep"></div>
 
   <label for="bw">New blank</label>
-  <input id="bw" type="number" min="1" max="32" value="4" title="blocks across, 256 px each">
-  <input id="bh" type="number" min="1" max="32" value="4" title="blocks down, 256 px each">
+  <input id="bw" type="number" min="1" max="8" value="4"
+         title="Blocks across, 256 px each. 8 is the cap: the collision grid is 256 cells of 8 px, so right click can never paint past 2048 px.">
+  <input id="bh" type="number" min="1" max="8" value="4"
+         title="Blocks down, 256 px each. 8 is the cap: the collision grid is 256 cells of 8 px, so right click can never paint past 2048 px.">
   <button id="new" class="go ghost">Start</button>
 
   <div id="title">nothing open</div>
@@ -77,6 +79,22 @@
 
 </div>
 
+<!--
+  A classic script, on purpose, and before the module. On file:// Chrome blocks the module import
+  as a cross origin request from origin null, and the whole module never runs, so a .catch inside
+  it cannot report anything. The page would sit on "loading ..." for ever. This runs either way and
+  says what to type instead.
+-->
+<script>
+  // Not `status`: a global `var status` writes window.status, which coerces to a string in silence.
+  if (location.protocol === "file:") {
+    const line = document.getElementById("status");
+    line.className = "bad";
+    line.textContent = "This page needs its server. Run: py -3.14 -P "
+      + "C:\\Users\\josephgonzalez\\Documents\\Projects\\Workspace\\LOG"
+      + "\\scripts\\permanent\\map-editor\\serve.py";
+  }
+</script>
 <script type="module">
   import { start } from "./editor/panes.js";
   start().catch((problem) => {

@@ -23,6 +23,7 @@ import {
 } from "./state.js";
 import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas } from "./render.js";
 
+const BLOCK_CAP = 8;       // 8 blocks is 2048 px, which is where the 256 cell collision grid stops
 const pointerHooks = [];
 const atlasCache = new Map();
 let canvas = null;
@@ -281,8 +282,13 @@ export async function start() {
     ask(`/api/map?zone=${zone}&area=${area}&var=1`, `map ${zone},${area}`);
   };
   $("new").onclick = () => {
-    const bw = Number($("bw").value);
-    const bh = Number($("bh").value);
+    // Clamped, not only limited by the input's max: a typed value ignores max. The collision grid
+    // is 256 cells of 8 px, so a map past 8 blocks takes art that right click can never reach.
+    const blocks = (id) => Math.min(Math.max(Number($(id).value) || 1, 1), BLOCK_CAP);
+    const bw = blocks("bw");
+    const bh = blocks("bh");
+    $("bw").value = bw;
+    $("bh").value = bh;
     ask(`/api/blank?bw=${bw}&bh=${bh}`, `new ${bw} x ${bh} blocks`);
   };
   $("zoom").oninput = () => setView({ zoom: Number($("zoom").value) });
