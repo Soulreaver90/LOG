@@ -5,7 +5,13 @@ Usage:   py -3.14 -P export_assets.py [OUT_DIR]      (default: map-editor\assets
          or import and call export(rom, out_dir) -> the dict it wrote to assets.json.
 Output:  chunks\<n>.png   one 8bpp indexed atlas per chunk, 16 tiles across, palette attached
          palettes.png     256x1 swatch of the BG palette, one pixel per colour
-         assets.json      {"chunks": [{"index", "tiles", "png"}], "palettes": [[rgb x 256]], "tile_budget"}
+         assets.json      {"chunks": [{"index", "tiles", "png"}], "palettes": [[rgb x 256]], "tile_budget",
+                           "transparent_index": 0}
+PALETTE: there is exactly ONE palette. These tiles are 8bpp, so the GBA ignores the 0xF000 palette
+         bits of a BG tile entry and every tile draws through the one shared 256 colour BG palette.
+         "palettes" is a list of one on purpose. Build NO per-tile palette picker: it would do nothing.
+Output dir is gitignored (ROM-derived art). The default is that gitignored folder, so a default run
+         cannot reach a commit.
 Scope:   the whole 168 chunk pool, not one map's stream, so every tile the game owns is here. Atlas
          cell N holds tile N of the chunk. Colour 0 is the GBA transparent entry and is marked so.
 Read-only on the ROM. This is the one door from ROM art to the browser: nothing downstream re-reads it.
@@ -24,7 +30,8 @@ import tile_stream                                            # noqa: E402
 
 # ===== CONFIG =====
 CHUNK_COUNT = 168               # frames in the shared pool (bible B1080), measured in Task 1
-ATLAS_COLUMNS = 16              # tiles across one atlas
+TRANSPARENT_INDEX = 0           # the GBA draws colour 0 as nothing; the PNG tRNS marker says so too
+ATLAS_COLUMNS = 16             # tiles across one atlas
 TILE_PIXELS = 8
 DEFAULT_OUT = Path(__file__).resolve().parent / "assets"
 
@@ -71,7 +78,7 @@ def export(rom: bytes, out_dir: Path = DEFAULT_OUT) -> dict:
     for chunk in range(CHUNK_COUNT):
         data = _chunk_tiles(rom, chunk)
         png = f"chunks/{chunk}.png"
-        _save_new(_atlas(data, flat), out_dir / png, transparency=0)
+        _save_new(_atlas(data, flat), out_dir / png, transparency=TRANSPARENT_INDEX)
         chunks.append({"index": chunk, "tiles": len(data) // tile_stream.TILE_BYTES, "png": png})
 
     swatch = Image.new("P", (len(rgb), 1))
@@ -79,7 +86,8 @@ def export(rom: bytes, out_dir: Path = DEFAULT_OUT) -> dict:
     swatch.putpalette(flat)
     _save_new(swatch, out_dir / "palettes.png")
 
-    manifest = {"chunks": chunks, "palettes": [rgb], "tile_budget": tile_stream.TILE_BUDGET}
+    manifest = {"chunks": chunks, "palettes": [rgb], "tile_budget": tile_stream.TILE_BUDGET,
+                "transparent_index": TRANSPARENT_INDEX}
     with open(out_dir / "assets.json", "x", encoding="utf-8") as handle:
         json.dump(manifest, handle)
     return manifest

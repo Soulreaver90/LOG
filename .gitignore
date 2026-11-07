@@ -17,6 +17,7 @@ data/
 zhack/
 archive/
 scratch/
+scripts/permanent/map-editor/assets/
 
 # ===== game data by extension, anywhere =====
 # Belt and braces. A ROM, a save or a savestate that lands outside the folders above is still barred.

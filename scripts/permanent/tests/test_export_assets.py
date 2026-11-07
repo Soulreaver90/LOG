@@ -2,7 +2,8 @@ r"""
 test_export_assets.py - Tests for map-editor\export_assets.py, the ROM to editor art export.
 
 Run (absolute paths, because no tool in this project may cd):
-  py -3.14 -P -m unittest tests.test_export_assets -v      (from scripts\permanent)
+  py -3.14 -P -m unittest discover -s <LOG>\scripts\permanent\tests -t <LOG>\scripts\permanent ^
+      -p test_export_assets.py -v
 Reads the base ROM only. Every export goes to a fresh temp folder that the test removes.
 """
 import json
@@ -75,6 +76,18 @@ class ExportAssetsTests(unittest.TestCase):
             self.assertEqual(atlas.getpalette()[:768], flat)
         with Image.open(self.out / "palettes.png") as swatch:
             self.assertEqual(swatch.convert("RGB").getpixel((3, 0)), tuple(palette[3]))
+
+    def test_manifest_states_the_transparent_index_and_the_png_marks_it(self):
+        self.assertEqual(self.written["transparent_index"], 0)
+        with Image.open(self.out / self.written["chunks"][0]["png"]) as atlas:
+            self.assertEqual(atlas.info["transparency"], self.written["transparent_index"])
+
+    def test_default_output_folder_is_gitignored(self):
+        import subprocess
+        probe = export_assets.DEFAULT_OUT / "chunks" / "0.png"
+        result = subprocess.run(["git", "-C", str(export_assets.DEFAULT_OUT.parent), "check-ignore", "-q",
+                                 str(probe)])
+        self.assertEqual(result.returncode, 0, "the default export folder is not gitignored")
 
     def test_export_refuses_to_write_into_a_non_empty_directory(self):
         with tempfile.TemporaryDirectory() as tmp:
