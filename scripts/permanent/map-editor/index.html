@@ -32,6 +32,14 @@
          title="Blocks down, 256 px each. 8 is the cap: the collision grid is 256 cells of 8 px, so right click can never paint past 2048 px.">
   <button id="new" class="go ghost">Start</button>
 
+  <div class="sep"></div>
+
+  <label for="savedsel">Saved maps</label>
+  <select id="savedsel"></select>
+  <button id="openSaved" class="go ghost">Open</button>
+  <input id="savename" placeholder="name this map" title="The map is saved to map-editor\maps\.">
+  <button id="save" class="go">Save</button>
+
   <div id="title">nothing open</div>
 </header>
 
@@ -45,17 +53,66 @@
     <div class="grouphead">The whole pool</div>
     <select id="chunksel"></select>
     <div id="pool" class="tiles"></div>
+
+    <div class="grouphead">Stamps <span id="stamp-count"></span></div>
+    <div id="stamps" class="tiles"></div>
   </section>
 
   <!-- ===== centre: the map ===== -->
   <section class="stage">
+    <div class="bar" id="tools">
+      <button class="tool" data-tool="tile" title="Paint the brush as you drag.">Tile</button>
+      <button class="tool" data-tool="fill"
+              title="Click to flood the ground you click. Drag to fill a box. The brush repeats.">Fill</button>
+      <button class="tool" data-tool="stamp" title="Drop the chosen stamp, with its collision.">Stamp</button>
+      <button class="tool" data-tool="grab"
+              title="Drag a box over art you like. It becomes a stamp you can place anywhere.">Grab</button>
+
+      <label for="size">Size</label>
+      <select id="size"></select>
+      <button id="erase" class="chip" title="Paint the empty tile, which rubs art out.">Eraser</button>
+
+      <div class="sep"></div>
+      <button id="undo" class="chip" title="Ctrl+Z">Undo</button>
+      <button id="redo" class="chip" title="Ctrl+Y">Redo</button>
+      <span id="brushnote"></span>
+    </div>
+
     <div class="bar" id="toolbar">
+      <label for="collmode">Right drag</label>
+      <select id="collmode">
+        <option value="wall">paints solid</option>
+        <option value="floor">paints walkable</option>
+      </select>
+      <button id="floorall" class="chip" title="Open every cell inside the world in one step.">Fill walkable</button>
+      <button id="wallall" class="chip" title="Close every cell in one step.">Fill solid</button>
+      <label class="chip"><input type="checkbox" id="showcoll" checked> Show collision</label>
+
+      <div class="sep"></div>
+      <label for="stampname">Grab name</label>
+      <input id="stampname" placeholder="boulder">
+      <select id="grablayers"
+              title="Scenery leaves the layer you are painting on behind, so a boulder arrives without a square of its own map's ground. Ground takes that layer alone, which is the patch you fill a field with. Every layer copies a piece of map whole.">
+        <option value="scenery">scenery only</option>
+        <option value="ground">ground only</option>
+        <option value="all">every layer</option>
+      </select>
+
+      <div class="sep"></div>
       <label for="zoom">Zoom</label>
       <input id="zoom" type="range" min="1" max="4" step="1" value="1">
       <span id="zoomnote">1x</span>
       <span id="where">cell -, -</span>
     </div>
-    <div class="viewport"><canvas id="map" width="16" height="16"></canvas></div>
+
+    <div class="viewport">
+      <!-- One stack: the map, and an overlay for the collision tint, the brush ghost and the box
+           being dragged. A second canvas, so a hover never recomposites the whole map. -->
+      <div class="stack">
+        <canvas id="map" width="16" height="16"></canvas>
+        <canvas id="overlay" width="16" height="16"></canvas>
+      </div>
+    </div>
     <footer><span id="status" class="info">loading ...</span></footer>
   </section>
 

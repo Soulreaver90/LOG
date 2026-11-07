@@ -69,12 +69,33 @@ canvas.tile:hover { outline: 1px solid var(--gold); }
 #zoomnote, #where { font-family: var(--mono); font-size: 12px; color: var(--mute); }
 #where { margin-left: auto; }
 
+/* The tools row. A chip is a small toggle; .tool is one of the four, and .on is the chosen one. */
+.tool, .chip { border: 1px solid var(--line); border-radius: 6px; padding: 5px 11px;
+               background: var(--panel2); font-size: 13px; }
+.tool.on { background: var(--gold); color: #1a1208; border-color: var(--gold); font-weight: 600; }
+.chip.on { border-color: var(--gold); color: var(--gold); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+.bar .sep { width: 1px; height: 20px; background: var(--line); }
+.bar select, .bar input[type="text"], .bar input:not([type]) {
+  background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 4px 7px; }
+.bar input:not([type]) { width: 110px; }
+#brushnote { font-family: var(--mono); font-size: 11px; color: var(--mute); }
+
+/* The map and its overlay share one content box, so a cell is the same cell on both. */
+.stack { position: relative; display: inline-block; line-height: 0; }
+#overlay { position: absolute; left: 0; top: 0; border: 1px solid transparent;
+           image-rendering: pixelated; pointer-events: none; }
+
 .viewport { flex: 1; overflow: auto; padding: 16px; min-height: 0;
             background-image: linear-gradient(45deg, #1a1a21 25%, transparent 25%),
                               linear-gradient(-45deg, #1a1a21 25%, transparent 25%),
                               linear-gradient(45deg, transparent 75%, #1a1a21 75%),
                               linear-gradient(-45deg, transparent 75%, #1a1a21 75%);
             background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
+/* content-box, against the page reset: the zoom sets the CSS width, and under border-box the
+   1 px border would squeeze the bitmap into two pixels less than it asked for. The cell under the
+   pointer is then wrong near the right and bottom edges, which is unusable in a tile editor. */
+#map, #overlay { box-sizing: content-box; }
 #map { display: block; image-rendering: pixelated; border: 1px solid var(--line);
        background: #000; touch-action: none; }
 

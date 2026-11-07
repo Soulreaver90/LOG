@@ -13,6 +13,16 @@ Routes:  GET /                  the editor page and its files, from THIS folder 
          GET /api/maps          [{zone, area, variations}] from the live map table
          GET /api/map?zone=&area=&var=   {"doc": ..., "problems": [...]} from map_file.read_map
          GET /api/blank?bw=&bh=          the same for a new empty map
+         GET /api/saved         the maps the owner has saved, by name
+         GET /api/load?name=    one of them, through map_file.load
+         POST /api/save         {"name", "doc"} through map_file.save, into maps\
+         GET /api/stamps        the stamp library, every file in library\
+         POST /api/stamp        one grabbed stamp into library\<name>.json
+SAVING:  a saved map goes to maps\<name>.json through map_file.save, which VALIDATES it and
+         refuses to overwrite. The browser never writes the file itself: a download would land in
+         the Downloads folder and would skip the one gate that stops an unsound map reaching a
+         ROM. The stamp library lives in library\, one file per stamp, because it outlives the
+         open map: a stamp grabbed from a game map is placed in a blank one.
 Why a server: a page on file:// cannot fetch its own assets.json, and the ROM reads belong in Python,
          which already owns every structure. The browser composes and nothing else.
 ONE SHAPE: /api/blank calls map_file.blank rather than building a document in JavaScript. A second
@@ -25,6 +35,7 @@ Read-only on the ROM, and nothing here writes under data\.
 """
 import argparse
 import json
+import re
 import sys
 import threading
 import webbrowser
@@ -46,6 +57,70 @@ import tile_stream                                    # noqa: E402
 HERE = Path(__file__).resolve().parent
 ASSETS = HERE / "assets"
 HOST, PORT = "127.0.0.1", 8777
+MAPS_IN, STAMPS_IN = "maps", "library"      # folders beside this file, made on the first save
+UNSAFE = re.compile(r"[^A-Za-z0-9 _-]")     # a name is a file name, so it holds nothing else
+NAME_MAX = 60
+
+
+# ===== saved maps and the stamp library =====
+
+def safe_name(name: str) -> str:
+    """A name with no path in it. A separator or a dot never survives, so no write leaves here."""
+    cleaned = UNSAFE.sub("", (name or "").strip())[:NAME_MAX].strip()
+    if not cleaned:
+        raise ValueError("a name needs a letter or a number. Letters, numbers, spaces, dashes and "
+                         "underscores are kept and everything else is dropped")
+    return cleaned
+
+
+def save_map(doc: dict, name: str, root: Path = HERE) -> Path:
+    """Write a map the owner composed. map_file.save validates it and never overwrites."""
+    folder = root / MAPS_IN
+    folder.mkdir(exist_ok=True)
+    path = folder / f"{safe_name(name)}.json"
+    if path.exists():
+        raise FileExistsError(f'a map called "{path.stem}" is already saved. Pick another name.')
+    map_file.save(doc, path)
+    return path
+
+
+def saved_maps(root: Path = HERE) -> list:
+    folder = root / MAPS_IN
+    return sorted(p.stem for p in folder.glob("*.json")) if folder.is_dir() else []
+
+
+def load_map(name: str, root: Path = HERE) -> dict:
+    return map_file.load(root / MAPS_IN / f"{safe_name(name)}.json")
+
+
+def save_stamp(stamp: dict, root: Path = HERE) -> Path:
+    """One grabbed stamp. The library is files, so it survives the page and the open map."""
+    if not isinstance(stamp, dict) or not isinstance(stamp.get("cells"), dict):
+        raise ValueError("a stamp carries a name, a width, a height and a cells object")
+    folder = root / STAMPS_IN
+    folder.mkdir(exist_ok=True)
+    stamp = {**stamp, "name": safe_name(stamp.get("name"))}
+    path = folder / f"{stamp['name']}.json"
+    if path.exists():
+        raise FileExistsError(f'a stamp called "{stamp["name"]}" is already in the library. '
+                              f"Pick another name.")
+    with open(path, "x", encoding="utf-8") as handle:           # "x": never overwrite
+        json.dump(stamp, handle)
+    return path
+
+
+def stamps(root: Path = HERE) -> list:
+    """Every stamp in the library. A file that will not parse is left out rather than fatal."""
+    folder = root / STAMPS_IN
+    if not folder.is_dir():
+        return []
+    out = []
+    for path in sorted(folder.glob("*.json")):
+        try:
+            out.append(json.loads(path.read_text(encoding="utf-8")))
+        except json.JSONDecodeError:
+            print(f"library: {path.name} will not parse, so it is not offered")
+    return out
 
 
 def map_names() -> dict:
@@ -153,6 +228,21 @@ class Handler(SimpleHTTPRequestHandler):
             bw, bh = number("bw"), number("bh")
             doc = map_file.blank((bw, bh), (bw * map_file.BLOCK_PIXELS, bh * map_file.BLOCK_PIXELS))
             return {"doc": doc, "problems": map_file.validate(doc)}
+        if path == "/api/saved":
+            return {"maps": saved_maps()}
+        if path == "/api/load":
+            doc = load_map(query.get("name", [""])[0])
+            return {"doc": doc, "problems": map_file.validate(doc)}
+        if path == "/api/stamps":
+            return {"stamps": stamps()}
+        return None
+
+    def _write(self, path: str, body: dict) -> dict:
+        if path == "/api/save":
+            return {"saved": save_map(body.get("doc"), body.get("name")).stem,
+                    "maps": saved_maps()}
+        if path == "/api/stamp":
+            return {"kept": save_stamp(body).stem}
         return None
 
     def do_GET(self):                                    # noqa: N802  (the base class names it)
@@ -163,6 +253,19 @@ class Handler(SimpleHTTPRequestHandler):
             payload = self._route(parsed.path, parse_qs(parsed.query))
         except Exception as problem:                     # a bad map number must reach the page, not the log
             return self._json({"error": f"{type(problem).__name__}: {problem}"}, 400)
+        if payload is None:
+            return self._json({"error": f"no route {parsed.path}"}, 404)
+        return self._json(payload)
+
+    def do_POST(self):                                   # noqa: N802  (the base class names it)
+        """The two writes. Every refusal reaches the page as text the owner can act on."""
+        parsed = urlparse(self.path)
+        try:
+            size = int(self.headers.get("Content-Length") or 0)
+            body = json.loads(self.rfile.read(size) or b"{}")
+            payload = self._write(parsed.path, body)
+        except (ValueError, FileExistsError, OSError) as problem:
+            return self._json({"error": f"{problem}"}, 400)
         if payload is None:
             return self._json({"error": f"no route {parsed.path}"}, 404)
         return self._json(payload)
