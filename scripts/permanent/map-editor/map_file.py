@@ -69,7 +69,6 @@ from pathlib import Path
 for _folder in (Path(__file__).resolve().parent, Path(__file__).resolve().parents[1]):
     sys.path.insert(0, str(_folder))                      # -P omits the script folder; scene\ is one up
 
-from rom.webfoot_decompress import decompress             # noqa: E402
 from scene import map_view                                # noqa: E402
 from scene import scene_probe                             # noqa: E402
 import tile_stream                                        # noqa: E402
@@ -85,15 +84,15 @@ BLOCK_PIXELS = BLOCK_TILES * 8
 BLOCK_BYTES = BLOCK_TILES * BLOCK_TILES * 2
 GRID_BYTES = 0x2000                         # the collision and terrain frames, 256 x 256 cells of 8 px
 GRID_CELLS, GRID_STRIDE = 256, 32
-GROUP_MAX = 16                              # the IWRAM group state array holds 16 (bible B1196)
-GROUP_MAX_TILES = 64                        # the group load buffer is 0x1000 bytes (bible B1078)
+GROUP_MAX = scene_probe.GROUP_MAX           # the IWRAM group state array holds 16 (bible B1196)
+GROUP_MAX_TILES = scene_probe.GROUP_MAX_TILES   # the group load buffer is 0x1000 bytes (bible B1078)
 LAYER_NAMES = ("bg0", "bg1", "bg2", "bg3")
 NEW_MAP_PRIORITY = 3                        # a new map draws every layer behind the player
 SCROLL_ONE = scene_probe.SCROLL_ONE         # 0x400 in a layer's +0x04 and +0x08 is 1.0, not a size
 TILE_INDEX = 0x3FF                          # a cell's tile bits; 0x400 and 0x800 flip, 0xF000 unused at 8bpp
 
 L_BLEND, L_ALPHA, L_PRIORITY = 0x00, 0x02, 0x04
-L_CAMERA, L_GROUP_COUNT, L_GROUP_LIST = 0x08, 0x0C, 0x10
+L_CAMERA = 0x08                             # +0x0C and +0x10, the groups, are scene_probe's
 L_UNREAD_30, L_COLLISION, L_TERRAIN, L_UNREAD_3C = 0x30, 0x34, 0x38, 0x3C
 LAYER_BLOCKS = 0x18                         # a BG layer record's first block frame pointer
 
@@ -349,14 +348,7 @@ def load(path: Path) -> dict:
 
 # ===== read a map out of the ROM =====
 
-def _offset(rom: bytes, word: int, what: str) -> int:
-    """The file offset of a ROM pointer, refusing anything that is not one.
-
-    Python takes a negative offset from the END of the ROM, so an unchecked word reads plausible
-    bytes from the wrong place in silence. Every pointer this module follows comes through here."""
-    if not (scene_probe.is_pointer(word) and word - map_view.ROM_BASE < len(rom)):
-        raise ValueError(f"the {what} word is 0x{word:08X}, not a pointer into this ROM")
-    return word - map_view.ROM_BASE
+_offset = scene_probe.rom_offset    # the one pointer guard; every pointer this module follows uses it
 
 
 def _frame(rom: bytes, word: int, what: str, size: int) -> list:
@@ -392,29 +384,16 @@ def _cells(rom: bytes, rec: dict, blocks: tuple) -> list:
 
 
 def _animated(rom: bytes, off: int) -> list:
-    """Every animated group in list order, as decoded pixels. Order is the tick offset (B1078)."""
-    count, lst = scene_probe.u32(rom, off + L_GROUP_COUNT), scene_probe.u32(rom, off + L_GROUP_LIST)
-    if not count or not scene_probe.is_pointer(lst):
-        return []
-    if count > GROUP_MAX:
-        raise ValueError(f"the layout declares {count} animated groups, past the {GROUP_MAX} the "
-                         f"state array holds, so the count word is not a count")
-    out, table = [], _offset(rom, lst, "animated group list")
-    for k in range(count):
-        rec = _offset(rom, scene_probe.u32(rom, table + 4 * k), f"animated group {k}")
-        frames, tiles, first = rom[rec], rom[rec + 1], struct.unpack_from("<H", rom, rec + 2)[0]
-        payload = tiles * TILE_BYTES
-        group = {"first": first, "frames": []}
-        for f in range(frames):
-            at = _offset(rom, scene_probe.u32(rom, rec + 4 + 4 * f),
-                         f"animated group {k} frame {f}")
-            pixels, _packed = decompress(rom, at + 4, limit=max(payload, 0x100))
-            if len(pixels) != payload:
-                raise ValueError(f"animated group {k} frame {f} decodes to {len(pixels)} bytes, "
-                                 f"not the {payload} its {tiles} tiles need")
-            group["frames"].append({"duration": scene_probe.u32(rom, at), "pixels": list(pixels)})
-        out.append(group)
-    return out
+    """Every animated group in list order, as the document holds it. Order is the tick (B1078).
+
+    The read is scene_probe.layout_groups, the one the renderer draws from, so the editor and a
+    picture cannot disagree about a group. This turns its bytes into the JSON shape and drops the
+    ROM offsets, which a document must not carry: a saved offset is dead the moment a build moves
+    the group."""
+    return [{"first": g["first"],
+             "frames": [{"duration": f["duration"], "pixels": list(f["pixels"])}
+                        for f in g["frames"]]}
+            for g in scene_probe.layout_groups(rom, off)]
 
 
 def read_map(rom: bytes, zone: int, area: int, var: int = 1) -> dict:

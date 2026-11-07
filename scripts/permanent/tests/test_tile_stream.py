@@ -72,13 +72,26 @@ class DecodeTests(unittest.TestCase):
                 pairs = tile_stream.decode_payload(payload)
                 self.assertEqual(payload, tile_stream.encode_stream(pairs))
 
-    def test_decode_stream_matches_map_view_tile_for_tile(self):
-        """A count alone would restate the implementation, so every tile's pixels are compared."""
+    def test_the_decode_is_the_section_9_readers_own(self):
+        """One decoder, by identity. A second copy is how two tools come to read one build apart."""
+        self.assertIs(tile_stream.decode_payload, scene_probe.tile_pairs)
+        self.assertIs(tile_stream.TILE_BUDGET, scene_probe.TILE_BUDGET)
+
+    def test_the_address_form_matches_the_offset_form_tile_for_tile(self):
+        """A count alone would restate the implementation, so every tile's pixels are compared.
+
+        This module works in ROM ADDRESSES and the section 9 reader in FILE OFFSETS. The decode is
+        now one function, so what this checks is the conversion between the two forms, which is the
+        real trap: a stray ROM_BASE reads a plausible stream from the wrong end of the file.
+
+        map_view.tiles is no longer the comparison. It returns the VRAM SLOT list, the static
+        stream plus every animated group, and on map 6,99 five groups overwrite slots 1 to 49.
+        test_map_view owns that shape."""
         for zone, area in ROUND_TRIP_MAPS:
             with self.subTest(map=f"{zone},{area}"):
                 layout = layout_of(zone, area)
                 pairs = tile_stream.decode_stream(ROM, layout)
-                expected = map_view.tiles(ROM, layout)
+                expected = scene_probe.static_tiles(ROM, layout - map_view.ROM_BASE)
                 self.assertEqual(len(expected), len(pairs))
                 self.assertEqual(expected,
                                  tile_stream.tiles_of(ROM, pairs,
@@ -132,8 +145,8 @@ class MixedSourceTests(unittest.TestCase):
             runs.append((this, positions[:16], chunk))
 
         mixed = [pairs[m][i] for m, positions, _chunk in runs for i in positions]
-        expected = [map_view.tiles(ROM, layout_of(*m))[i] for m, positions, _chunk in runs
-                    for i in positions]
+        expected = [scene_probe.static_tiles(ROM, layout_of(*m) - map_view.ROM_BASE)[i]
+                    for m, positions, _chunk in runs for i in positions]
         # Through the codec, not around it: the payload is what a built map would really carry.
         shipped = tile_stream.decode_payload(tile_stream.encode_stream(mixed))
         self.assertEqual(mixed, shipped)

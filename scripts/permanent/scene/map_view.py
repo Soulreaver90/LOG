@@ -1,17 +1,29 @@
 r"""
-map_view.py - Render a map (BG layers, collision, items, warps) to a PNG, with optional planned actor spots.
+map_view.py - Render a map to a PNG: BG layers, collision, BOTH door carriers, props and actor spots.
 
 Usage:   py -3.14 -P scripts\permanent\scene\map_view.py --map 8,1 --out <path>.png
          py -3.14 -P scripts\permanent\scene\map_view.py --map 9,1 --var 1 --layers ground --out ground.png
          py -3.14 -P scripts\permanent\scene\map_view.py --map 9,1 --actor 312,400,Piccolo --actor 344,400,Gohan \
              --out plan.png
          --layers full (default), ground (BG2+BG3), over (BG0+BG1). --no-collision leaves the red tint off.
-         --no-items leaves the warp and scene boxes off. --rom <path> reads a build instead of the base ROM.
+         --no-items leaves the door, region and prop boxes off. --rom <path> reads a build.
 Output:  the PNG you name, and a short report on stdout. The tool never writes to the ROM.
-Reads:   map table rom:0x409368 (327 entries of 56 bytes), entry +0x2C layout per variation, layout +0x14 to
-         +0x20 the four BG layer records, +0x34 the collision frame, +0x48 and +0x4C the tile stream and
-         table. Collision is 1 bit an 8x8 cell, set = open (collision_test @0x08005D6C). BG0 and BG1 carry
-         priority 1 and draw over the actors; BG2 and BG3 carry 3. All CONFIRMED (bible CSV, BMG rows).
+Reads:   every map structure through scene_probe, the section 9 reader, so one decoder serves both tools.
+         scene_probe resolves the map table from the literal at rom:0xEBD8 and its count from rom:0xE0AE,
+         so `--rom <a build>` reads THAT build's table and finds an appended map such as 6,100.
+         Then entry +0x2C layout per variation, layout +0x14 to +0x20 the four BG layer records, +0x24
+         and +0x28 the props, +0x34 the collision frame, +0x40 and +0x44 the door list, +0x48 and +0x4C
+         the tile stream and table, +0x0C and +0x10 the ANIMATED tile groups. A group DMAs its tiles
+         to its own VRAM slots, usually past the static stream, and the render draws each group's
+         FIRST frame there. Drawing the stream alone left 509 false cells on one map alone.
+         Collision is 1 bit an 8x8 cell, set = open (collision_test
+         @0x08005D6C). BG0 and BG1 carry priority 1 and draw over the actors; BG2 and BG3 carry 3.
+         All CONFIRMED (bible CSV, BMG, WRP, EFX rows).
+Boxes:   BLUE a door from the LAYOUT door list, CYAN a door from the REGION list, YELLOW a scene or
+         script region, MAGENTA a layout prop, GREEN an actor spot you named. A map carries doors in two
+         places and this tool draws both, each in its own colour, so the two can never be confused.
+Size:    a layer record's +4 and +8 are a SCROLL FACTOR, 0x400 = 1.0, NOT a width and height. The map
+         bounds come from the block grid of the layers that scroll 1 to 1 (scene_probe.map_bounds).
 Method:  the geometry is copied from the card 4 scripts (scripts\one-time\2026-10-24-beam-struggle
          render_map.py and the 2026-10-25-chapter-cards presave_lib.py), not imported: a one-time folder is
          not a dependency a permanent tool may take.
@@ -32,12 +44,19 @@ from rom.webfoot_decompress import unpack_frame                   # noqa: E402
 ROOT = Path(__file__).resolve().parents[3]
 BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
 ROM_BASE, BG_PAL = 0x08000000, 0x1DA4C8
-MAP_TABLE, MAP_COUNT, MAP_SIZE = 0x409368, 327, 56
-LAYER_OFFSETS = (0x14, 0x18, 0x1C, 0x20)        # BG0, BG1, BG2, BG3
-LAYER_VTABLE = 0x080056A1                       # a layer record whose first word is this one draws
+# No map table constant lives here on purpose: scene_probe.map_entry resolves it from the ROM it is
+# given, so a build whose table has moved reads its own. A copy of the base address would read a dead one.
+TOOL_INDEX_NOTE = ("**It draws BOTH door carriers, each in its own colour**: blue a door from the LAYOUT "
+                   "list (`+0x40`/`+0x44`), cyan a door from the REGION list (entry `+0x10`), yellow a "
+                   "scene or script region, magenta a layout PROP (`+0x24`/`+0x28`). The map bounds come "
+                   "from the block grid, never from the layer `+4`/`+8` scroll factor. It reads every "
+                   "structure through `scene_probe`, and `--rom <a build>` finds an appended map.")
+LAYER_OFFSETS = scene_probe.L_LAYERS                      # BG0, BG1, BG2, BG3
+LAYER_VTABLE = scene_probe.LAYER_TILEMAP                  # a layer record whose first word is this one draws
 GROUND, OVER, FULL = (3, 2), (1, 0), (3, 2, 1, 0)
 COLLISION_TINT, COLLISION_ALPHA = (255, 0, 0), 110
-WARP_BOX, SCENE_BOX, ACTOR_DOT = (0, 160, 255), (255, 200, 0), (0, 255, 120)
+LAYOUT_DOOR_BOX, REGION_DOOR_BOX = (0, 120, 255), (0, 240, 255)
+SCENE_BOX, PROP_BOX, ACTOR_DOT = (255, 200, 0), (255, 0, 220), (0, 255, 120)
 ACTOR_R = 4
 
 
@@ -63,23 +82,21 @@ def palette(rom: bytes) -> list:
 
 
 def layout_of(rom: bytes, entry: int, var: int = 1) -> int:
-    """The layout address of one variation (1-based): entry +0x2C is an array of layout pointers."""
-    return _at(rom, u32(rom, entry + 0x2C) + 4 * (var - 1))
+    """The layout ADDRESS of one variation (1-based). scene_probe.layouts walks the chain; this tool
+    works in addresses, so it adds the base back. One walker, so two tools cannot read one build apart."""
+    chain = scene_probe.layouts(rom, entry)
+    if not chain or var > len(chain) or chain[var - 1] is None:
+        raise ValueError(f"map entry rom:0x{entry:X} has no layout for variation {var}")
+    return chain[var - 1] + ROM_BASE
 
 
 def tiles(rom: bytes, layout: int) -> list:
-    """The 8x8 tile pixels of this layout, in index order. The index stream is delta coded."""
-    stream = frame(rom, _at(rom, layout + 0x48))
-    idx = list(struct.unpack(f"<{len(stream) // 2}H", stream))
-    for i in range(1, len(idx)):
-        idx[i] = (idx[i] + idx[i - 1] + 1) & 0xFFFF
-    table, chunks, out = _at(rom, layout + 0x4C), {}, []
-    for e in idx:
-        hi, lo = e >> 8, e & 0xFF
-        if hi not in chunks:
-            chunks[hi] = frame(rom, _at(rom, table + 4 * hi))
-        out.append(chunks[hi][64 * lo:64 * lo + 64])
-    return out
+    """Every VRAM tile slot this layout loads, indexed by the slot a BG cell names.
+
+    The static +0x48 stream fills slots 0 upward and each animated group fills its own span, which
+    usually sits past the stream. An unloaded slot in between is b"". The decode is
+    scene_probe.loaded_tiles, the section 9 reader's own, so no second copy can read a map apart."""
+    return scene_probe.loaded_tiles(rom, layout - ROM_BASE)
 
 
 def mask_of(img: Image.Image) -> Image.Image:
@@ -88,7 +105,10 @@ def mask_of(img: Image.Image) -> Image.Image:
 
 
 def layer(rom: bytes, rec: int, tl: list, pal: list) -> tuple:
-    """(image, (w, h, blocks x, blocks y)) for one BG layer record."""
+    """(image, (scroll x, scroll y, blocks x, blocks y)) for one BG layer record.
+
+    +4 and +8 are a SCROLL FACTOR, 0x400 = 1.0 (bible tag BMS), not a width and height. The picture
+    is as big as the block grid, and the map bounds come from scene_probe.map_bounds."""
     w, h = _at(rom, rec + 4), _at(rom, rec + 8)
     bx, by = rom[rec - ROM_BASE + 0x14], rom[rec - ROM_BASE + 0x15]
     img = Image.new("P", (bx * 256, by * 256), 0)
@@ -105,7 +125,7 @@ def layer(rom: bytes, rec: int, tl: list, pal: list) -> tuple:
             if n >= len(tl):
                 continue
             px = tl[n]
-            if not any(px):
+            if not any(px):            # an unloaded slot is b"", and an all-zero tile is transparent
                 continue
             tile = Image.frombytes("P", (8, 8), bytes(px))
             if e & 0x400:
@@ -126,13 +146,11 @@ def layers(rom: bytes, layout: int) -> tuple:
 
 
 def collision(rom: bytes, layout: int) -> bytes:
-    return frame(rom, _at(rom, layout + 0x34))
+    """The collision bits of a layout ADDRESS, through the one decoder in scene_probe."""
+    return scene_probe.collision_bits(rom, layout - ROM_BASE)[2]
 
 
-def is_open(bits: bytes, x: int, y: int) -> bool:
-    """collision_test @0x08005D6C: byte cy x 32 + (cx >> 3), bit cx & 7, set = open, 8 px cells."""
-    cx, cy = x >> 3, y >> 3
-    return 0 <= cx < 256 and 0 <= cy < 256 and bool(bits[cy * 32 + (cx >> 3)] >> (cx & 7) & 1)
+is_open = scene_probe.is_open             # collision_test @0x08005D6C, the one model (bible tag CSV)
 
 
 # ===== render =====
@@ -171,11 +189,17 @@ def render(rom: bytes, zone: int, area: int, var: int = 1, which: tuple = FULL,
     if not live:
         raise ValueError(f"map {zone},{area} var {var}: no BG layer draws anything")
     size = (max(v[0].size[0] for v in live), max(v[0].size[1] for v in live))
-    w, h = (ls[2][1][0], ls[2][1][1]) if ls[2] else size
+    # The map bounds are the block grid of the layers that scroll 1 to 1. A layer's +4 and +8 are a
+    # SCROLL FACTOR (0x400 = 1.0), and reading them as a size cropped every map to 1024x1024: it cut
+    # map 9,1's right edge off and padded map 6,1 with 512 px of black.
+    bw, bh = scene_probe.map_bounds(rom, layout - ROM_BASE)
+    w, h = bw or size[0], bh or size[1]       # 2 of 327 maps have no scroll-1.0 layer: fall back to the art
     img = compose(ls, which, size)
     lines = [f"map {zone},{area} var {var}  entry rom:0x{entry:X}  layout 0x{layout:08X}  map {w}x{h}"]
     for n, v in ls.items():
-        lines.append(f"  bg{n}: " + ("none" if v is None else f"{v[1][0]}x{v[1][1]} blocks {v[1][2]}x{v[1][3]}"))
+        lines.append(f"  bg{n}: " + ("not a tilemap layer" if v is None else
+                                     f"blocks {v[1][2]}x{v[1][3]} = {v[1][2] * 256}x{v[1][3] * 256} px, "
+                                     f"scroll 0x{v[1][0]:X}/0x{v[1][1]:X}"))
     if show_collision:
         bits = collision(rom, layout)
         tint, mask = Image.new("RGB", (8, 8), COLLISION_TINT), Image.new("L", (8, 8), COLLISION_ALPHA)
@@ -188,18 +212,36 @@ def render(rom: bytes, zone: int, area: int, var: int = 1, which: tuple = FULL,
         lines.append(f"  collision: {closed} closed cells of {(w // 8) * (h // 8)} (red tint)")
     if show_items:
         info = scene_probe.map_items(rom, zone, area)
-        for cond, it in info["regions"]:
-            colour = WARP_BOX if it["kind"] == "warp" else SCENE_BOX
-            _box(img, it["rect"], colour)
-            lines.append(f"  region cond 0x{cond:08X} {it['kind']} rect {it['rect']}"
+        # DOOR CARRIER B first, because it holds 586 of the game's 655 doors and no tool drew it before.
+        doors = scene_probe.layout_doors(rom, layout - ROM_BASE)
+        lines.append(f"  LAYOUT door list (layout +0x40/+0x44): {len(doors['doors'])} door(s) of a "
+                     f"declared {doors['count']} [blue]")
+        for n, it in enumerate(doors["doors"]):
+            _box(img, it["rect"], LAYOUT_DOOR_BOX)
+            lines.append(f"    door {n} rom:0x{it['at']:X} rect {it['rect']} -> map "
+                         f"{it['to'][0]},{it['to'][1]} var {it['to'][2]} at {it['landing']}")
+        # DOOR CARRIER A. A region is not a door unless its factory says so, which is the label this
+        # tool got wrong: every region box used to be called a warp.
+        region_doors = sum(1 for _c, it in info["regions"] if it["kind"] == "warp")
+        lines.append(f"  REGION list (entry +0x10): {len(info['regions'])} region(s), {region_doors} of "
+                     f"them door(s) [cyan door, yellow other]")
+        for n, (cond, it) in enumerate(info["regions"]):
+            _box(img, it["rect"], REGION_DOOR_BOX if it["kind"] == "warp" else SCENE_BOX)
+            lines.append(f"    region {n} cond 0x{cond:08X} {'DOOR' if it['kind'] == 'warp' else it['kind']}"
+                         f" rect {it['rect']}"
                          + (f" -> map {it['to'][0]},{it['to'][1]} at {it['landing']}"
                             if it["kind"] == "warp" else
                             f" -> table rom:0x{it['table']:X}" if it["kind"] == "scene" else ""))
         for it in info["items"]:
             if it["kind"] in ("warp", "scene", "script"):
-                _box(img, it["rect"], WARP_BOX if it["kind"] == "warp" else SCENE_BOX)
+                _box(img, it["rect"], REGION_DOOR_BOX if it["kind"] == "warp" else SCENE_BOX)
             if it["kind"] == "group" and "table" in it:
                 lines.append(f"  group item rom:0x{it['at']:X} -> table rom:0x{it['table']:X}")
+        props = scene_probe.layout_props(rom, layout - ROM_BASE)
+        lines.append(f"  layout props (layout +0x24/+0x28): {len(props)} [magenta]")
+        for n, p in enumerate(props):
+            _box(img, p["rect"], PROP_BOX)
+            lines.append(f"    prop {n} rom:0x{p['at']:X} rect {p['rect']} tile 0x{p['tile']:X}")
     for x, y, label in actors or []:
         for dx in range(-ACTOR_R, ACTOR_R + 1):
             for dy in range(-ACTOR_R, ACTOR_R + 1):

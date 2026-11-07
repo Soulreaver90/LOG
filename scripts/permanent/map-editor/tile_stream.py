@@ -21,7 +21,10 @@ Mixing:  all 336 layouts the base ROM's map table reaches point +0x4C at the one
 Trap:    a BUILD may relocate the chunk table. On r40 map 14,4 names its own table at 0x0890A92C.
          So read a real layout's table with chunk_table_of, and treat CHUNK_TABLE as the pool a
          NEW layout should name, never as the table a layout in hand must have.
-Read-only on the ROM. Tile reads go through scene\map_view, so one reader serves both tools.
+One copy: the delta decode and the chunk walk live in `scene\scene_probe`, the section 9 reader, and
+         this module is their ADDRESS form plus the ENCODE the editor needs. `decode_payload` IS
+         `scene_probe.tile_pairs`, so the editor and the renderer cannot read one stream apart.
+Read-only on the ROM.
 """
 import struct
 import sys
@@ -30,11 +33,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
 
 from scene import map_view                                    # noqa: E402
+from scene import scene_probe                                 # noqa: E402
 
 # ===== CONFIG =====
-TILE_BUDGET = 0x700 // 2        # Map_LoadLayer decodes the list into a 0x700 byte stack buffer
+TILE_BUDGET = scene_probe.TILE_BUDGET   # Map_LoadLayer decodes the list into a 0x700 byte buffer
 CHUNK_TABLE = 0x084DF574        # the shared pool, 168 frames: what a NEW layout names, not a given
-TILE_BYTES = 64                 # an 8x8 tile at 8bpp
+TILE_BYTES = scene_probe.TILE_BYTES     # an 8x8 tile at 8bpp
 STREAM_PTR, TABLE_PTR = 0x48, 0x4C      # layout +0x48 the compressed tile list, +0x4C its chunk table
 
 
@@ -51,19 +55,7 @@ def _pointer_at(rom: bytes, address: int) -> int:
 
 # ===== codec =====
 
-def decode_payload(payload: bytes) -> list:
-    """The (chunk, tile) pair of every entry of a delta coded +0x48 payload, in load order.
-
-    An odd length is refused rather than truncated. The loader would drop the stray byte, so a
-    truncating reader agrees with the game and still hides the real fault, which is a frame that
-    is not a tile list at all."""
-    if len(payload) % 2:
-        raise ValueError(f"a {len(payload)} byte payload is not a whole u16 list")
-    count = len(payload) // 2
-    entries = list(struct.unpack(f"<{count}H", payload))
-    for i in range(1, count):
-        entries[i] = (entries[i] + entries[i - 1] + 1) & 0xFFFF
-    return [(e >> 8, e & 0xFF) for e in entries]
+decode_payload = scene_probe.tile_pairs   # the one decode, section 9's own; this module adds the encode
 
 
 def decode_stream(rom: bytes, layout: int) -> list:
@@ -100,16 +92,8 @@ def tiles_of(rom: bytes, pairs: list, table: int) -> list:
     a build that moved the table would then read a dead one. map_view keeps no map table constant
     for the same reason.
 
-    A tile past the end of its chunk raises. No vanilla tile does it, measured over all 336 base
-    layouts, and a short slice would otherwise travel into a stream the editor writes and only
-    show up as missing pixels in game."""
-    chunks, out = {}, []
-    for chunk, tile in pairs:
-        if chunk not in chunks:
-            chunks[chunk] = map_view.frame(rom, _pointer_at(rom, table + 4 * chunk))
-        pixels = chunks[chunk][TILE_BYTES * tile:TILE_BYTES * (tile + 1)]
-        if len(pixels) != TILE_BYTES:
-            raise ValueError(f"chunk {chunk} holds {len(chunks[chunk]) // TILE_BYTES} tiles, "
-                             f"so tile {tile} runs past its end")
-        out.append(pixels)
-    return out
+    The walk itself is scene_probe.chunk_tiles, the one the renderer uses, so a borrowed tile
+    cannot look one way here and another in a picture. This wrapper owns the ADDRESS form and the
+    range check that catches a file offset arriving where an address belongs."""
+    _pointer_at(rom, table)
+    return scene_probe.chunk_tiles(rom, pairs, table - map_view.ROM_BASE)
