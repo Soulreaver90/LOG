@@ -23,6 +23,7 @@ import tile_stream                                                          # no
 ROM = map_view.BASE.read_bytes()
 ROUND_TRIP_MAPS = ((14, 1), (7, 15), (4, 50), (6, 99))
 MIXED_MAPS = ((14, 1), (7, 15))
+LAYOUT_COUNT = 336              # layouts the base ROM's map table reaches over zones 0-19, areas 0-119
 
 
 def layout_of(zone: int, area: int) -> int:
@@ -114,8 +115,11 @@ class MixedSourceTests(unittest.TestCase):
         self.assertEqual(expected, tile_stream.tiles_of(ROM, mixed))
 
     def test_every_vanilla_layout_names_the_one_chunk_table(self):
-        """A per map chunk table would sink mixing, so the claim is checked on all of them."""
-        tables = set()
+        """A per map chunk table would sink mixing, so the claim is checked on all of them.
+
+        The count is pinned as well: a sweep that quietly stopped finding layouts would otherwise
+        pass on the handful it still reached."""
+        tables, found = set(), 0
         for zone in range(20):
             for area in range(120):
                 try:
@@ -126,6 +130,8 @@ class MixedSourceTests(unittest.TestCase):
                 for layout in chain or []:
                     if layout is not None:
                         tables.add(map_view.u32(ROM, layout + 0x4C))
+                        found += 1
+        self.assertEqual(LAYOUT_COUNT, found)
         self.assertEqual({tile_stream.CHUNK_TABLE}, tables)
 
 

@@ -42,7 +42,7 @@ def _pointer_at(rom: bytes, address: int) -> int:
 # ===== codec =====
 
 def decode_payload(payload: bytes) -> list:
-    """The (chunk, tile) pair of every entry of an undelta-ed +0x48 payload, in load order."""
+    """The (chunk, tile) pair of every entry of a delta coded +0x48 payload, in load order."""
     count = len(payload) // 2
     entries = list(struct.unpack(f"<{count}H", payload[:2 * count]))
     for i in range(1, count):
@@ -58,8 +58,8 @@ def decode_stream(rom: bytes, layout: int) -> list:
 def encode_stream(pairs: list) -> bytes:
     """The +0x48 frame payload for these pairs, in the order given.
 
-    The delta is masked to 16 bits, which is what lets a stream repeat a tile or fall: the loader
-    adds in u16 and never checks, so the inverse of the decode is exact for any order."""
+    The delta is masked to 16 bits, which is what lets a stream repeat a tile or step backwards:
+    the loader adds in u16 and never checks, so this is the exact inverse of the decode."""
     if len(pairs) > TILE_BUDGET:
         raise ValueError(f"{len(pairs)} tiles is over the {TILE_BUDGET} tile budget of the loader")
     out, previous = [], None
