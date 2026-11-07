@@ -33,6 +33,7 @@ const SHEET_COLUMNS = 32;
 
 let sheet = null;          // the four flip variants, side by side: x = flips * sheetWidth
 let sheetSlots = 0;
+let sheetHeight = 0;       // one variant's height, which the vertical flip mirrors around
 const layerCanvas = {};    // name -> canvas, one per BG layer of the open document
 
 export function sheetCanvas() {
@@ -120,6 +121,7 @@ export async function buildSheet(doc, assets, atlasFor) {
     out.restore();
   }
   sheetSlots = budget;
+  sheetHeight = height;
   return sheet;
 }
 
@@ -130,7 +132,7 @@ function cellSource(cell, sheetWidth) {
   const flips = (cell & FLIP_X ? 1 : 0) | (cell & FLIP_Y ? 2 : 0);
   let [x, y] = slotBox(slot);
   if (flips & 1) x = sheetWidth - x - TILE;
-  if (flips & 2) y = Math.ceil(sheetSlots / SHEET_COLUMNS) * TILE - y - TILE;
+  if (flips & 2) y = sheetHeight - y - TILE;
   return [flips * sheetWidth + x, y];
 }
 
@@ -146,7 +148,7 @@ export function layerSize(doc) {
 */
 export function drawLayer(doc, name, box) {
   const [width, height] = layerSize(doc);
-  if (!layerCanvas[name] || layerCanvas[name].width !== width) {
+  if (!layerCanvas[name] || layerCanvas[name].width !== width || layerCanvas[name].height !== height) {
     layerCanvas[name] = blank(width, height);
   }
   const ctx = layerCanvas[name].getContext("2d");
