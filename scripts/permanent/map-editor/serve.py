@@ -5,6 +5,10 @@ Usage:   py -3.14 -P scripts\permanent\map-editor\serve.py
          It exports the tile assets on a first run, then opens http://127.0.0.1:8777/ in a browser.
          --port N picks another port. --no-browser skips the open. --rom PATH serves a build instead
          of the base ROM, so an appended map can be opened.
+--rom:   the tile atlases are exported ONCE, from the base ROM's chunk pool. A build may give a map
+         its own chunk table, as r40's map 14,4 does at 0x0890A92C, and that map's chunk k is then
+         not the base pool's chunk k. /api/map reports that as a problem rather than drawing the
+         wrong art in silence. See borrowed_pool.
 Routes:  GET /                  the editor page and its files, from THIS folder only
          GET /api/maps          [{zone, area, variations}] from the live map table
          GET /api/map?zone=&area=&var=   {"doc": ..., "problems": [...]} from map_file.read_map
@@ -36,6 +40,7 @@ from scene import map_view                            # noqa: E402
 from scene import scene_probe                         # noqa: E402
 import export_assets                                  # noqa: E402
 import map_file                                       # noqa: E402
+import tile_stream                                    # noqa: E402
 
 # ===== CONFIG =====
 HERE = Path(__file__).resolve().parent
@@ -62,6 +67,22 @@ def map_names() -> dict:
     return names
 
 
+def borrowed_pool(rom: bytes, zone: int, area: int, var: int) -> list:
+    """A problem when this map's chunk table is not the pool the atlases were exported from.
+
+    The atlases come from the BASE ROM's pool at tile_stream.CHUNK_TABLE, once. A build may give a
+    map its own table: r40's map 14,4 names 0x0890A92C. That map's chunk k is then NOT the base
+    pool's chunk k, and the page would draw the wrong art with no sign of it, which is the spec's
+    anti-goal. So it is reported, and the map still opens."""
+    _index, entry = scene_probe.map_entry(rom, zone, area)
+    table = tile_stream.chunk_table_of(rom, map_view.layout_of(rom, entry, var))
+    if table == tile_stream.CHUNK_TABLE:
+        return []
+    return [f"map {zone},{area} names its own chunk table at 0x{table:08X}, and the tile atlases "
+            f"come from the base pool at 0x{tile_stream.CHUNK_TABLE:08X}. Every tile this map "
+            f"draws may be the wrong one. Re-export the assets from this ROM to edit it."]
+
+
 def map_list(rom: bytes) -> list:
     """Every map in THIS ROM's table, in table order, with the variation count the picker shows.
 
@@ -75,6 +96,17 @@ def map_list(rom: bytes) -> list:
         out.append({"zone": zone, "area": area, "variations": rom[at + 0x02],
                     "name": names.get(f"{zone},{area}", "")})
     return out
+
+
+class Server(ThreadingHTTPServer):
+    """One server per port, loudly.
+
+    ThreadingHTTPServer sets allow_reuse_address, and on Windows that lets a SECOND process bind a
+    port a first process already holds. Measured 2026-11-07: a second run on 8777 started with no
+    error while the first was serving, and the two then split the requests between them. A stale
+    server left by an earlier session would therefore answer some of the owner's reads from an old
+    ROM. Refusing the bind makes that a message on the console instead."""
+    allow_reuse_address = False
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -113,8 +145,10 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/maps":
             return {"maps": map_list(self.rom)}
         if path == "/api/map":
-            doc = map_file.read_map(self.rom, number("zone"), number("area"), number("var", 1))
-            return {"doc": doc, "problems": map_file.validate(doc)}
+            zone, area, var = number("zone"), number("area"), number("var", 1)
+            doc = map_file.read_map(self.rom, zone, area, var)
+            return {"doc": doc,
+                    "problems": borrowed_pool(self.rom, zone, area, var) + map_file.validate(doc)}
         if path == "/api/blank":
             bw, bh = number("bw"), number("bh")
             doc = map_file.blank((bw, bh), (bw * map_file.BLOCK_PIXELS, bh * map_file.BLOCK_PIXELS))
@@ -138,7 +172,7 @@ def ensure_assets() -> None:
     """Export the tile atlases on a first run. Without them the page opens with an empty palette."""
     if (ASSETS / "assets.json").exists():
         return
-    print(f"exporting the tile assets to {ASSETS} (first run, about a minute)")
+    print(f"exporting the tile assets to {ASSETS} (first run: 168 atlases, 1 MB, measured 1.5 s)")
     export_assets.export(map_view.BASE.read_bytes(), ASSETS)
 
 
@@ -152,7 +186,13 @@ def main(argv: list) -> None:
     ensure_assets()
     Handler.rom = args.rom.read_bytes()
     url = f"http://{HOST}:{args.port}/"
-    with ThreadingHTTPServer((HOST, args.port), partial(Handler)) as httpd:
+    try:
+        httpd = Server((HOST, args.port), partial(Handler))
+    except OSError as problem:
+        print(f"cannot serve on port {args.port}: {problem}\n"
+              f"another map editor is probably still running. Stop it, or pass --port.")
+        return
+    with httpd:
         print(f"map editor on {url}   ROM: {args.rom.name}   Ctrl+C to stop")
         if not args.no_browser:
             threading.Timer(0.5, webbrowser.open, (url,)).start()
