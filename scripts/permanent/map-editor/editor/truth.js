@@ -219,6 +219,9 @@ function wireDrag(canvas) {
     if (!mine(event)) return;
     event.stopPropagation();
     event.preventDefault();
+    // Capture, so a release over the right pane or a scrollbar still comes back here. A synthetic
+    // event carries no live pointer id, and refusing to capture one must not stop the drag.
+    try { canvas.setPointerCapture(event.pointerId); } catch (ignored) { void ignored; }
     const at = mapPoint(event);
     const inside = at.x >= box.x && at.x < box.x + VIEW_W && at.y >= box.y && at.y < box.y + VIEW_H;
     drag = inside ? { dx: at.x - box.x, dy: at.y - box.y } : { dx: VIEW_W / 2, dy: VIEW_H / 2 };
@@ -227,6 +230,10 @@ function wireDrag(canvas) {
 
   stack.addEventListener("pointermove", (event) => {
     if (!drag) return;
+    // No button down means the release happened somewhere this listener never saw. End the drag
+    // and let the event through: a drag left open follows a bare hand AND eats the tools' next
+    // stroke, because the lines below would stop their pointerup.
+    if (event.buttons === 0) { drag = null; return; }
     event.stopPropagation();
     const at = mapPoint(event);
     place(at.x - drag.dx, at.y - drag.dy);
@@ -238,6 +245,8 @@ function wireDrag(canvas) {
       event.stopPropagation();
       drag = null;
     }, true);
+    // The last resort, outside the map entirely, where nothing is left to stop.
+    window.addEventListener(kind, () => { drag = null; });
   }
 }
 
