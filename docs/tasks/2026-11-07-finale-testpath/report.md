@@ -29,8 +29,8 @@ builds\mockups\2026-11-07-finale\log2_gameover_v1.sav
 2. **Hold Up for about half a second, then press A.** The farewell starts at once.
 3. **Tap A** through the farewell, the Shenron wishes, Goku's goodbye and Gohan's flight home.
 4. **Tap A** through the credits. They roll over East District 439 and they are long.
-5. Trunks arrives in the future and fights **Android 18**, then **Android 17**, then **Cell on the
-   plateau**. Take a save state when the Cell fight starts: no save point lies between the farewell and
+5. Trunks arrives in the future and fights **Android 18**, then **Android 17** (EXPECTED: I never saw
+   17's fight, see section 5), then **Cell on the plateau**. No save point lies between the farewell and
    the ending (B0985), so a loss costs the whole run.
 6. To see the game-over cards, lose to Cell.
 
@@ -39,8 +39,9 @@ map 9,1 is about **3,400 frames**, and the A press on Dende to Trunks arriving o
 about **23,400 more**, roughly **6 and a half minutes** of game time.
 
 > [!WARNING]
-> Punching Android 18 did no measurable damage in my runs, and the ki blast killed her. Section 5 holds
-> the measurement. If the pad feels useless against her, use B.
+> **Take a save state the moment the Android 18 fight starts, as well as when Cell's does.** Every macro
+> run on the real-strength save lost that fight, and there is no save point behind it. Section 5 holds
+> the numbers.
 
 ---
 
@@ -171,6 +172,10 @@ Slots 1 and 2 hold the same state on purpose. No save point lies between the far
 | actor walk | `set 28` (Imperfect Cell, B1207) at (244,504), player `set 133` at (248,568) |
 | the fight live | `scratch\capture\job_21_cellbar-20261107-160354\shots\y_last.png`, the boss bar up |
 
+**The Android 17 fight was never observed.** `set 9` was still on the map at frame 67,719 with the boss
+bar at 0 px, gone by frame 68,007, and the map read `0764` by frame 68,295. No shot and no bar reading
+shows a fight with him. What removed him is unmeasured, so owner step 5 names him as EXPECTED.
+
 **Both game-over cards, in play.** `scratch\capture\finale22_loss-20261107-160637`.
 
 | Shot | What it holds |
@@ -196,12 +201,19 @@ also closes its open link: nothing overwrote `0x03002080` between HP 0 and the t
 | walk, then punch, 48 punches at STR 200.00 | the boss bar moved **0 pixels** of 212 |
 | walk, then **ki blast (B)**, about 24 presses | the bar emptied and `set 11` left the world |
 
-**The melee punch did no measurable damage to the ending's Android 18, and the ki blast killed her.**
-CONFIRMED for the ki blast: the bar's red pixel count went 212, then 0, and the actor left the world
-list. LIKELY for the punch doing nothing: 48 punches at a boosted STR moved the bar by zero pixels,
-which is the measurement, but no damage handler was read.
+**The ki blast killed her. CONFIRMED**: about 24 B presses at POW 200.00 took the bar's red pixel count
+from 212 to 0 and removed `set 11` from the world.
 
-**This is a finding for whoever owns `future_androids`. I changed nothing in it.**
+**The punch result is a measurement, not a cause.** 48 punch presses at STR 200.00 moved the bar 0 px of
+212, and that is all it says. Three causes are still open and my data separates none of them:
+
+1. **Contact.** She knocks the player back, so each round ended 63 to 147 px away against a 26 px reach.
+   How many of the 48 presses were made in contact is unknown.
+2. **A STR overflow.** STR 200.00 could wrap the same way END 200.00 appears to.
+3. **The punch doing no damage to her.**
+
+The ki blast worked from range, which fits all three. **Nothing here was tried at the level 40 stats**,
+so this is not yet a finding about `future_androids`, and I changed nothing in it.
 
 Two more things showed on the real-strength save, and both are flagged, not fixed.
 
@@ -262,13 +274,19 @@ preset carries the ordinary level 40 party.
 Two capture tests check BizHawk's own file format rather than my code: the real state's crc32 and the
 zip entry names. If BizHawk changes either, those tests fail instead of the guard going quiet.
 
+**Full suite: 1632 tests, 365 s, exit 1.** One failure, three skips, one expected failure. The failure
+is `test_battle_start.BattleStartTests.test_form_survives_the_leader_change`, the known one named in my
+brief. The `test_future_androids` death-table failure that my brief also named PASSED on this run. Three
+other agents were editing the tree while it ran, so read the result with that in mind.
+
 ---
 
 ## 8. What I could not prove, and the next levers
 
 | Open question | State |
 |---|---|
-| Why the punch does nothing to Android 18 | LIKELY, from the bar pixel count only. No damage handler read. It belongs to the `future_androids` owner |
+| Whether the punch can hurt Android 18 | Open. 48 presses moved the bar 0 px, but contact and a STR 200.00 overflow are both unruled out, and level 40 stats were never tried |
+| The Android 17 fight | Never observed. `set 9` left the world with the bar at 0 px and 7,100 followed about 288 frames later |
 | Why Super Saiyan reverts mid-fight | Not measured. The ki pool at EP 135 is a guess |
 | Why END 200.00 got Trunks killed | Not measured. The unsigned-damage reading fits and no handler was read |
 | The Cell fight at real strength | Never played. Every run past Android 18 used the boosted party |
