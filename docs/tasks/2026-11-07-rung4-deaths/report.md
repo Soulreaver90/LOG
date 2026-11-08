@@ -835,7 +835,7 @@ record itself chose. Android 17's anchor is his object `+0x158`.
 > returns the axis the game put in `V_HX` and the stop the game put in Android 17's anchor, to the
 > pixel, on all three. So the census numbers above are game numbers, not model numbers.
 
-Two traps this measurement walked into first, both now in the bible:
+Two traps this measurement walked into first, both written up in `rows.md` for the bible merge:
 
 1. **Do not infer the player's spot from the camera.** He keeps moving, so a camera read and an
    actor dump taken a few steps apart disagree by tens of pixels. Read `0x03001FB0` instead.
@@ -849,12 +849,14 @@ object `0x0202F220` holds (496.0, 515.5), which is the camera plus (112,80) exac
 ### 12.5 Two questions the brief asked, answered from RAM and from the handler
 
 1. **Does Android 17 hold (520,408) through the whole Android 18 fight?** Yes. Three EWRAM dumps
-   taken after the arrival scene, after Trunks walked 150 px east, and after he walked to the far
-   west all show his object at exactly (520,408). He moves only when the death record moves him.
-2. **Does `ext 104` build the enemy where he ended up?** Yes. `Sprite_ReplaceWithEntry` @0x0800AAC6
-   removes the live NPC of that set and builds the item **at the removed NPC's position and facing**,
-   so the item's own (520,408) is only what the item reads on disk. The Android 17 fight therefore
-   starts where he walked to, not where he spawned.
+   show his object at exactly (520,408): one right after the arrival scene, one with Trunks standing
+   at (640,503) after walking the length of the plaza, and one taken two frames into the east fight.
+   He moves only when the death record moves him.
+2. **Does `ext 104` build the enemy where he ended up?** CONFIRMED from the handler, LIKELY from
+   RAM. `Sprite_ReplaceWithEntry` @0x0800AAC6 removes the live NPC of that set and builds the item
+   **at the removed NPC's position and facing**, so the item's own (520,408) is only what the item
+   reads on disk. In the east run the NPC slot clears and `0x0202F028` then sits at (383,401), on
+   the stop's own row, which fits but is not a sprite I watched appear.
 
 ### 12.6 What v10 does NOT prove
 
@@ -866,9 +868,11 @@ object `0x0202F220` holds (496.0, 515.5), which is the camera plus (112,80) exac
 2. **I could not drive Trunks to a south-of-17 finish.** The notch is one cell wide.
 3. **The clear-path score samples the straight line in 8 px steps.** A keep-out narrower than 8 px
    between two samples would not be seen.
-4. **A ki blast flies the way Trunks faces.** Four capture runs ended on map 7,100, the respawn,
-   because the lead ended facing away from Android 18. That is a capture limitation, not a defect
-   in the build, but it means every finish I photographed is one Trunks could win from.
+4. **Four capture runs ended on map 7,100, the respawn, and I did not isolate why.** B advances the
+   dialogue as well as attacking, so a job that keeps pressing B after the kill walks into the
+   Android 17 fight and can lose that one instead. Facing is a candidate and is not proven: one run
+   that faced Android 18 and was aligned within 7 px still ended there. It is a capture limitation
+   either way, not a finding about the build.
 
 ### 12.7 What the owner should check when he plays v10
 
@@ -895,4 +899,15 @@ same message as on the v7, v8 and v9 runs. It names no file of mine and the brie
 > count moved from 1,647 on v9 to 1,703, which is that agent's work, not mine. A green run taken
 > during another agent's edits can hide a real failure, so this exit code should be read again on a
 > quiet tree before the wave closes.
+
+### 12.9 Three things about this task's files
+
+1. **The one-time tools are gitignored.** `landing_census.py`, `make_v8_jobs.py` and `side_fit.py`
+   live under `scripts\one-time6-11-07-rung4-deaths\`, which `.gitignore` excludes, so the
+   census is reproducible from the working tree only.
+2. **`docsuild-log.md` carries three scratch builds to drop:** `v10try.gba`, `repro_v10.gba` and
+   `repro2_v10.gba`. The last two are the reproducibility checks, both SHA-1
+   `081bf247ff83863b0ecb69b202f398c98a48820f`, the second taken after a comment-only edit.
+3. **`build-log.md` and `docsacklogctive-todos.md` are NOT in this task's commits.** Both carry
+   other agents' edits as well as mine, so they are left for the controller.
 
