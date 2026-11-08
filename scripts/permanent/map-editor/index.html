@@ -41,7 +41,22 @@
   <button id="save" class="go">Save</button>
 
   <div id="title">nothing open</div>
+  <!-- Unsaved state must be visible without reading the status line, which the next message
+       overwrites. This marker stays up until a Save. -->
+  <div id="dirty" class="marker"></div>
 </header>
+
+<!--
+  The offer, shown only when an autosave is newer than the saved map of the same name. It is a bar
+  of its own and not a status message, because status() is replaced by the next thing that happens
+  and this question must wait for an answer.
+-->
+<div id="restore" class="restorebar" hidden>
+  <span id="restore-text"></span>
+  <select id="restoresel"></select>
+  <button id="restore-go" class="go">Restore it</button>
+  <button id="restore-no" class="go ghost">Leave it</button>
+</div>
 
 <div class="app">
 
@@ -91,11 +106,21 @@
       <div class="sep"></div>
       <label for="stampname">Grab name</label>
       <input id="stampname" placeholder="boulder">
+      <!--
+        These three name LAYERS, not kinds of thing. The game splits one picture across layers, so
+        a grab of one layer comes back with a hole wherever the art sat on another. The option text
+        names the selected layer at run time, in panes.js, because which layer it means changes.
+      -->
       <select id="grablayers"
-              title="Scenery leaves the layer you are painting on behind, so a boulder arrives without a square of its own map's ground. Ground takes that layer alone, which is the patch you fill a field with. Every layer copies a piece of map whole.">
-        <option value="scenery">scenery only</option>
-        <option value="ground">ground only</option>
+              title="Every layer but this one leaves the layer you are painting on behind, so a boulder arrives without a square of its own map's ground. This layer only takes that one layer, which is the patch you fill a field with. Every layer copies the piece of map whole, holes and all, and is the setting that never loses art.">
+        <option value="scenery">every layer but this one</option>
+        <option value="ground">this layer only</option>
         <option value="all">every layer</option>
+      </select>
+      <select id="grabcoll"
+              title="A rock wants its collision, so the player walks around it. A patch of ground or a piece of scenery wants none: a stamp writes a wall into every cell the grab found solid, including the cells where it draws nothing.">
+        <option value="take">with its collision</option>
+        <option value="none">art only, no collision</option>
       </select>
 
       <div class="sep"></div>

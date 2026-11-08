@@ -23,16 +23,25 @@ export const DEPTH = 200;          // steps kept. 200 strokes of a 16 x 16 brush
 
 const done = [];                   // strokes that happened, oldest first
 const undone = [];                 // strokes stepped back, newest last
-let changed = () => {};
+const listeners = [];              // the tools row redraws, and the autosave starts its clock
 
+/*
+  Every listener hears the REASON. "clear" is a new document arriving, which is the one change
+  that must NOT mark the page dirty or write an autosave: the document on screen is the one the
+  server just handed over, and keeping a copy of it would offer it back as unsaved work.
+*/
 export function onChange(fn) {
-  changed = fn;
+  listeners.push(fn);
+}
+
+function fire(reason) {
+  for (const fn of listeners) fn(reason);
 }
 
 export function clear() {
   done.length = 0;
   undone.length = 0;
-  changed();
+  fire("clear");
 }
 
 /* Record a stroke. A new stroke drops the redo stack, which is what every editor does. */
@@ -40,14 +49,14 @@ export function push(before, after, boxes, label) {
   done.push({ before, after, boxes, label });
   if (done.length > DEPTH) done.shift();
   undone.length = 0;
-  changed();
+  fire("push");
 }
 
 export function undo() {
   const entry = done.pop();
   if (!entry) return null;
   undone.push(entry);
-  changed();
+  fire("undo");
   return { patch: entry.before, boxes: entry.boxes, label: entry.label, back: true };
 }
 
@@ -55,7 +64,7 @@ export function redo() {
   const entry = undone.pop();
   if (!entry) return null;
   done.push(entry);
-  changed();
+  fire("redo");
   return { patch: entry.after, boxes: entry.boxes, label: entry.label, back: false };
 }
 

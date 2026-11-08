@@ -26,12 +26,13 @@
   so the owner can see which half is his to spend.
 */
 import {
-  state, subscribe, setDoc, setView, status,
+  state, subscribe, setDoc, setView, status, markClean,
   drawOrder, loadedSlots, groupTiles, cameraPair, gridCell, layerShiftCells,
 } from "./state.js";
 import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas } from "./render.js";
 import * as tools from "./tools.js";
 import * as truth from "./truth.js";
+import * as autosave from "./autosave.js";
 
 const BLOCK_CAP = 8;       // 8 blocks is 2048 px, which is where the 256 cell collision grid stops
 const THUMB = 48;          // the stamp preview box in the left pane, in CSS px
@@ -169,13 +170,63 @@ function paintStamps() {
     view.style.width = `${Math.max(8, Math.round(view.width * scale))}px`;
     view.style.height = `${Math.max(8, Math.round(view.height * scale))}px`;
     view.title = `${stamp.name}  ${stamp.w} x ${stamp.h} cells`
-                 + (stamp.collision ? ", carries its collision" : "");
+                 + (stamp.collision ? ", carries its collision" : ", no collision");
     drawStamp(view.getContext("2d"), stamp);
     view.draggable = true;
     view.ondragstart = (event) =>
       event.dataTransfer.setData("text/plain", JSON.stringify({ kind: "stamp", name: stamp.name }));
     view.onclick = () => { tools.pickStamp(stamp.name); tools.setTool("stamp"); };
-    list.append(view);
+
+    const box = document.createElement("figure");
+    box.className = "stamp";
+    const acts = document.createElement("div");
+    acts.className = "stampacts";
+    if (stamp.collision) acts.append(stampAction("no wall", "strip",
+      `Drop the collision from "${stamp.name}". It then paints art and no wall at all.`,
+      () => stripStamp(stamp.name)));
+    acts.append(stampAction("delete", "drop",
+      `Remove "${stamp.name}" from the library. The file moves to library\\deleted\\.`,
+      () => removeStamp(stamp.name)));
+    box.append(view, acts);
+    list.append(box);
+  }
+}
+
+function stampAction(label, kind, hint, run) {
+  const button = document.createElement("button");
+  button.className = `stampact ${kind}`;
+  button.textContent = label;
+  button.title = hint;
+  button.onclick = (event) => { event.stopPropagation(); run(); };
+  return button;
+}
+
+/*
+  Both of these ask first, and both are recoverable by hand: the server MOVES the old file into
+  library\deleted\ rather than unlinking it. He spends minutes grabbing a stamp, so a misclick
+  must cost a trip to a folder and never the stamp.
+*/
+async function removeStamp(name) {
+  if (!window.confirm(`Delete the stamp "${name}"?\n\n`
+                      + "The file moves to map-editor\\library\\deleted\\, so it can be put back "
+                      + "by hand.")) return;
+  try {
+    await tools.deleteStamp(name);
+    status(`deleted "${name}". Its file is in library\\deleted\\.`, "good");
+  } catch (problem) {
+    status(`"${name}" was NOT deleted: ${problem.message}`, "bad");
+  }
+}
+
+async function stripStamp(name) {
+  if (!window.confirm(`Drop the collision from the stamp "${name}"?\n\n`
+                      + "It will then place art alone and write no wall. The stamp as it is now "
+                      + "is kept in map-editor\\library\\deleted\\.")) return;
+  try {
+    await tools.stripStampCollision(name);
+    status(`"${name}" now carries no collision. The old copy is in library\\deleted\\.`, "good");
+  } catch (problem) {
+    status(`"${name}" was NOT changed: ${problem.message}`, "bad");
   }
 }
 
@@ -211,11 +262,15 @@ function paintTools() {
   $("erase").classList.toggle("on", now.brush.name === "eraser");
   $("collmode").value = now.collisionPaint;
   $("showcoll").checked = now.showCollision;
-  // The two layer-aware options name the layer the brush paints on, so neither needs explaining.
+  // These two name LAYERS and not kinds of thing, and which layer they mean moves with the
+  // selection. The game splits one picture across layers: on map 7,15 there are cells where BG3
+  // draws nothing and BG1 or BG2 draws the art, so a grab of one layer comes back with a hole
+  // there. Naming the layer in the option is what tells him which half he is taking.
   const here = state.view.selected.toUpperCase();
-  $("grablayers").options[0].textContent = `scenery, not ${here}`;
+  $("grablayers").options[0].textContent = `every layer but ${here}`;
   $("grablayers").options[1].textContent = `${here} only`;
   $("grablayers").value = now.grabLayers;
+  $("grabcoll").value = now.grabCollision;
   $("undo").disabled = !now.undo.done;
   $("redo").disabled = !now.undo.undone;
   $("brushnote").textContent = `brush: ${now.brush.name}`
@@ -392,6 +447,22 @@ async function show(payload, title) {
          payload.problems.length ? "bad" : "good");
 }
 
+/*
+  REPLACING THE OPEN DOCUMENT IS A WAY OUT OF IT, exactly like a reload. beforeunload covers
+  leaving the page and nothing covered this: Open a copy, Start and Open both threw the open map
+  away without a word. So every one of them asks first, and whatever he decides, the work reaches
+  the disk before the new map arrives.
+*/
+async function leaveOpenMap(what) {
+  if (!state.dirty) return true;
+  const keep = window.confirm(`"${state.title}" has changes that are not saved.\n\n`
+                              + `${what}\n\nThe changes are kept in map-editor\\autosave\\ either `
+                              + "way, and can be restored. Press Save first to keep them as a map.");
+  if (!keep) return false;
+  await autosave.flush();
+  return true;
+}
+
 async function ask(url, title) {
   status(`reading ${title} ...`);
   const payload = await (await fetch(url)).json();
@@ -442,25 +513,96 @@ async function fillSavedPicker(names) {
 async function saveMap() {
   if (!state.doc) return;
   const name = $("savename").value.trim() || state.title;
+  const under = state.title;                  // the title the autosaves were written under
   let answer;
+  // Stop the clock and let any autosave in flight land first, so the two writes cannot cross.
+  await autosave.quiet();
   try {
     answer = await (await fetch("/api/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, doc: state.doc }),
+      body: JSON.stringify({ name, doc: state.doc, retire: under }),
     })).json();
   } catch (problem) {
     // A stopped server must say so here. Silence on a Save is how a morning's work is lost.
     status(`the map was NOT saved: ${problem}. Is serve.py still running?`, "bad");
+    await autosave.flush();              // quiet() stopped the clock, so restart the net by hand
     return;
   }
   if (answer.error) {
+    // A refused save keeps BOTH the dirty flag and the autosave. Nothing is retired until the
+    // real file exists, so the net stays under him exactly while he still needs it.
     status(answer.error, "bad");
+    await autosave.flush();
     return;
   }
   await fillSavedPicker(answer.maps);
   $("savedsel").value = answer.saved;
+  // The document is now this saved map, so later autosaves key to the name it was saved under.
+  state.title = answer.saved;
+  $("title").textContent = answer.saved;
+  markClean();
+  autosave.forget();
   status(`saved as "${answer.saved}", in map-editor\\maps\\${answer.saved}.json`, "good");
+}
+
+// ===== unsaved work: the marker, and the offer of an autosave on start =====
+
+/*
+  The marker is in the HEADER and not on the status line, because status() is replaced by the next
+  thing that happens and the question "is my work safe" must be answerable at any moment. The tab
+  title carries it too, so a tab in the background still says so.
+*/
+function paintMarker() {
+  const note = autosave.info();
+  const marker = $("dirty");
+  if (note.failure) {
+    marker.className = "marker lost";
+    marker.textContent = `unsaved and NOT kept: ${note.failure}`;
+  } else if (!state.dirty) {
+    marker.className = "marker";
+    marker.textContent = state.doc ? "no unsaved changes" : "";
+  } else {
+    marker.className = "marker unsaved";
+    marker.textContent = note.at ? `unsaved, kept at ${autosave.clockText(note.at)}`
+                                 : "unsaved, keeping it ...";
+  }
+  document.title = state.dirty ? "* LOG Map Editor" : "LOG Map Editor";
+}
+
+/*
+  An autosave newer than the saved map of the same name is work that exists nowhere else. It is
+  OFFERED and never loaded: on the morning after a good Save, loading the newest autosave by
+  itself would hand back a half-finished experiment, and the first stroke would write over it.
+*/
+async function offerRestore() {
+  const found = await autosave.candidates();
+  if (!found.length) return;
+  $("restoresel").replaceChildren(...found.map((row) => {
+    const option = document.createElement("option");
+    option.value = row.name;
+    option.textContent = `${row.title}  (${autosave.clockText(row.at)}`
+                         + `${row.saved_at ? ", newer than the saved map" : ", never saved"})`;
+    return option;
+  }));
+  $("restore-text").textContent = found.length === 1
+    ? "Unsaved work from a previous session is here:"
+    : `${found.length} pieces of unsaved work from previous sessions are here:`;
+  $("restore").hidden = false;
+  status(`${found.length} piece(s) of unsaved work were kept. Restore one, or leave it and it `
+         + "stays in map-editor\\autosave\\.", "bad");
+}
+
+async function restoreChosen() {
+  const name = $("restoresel").value;
+  if (!await leaveOpenMap(`Restore "${name}" instead?`)) return;
+  try {
+    await autosave.restore(name);
+    $("restore").hidden = true;
+    status(`restored "${state.title}" from the autosave. It is NOT saved yet: press Save.`, "good");
+  } catch (problem) {
+    status(`"${name}" was NOT restored: ${problem.message}`, "bad");
+  }
 }
 
 // ===== start =====
@@ -485,6 +627,9 @@ export async function start() {
   // The truth panel takes the same kind of host as the tools, so neither file imports this one
   // and the three cannot form an import cycle. It reads the camera rule out of map_file.py here.
   await truth.install({ addOverlay, paintOverlay, refreshCounts, canvas });
+  // The net under every unsaved change. It hooks the history and the dirty flag, so no edit in
+  // any other file has to remember to call it.
+  autosave.install({ paintMarker, show });
 
   await loadAssets();
   $("budget").textContent = state.assets.tile_budget;
@@ -500,16 +645,18 @@ export async function start() {
   }));
   $("chunksel").onchange = () => paintPool(Number($("chunksel").value));
 
-  $("open").onclick = () => {
+  $("open").onclick = async () => {
     const [zone, area] = $("mapsel").value.split(",");
+    if (!await leaveOpenMap(`Open map ${zone},${area} instead?`)) return;
     ask(`/api/map?zone=${zone}&area=${area}&var=1`, `map ${zone},${area}`);
   };
-  $("new").onclick = () => {
+  $("new").onclick = async () => {
     // Clamped, not only limited by the input's max: a typed value ignores max. The collision grid
     // is 256 cells of 8 px, so a map past 8 blocks takes art that right click can never reach.
     const blocks = (id) => Math.min(Math.max(Number($(id).value) || 1, 1), BLOCK_CAP);
     const bw = blocks("bw");
     const bh = blocks("bh");
+    if (!await leaveOpenMap(`Start a new ${bw} x ${bh} block map instead?`)) return;
     $("bw").value = bw;
     $("bh").value = bh;
     // A blank map is solid everywhere, so the red wash covers it and everything painted on it is
@@ -520,8 +667,11 @@ export async function start() {
     });
   };
   $("zoom").oninput = () => setView({ zoom: Number($("zoom").value) });
-  $("openSaved").onclick = () =>
-    ask(`/api/load?name=${encodeURIComponent($("savedsel").value)}`, $("savedsel").value);
+  $("openSaved").onclick = async () => {
+    const name = $("savedsel").value;
+    if (!await leaveOpenMap(`Open the saved map "${name}" instead?`)) return;
+    ask(`/api/load?name=${encodeURIComponent(name)}`, name);
+  };
   $("save").onclick = saveMap;
 
   for (const button of document.querySelectorAll(".tool")) {
@@ -532,6 +682,13 @@ export async function start() {
   $("collmode").onchange = () => tools.setCollisionPaint($("collmode").value);
   $("showcoll").onchange = () => tools.setShowCollision($("showcoll").checked);
   $("grablayers").onchange = () => tools.setGrabLayers($("grablayers").value);
+  $("grabcoll").onchange = () => tools.setGrabCollision($("grabcoll").value);
+  $("restore-go").onclick = restoreChosen;
+  $("restore-no").onclick = () => {
+    $("restore").hidden = true;
+    status("the kept work stays in map-editor\\autosave\\. Composing another map of the same name "
+           + "moves it into autosave\\older\\ rather than over it.", "info");
+  };
   $("floorall").onclick = () => tools.fillCollision(true);
   $("wallall").onclick = () => tools.fillCollision(false);
   $("undo").onclick = () => tools.undo();
@@ -549,5 +706,7 @@ export async function start() {
     $("status").textContent = state.status.text;
     $("status").className = state.status.kind;
   });
+  subscribe("dirty", paintMarker);
   status("ready. Open a game map, or start a blank one.", "good");
+  await offerRestore();                  // last, so its message is the one left on the line
 }

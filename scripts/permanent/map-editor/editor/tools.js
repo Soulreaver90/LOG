@@ -67,6 +67,7 @@ let brush = { kind: "tile", name: "chunk 0 tile 0", pair: [0, 0] };
 let collisionPaint = "wall";            // what right drag writes: "wall" closes, "floor" opens
 let showCollision = true;
 let grabLayers = "scenery";             // which layers a grab takes: scenery, ground or all
+let grabCollision = "take";             // whether a grab keeps the collision under the box
 let library = [];                       // the stamps, which outlive the open map
 let stroke = null;                      // the open recorder, between pointerdown and pointerup
 let drag = null;                        // a box drag: fill rectangle, or grab
@@ -88,8 +89,8 @@ export function reset() {
 }
 
 export function current() {
-  return { tool, brushSize, brush, collisionPaint, showCollision, grabLayers, library,
-           sizes: BRUSH_SIZES, undo: history.counts() };
+  return { tool, brushSize, brush, collisionPaint, showCollision, grabLayers, grabCollision,
+           library, sizes: BRUSH_SIZES, undo: history.counts() };
 }
 
 /*
@@ -107,6 +108,22 @@ export function setGrabLayers(which) {
   host.refreshTools();
 }
 
+/*
+  WHETHER A GRAB KEEPS THE COLLISION. "take" is the default because it is right for a rock: the
+  player must walk around it wherever it lands. It is wrong for a patch of ground and for most
+  scenery, because a stamp writes a wall into EVERY cell the grab found solid, including the cells
+  where the stamp draws nothing at all, and the owner then has invisible walls in his map.
+*/
+export function setGrabCollision(which) {
+  grabCollision = which;
+  host.refreshTools();
+}
+
+/*
+  Which layers a grab reads. These are LAYERS and not kinds of thing: "ground" is the one layer
+  selected right now, and "scenery" is every other layer. The names are the owner's words for what
+  he uses each setting for, and the option text in the page names the actual layer.
+*/
 function grabs(layer) {
   if (grabLayers === "all") return true;
   const ground = layer === state.view.selected;
@@ -567,6 +584,7 @@ function grabStamp(name, x0, y0, x1, y1) {
   const spans = groupSpans();
   const tiles = doc().tiles;
   const cells = {};
+  const drawn = new Uint8Array(w * h);      // did ANY layer taken put art in this cell
   let skipped = 0;
   let kept = 0;
 
@@ -587,6 +605,7 @@ function grabStamp(name, x0, y0, x1, y1) {
         if (slotIsBlank(slot)) continue;
         const flips = value & (FLIP_X | FLIP_Y);
         list[y * w + x] = [tiles[slot][0], tiles[slot][1], flips];
+        drawn[y * w + x] = 1;
         any = true;
         kept += 1;
       }
@@ -605,7 +624,13 @@ function grabStamp(name, x0, y0, x1, y1) {
       if (open) anyOpen = true;
     }
   }
-  return { stamp: { name, w, h, cells, collision: anyOpen ? bits : null }, skipped, kept };
+  // A CELL THE GRAB LEFT EMPTY IS WORTH SAYING OUT LOUD. The game splits one picture across
+  // layers, so a grab that reads only some of them comes back with a hole wherever the art sat on
+  // a layer it did not read. The hole is invisible in the box and plain in the stamp.
+  const blank = drawn.reduce((total, cell) => total + (cell ? 0 : 1), 0);
+  const take = grabCollision === "take";
+  return { stamp: { name, w, h, cells, collision: take && anyOpen ? bits : null },
+           skipped, kept, blank, took: Object.keys(cells) };
 }
 
 // ===== the stamp library, which outlives the open map =====
@@ -748,8 +773,51 @@ async function finishGrab(x0, y0, x1, y1) {
   brush = { kind: "stamp", name, stamp: made.stamp };
   setTool("stamp");
   const note = made.skipped ? `, ${made.skipped} animated cell(s) left out` : "";
+  // The blank count, and where the missing art probably is. A hole in a stamp reads as a defect
+  // in the grab, and it is nearly always the layer choice: another layer holds that art.
+  const hole = made.blank
+    ? `. ${made.blank} cell(s) came out EMPTY: nothing drew there on `
+      + `${made.took.map((l) => l.toUpperCase()).join(", ") || "any layer taken"}`
+      + (grabLayers === "all" ? ". That ground is empty in the map itself."
+                              : ", and another layer may hold that art. Try every layer.")
+    : "";
   status(`grabbed "${name}", ${made.stamp.w} x ${made.stamp.h} cells, ${made.kept} of them art`
-         + `${made.stamp.collision ? ", with its collision" : ""}${note}`, "good");
+         + `${made.stamp.collision ? ", with its collision" : ", no collision"}${note}${hole}`,
+         made.blank ? "info" : "good");
+}
+
+// ===== changing a stamp that is already in the library =====
+
+/*
+  The file MOVES into library\deleted\ on the server. A stamp costs minutes of hunting a real map,
+  so neither of these can be a one-way door. The brush is reset when it was holding the stamp,
+  because a brush pointing at a library entry that is gone places nothing and says nothing.
+*/
+export async function deleteStamp(name) {
+  const answer = await (await fetch("/api/stamp/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  })).json();
+  if (answer.error) throw new Error(answer.error);
+  library = library.filter((s) => s.name !== name);
+  if (brush.kind === "stamp" && brush.name === name) pickEraser();
+  host.refreshTools();
+}
+
+/* Drop a stamp's collision, so it places art and writes no wall. The old file is kept. */
+export async function stripStampCollision(name) {
+  const answer = await (await fetch("/api/stamp/strip", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  })).json();
+  if (answer.error) throw new Error(answer.error);
+  library = library.map((s) => (s.name === name ? answer.stamp : s));
+  if (brush.kind === "stamp" && brush.name === name) {
+    brush = { kind: "stamp", name, stamp: answer.stamp };
+  }
+  host.refreshTools();
 }
 
 // ===== the overlay: collision, the brush ghost, and the box being dragged =====

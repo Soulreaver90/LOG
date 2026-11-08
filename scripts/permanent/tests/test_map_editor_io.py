@@ -1,5 +1,5 @@
 r"""
-test_map_editor_io.py - The editor's two writes: a saved map, and the stamp library.
+test_map_editor_io.py - The editor's writes: a saved map, the stamp library, and the autosave.
 
 Run (absolute paths, because no tool in this project may cd):
   py -3.14 -P -m unittest discover -s <LOG>\scripts\permanent\tests -t <LOG>\scripts\permanent ^
@@ -8,13 +8,20 @@ Run (absolute paths, because no tool in this project may cd):
 Everything here writes into a temporary folder. Nothing writes under data\, and no ROM is opened
 except the one read map_file already does at import.
 
-These are the helpers serve.py's two POST routes call. The HTTP layer is a handful of lines around
+These are the helpers serve.py's POST routes call. The HTTP layer is a handful of lines around
 them; the rules that matter, which are that a saved map is VALIDATED, that nothing is ever
 overwritten and that a name can never carry a path, live here.
+
+THE AUTOSAVE BREAKS TWO OF THOSE RULES ON PURPOSE, and the tests below pin which two. It is not
+validated, because work in progress is often not sound yet and refusing to keep it is the failure
+the folder exists to stop. It IS overwritten, because its job is to hold the newest state. What
+keeps that safe is the session id: a write from another session moves the file aside first.
 """
 import json
+import os
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -95,6 +102,157 @@ class StampLibraryTests(unittest.TestCase):
 
     def test_the_library_is_empty_before_the_first_grab(self):
         self.assertEqual(serve.stamps(self.folder), [])
+
+
+class StampRemovalTests(unittest.TestCase):
+    """Deleting a stamp, and dropping a stamp's collision. Neither is a one-way door."""
+
+    def setUp(self):
+        self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.deleted = self.folder / "library" / "deleted"
+        serve.save_stamp(dict(STAMP), self.folder)
+
+    def test_a_deleted_stamp_moves_into_deleted_and_leaves_the_library(self):
+        moved = serve.delete_stamp("boulder", self.folder)
+        self.assertEqual(moved.parent, self.deleted)
+        self.assertEqual(json.loads(moved.read_text(encoding="utf-8"))["name"], "boulder")
+        self.assertEqual(serve.stamps(self.folder), [])
+        self.assertFalse((self.folder / "library" / "boulder.json").exists())
+
+    def test_nothing_under_deleted_is_ever_offered_again(self):
+        """stamps() globs library\\*.json, which is not recursive. This pins that it stays so."""
+        self.deleted.mkdir(parents=True, exist_ok=True)
+        (self.deleted / "old one.json").write_text(json.dumps({**STAMP, "name": "old one"}),
+                                                   encoding="utf-8")
+        self.assertEqual([s["name"] for s in serve.stamps(self.folder)], ["boulder"])
+
+    def test_deleting_a_stamp_that_is_not_there_is_refused(self):
+        with self.assertRaises(FileNotFoundError):
+            serve.delete_stamp("no such stamp", self.folder)
+
+    def test_a_second_stamp_of_one_name_never_overwrites_the_first_deleted_copy(self):
+        first = serve.delete_stamp("boulder", self.folder)
+        serve.save_stamp({**STAMP, "collision": [0, 0, 0, 0]}, self.folder)
+        second = serve.delete_stamp("boulder", self.folder)
+        self.assertNotEqual(first, second)
+        self.assertEqual(json.loads(first.read_text(encoding="utf-8"))["collision"], [1, 0, 0, 1])
+
+    def test_stripping_a_stamp_drops_its_collision_and_keeps_the_old_copy(self):
+        stamp = serve.strip_stamp("boulder", self.folder)
+        self.assertIsNone(stamp["collision"])
+        kept = serve.stamps(self.folder)
+        self.assertEqual(len(kept), 1)
+        self.assertIsNone(kept[0]["collision"])
+        self.assertEqual(kept[0]["cells"], STAMP["cells"])          # the art is untouched
+        old = list(self.deleted.glob("*.json"))
+        self.assertEqual(len(old), 1)
+        self.assertEqual(json.loads(old[0].read_text(encoding="utf-8"))["collision"], [1, 0, 0, 1])
+
+    def test_stripping_a_stamp_that_carries_no_collision_keeps_no_extra_copy(self):
+        serve.strip_stamp("boulder", self.folder)
+        serve.strip_stamp("boulder", self.folder)
+        self.assertEqual(len(list(self.deleted.glob("*.json"))), 1)
+
+
+class AutosaveTests(unittest.TestCase):
+    """The net under unsaved work. Nothing here is validated and nothing here is a saved map."""
+
+    def setUp(self):
+        self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.doc = map_file.blank((2, 2), (512, 512))
+
+    def keep(self, title="map 7,15", session="one", doc=None):
+        return serve.autosave_write({"name": title, "session": session,
+                                     "doc": self.doc if doc is None else doc}, self.folder)
+
+    def test_an_autosave_comes_back_whole(self):
+        self.keep()
+        record = serve.autosave_read("map 7 15", self.folder)
+        self.assertEqual(record["doc"], self.doc)
+        self.assertEqual(record["title"], "map 7,15")
+
+    def test_an_unsound_document_is_kept_anyway(self):
+        """The one place in this tool that keeps an unsound map. Refusing it is the lost evening."""
+        broken = map_file.blank((2, 2), (512, 512))
+        broken["world"] = [4096, 4096]
+        self.assertTrue(map_file.validate(broken))
+        self.keep(doc=broken)
+        self.assertEqual(serve.autosave_read("map 7 15", self.folder)["doc"], broken)
+
+    def test_the_same_session_overwrites_in_place(self):
+        self.keep()
+        self.keep(doc={**self.doc, "schema": map_file.SCHEMA, "marker": 2})
+        self.assertEqual(serve.autosave_read("map 7 15", self.folder)["doc"]["marker"], 2)
+        self.assertFalse((self.folder / "autosave" / "older").exists())
+
+    def test_another_session_moves_the_first_aside_before_it_writes(self):
+        """A second tab, or a page that was offered this file and did not take it."""
+        self.keep(session="one")
+        answer = self.keep(session="two", doc={**self.doc, "marker": 2})
+        self.assertTrue(answer["moved"])
+        older = list((self.folder / "autosave" / "older").glob("*.json"))
+        self.assertEqual(len(older), 1)
+        self.assertEqual(json.loads(older[0].read_text(encoding="utf-8"))["session"], "one")
+        self.assertEqual(serve.autosave_read("map 7 15", self.folder)["doc"]["marker"], 2)
+
+    def test_an_autosave_is_never_a_saved_map(self):
+        self.keep()
+        self.assertEqual(serve.saved_maps(self.folder), [])
+
+    def test_two_titles_that_differ_only_in_punctuation_stay_apart(self):
+        self.assertNotEqual(serve.autosave_key("map 7,15"), serve.autosave_key("map 71,5"))
+
+    def test_a_title_cannot_carry_a_path(self):
+        self.keep(title="../../escaped")
+        self.assertEqual([p.name for p in (self.folder / "autosave").glob("*.json")],
+                         ["escaped.json"])
+
+    def test_one_with_no_saved_map_is_always_offered(self):
+        self.keep()
+        offered = serve.autosaves(self.folder)
+        self.assertEqual([row["name"] for row in offered], ["map 7 15"])
+        self.assertIsNone(offered[0]["saved_at"])
+
+    def test_one_older_than_its_saved_map_is_not_offered(self):
+        """He saved the map after that autosave, so it holds nothing he does not already have."""
+        self.keep(title="field")
+        serve.save_map(self.doc, "field", self.folder)
+        os.utime(self.folder / "maps" / "field.json", (time.time() + 60, time.time() + 60))
+        self.assertEqual(serve.autosaves(self.folder), [])
+
+    def test_one_newer_than_its_saved_map_is_offered(self):
+        serve.save_map(self.doc, "field", self.folder)
+        os.utime(self.folder / "maps" / "field.json", (time.time() - 60, time.time() - 60))
+        self.keep(title="field")
+        self.assertEqual([row["name"] for row in serve.autosaves(self.folder)], ["field"])
+
+    def test_a_file_that_will_not_parse_is_left_out_rather_than_fatal(self):
+        (self.folder / "autosave").mkdir(parents=True, exist_ok=True)
+        (self.folder / "autosave" / "half written.json").write_text("{", encoding="utf-8")
+        self.keep()
+        self.assertEqual([row["name"] for row in serve.autosaves(self.folder)], ["map 7 15"])
+
+    def test_retiring_moves_the_net_aside_and_stops_the_offer(self):
+        self.keep(title="field")
+        self.assertTrue(serve.autosave_retire("field", self.folder))
+        self.assertEqual(serve.autosaves(self.folder), [])
+        self.assertEqual(len(list((self.folder / "autosave" / "older").glob("*.json"))), 1)
+
+    def test_retiring_when_there_is_nothing_to_retire_says_so(self):
+        self.assertFalse(serve.autosave_retire("field", self.folder))
+
+    def test_a_save_retires_the_autosave_only_when_the_file_is_written(self):
+        """The order the route runs in: save first, retire after. A refused save keeps its net."""
+        self.keep(title="field")
+        broken = map_file.blank((2, 2), (512, 512))
+        broken["world"] = [4096, 4096]
+        with self.assertRaises(ValueError):
+            serve.save_map(broken, "field", self.folder)
+        self.assertEqual([row["name"] for row in serve.autosaves(self.folder)], ["field"])
+
+    def test_reading_an_autosave_that_is_not_there_is_refused(self):
+        with self.assertRaises(FileNotFoundError):
+            serve.autosave_read("nothing", self.folder)
 
 
 class StampShapeTests(unittest.TestCase):

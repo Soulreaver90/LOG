@@ -5,20 +5,25 @@
           doc      the map document, exactly the shape map_file.py writes
           view     what the owner is looking at: zoom, which layers are shown, which is selected
   Change  set(patch) or edit(fn) mutates, then tells every subscriber what moved.
-          subscribe("doc" | "view" | "assets" | "status", fn)
+          subscribe("doc" | "view" | "assets" | "status" | "dirty", fn)
+  Dirty   every change to the document raises it, and only a Save lowers it. autosave.js listens
+          on "dirty", so one flag drives the marker in the page, the unload guard and the write.
+          It is raised HERE, in edit(), because the truth panel's world size goes through edit()
+          and never through the undo history, so a hook on history alone would miss it.
   Seam    Task 5's tools and Task 6's truth panel read the document here and push their changes
           through edit(), so undo has one place to watch. Nothing else keeps a second copy.
   Rule    the document is never repaired on the way in. Problems come from Python's validate() and
           are shown, so a map that the game would refuse looks wrong here too.
 */
 
-const listeners = { doc: [], view: [], assets: [], status: [] };
+const listeners = { doc: [], view: [], assets: [], status: [], dirty: [] };
 
 export const state = {
   assets: null,          // {chunks: [{index, tiles, png}], palettes: [[[r,g,b] x 256]], tile_budget, transparent_index}
   doc: null,             // the map document, or null before the first open
   problems: [],          // validate() from the server, shown rather than fixed
   title: "",             // what the owner opened, for the header
+  dirty: false,          // changed since the last Save. The page says so and guards the unload
   view: { zoom: 1, shown: { bg0: true, bg1: true, bg2: true, bg3: true }, selected: "bg3" },
 };
 
@@ -36,7 +41,23 @@ export function setDoc(doc, problems, title) {
   state.problems = problems || [];
   state.title = title;
   if (doc && !doc.layers[state.view.selected]) state.view.selected = Object.keys(doc.layers)[0];
+  markClean();                       // what just arrived IS what the server holds
   notify("doc");
+}
+
+/*
+  Raised on every change, not only on the first one, because the autosave's clock restarts on each
+  one. The marker it repaints is one textContent write, so saying it twice costs nothing and
+  missing it once costs the work.
+*/
+export function markDirty() {
+  state.dirty = true;
+  notify("dirty");
+}
+
+export function markClean() {
+  state.dirty = false;
+  notify("dirty");
 }
 
 export function setView(patch) {
@@ -47,6 +68,7 @@ export function setView(patch) {
 /* Task 5 calls this: mutate the document in place, then one notify. */
 export function edit(fn) {
   fn(state.doc);
+  markDirty();
   notify("doc");
 }
 

@@ -15,14 +15,31 @@ Routes:  GET /                  the editor page and its files, from THIS folder 
          GET /api/blank?bw=&bh=          the same for a new empty map
          GET /api/saved         the maps the owner has saved, by name
          GET /api/load?name=    one of them, through map_file.load
-         POST /api/save         {"name", "doc"} through map_file.save, into maps\
+         POST /api/save         {"name", "doc", "retire"} through map_file.save, into maps\
          GET /api/stamps        the stamp library, every file in library\
          POST /api/stamp        one grabbed stamp into library\<name>.json
+         POST /api/stamp/delete {"name"}: the file MOVES to library\deleted\, it is never unlinked
+         POST /api/stamp/strip  {"name"}: drop a stamp's collision, old copy to library\deleted\
+         GET /api/autosaves     the autosaves that are NEWER than the saved map of the same name
+         GET /api/autosave?name=         one of them, for a Restore
+         POST /api/autosave     {"name", "session", "doc"}: the live document, into autosave\
 SAVING:  a saved map goes to maps\<name>.json through map_file.save, which VALIDATES it and
          refuses to overwrite. The browser never writes the file itself: a download would land in
          the Downloads folder and would skip the one gate that stops an unsound map reaching a
          ROM. The stamp library lives in library\, one file per stamp, because it outlives the
          open map: a stamp grabbed from a game map is placed in a blank one.
+AUTOSAVE: a map the owner has not saved yet lived ONLY in the page's memory until 2026-11-07, when
+         a reload he was told to make threw away an evening of composing. So the page writes the
+         live document here on every change, debounced, and autosave\ is that safety net. It is
+         NOT the saved-map folder: nothing in it is validated, nothing in it reaches /api/saved,
+         and it is offered back on the next start rather than loaded in silence. An autosave is
+         overwritten freely, which is the opposite of every other write in this file, because its
+         whole job is to hold the newest state. The page's SESSION id is what keeps that safe: a
+         write from a different session moves the file aside into autosave\older\ first, so a
+         second tab, or a fresh page that ignored the offer, can never erase the work it declined.
+DELETING: a stamp the owner deletes MOVES to library\deleted\. He spends minutes grabbing one, and
+         a misclick must be recoverable by hand. stamps() globs library\*.json, which is not
+         recursive, so the deleted ones are never offered again.
 Why a server: a page on file:// cannot fetch its own assets.json, and the ROM reads belong in Python,
          which already owns every structure. The browser composes and nothing else.
 ONE SHAPE: /api/blank calls map_file.blank rather than building a document in JavaScript. A second
@@ -35,9 +52,11 @@ Read-only on the ROM, and nothing here writes under data\.
 """
 import argparse
 import json
+import os
 import re
 import sys
 import threading
+import time
 import webbrowser
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -58,8 +77,15 @@ HERE = Path(__file__).resolve().parent
 ASSETS = HERE / "assets"
 HOST, PORT = "127.0.0.1", 8777
 MAPS_IN, STAMPS_IN = "maps", "library"      # folders beside this file, made on the first save
+AUTOSAVE_IN = "autosave"                    # the live document, overwritten; never a saved map
+OLDER_IN = "older"                          # under autosave\: a session that was about to be lost
+DELETED_IN = "deleted"                      # under library\: a stamp the owner removed, kept whole
 UNSAFE = re.compile(r"[^A-Za-z0-9 _-]")     # a name is a file name, so it holds nothing else
 NAME_MAX = 60
+
+# One writer at a time. ThreadingHTTPServer answers requests concurrently, and two autosave posts
+# landing together would interleave a replace with a read of the same file.
+WRITING = threading.Lock()
 
 
 # ===== saved maps and the stamp library =====
@@ -121,6 +147,133 @@ def stamps(root: Path = HERE) -> list:
         except json.JSONDecodeError:
             print(f"library: {path.name} will not parse, so it is not offered")
     return out
+
+
+def _retire_file(path: Path, folder: Path) -> Path:
+    """Move a file out of the way, into folder, keeping both copies. Never overwrites."""
+    folder.mkdir(parents=True, exist_ok=True)
+    target = folder / path.name
+    if target.exists():
+        target = folder / f"{path.stem}-{time.strftime('%Y%m%d-%H%M%S')}{path.suffix}"
+    count = 1
+    while target.exists():                              # two moves inside one second
+        target = folder / f"{path.stem}-{time.strftime('%Y%m%d-%H%M%S')}-{count}{path.suffix}"
+        count += 1
+    os.replace(path, target)
+    return target
+
+
+def delete_stamp(name: str, root: Path = HERE) -> Path:
+    """Remove a stamp from the library by MOVING it. A misclick stays recoverable by hand."""
+    folder = root / STAMPS_IN
+    path = folder / f"{safe_name(name)}.json"
+    if not path.exists():
+        raise FileNotFoundError(f'no stamp called "{safe_name(name)}" is in the library')
+    with WRITING:
+        return _retire_file(path, folder / DELETED_IN)
+
+
+def strip_stamp(name: str, root: Path = HERE) -> dict:
+    """Drop a stamp's collision grid and keep the old file in deleted\\, so the art survives a
+    change of mind. A stamp that carries no collision paints no wall where it has no art."""
+    folder = root / STAMPS_IN
+    path = folder / f"{safe_name(name)}.json"
+    if not path.exists():
+        raise FileNotFoundError(f'no stamp called "{safe_name(name)}" is in the library')
+    with WRITING:
+        stamp = json.loads(path.read_text(encoding="utf-8"))
+        if stamp.get("collision") is None:
+            return stamp
+        _retire_file(path, folder / DELETED_IN)
+        stamp["collision"] = None
+        with open(path, "x", encoding="utf-8") as handle:       # the move above freed the name
+            json.dump(stamp, handle)
+    return stamp
+
+
+# ===== the autosave, which is the one thing standing between a reload and a lost evening =====
+
+def autosave_key(title: str) -> str:
+    """A file name for a document title. An unsafe character becomes a SPACE rather than nothing,
+    so "map 7,15" and "map 71,5" stay two keys instead of collapsing into "map 715"."""
+    return safe_name(UNSAFE.sub(" ", title or ""))
+
+
+def autosave_write(body: dict, root: Path = HERE) -> dict:
+    """Keep the live document. Unvalidated on purpose: work in progress is often not sound yet,
+    and refusing to keep it is exactly the failure this folder exists to stop."""
+    doc = body.get("doc")
+    if not isinstance(doc, dict):
+        raise ValueError("an autosave carries the document it is keeping")
+    title = body.get("name") or ""
+    key = autosave_key(title)
+    session = str(body.get("session") or "")
+    folder = root / AUTOSAVE_IN
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{key}.json"
+    record = {"title": title, "session": session, "at": time.time(), "doc": doc}
+    with WRITING:
+        kept = None
+        if path.exists() and _read_record(path).get("session") != session:
+            # Another tab, or a page that was offered this file on start and did not take it.
+            kept = _retire_file(path, folder / OLDER_IN).name
+        part = path.with_name(f"{path.name}.part")
+        part.write_text(json.dumps(record), encoding="utf-8")
+        os.replace(part, path)                          # atomic, so a crash never halves the file
+    return {"kept": key, "at": record["at"], "moved": kept}
+
+
+def _read_record(path: Path) -> dict:
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return record if isinstance(record, dict) else {}
+
+
+def autosaves(root: Path = HERE) -> list:
+    """Every autosave that is NEWER than the saved map of the same name, newest first.
+
+    An autosave older than its saved map has nothing in it the owner does not already hold, so
+    offering it would train him to dismiss the offer. One with no saved map at all is always
+    offered: nothing else holds that work."""
+    folder = root / AUTOSAVE_IN
+    if not folder.is_dir():
+        return []
+    out = []
+    # The lock, because a write replaces a file and Windows raises on a read that lands between
+    # the two halves of that replace. The server answers requests on several threads.
+    with WRITING:
+        paths = sorted(folder.glob("*.json"))
+        records = [(path, _read_record(path)) for path in paths]
+    for path, record in records:
+        if not record.get("doc"):
+            continue
+        saved = root / MAPS_IN / f"{path.stem}.json"
+        saved_at = saved.stat().st_mtime if saved.exists() else None
+        if saved_at is not None and record.get("at", 0) <= saved_at:
+            continue
+        out.append({"name": path.stem, "title": record.get("title") or path.stem,
+                    "at": record.get("at", 0), "saved_at": saved_at})
+    return sorted(out, key=lambda row: row["at"], reverse=True)
+
+
+def autosave_read(name: str, root: Path = HERE) -> dict:
+    with WRITING:                      # never read a file while a replace is halfway through it
+        record = _read_record(root / AUTOSAVE_IN / f"{safe_name(name)}.json")
+    if not record.get("doc"):
+        raise FileNotFoundError(f'no autosave called "{safe_name(name)}" is kept')
+    return record
+
+
+def autosave_retire(title: str, root: Path = HERE) -> bool:
+    """The work is in maps\\ now, so the net under it comes down. Returns whether one was there."""
+    path = root / AUTOSAVE_IN / f"{autosave_key(title)}.json"
+    if not path.exists():
+        return False
+    with WRITING:
+        _retire_file(path, root / AUTOSAVE_IN / OLDER_IN)
+    return True
 
 
 def map_names() -> dict:
@@ -188,6 +341,7 @@ class Handler(SimpleHTTPRequestHandler):
     """The editor's files, plus the /api reads. Everything outside this folder is unreachable."""
 
     rom = b""
+    root = HERE                      # where maps\, library\ and autosave\ live. --data moves them
     extensions_map = {**SimpleHTTPRequestHandler.extensions_map,
                       ".js": "text/javascript", ".css": "text/css",
                       ".json": "application/json", ".png": "image/png"}
@@ -229,20 +383,43 @@ class Handler(SimpleHTTPRequestHandler):
             doc = map_file.blank((bw, bh), (bw * map_file.BLOCK_PIXELS, bh * map_file.BLOCK_PIXELS))
             return {"doc": doc, "problems": map_file.validate(doc)}
         if path == "/api/saved":
-            return {"maps": saved_maps()}
+            return {"maps": saved_maps(self.root)}
         if path == "/api/load":
-            doc = load_map(query.get("name", [""])[0])
+            doc = load_map(query.get("name", [""])[0], self.root)
             return {"doc": doc, "problems": map_file.validate(doc)}
         if path == "/api/stamps":
-            return {"stamps": stamps()}
+            return {"stamps": stamps(self.root)}
+        if path == "/api/autosaves":
+            return {"autosaves": autosaves(self.root)}
+        if path == "/api/autosave":
+            record = autosave_read(query.get("name", [""])[0], self.root)
+            # Validated for the NOTES panel and never refused: an autosave is offered back
+            # whatever shape it is in, because the alternative is losing it.
+            return {"doc": record["doc"], "title": record.get("title", ""),
+                    "at": record.get("at", 0), "problems": map_file.validate(record["doc"])}
         return None
 
     def _write(self, path: str, body: dict) -> dict:
         if path == "/api/save":
-            return {"saved": save_map(body.get("doc"), body.get("name")).stem,
-                    "maps": saved_maps()}
+            saved = save_map(body.get("doc"), body.get("name"), self.root).stem
+            # Only after the real file is on disk. A refused save keeps its net. A failure to
+            # retire is never fatal: the map IS saved, and reporting 400 for it would make the
+            # owner save again under another name.
+            try:
+                retired = autosave_retire(body.get("retire") or "", self.root)
+            except (OSError, ValueError):
+                retired = False
+            return {"saved": saved, "maps": saved_maps(self.root), "retired": retired}
         if path == "/api/stamp":
-            return {"kept": save_stamp(body).stem}
+            return {"kept": save_stamp(body, self.root).stem}
+        if path == "/api/stamp/delete":
+            return {"deleted": body.get("name"),
+                    "moved_to": str(delete_stamp(body.get("name"), self.root).parent.name),
+                    "stamps": stamps(self.root)}
+        if path == "/api/stamp/strip":
+            return {"stamp": strip_stamp(body.get("name"), self.root)}
+        if path == "/api/autosave":
+            return autosave_write(body, self.root)
         return None
 
     def do_GET(self):                                    # noqa: N802  (the base class names it)
@@ -283,11 +460,15 @@ def main(argv: list) -> None:
     ap = argparse.ArgumentParser(description="Run the LOG map editor on this machine.")
     ap.add_argument("--port", type=int, default=PORT)
     ap.add_argument("--rom", type=Path, default=map_view.BASE, help="serve a build instead of the base ROM")
+    ap.add_argument("--data", type=Path, default=HERE,
+                    help="where maps\\, library\\ and autosave\\ live. A second server for a test "
+                         "run points here, so it cannot touch the owner's own files.")
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args(argv)
 
     ensure_assets()
     Handler.rom = args.rom.read_bytes()
+    Handler.root = args.data.resolve()
     url = f"http://{HOST}:{args.port}/"
     try:
         httpd = Server((HOST, args.port), partial(Handler))
@@ -296,7 +477,7 @@ def main(argv: list) -> None:
               f"another map editor is probably still running. Stop it, or pass --port.")
         return
     with httpd:
-        print(f"map editor on {url}   ROM: {args.rom.name}   Ctrl+C to stop")
+        print(f"map editor on {url}   ROM: {args.rom.name}   files: {Handler.root}   Ctrl+C to stop")
         if not args.no_browser:
             threading.Timer(0.5, webbrowser.open, (url,)).start()
         try:
