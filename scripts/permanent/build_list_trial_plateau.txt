@@ -1,0 +1,9 @@
+# Trial list: the future androids trial plus the owner's OWN map, a large enclosed grassy plateau,
+# and the rung 5 ROUND SPLIT that makes the plateau round 2's ground instead of the whole fight's.
+# No module here is approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# The included list brings dev, battle_arena, ending_fight and future_androids, in that order.
+# plateau runs LAST: it appends to the map table a third time, it repoints every word that names
+# ending_fight's record F at its own round 1 record, and it makes word 0 of the arena enemy's death
+# table the split. Record A is NOT touched: the talk and round 1 stay on the arena, map 6,100.
+include build_list_trial_future.txt
+plateau

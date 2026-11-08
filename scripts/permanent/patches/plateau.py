@@ -1,61 +1,87 @@
 r"""
-plateau.py - Trial patch: map 7,100, a plateau TOP for the final fight, and the ending moves onto it.
+plateau.py - Trial patch: map 7,100, the OWNER'S OWN plateau map, and the ending's round 2 on it.
 
 Usage:   py -3.14 -P scripts\permanent\log2_build.py --list scripts\permanent\build_list_trial_plateau.txt --out <new .gba>
-Input:   the ROM after build_list_trial_future.txt (dev r41, battle_arena, ending_fight, future_androids).
-         It must run LAST of the four: it appends to the map table a THIRD time, it reads the live table
-         base from the literal rom:0xEBD8 and the live count from rom:0xE0AE, and it edits one byte of
-         the record ending_fight placed at ending table word 13.
+Input:   the ROM after build_list_trial_future.txt (dev r41, battle_arena, ending_fight, future_androids),
+         and art\plateau\map_142.json, the repo copy of the map the owner composed in the map editor.
+         It must run LAST of the four: it appends to the map table a THIRD time, and it reads the live
+         table base from the literal rom:0xEBD8 and the live count from rom:0xE0AE. Its six base-ROM
+         writes are the 5 table hand-offs and ending table word 23. Everything else it changes, table D
+         word 0 and the android copies of the ending table, is in the expansion area.
 API:     apply(rom, alloc) -> None; file offsets in alloc.notes["plateau"], every write as
-         (offset, length, name) in its "sites". `generate(rom)` returns the same tilemaps the patch
-         writes, so a render and the ROM can never drift apart.
+         (offset, length, name) in its "sites". `document()` returns the map document the patch lays,
+         so a render, a test and the ROM can never drift apart.
 
-The design, in the owner's words (2026-11-07): "the entire middle section where the fight its all
-closed off", "cell and trunks will be boxed in on a hill, surrounded by other hills and a rocky
-cavern below", "maybe replace some of the side areas with actual clifs".
-
-         1. THE ARENA IS THE TOP OF A PLATEAU, not a field inside a fence. The playable area is one
-            closed irregular shape. Its boundary is a DROP: the player sees a stone lip, then lower
-            ground far below. A drop explains itself, so he never asks why he cannot walk on.
-         2. Map 7,15, the Vegeta against Android 19 field, is the source of every tile. Its BG3 is the
-            base ground and its BG2 the raised terrain, each a 5 x 4 block grid. The clone grows both
-            to 5 x 5, 1280 x 1280 px, and keeps 7,15's tile stream `+0x48`, chunk table `+0x4C` and
-            ANIMATED tile group `+0x0C`/`+0x10`, so entry 0x037E, the animated grass in the motif's
-            even row slot 2, keeps working.
-         3. The grass, the stone lip, the plain ground weave, the ground detail and the rock
-            formations are all read out of map 7,15 at build time and re-laid. No pixel is authored.
-         4. The lip is an AUTOTILE keyed on the 8 neighbour mask, read from 7,15's own blob edges, so
-            the arena rim and every satellite top get the edge tile vanilla would have used.
-         5. Beyond the drop: lower ground, a cliff line following the arena rim, cliff groups in the
-            side areas, a rock cavern in the south east, and further plateau tops near the map edge,
-            so the eye reads depth. None of it is walkable, so none of it can be a gameplay mistake.
-         6. COLLISION FOLLOWS THE ART. Open on the arena top and nowhere else. Every closed cell that
-            touches an open one draws the lip, so the player never stops against nothing.
-         7. The camera bound is written, not inherited. `Scene_BuildLayers` @0x08006152 reads layout
-            `+0x08` and `+0x0A`, subtracts 1 and stores them at map view `+0x5C`/`+0x5E`, and the clamp
-            `sub_080062E8` holds the camera there. For 1280 x 1280 that is (1041, 1121), so the view
-            reaches the whole map. Map 7,15's own pair, (713, 609), would hide the east and south.
-         8. BG0 and BG1 keep map 7,15's own record header, grid and scroll words and point EVERY block
-            at one shared blank frame. BG1 is 7,15's priority 1 over-layer and would draw over the
-            player. A blank frame is a block of entry 0, and tile 0 is 64 zero pixels (checked).
-         9. The map entry is a COPY OF THE LIVE 6,100 ENTRY with two words changed: +0x00 to zone 7 and
-            +0x2C to the plateau's own layout array. It carries combat 1, banner 0xDD, music 38, 0
-            regions and battle_arena's own 2 item list.
-        10. The ending reaches it through ONE byte. Record A loads the arena with
-            `ext 39 (6, 100, 1, 248, 624)`; zigzag(6) is 0x0C and zigzag(7) is 0x0E, both one byte, so
-            the zone byte 0x0C becomes 0x0E and no record moves.
+THE MAP IS THE OWNER'S. He composed map 7,100 in the editor and saved it as "map 142" on 2026-11-08.
+         Nothing here authors a tile, a collision bit, a layer priority or a camera bound.
+         1. THE SOURCE IS A REPO COPY, art\plateau\map_142.json, byte for byte his saved file. The
+            build never reads scripts\permanent\map-editor\maps\, which is his LIVE folder: a build has
+            to be reproducible, and his next edit may not change a ROM behind our back.
+         2. map-editor\import_map.py LAYS IT, so this project keeps ONE map importer and this is not a
+            second one. Its round trip is proved on 334 of 336 vanilla layouts. It writes the four BG
+            layer records, one frame per DISTINCT block, the collision and terrain frames, the tile
+            stream, the animated tile groups, the 0x50 byte layout and the appended map table.
+         3. THE CAMERA IS COMPUTED FROM HIS WORLD, never from the block grid. His grid is 5 x 4 blocks,
+            1280 x 1024 px, and his world is 864 x 816 px, so the layout pair is (625, 657). A pair
+            taken from the grid is the fault that stopped the camera 170 px short of walkable ground.
+            import_map.layout_struct computes it; this module reads it back and checks it.
+         4. HIS LAYER PRIORITIES ARE KEPT. BG0 and BG1 are priority 1 here, so they draw OVER the
+            player, and BG2 and BG3 are priority 3 and draw behind him. Measured on the document
+            2026-11-08, counting a cell as drawing only when its tile holds a non-zero pixel and
+            shifting each layer by its own scroll offset: BG0 draws NO cell anywhere, and BG1 draws
+            1100 cells, 477 of them over reachable walkable ground in 11 clusters. So the player walks
+            BEHIND scenery in those places, which is what a priority 1 layer is for.
+         5. HIS COLLISION IS KEPT. 4987 cells are open, 4848 of them reachable from Cell's own cell,
+            and one sealed pocket of 139 cells sits inside the rock ring, cell origins px (488,536) to
+            (616,608). No open cell touches the world edge. Both fight spots stand on reachable open
+            ground, which this module proves before it writes a byte.
+         6. THE ENTRY IS THE LIVE 6,100 ENTRY with three words changed: +0x00 to zone 7, +0x14 to the
+            plateau's OWN two item list, and +0x2C to the layout array import_map wrote. It carries
+            combat 1, banner 0xDD, music 38 and 0 regions. import_map builds the same 56 bytes from
+            zeros, and this module overwrites them with the arena's own, so the two have to agree.
+         7. THE ROUND SPLIT (rung 5, the owner 2026-11-07 and 2026-11-08). The Cell fight is ONE fight
+            in TWO ROUNDS, and the plateau is round 2's ground, not the whole fight's. His words:
+            "Cell: Trunks starts NOT Super Saiyan / half way: white flash + ping -> cutscene, Cell
+            punched off screen, Trunks flies after him" and "then half way we do the scene where he
+            punches cell of screen and trunks flies after him which takes him to our placeholder
+            plateue". Record A is NOT touched any more: the talk and round 1 stay on the arena,
+            map 6,100, which he play tested and approved.
+        7a. Round 1 is record R, ending table word 23, in place of ending_fight's own record F:
+            `ext 104 (28, 1) ; ext 90 (28, 50, 100) ; ext 86 (1) ; ext 33 (0)`. The only change from F
+            is the bar: `ext 85` draws the whole bar and `ext 90` draws one display SEGMENT of it.
+        7b. The boundary is record S, word 0 of the table battle_arena's enemy names, so it runs when
+            round 1's Cell reaches HP 0. Its head is celljr_fight's own relay head, which the owner has
+            play tested: sound 60, the white flash pair, a hold. The staging, the punch and the fly
+            follow, then the plateau loads and round 2 arms. See split().
+        7c. Round 2 is the SAME bar, bottom half, and Cell RE-ARMED by `ext 104`, which is vanilla's own
+            multi-round wiring (bible B0832). It needs its own death event, or Cell's death on the
+            plateau would run the split again and the fight would never end, so the plateau carries its
+            OWN item list: an NPC Cell on the fight spot and an enemy Cell whose event struct names
+            table D2. D2 is the live 27 word table with word 0 left at ending_fight's record K, the
+            collapse, the vanilla blast and the vanilla tail. Vanilla does the same: Perfect Cell's two
+            rounds are two different items with two different death tables (B0981).
 Rules:   Every source byte is checked before the first write; a second run raises. No vanilla map entry,
          item, layout, layer record or tile is written. The ONE base overlap with the earlier modules is
          the 4 map table literals and the count byte, which is how each relocation hands the table on.
-         The ONE expansion overlap is the single zone byte inside ending_fight's record A.
+         This module writes ONE base word of its own, ending table word 23, and ONE word inside
+         ending_fight's own table D. Both are declared hand-offs. Record A is left alone.
 """
 import hashlib
-import math
 import struct
+import sys
+from pathlib import Path
 
-from rom.webfoot_decompress import decompress, unpack_frame
-from rom.webfoot_lz_pack import pack
-from scene.scene_lib import ext, record_end, words_naming
+import log_paths
+from rom.webfoot_decompress import unpack_frame
+from scene.scene_lib import (battle_start, call, code, ext, fade_in, fade_out, record_end, wait,
+                             walk_to, words_naming)
+
+# map-editor\ carries a hyphen, so it is not an importable package: its folder goes on sys.path, the
+# way scripts\permanent\tests\test_import_map.py already reaches it.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+
+import import_map                                                       # noqa: E402
+import map_file                                                         # noqa: E402
 
 # ===== constants: the map table, read LIVE =====
 ROM_BASE = 0x08000000
@@ -73,91 +99,126 @@ F_MARKERS, F_MUSIC, F_LAYOUTS, F_ENTER, F_LEAVE = 0x20, 0x24, 0x2C, 0x30, 0x34
 
 L_CLAMP, L_ANIM_COUNT, L_ANIM_LIST = 0x08, 0x0C, 0x10
 L_BG0, L_BG1, L_BG2, L_BG3 = 0x14, 0x18, 0x1C, 0x20
-L_PROP_COUNT, L_PROP_LIST, L_PROP_SHEET, L_COLLISION = 0x24, 0x28, 0x2C, 0x34
+L_PROP_COUNT, L_PROP_LIST, L_COLLISION, L_TERRAIN = 0x24, 0x28, 0x34, 0x38
 L_WARP_COUNT, L_WARP_LIST, L_TILE_STREAM, L_TILE_TABLE = 0x40, 0x44, 0x48, 0x4C
-LAYOUT_SIZE = 0xCC
 
 LAYER_CLASS = 0x080056A1
-LAYER_GRID, LAYER_PTRS = 0x14, 0x18
-BLOCK_TILES, BLOCK_SIZE = 32, 0x800
-ENTRY_TILE = 0x3FF
+LAYER_GRID = 0x14
+BLOCK_TILES = 32
 
-# ===== constants: map 7,15, the source =====
-SOURCE_ZONE, SOURCE_AREA = 7, 15
-SOURCE_LAYOUTS, SOURCE_LAYOUT = 0x3FD368, 0x5A1324
-SOURCE_LAYERS = (0x59D740, 0x59EC48, 0x59FBAC, 0x5A0E78)        # BG0, BG1, BG2, BG3
-SOURCE_GRIDS = ((1, 1), (4, 4), (5, 4), (5, 4))
-SOURCE_PROPS, SOURCE_PROP_LIST, SOURCE_PROP_SHEET = 6, 0x5A1284, 0x504A2C
-SOURCE_COLLISION = 0x5A1008
-SOURCE_TILE_STREAM, SOURCE_TILE_TABLE = 0x5A0EE0, 0x4DF574
-SOURCE_TILES, SOURCE_TILES_SHA1 = 633, None     # the sha1 is pinned by _check_source at first run
-SOURCE_CLAMP = (713, 609)
-BLANK_TILE = 0
-BASE_SLOT, RAISED_SLOT = 3, 2                   # on map 7,15: BG3 is the ground, BG2 the raised land
-
-# ===== constants: the motifs, measured out of map 7,15 =====
-GRASS_EVEN = (0x5F, 0x60, 0x37E, 0x61, 0x62, 0x63, 0x64, 0x65)
-# Slot 2 is 0x037E. All 18 of its cells on map 7,15 sit at (even row, slot 2) and the map reads
-# 0x5F 0x60 0x37E 0x61 0x62 in a line at ty 46, tx 74 to 78. Its tile index 894 is past the 633 tiles
-# the static stream decodes, because the layout carries 1 ANIMATED tile group. It is animated grass.
-GRASS_ODD = (0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E)
-GRASS_PHASE, GRASS_SHEAR = 2, 4
-GRASS = frozenset(GRASS_EVEN) | frozenset(GRASS_ODD)
-PLAIN_GROUND = frozenset(range(0x66, 0x6F))     # the 9 tiles of 7,15's plain ground weave
-BASE_MOTIF = 3                                  # the ground weave is sampled in 3 x 3 blocks
-
-# ===== constants: the design =====
+# ===== constants: the owner's map =====
 PLATEAU_ZONE, PLATEAU_AREA, PLATEAU_VARIATIONS = 7, 100, 1      # zone 7 uses areas 1..26
-GRID = (5, 5)
-MAP_TILES = (GRID[0] * BLOCK_TILES, GRID[1] * BLOCK_TILES)      # 160 x 160 tiles
-MAP_PIXELS = (MAP_TILES[0] * 8, MAP_TILES[1] * 8)               # 1280 x 1280 px
+MAP_DOC = log_paths.ART / "plateau" / "map_142.json"            # his "map 142", copied byte for byte
 VIEW = (240, 160)
-CLAMP = (MAP_PIXELS[0] - VIEW[0] + 1, MAP_PIXELS[1] - VIEW[1] + 1)
 
-# The arena top. It is pushed west of the map centre because the fight spots are, and its outline
-# wobbles so it reads as land rather than as a fence.
-ARENA_AT = (62.0, 74.0)
-ARENA_AX, ARENA_AY, ARENA_N = 46.0, 50.0, 4.0
-ARENA_LUMP = ((2, 0.7, 5.0), (3, 2.3, 4.2), (5, 1.1, 3.0), (7, 0.4, 1.8), (11, 2.0, 1.2))
-
-# Satellite plateau tops beyond the drop: (centre x, centre y, radius) in cells. They are scenery.
-SATELLITES = ((128, 26, 13), (132, 92, 11), (30, 130, 12), (92, 138, 10), (20, 24, 9),
-              (142, 58, 8), (108, 148, 9), (14, 96, 8))
-
-# Ground patches on the arena top, about 20 per cent of it.
-CLUSTERS, CLUSTER_R, PER_CLUSTER = 26, 13, (18, 30)
-PATCH_SIZES = (2, 3, 4, 5, 6, 8, 10, 13, 17, 22, 28, 36, 44, 55)
-SPECK_RATE = 260
-SMOOTH_PASSES = 3                               # rounds the stair steps off a grown patch outline
-
-# The land beyond the drop.
-RIM_CLIFF_STEP, RIM_CLIFF_OUT = 5, 9            # cells along the rim, and cells outside it
-CAVERN_AT, CAVERN_R, CAVERN_N = (126, 126), 19, 16
-SIDE_CLIFFS = ((14, 52), (10, 90), (22, 10), (150, 10), (152, 140), (60, 150), (30, 150),
-               (148, 36), (6, 118), (112, 8), (84, 4), (44, 6), (8, 36), (6, 66), (12, 106),
-               (36, 142), (84, 146), (120, 152), (154, 98), (152, 60), (144, 8), (66, 8),
-               (28, 120), (18, 136), (100, 150), (140, 128), (8, 148), (156, 148))
-BOULDERS = ((6, 20, 44), (7, 136, 12), (8, 30, 20), (9, 150, 116), (10, 8, 70), (11, 70, 142),
-            (6, 118, 148), (7, 4, 150), (8, 154, 80), (9, 44, 138), (10, 156, 4), (11, 2, 4))
-
-FIGHT_SPOTS = ((288, 392), (244, 504), (248, 568), (248, 624))
+# bible B0246: set 28 reaches 20 px left, 44 right, 56 up and 8 down of its own point.
 ENVELOPE = (20, 44, 56, 8)
-FIGHT_CLEAR = 120                               # px: no cliff or boulder stands closer than this
 
+# The collision frame: 256 x 256 cells of 8 px, one BIT a cell, a SET bit OPEN (collision_test
+# @0x08005D6C). The document carries the same 0x2000 bytes the ROM frame holds.
 FRAME_STRIDE, FRAME_SIZE, FRAME_CELLS = 32, 0x2000, 256
-NEIGHBOURS = ((0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1))
 NEAR4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
 
 # ===== constants: the modules this one composes on =====
 ARENA = "battle_arena"
 ENDING = "ending_fight"
+FUTURE = "future_androids"
 ARENA_ZONE, ARENA_AREA = 6, 100
-ARENA_MUSIC, ARENA_BANNER, ARENA_ITEMS = 38, 0xDD, 2
+ARENA_MUSIC, ARENA_BANNER, ARENA_ITEMS, ARENA_COMBAT = 38, 0xDD, 2, 1
 MAP_VARIATION = 1
 TRUNKS_START = (248, 624)
-OLD_LOAD = ext(39, ARENA_ZONE, ARENA_AREA, MAP_VARIATION, *TRUNKS_START)
-NEW_LOAD = ext(39, PLATEAU_ZONE, PLATEAU_AREA, MAP_VARIATION, *TRUNKS_START)
-LOAD_BYTE = 2
+# Record A's own load, which rung 5 LEAVES ALONE: the talk and round 1 stay on the arena. The module
+# still reads it, to prove that the record ending_fight placed is the record this module expects.
+ARENA_LOAD = ext(39, ARENA_ZONE, ARENA_AREA, MAP_VARIATION, *TRUNKS_START)
+
+# ===== constants: the round split (rung 5) =====
+# The ending table and the two words this module writes into the chain. TABLE itself is vanilla and is
+# never moved; only word 23 changes, from ending_fight's record F to this module's record R.
+TABLE, TABLE_WORDS = 0x3B8140, 27
+FIGHT_INDEX, END_INDEX = 23, 26
+FIGHT_WORD = TABLE + 4 * FIGHT_INDEX
+EVENT_RUNNER, EVENT_TABLE_AT = 0x080106B3, 4
+
+# The two item shapes, as battle_arena reads them.
+ITEM_SIZE, ITEM_TYPE, ITEM_AT, ITEM_EVENT, ITEM_TAIL = 0x20, 8, 0x0C, 0x14, 0x1C
+NPC_ITEM_SIZE, N_AT, N_STEP_LIST = 0x18, 8, 0x14
+NPC_INDEX, ENEMY_INDEX = 0, 1                   # the plateau list keeps battle_arena's own order
+
+PLAYER, CELL_SET = 0, 28                        # set 0 is the player; 28 is IMPERFECT Cell, not 30
+DOWN, UP = 0, 1                                 # ext 55 facings (celljr_fight and chapter_cards agree)
+CELL_SPOT, TRUNKS_SPOT = (244, 504), (248, 568)  # battle_arena's own fight pair, 64 px apart
+
+# The bar. ext 90 (set, lo, hi) is ONE DISPLAY SEGMENT of the 60 px boss bar: Sprite_NewSpan
+# @0x080104C0 stores f(lo) at +0x15 as the segment start and f(hi) - f(lo) at +0x16 as its width.
+# lo = 0 is not a new value: ext 85 bar_show @0x0800AB1A calls the SAME builder with r2 = 0 and
+# r3 = 0x64, so (0, 100) IS the whole bar. So an even split is legal and reads as two true halves.
+# Vanilla's own slices are uneven ((30,75,100), (30,50,75), (9,75,100), (9,50,75), (9,25,50)), but
+# nothing in the handler prefers them. CONFIRMED, both handlers read.
+ROUND1_BAR, ROUND2_BAR = (50, 100), (0, 50)
+
+# Record S's head: celljr_fight's own relay head, which the owner play tested (bible B0898, B0938).
+PING, PING_HOLD, SPLIT_FLASH = 60, 40, 10
+
+# The punch, op for op celljr_fight's `_melee` with set 28 in place of set 31 (bible B0900). Set 28
+# has anims 0-3, 5-10, 12, 18 and 19 (bible B0244), so it has state 2 (hurt) and state 12 (fly) and no anim 4 is
+# asked for. Set 132 has 0-9, 11-14, 16-18 and 20, so the player has state 7 (attack) and state 12.
+PUNCH_STATE, HIT_FRAME, HIT_SOUND, HURT_STATE, FLY_STATE = 7, 8, 34, 2, 12
+KNOCK_N, FLY_N = 600, 500                       # celljr's own speeds for a knock-back and a flight
+BEAT = 20                                       # frames between the punch, the flight and the fade
+
+# THE PUNCH LANDS IN CLOSE (the owner, 2026-11-08: "trunks should walk to cell and punch him, not
+# punch him a mile away"). The staging drops him on TRUNKS_SPOT, 64 px below Cell, so the punch used
+# to fire across that whole gap. He now WALKS the last stretch, straight north, and punches from 24
+# px below Cell's point. 24 px is celljr_fight's own melee gap, twice over: MIDDLE (432,392) to
+# PUNCH_AT (456,392), and GOHAN_TELEPORTS_TO (456,344) to TELE_AT (456,368).
+# `ext 53` BLOCKS on its own, so the punch waits for the walk and needs no group. BOTH handlers
+# were opened for this: `sub_08009D4A` (ext 53) ends in `BL Queue_Append @0x0800E04C` with the same
+# four instruction tail as `sub_08009FC4` (ext 57), the op this module already relies on to block,
+# and Queue_Append appends the command and then runs `BL 0x0800DE20 ; BL 0x0801F2F4`, the frame
+# loop, whenever the group flag word is 0. Its command tick is the shared mover `@0x0801090A`,
+# which runs until the actor arrives (bible B0691, B0787). An `ext 63` group is what makes several
+# moves run in PARALLEL, which is why celljr's arrivals use one and this does not.
+# Walk, then punch, is also vanilla's own shape: table rom:0x3E6F30 seq 18 runs
+# `ext 53 (29,176,192)` then `ext 57 (29,6)` (bible B0789).
+# The walk is 40 px at ext 53's own 1 px a frame (bible B0691), so about 40 frames.
+PUNCH_FROM = (248, 528)                         # 24 px below CELL_SPOT, on TRUNKS_SPOT's own column
+
+# Where the punch throws him, and where Trunks follows. SPLIT_VIEW's top is 432, so an actor whose
+# lowest pixel sits at 400 is wholly above the frame. Cell reaches 8 px BELOW his own point (bible
+# B0246), so y 392 puts his feet at 400 and his head at 336: off the top of the view, which is the
+# owner's "punched off screen". y 392 is also map 6,1 item 6's own row, so it is open ground.
+PUNCHED_TO, FLIES_TO = (244, 392), (248, 392)
+
+# The two parked views, each proved by arithmetic against bible B0246's envelopes, which are the same
+# numbers plateau's own ENVELOPE carries: set 28 reaches 20 left, 44 right, 56 up and 8 down, and the
+# Trunks sets 8, 24, 24 and 8. A view is 240 x 160 from its TOP LEFT (bible B0959, B0766).
+#   Cell at (244,504)   -> x 224..288, y 448..512
+#   Trunks at (248,568) -> x 240..272, y 544..576
+#   the view (136,432)  -> x 136..376, y 432..592, which holds both whole, with 16 px over Cell's head
+# ending_fight's own VIEW, (136,456,2), would cut 8 px off the top of Cell's tallest frames.
+#
+# THE SPEEDS ARE NOT THE SAME, and the reason is measured. `ext 31` BLOCKS until the move reports
+# done, in distance/speed + 1 frames (bible B0766). Round 1 ends with the FOLLOW camera on the
+# player, who may stand anywhere inside map 6,100's clamp (273, 553), so the pan to (136,432) can be
+# about 180 px. At speed 2 that is roughly 90 frames of solid white, because the screen holds white
+# between `ext 42` and `ext 43`. Speed 40 makes it about 5 frames, which the flash hides. celljr's
+# record N parks vanilla seq 11's camera at speed 40 for the same reason.
+# ARRIVE_VIEW keeps speed 2: the load has just centred the camera at (248 - 112, 568 - 76), which is
+# (136, 492), so its pan is a known 60 px, about 31 frames, and it runs under a fade and not a flash.
+SPLIT_VIEW, ARRIVE_VIEW = (136, 432, 40), (136, 432, 2)
+TRUNKS_UP, TRUNKS_DOWN = 24, 8               # bible B0246: sets 132 and 133 reach 24 up, 8 down
+TRUNKS_ENVELOPE = (8, 24, TRUNKS_UP, TRUNKS_DOWN)   # bible B0246, in ENVELOPE's own order
+
+# The only two spots that stand on HIS map: round 2 opens with the pair already placed there.
+# PUNCH_FROM and TRUNKS_START are ARENA spots and are proved against map 6,100's own collision
+# frame, never against his. Checking an arena spot on his map would fail on a wall he meant to draw.
+PLATEAU_SPOTS = ((CELL_SPOT, ENVELOPE, "Cell"), (TRUNKS_SPOT, TRUNKS_ENVELOPE, "Trunks"))
+SPLIT_FADE, LOAD_SETTLE, ARRIVE_HOLD = 30, 120, 60
+
+BATTLE_START_EXCEPTIONS = {
+    "split": "the round boundary really does open a scene: it loads map 7,100 behind its own fade and "
+             "arms round 2 there, which is the template shape rom:0x3E9384 and rule 6's exception",
+}
 
 
 # ===== helpers =====
@@ -172,13 +233,6 @@ def _u32(rom: bytes, off: int) -> int:
 
 def _frame(rom: bytes, address: int) -> bytes:
     return unpack_frame(rom, address - ROM_BASE)[2]
-
-
-def _packed_frame(payload: bytes) -> bytes:
-    out = pack(payload, kind=1)
-    if decompress(out, 8)[0] != payload or len(out) % 4:
-        raise ValueError(f"the packed frame does not round trip, or is not 4 aligned ({len(out)} bytes)")
-    return out
 
 
 def _expect(rom: bytes, off: int, want: bytes) -> None:
@@ -207,358 +261,37 @@ def map_entry(rom: bytes, zone: int, area: int) -> tuple:
     raise ValueError(f"no map {zone},{area} in the live map table rom:0x{table:X} ({count} entries)")
 
 
-def spot_hash(tx: int, ty: int, salt: int) -> int:
-    """A value that depends on the CELL, not on the scan order, so no generator period leaks."""
-    v = (tx * 0x27D4EB2D) ^ (ty * 0x165667B1) ^ (salt * 0x9E3779B1)
-    v &= 0xFFFFFFFF
-    v ^= v >> 15
-    v = (v * 0x2545F491) & 0xFFFFFFFF
-    v ^= v >> 13
-    return v
+# ===== the owner's document =====
+
+def document() -> dict:
+    """The owner's map 7,100, read from the REPO copy. His live editor folder is never opened."""
+    return map_file.load(MAP_DOC)
 
 
-def source_tiles(rom: bytes) -> list:
-    """Map 7,15's 8x8 tiles, in index order, decoded without Pillow. A build must not need it."""
-    raw = _frame(rom, _u32(rom, SOURCE_LAYOUT + L_TILE_STREAM))
-    idx = list(struct.unpack(f"<{len(raw) // 2}H", raw))
-    for i in range(1, len(idx)):
-        idx[i] = (idx[i] + idx[i - 1] + 1) & 0xFFFF
-    table, chunks, out = _u32(rom, SOURCE_LAYOUT + L_TILE_TABLE) - ROM_BASE, {}, []
-    for e in idx:
-        hi, lo = e >> 8, e & 0xFF
-        if hi not in chunks:
-            chunks[hi] = _frame(rom, _u32(rom, table + 4 * hi))
-        out.append(chunks[hi][64 * lo:64 * lo + 64])
-    return out
+def map_tiles(doc: dict) -> tuple:
+    """(across, down) in 8 px cells of the document's BLOCK GRID, which is larger than its world."""
+    return doc["blocks"][0] * BLOCK_TILES, doc["blocks"][1] * BLOCK_TILES
 
 
-def slot_reader(rom: bytes, slot: int):
-    """(at(tx, ty), across tiles, down tiles) for one of map 7,15's BG slots."""
-    rec = SOURCE_LAYERS[slot]
-    across, down = rom[rec + LAYER_GRID], rom[rec + LAYER_GRID + 1]
-    blocks = {}
-    for k in range(across * down):
-        at = _u32(rom, rec + LAYER_PTRS + 4 * k)
-        blocks[k] = _frame(rom, at) if at else bytes(BLOCK_SIZE)   # a null block draws nothing
-
-    def at(tx, ty):
-        if not (0 <= tx < across * BLOCK_TILES and 0 <= ty < down * BLOCK_TILES):
-            return 0
-        k = (ty // BLOCK_TILES) * across + tx // BLOCK_TILES
-        return struct.unpack_from("<H", blocks[k],
-                                  2 * ((ty % BLOCK_TILES) * BLOCK_TILES + tx % BLOCK_TILES))[0]
-    return at, across * BLOCK_TILES, down * BLOCK_TILES
+def open_cells(doc: dict) -> set:
+    """Every walkable (cell x, cell y) of the document, inside its own block grid."""
+    bits = doc["collision"]
+    across, down = map_tiles(doc)
+    return {(cx, cy) for cy in range(min(down, FRAME_CELLS))
+            for cx in range(min(across, FRAME_CELLS))
+            if bits[cy * FRAME_STRIDE + (cx >> 3)] >> (cx & 7) & 1}
 
 
-# ===== learn: read the motifs out of map 7,15 =====
-
-def learn(rom: bytes) -> dict:
-    """Every piece the plateau is built from, read out of map 7,15 at build time.
-
-    Classification is by ENTRY, never by colour, so no palette and no image library is needed. A cell
-    DRAWS when its tile holds a non-zero byte, or when its tile index is past the static stream, which
-    means an animated tile."""
-    tiles = source_tiles(rom)
-    base, tw, th = slot_reader(rom, BASE_SLOT)
-    raised, _, _ = slot_reader(rom, RAISED_SLOT)
-
-    def draws(e):
-        n = e & ENTRY_TILE
-        return n >= len(tiles) or any(tiles[n])
-
-    def is_grass(tx, ty):
-        return 0 <= tx < tw and 0 <= ty < th and raised(tx, ty) in GRASS
-
-    # The plain ground weave, as whole aligned 3 x 3 blocks of clean vanilla ground, each kept with
-    # the phase vanilla gave it. A block is taken only where nothing is raised above it.
-    weave, detail, src_ground = [], {}, set()
-    for ty in range(th):
-        for tx in range(tw):
-            if draws(raised(tx, ty)) or not draws(base(tx, ty)):
-                continue
-            src_ground.add((tx, ty))
-            if base(tx, ty) & ENTRY_TILE not in PLAIN_GROUND:
-                detail[base(tx, ty)] = detail.get(base(tx, ty), 0) + 1
-    for by in range(0, th - BASE_MOTIF, BASE_MOTIF):
-        for bx in range(0, tw - BASE_MOTIF, BASE_MOTIF):
-            cells = [(bx + dx, by + dy) for dy in range(BASE_MOTIF) for dx in range(BASE_MOTIF)]
-            if all(c in src_ground and base(*c) & ENTRY_TILE in PLAIN_GROUND for c in cells):
-                weave.append([base(*c) for c in cells])
-
-    # The lip autotile: what 7,15 draws at a grass boundary, keyed on the 8 neighbour grass mask.
-    edge_in, edge_out = {}, {}
-    for ty in range(th):
-        for tx in range(tw):
-            e = raised(tx, ty)
-            if not draws(e):
-                continue
-            m = sum(1 << i for i, (dx, dy) in enumerate(NEIGHBOURS) if is_grass(tx + dx, ty + dy))
-            if m in (0, 0xFF) and is_grass(tx, ty):
-                continue
-            table = edge_in if is_grass(tx, ty) else edge_out
-            if m:
-                table.setdefault(m, {})[e] = table.setdefault(m, {}).get(e, 0) + 1
-
-    # Rock formations: connected runs of raised cells with no grass in them, small enough to copy.
-    seen, donors = set(), []
-    for ty in range(th):
-        for tx in range(tw):
-            if (tx, ty) in seen or not draws(raised(tx, ty)) or is_grass(tx, ty):
-                continue
-            if any(is_grass(tx + dx, ty + dy) for dx, dy in NEIGHBOURS):
-                continue
-            stack, cells = [(tx, ty)], set()
-            while stack:
-                c = stack.pop()
-                if c in cells or not (0 <= c[0] < tw and 0 <= c[1] < th):
-                    continue
-                if not draws(raised(*c)) or is_grass(*c):
-                    continue
-                cells.add(c)
-                stack += [(c[0] + dx, c[1] + dy) for dx, dy in NEIGHBOURS]
-            seen |= cells
-            x0, x1 = min(c[0] for c in cells), max(c[0] for c in cells)
-            y0, y1 = min(c[1] for c in cells), max(c[1] for c in cells)
-            if len(cells) < 12 or x1 - x0 > 20 or y1 - y0 > 14:
-                continue
-            donors.append({"w": x1 - x0 + 1, "h": y1 - y0 + 1, "n": len(cells), "from": (x0, y0),
-                           "grid": {(c[0] - x0, c[1] - y0): raised(*c) for c in cells}})
-    donors.sort(key=lambda d: -d["n"])
-    return {"tiles": tiles, "draws": draws, "base": base, "raised": raised, "size": (tw, th),
-            "weave": weave, "detail": detail, "src_ground": src_ground,
-            "edge_in": edge_in, "edge_out": edge_out, "donors": donors}
-
-
-# ===== the shapes =====
-
-def grass_entry(tx: int, ty: int) -> int:
-    row = GRASS_EVEN if ty % 2 == 0 else GRASS_ODD
-    return row[(tx + GRASS_PHASE + GRASS_SHEAR * (ty // 2)) % len(row)]
-
-
-def _lumpy(dx: float, dy: float, ax: float, ay: float, lump) -> bool:
-    ang = math.atan2(dy, dx)
-    bump = sum(c * math.sin(k * ang + p) for k, p, c in lump)
-    a, b = ax + bump, ay + bump
-    if a <= 0 or b <= 0:
-        return False
-    return (abs(dx) / a) ** ARENA_N + (abs(dy) / b) ** ARENA_N <= 1.0
-
-
-def arena_cells() -> set:
-    """The plateau top: one closed irregular shape, the only walkable ground on the map."""
-    return {(tx, ty) for ty in range(MAP_TILES[1]) for tx in range(MAP_TILES[0])
-            if _lumpy(tx - ARENA_AT[0], ty - ARENA_AT[1], ARENA_AX, ARENA_AY, ARENA_LUMP)}
-
-
-def satellite_cells() -> set:
-    """Further plateau tops beyond the drop. Scenery: nothing here is walkable."""
-    out = set()
-    for i, (cx, cy, r) in enumerate(SATELLITES):
-        for ty in range(cy - r - 4, cy + r + 5):
-            for tx in range(cx - r - 4, cx + r + 5):
-                if not (0 <= tx < MAP_TILES[0] and 0 <= ty < MAP_TILES[1]):
-                    continue
-                ang = math.atan2(ty - cy, tx - cx)
-                a = r + 2.3 * math.sin(3 * ang + i) + 1.2 * math.sin(5 * ang + 2 * i)
-                if (tx - cx) ** 2 + (ty - cy) ** 2 <= a * a:
-                    out.add((tx, ty))
-    return out
-
-
-def grow(seed, want, salt, limit):
-    """A patch outline: flood from the seed, taking the lowest-noise neighbour each step."""
-    blob, cand = set(), {seed}
-    while cand and len(blob) < want:
-        c = min(cand, key=lambda q: spot_hash(q[0], q[1], salt))
-        cand.discard(c)
-        if c not in limit:
-            continue
-        blob.add(c)
-        for dx, dy in NEAR4:
-            n = (c[0] + dx, c[1] + dy)
-            if n in limit and n not in blob:
-                cand.add(n)
-    return blob
-
-
-def smooth(blob, limit):
-    """Round the axis-aligned stair steps off a grown outline.
-
-    A cell with one neighbour or none is a spur and goes. A gap with three neighbours is filled. The
-    owner called the unsmoothed shapes "excessive blocky patches"."""
-    for _ in range(SMOOTH_PASSES):
-        near8 = lambda c, s: sum((c[0] + dx, c[1] + dy) in s for dx, dy in NEIGHBOURS)
-        keep = {c for c in blob if near8(c, blob) >= 4}
-        edge = {(c[0] + dx, c[1] + dy) for c in blob for dx, dy in NEIGHBOURS} - blob
-        add = {c for c in edge if c in limit and near8(c, blob) >= 5}
-        blob = keep | add
-    return blob
-
-
-def _pick(counts, roll):
-    total = sum(counts.values())
-    r = roll % total
-    for e, n in sorted(counts.items(), key=lambda kv: -kv[1]):
-        r -= n
-        if r < 0:
-            return e
-    return next(iter(counts))
-
-
-def _nearest(table, m):
-    return table[m] if m in table else table[min(table, key=lambda k: bin(k ^ m).count("1"))]
-
-
-def _clear_of_fight(cells) -> bool:
-    for cx, cy in cells:
-        for sx, sy in FIGHT_SPOTS:
-            if max(abs(cx * 8 + 4 - sx), abs(cy * 8 + 4 - sy)) < FIGHT_CLEAR:
-                return False
-    return True
-
-
-# ===== generate the two tilemaps and the collision =====
-
-def generate(rules: dict) -> dict:
-    """{base, raised, open, patches, formations}: everything the patch writes and a render draws."""
-    arena = arena_cells()
-    sats = satellite_cells() - {c for c in arena
-                                for c in ((c[0] + dx, c[1] + dy) for dx in range(-4, 5)
-                                          for dy in range(-4, 5))}
-    sats -= arena
-    high = arena | sats
-
-    # 1. The base ground over the whole map, in 3 x 3 vanilla blocks, with one-cell detail over it.
-    base = {}
-    for by in range(0, MAP_TILES[1], BASE_MOTIF):
-        for bx in range(0, MAP_TILES[0], BASE_MOTIF):
-            block = rules["weave"][spot_hash(bx, by, 0x51A7) % len(rules["weave"])]
-            for dy in range(BASE_MOTIF):
-                for dx in range(BASE_MOTIF):
-                    if bx + dx < MAP_TILES[0] and by + dy < MAP_TILES[1]:
-                        base[(bx + dx, by + dy)] = block[dy * BASE_MOTIF + dx]
-    for ty in range(MAP_TILES[1]):
-        for tx in range(MAP_TILES[0]):
-            if spot_hash(tx, ty, 0x9D1E) % 24 == 0:
-                base[(tx, ty)] = _pick(rules["detail"], spot_hash(tx, ty, 0x31A7))
-
-    # 2. The high ground: grass inside, the lip autotile on every boundary, inside and out.
-    raised = {}
-    for ty in range(MAP_TILES[1]):
-        for tx in range(MAP_TILES[0]):
-            m = sum(1 << i for i, (dx, dy) in enumerate(NEIGHBOURS)
-                    if (tx + dx, ty + dy) in high)
-            if (tx, ty) in high:
-                raised[(tx, ty)] = (grass_entry(tx, ty) if m == 0xFF
-                                    else _pick(_nearest(rules["edge_in"], m),
-                                               spot_hash(tx, ty, 0x1B3)))
-            elif m:
-                raised[(tx, ty)] = _pick(_nearest(rules["edge_out"], m), spot_hash(tx, ty, 0x2C9))
-
-    # 3. Ground patches on the arena top, clustered, grown and then smoothed.
-    anchors = sorted(c for c in rules["src_ground"]
-                     if all((c[0] + dx, c[1] + dy) in rules["src_ground"]
-                            for dx in range(0, 10) for dy in range(0, 10)))
-    field, holes, patches = set(arena), set(), []
-    lo_c, hi_c = min(c[0] for c in field), max(c[0] for c in field)
-    lo_r, hi_r = min(c[1] for c in field), max(c[1] for c in field)
-    for k in range(CLUSTERS):
-        h = spot_hash(k, 0x5EED, 0x11C7)
-        cx = int(lo_c + (hi_c - lo_c) * ((h % 1000) / 1000.0))
-        cy = int(lo_r + (hi_r - lo_r) * (((h >> 10) % 1000) / 1000.0))
-        howmany = PER_CLUSTER[0] + (h >> 20) % (PER_CLUSTER[1] - PER_CLUSTER[0] + 1)
-        for j in range(howmany):
-            g = spot_hash(k * 31 + j, 0xA17E, 0x2F5B)
-            ang = (g % 360) * math.pi / 180.0
-            rad = (g >> 11) % CLUSTER_R
-            seed = (int(cx + rad * math.cos(ang)), int(cy + rad * math.sin(ang)))
-            apart = {(c[0] + dx, c[1] + dy) for c in holes for dx in (-1, 0, 1) for dy in (-1, 0, 1)}
-            room = field - apart
-            if seed not in room:
-                continue
-            cells = smooth(grow(seed, PATCH_SIZES[(g >> 19) % len(PATCH_SIZES)],
-                                0x3C00 + k * 17 + j, room), room)
-            if not cells:
-                continue
-            ax, ay = anchors[(g >> 23) % len(anchors)]
-            sx, sy = min(c[0] for c in cells), min(c[1] for c in cells)
-            for c in cells:
-                raised.pop(c, None)
-                src = (ax + c[0] - sx, ay + c[1] - sy)
-                base[c] = (rules["base"](*src) if src in rules["src_ground"]
-                           else _pick(rules["detail"], spot_hash(c[0], c[1], 0x6B1 + k)))
-            holes |= cells
-            patches.append(len(cells))
-    for ty in range(MAP_TILES[1]):                       # a few lone specks as grain between them
-        for tx in range(MAP_TILES[0]):
-            if (tx, ty) not in field or (tx, ty) in holes:
-                continue
-            if spot_hash(tx, ty, 0x51EC) % SPECK_RATE:
-                continue
-            if all((tx + dx, ty + dy) in arena for dx, dy in NEIGHBOURS):
-                raised.pop((tx, ty), None)
-                base[(tx, ty)] = _pick(rules["detail"], spot_hash(tx, ty, 0x7C3B))
-                holes.add((tx, ty))
-                patches.append(1)
-
-    # 4. The land beyond the drop: a cliff line under the rim, cliff groups in the side areas, a rock
-    #    cavern in the south east, and boulders. None of it is walkable, so none of it can go wrong.
-    formations = []
-    rim = sorted({c for c in high if any((c[0] + dx, c[1] + dy) not in high for dx, dy in NEAR4)})
-    spots = []
-    for i, (rx, ry) in enumerate(rim):
-        if i % RIM_CLIFF_STEP:
-            continue
-        vx, vy = rx - ARENA_AT[0], ry - ARENA_AT[1]
-        n = math.hypot(vx, vy) or 1.0
-        spots.append((min(max(int(rx + RIM_CLIFF_OUT * vx / n), 6), MAP_TILES[0] - 7),
-                      min(max(int(ry + RIM_CLIFF_OUT * vy / n), 6), MAP_TILES[1] - 7), "rim"))
-    spots += [(x, y, "side") for x, y in SIDE_CLIFFS]
-    for i in range(CAVERN_N):                            # the rocky cavern below, south east
-        a = 2 * math.pi * i / CAVERN_N
-        j = spot_hash(i, 0x3D1, 0x77)
-        r = CAVERN_R + (j % 9) - 4
-        spots.append((int(CAVERN_AT[0] + r * math.cos(a) * 0.95),
-                      int(CAVERN_AT[1] + r * math.sin(a) * 0.65), "cavern"))
-    for i, (tx, ty, what) in enumerate(spots):
-        d = rules["donors"][spot_hash(tx, ty, 0x7A1 + i) % min(6, len(rules["donors"]))]
-        cells = {(tx + cx - d["w"] // 2, ty + cy - d["h"] // 2): e
-                 for (cx, cy), e in d["grid"].items()}
-        cells = {c: e for c, e in cells.items()
-                 if 0 <= c[0] < MAP_TILES[0] and 0 <= c[1] < MAP_TILES[1] and c not in high}
-        if len(cells) < 5 or not _clear_of_fight(cells):
-            continue
-        raised.update(cells)
-        formations.append((what, tx, ty, len(cells)))
-    for which, tx, ty in BOULDERS:
-        if which >= len(rules["donors"]):
-            continue
-        d = rules["donors"][which]
-        cells = {(tx + cx, ty + cy): e for (cx, cy), e in d["grid"].items()
-                 if 0 <= tx + cx < MAP_TILES[0] and 0 <= ty + cy < MAP_TILES[1]}
-        if not cells or any(c in high for c in cells) or not _clear_of_fight(cells):
-            continue
-        raised.update(cells)
-        formations.append(("boulder", tx, ty, len(cells)))
-
-    # 5. Collision: the arena top and nothing else, reached by a flood so no pocket is left behind.
-    opened, stack = set(), [(int(ARENA_AT[0]), int(ARENA_AT[1]))]
+def reachable(cells: set, seed: tuple) -> set:
+    """The cells a walker reaches from one of them. His map holds one sealed pocket, by design."""
+    out, stack = set(), [seed]
     while stack:
         c = stack.pop()
-        if c in opened or c not in arena:
+        if c in out or c not in cells:
             continue
-        opened.add(c)
+        out.add(c)
         stack += [(c[0] + dx, c[1] + dy) for dx, dy in NEAR4]
-    return {"base": base, "raised": raised, "open": opened, "arena": arena, "high": high,
-            "patches": patches, "formations": formations, "holes": holes}
-
-
-def collision(opened) -> bytes:
-    out = bytearray(FRAME_SIZE)
-    for cx, cy in opened:
-        out[cy * FRAME_STRIDE + (cx >> 3)] |= 1 << (cx & 7)
-    return bytes(out)
+    return out
 
 
 def is_open(bits: bytes, cx: int, cy: int) -> bool:
@@ -567,127 +300,205 @@ def is_open(bits: bytes, cx: int, cy: int) -> bool:
     return bool(bits[cy * FRAME_STRIDE + (cx >> 3)] & (1 << (cx & 7)))
 
 
-def envelope_cells(spot: tuple) -> list:
-    left, right, up, down = ENVELOPE
+def envelope_cells(spot: tuple, env: tuple = ENVELOPE) -> list:
+    left, right, up, down = env
     return [(cx, cy) for cy in range((spot[1] - up) // 8, (spot[1] + down) // 8 + 1)
             for cx in range((spot[0] - left) // 8, (spot[0] + right) // 8 + 1)]
 
 
-def blocks_of(cells: dict) -> dict:
-    out = {}
-    for k in range(GRID[0] * GRID[1]):
-        ox, oy = (k % GRID[0]) * BLOCK_TILES, (k // GRID[0]) * BLOCK_TILES
-        block = bytearray(BLOCK_SIZE)
-        for t in range(BLOCK_TILES * BLOCK_TILES):
-            e = cells.get((ox + t % BLOCK_TILES, oy + t // BLOCK_TILES), 0)
-            struct.pack_into("<H", block, 2 * t, e)
-        out[k] = bytes(block)
-    return out
+def plateau_entry(arena: bytes, layouts_at: int, items_at: int) -> bytes:
+    """The live map 6,100 entry with three words changed: the zone, the item list and the layout array.
 
-
-def layer_record(header: bytes, grid: tuple, block_at: dict) -> bytes:
-    """A layer record: one of map 7,15's 0x18 byte headers, a new grid, and new block pointers."""
-    out = bytearray(header[:LAYER_PTRS])
-    out[LAYER_GRID], out[LAYER_GRID + 1] = grid
-    for k in range(grid[0] * grid[1]):
-        out += _word(block_at[k] + ROM_BASE)
-    return bytes(out)
-
-
-def plateau_layout(source: bytes, layers: dict, collision_at: int) -> bytes:
-    """Map 7,15's layout with its doors and props dropped, its own collision, its own camera pair and
-    three of its four layer records replaced. The animated tile group `+0x0C`/`+0x10` is CARRIED, so
-    entry 0x037E keeps drawing; the tile stream `+0x48` and chunk table `+0x4C` are carried too."""
-    out = bytearray(source)
-    struct.pack_into("<HH", out, L_CLAMP, *CLAMP)
-    out[L_WARP_COUNT:L_WARP_COUNT + 4] = _word(0)
-    out[L_WARP_LIST:L_WARP_LIST + 4] = _word(0)
-    out[L_PROP_COUNT:L_PROP_COUNT + 4] = _word(0)
-    out[L_PROP_LIST:L_PROP_LIST + 4] = _word(0)
-    out[L_COLLISION:L_COLLISION + 4] = _word(collision_at + ROM_BASE)
-    for off, at in layers.items():
-        out[off:off + 4] = _word(at + ROM_BASE)
-    return bytes(out)
-
-
-def plateau_entry(arena: bytes, layouts_at: int) -> bytes:
+    The item list must be the plateau's OWN. Sharing battle_arena's would share its enemy item, and an
+    item carries its death event at +0x14, so round 2's Cell would die into round 1's death record and
+    split again for ever."""
     out = bytearray(arena)
     out[F_ZONE] = PLATEAU_ZONE
+    out[F_ITEMS:F_ITEMS + 4] = _word(items_at + ROM_BASE)
     out[F_LAYOUTS:F_LAYOUTS + 4] = _word(layouts_at + ROM_BASE)
     return bytes(out)
 
 
+# ===== the round split (rung 5) =====
+
+def round1(enemy_item: int) -> bytes:
+    """R, ending table word 23: round 1 on the arena, with the TOP HALF of the boss bar.
+
+    It is ending_fight's own record F with one op changed, `ext 85 bar_show` for `ext 90 bar_set`, so
+    the talk still ends the way the owner approved: no fade, no map load, nobody placed, the HUD back
+    and camera_follow(0) panning the view onto the player.
+
+    The segment is (50, 100). See ROUND1_BAR for why lo and hi mean what they mean and why an even
+    split is legal."""
+    return code(END_INDEX, battle_start(enemy_set=CELL_SET, enemy_item=enemy_item,
+                                        bar=CELL_SET, bar_range=ROUND1_BAR))
+
+
+def split(enemy_item: int) -> bytes:
+    """S, word 0 of the table battle_arena's enemy names: the round boundary.
+
+    It runs when round 1's Cell reaches HP 0 on map 6,100. The owner's beat, 2026-11-07: "half way:
+    white flash + ping -> cutscene, Cell punched off screen, Trunks flies after him", and his
+    precedent, 2026-11-08: "yeah we did this for cell jr as well".
+
+    1. THE HEAD IS CELLJR'S RELAY HEAD. `ext 88` drops the bar, `header_bit1(0)` drops the HUD, then
+       sound 60, the `ext 42` / `ext 43` white flash pair and a 40 frame hold. Those are celljr's own
+       DING, RELAY_FLASH and DING_HOLD, byte for byte, and he has play tested them three times
+       (bible B0898, B0938). Vanilla's own hand-off, rom:0x3EC758 word 0 (B0748), opens the same way,
+       `ext 46 (60)` then `ext 88` then a flash, so the two agree.
+    2. THE STAGING HIDES UNDER THE WHITE. A beaten boss keeps the boss descriptor and stays standing
+       wherever the fight left him, which is nowhere in particular, so the record puts the pair back
+       on the fight spots before anyone sees them. The player goes to TRUNKS_SPOT facing up, the
+       beaten enemy is removed and a plain NPC Cell is spawned on CELL_SPOT facing down, and `ext 31`
+       parks the view on the pair. That `ext 52` plus `ext 51` swap is ending_fight's record K's own
+       shape, and an NPC takes a scripted pose with no AI to argue with it.
+    2a. HE WALKS THE LAST 40 PX, so the punch lands in close. The owner, 2026-11-08: "trunks should
+       walk to cell and punch him, not punch him a mile away". `ext 53` to PUNCH_FROM, 24 px below
+       Cell's own point, then `ext 55` to hold him facing up. The walk BLOCKS, so the punch cannot
+       start early, and 24 px is celljr's own melee gap. See PUNCH_FROM.
+    3. THE PUNCH IS CELLJR'S MELEE. `ext 63` ... `ext 64` runs the group in parallel: the player takes
+       the attack state, the script waits to the hit frame, Cell takes the hit and its sound, turns to
+       his attacker, drops into the hurt pose and is thrown to PUNCHED_TO, which is above the top of
+       the parked view. LIKELY, not confirmed: celljr drove that group on an ENEMY object and this one
+       drives an NPC. If the throw does not play, `ext 54 fly` is the fallback.
+    4. TRUNKS FLIES AFTER HIM: `ext 121 (0, 12)` then `ext 136`, celljr's own "fly to C" pair, to the
+       same row. The view is still parked, so both of them really do leave the frame.
+    5. THE HAND-OFF IS B0748's SHAPE: a cover, the `ext 39` load, the settle, the facing, the camera
+       park, the reveal. A death event that loads the next map is vanilla (Cell type 21's death event
+       loads map 14,3, bible B0654). `ext 39`, never `ext 35`: only ext 38 and ext 39 reach
+       `sub_0800C584` and build a player. The 120 frame settle is record A's own: a load does not
+       finish inside its own op. `ext 31` is needed because the load centres the camera on the player
+       at (x - 112, y - 76), which from TRUNKS_SPOT is (136, 492) and would cut Cell's head off.
+    6. ROUND 2 ARMS LAST, with the standard battle start: `ext 104` re-arms Cell from the plateau's own
+       enemy item, the bar shows the BOTTOM HALF, the HUD comes back and camera_follow(0) hands the
+       view over. That re-arm is vanilla's own multi-round wiring (B0832).
+
+    Next 26 = END, so the player gets control the moment the record finishes."""
+    head = (ext(88) + call("header_bit1", 0)
+            + call("sound", PING)
+            + call("palette_fx", SPLIT_FLASH)
+            + ext(62, PLAYER, *TRUNKS_SPOT) + ext(55, PLAYER, UP)
+            + ext(52, CELL_SET) + ext(51, CELL_SET, *CELL_SPOT) + ext(55, CELL_SET, DOWN)
+            + ext(31, *SPLIT_VIEW)
+            + call("flash_wait", SPLIT_FLASH)
+            + wait(PING_HOLD))
+    close = walk_to(PLAYER, *PUNCH_FROM) + ext(55, PLAYER, UP)
+    punch = (call("block_begin")
+             + ext(57, PLAYER, PUNCH_STATE) + wait(HIT_FRAME) + ext(112, CELL_SET, HIT_SOUND)
+             + ext(95, CELL_SET) + ext(121, CELL_SET, HURT_STATE)
+             + ext(136, CELL_SET, *PUNCHED_TO, KNOCK_N)
+             + call("block_end") + wait(BEAT))
+    follow = ext(121, PLAYER, FLY_STATE) + ext(136, PLAYER, *FLIES_TO, FLY_N) + wait(BEAT)
+    arrive = (fade_out(SPLIT_FADE)
+              + call("load_map_at", PLATEAU_ZONE, PLATEAU_AREA, MAP_VARIATION, *TRUNKS_SPOT)
+              + wait(LOAD_SETTLE)
+              + ext(55, PLAYER, UP)
+              + ext(31, *ARRIVE_VIEW)
+              + fade_in(SPLIT_FADE)
+              + wait(ARRIVE_HOLD))
+    return code(END_INDEX, head, close, punch, follow, arrive,
+                battle_start(enemy_set=CELL_SET, enemy_item=enemy_item,
+                             bar=CELL_SET, bar_range=ROUND2_BAR))
+
+
+def plateau_npc_item(arena_npc: bytes, step_at: int) -> bytes:
+    """The plateau's NPC Imperfect Cell: battle_arena's own item, moved onto the fight spot.
+
+    The arena builds its NPC on CELL_START and the vanilla talk walks him to CELL_SPOT. Nothing walks
+    him here, because round 2 opens mid fight, so the item carries CELL_SPOT itself. Condition and set
+    are battle_arena's, so the map load builds him and `ext 104` has an actor of set 28 to replace."""
+    item = bytearray(arena_npc)
+    item[N_AT:N_AT + 4] = struct.pack("<hh", *CELL_SPOT)
+    item[N_STEP_LIST:N_STEP_LIST + 4] = _word(step_at + ROM_BASE)
+    return bytes(item)
+
+
+def plateau_enemy_item(arena_enemy: bytes, event_at: int, tail_at: int) -> bytes:
+    """The plateau's enemy Imperfect Cell: battle_arena's own item with its OWN event struct.
+
+    Everything else is carried, so round 2 is the same type 60 at HP 5210 with AI 80 and the boss
+    descriptor. Only the death event differs, and that is the whole point: round 1's death splits the
+    fight and round 2's ends it."""
+    item = bytearray(arena_enemy)
+    item[ITEM_AT:ITEM_AT + 4] = struct.pack("<hh", *CELL_SPOT)
+    item[ITEM_EVENT:ITEM_EVENT + 4] = _word(event_at + ROM_BASE)
+    item[ITEM_TAIL:ITEM_TAIL + 4] = _word(tail_at + ROM_BASE)
+    return bytes(item)
+
+
 # ===== checks =====
 
-def _check_source(rom: bytearray) -> tuple:
-    index, at = map_entry(rom, SOURCE_ZONE, SOURCE_AREA)
-    _expect(rom, at + F_LAYOUTS, _word(SOURCE_LAYOUTS + ROM_BASE))
-    _expect(rom, SOURCE_LAYOUTS, _word(SOURCE_LAYOUT + ROM_BASE))
-    for off, want in ((L_BG0, SOURCE_LAYERS[0]), (L_BG1, SOURCE_LAYERS[1]), (L_BG2, SOURCE_LAYERS[2]),
-                      (L_BG3, SOURCE_LAYERS[3]), (L_PROP_LIST, SOURCE_PROP_LIST),
-                      (L_PROP_SHEET, SOURCE_PROP_SHEET), (L_COLLISION, SOURCE_COLLISION),
-                      (L_TILE_STREAM, SOURCE_TILE_STREAM), (L_TILE_TABLE, SOURCE_TILE_TABLE)):
-        _expect(rom, SOURCE_LAYOUT + off, _word(want + ROM_BASE))
-    _expect(rom, SOURCE_LAYOUT + L_PROP_COUNT, _word(SOURCE_PROPS))
-    _expect(rom, SOURCE_LAYOUT + L_WARP_COUNT, _word(0))
-    if struct.unpack_from("<HH", rom, SOURCE_LAYOUT + L_CLAMP) != SOURCE_CLAMP:
-        raise ValueError(f"map 7,15's camera pair is"
-                         f" {struct.unpack_from('<HH', rom, SOURCE_LAYOUT + L_CLAMP)},"
-                         f" expected {SOURCE_CLAMP}")
-    if _u32(rom, SOURCE_LAYOUT + L_ANIM_COUNT) != 1:
-        raise ValueError("map 7,15 no longer carries exactly 1 animated tile group, which entry"
-                         " 0x037E depends on")
-    namers = words_naming(rom, SOURCE_LAYOUTS)
-    stray = [w for w in namers
-             if (rom[w - F_LAYOUTS], rom[w - F_LAYOUTS + 1]) != (SOURCE_ZONE, SOURCE_AREA)]
-    if at + F_LAYOUTS not in namers or stray:
-        raise ValueError(f"map 7,15's layout array is named by {[hex(w) for w in namers]};"
-                         f" {[hex(w) for w in stray]} are not map 7,15 entries")
-    for n, rec in enumerate(SOURCE_LAYERS):
-        if _u32(rom, rec) != LAYER_CLASS:
-            raise ValueError(f"map 7,15's BG{n} rom:0x{rec:X} is class 0x{_u32(rom, rec):08X}")
-        if (rom[rec + LAYER_GRID], rom[rec + LAYER_GRID + 1]) != SOURCE_GRIDS[n]:
-            raise ValueError(f"map 7,15's BG{n} grid is"
-                             f" {(rom[rec + LAYER_GRID], rom[rec + LAYER_GRID + 1])},"
-                             f" expected {SOURCE_GRIDS[n]}")
-    tiles = source_tiles(rom)
-    sha = hashlib.sha1(b"".join(bytes(t) for t in tiles)).hexdigest()
-    if len(tiles) != SOURCE_TILES:
-        raise ValueError(f"map 7,15 decodes to {len(tiles)} tiles, expected {SOURCE_TILES}")
-    if SOURCE_TILES_SHA1 and sha != SOURCE_TILES_SHA1:
-        raise ValueError(f"map 7,15's tiles hash {sha}, expected {SOURCE_TILES_SHA1}")
-    if any(tiles[BLANK_TILE]):
-        raise ValueError(f"tile {BLANK_TILE} is not 64 zero pixels, so a blank block would draw")
-    for e in sorted(GRASS):
-        n = e & ENTRY_TILE
-        if n < len(tiles) and not any(tiles[n]):
-            raise ValueError(f"grass entry 0x{e:04X} names tile 0x{n:X}, which draws nothing")
-    return index, sha
+def _check_design(doc: dict) -> dict:
+    """His map, measured where the fight stands on it. Nothing here changes a byte of his work.
 
+    Returns the measurements the notes carry, so a check, a test and a report read the same numbers."""
+    problems = map_file.validate(doc)
+    if problems:
+        raise ValueError(f"{MAP_DOC.name} is not a sound map document, so nothing was written:\n  "
+                         + "\n  ".join(problems))
+    world = tuple(doc["world"])
+    clamp = map_file.camera_pair(*world)
+    opened = open_cells(doc)
+    if not opened:
+        raise ValueError(f"{MAP_DOC.name} opens no cell at all, so nobody could stand on it")
 
-def _check_design(rom: bytearray, out: dict) -> None:
-    bits = collision(out["open"])
-    for spot in FIGHT_SPOTS:
-        for cx, cy in envelope_cells(spot):
-            if not is_open(bits, cx, cy):
-                raise ValueError(f"the fight spot {spot} draws into the closed cell ({cx},{cy})")
-    on_border = [c for c in out["open"]
-                 if c[0] in (0, MAP_TILES[0] - 1) or c[1] in (0, MAP_TILES[1] - 1)]
-    if on_border:
-        raise ValueError(f"{len(on_border)} walkable cells touch the map border, for example"
-                         f" {sorted(on_border)[:4]}")
-    mute = [c for c in ((cx, cy) for cy in range(MAP_TILES[1]) for cx in range(MAP_TILES[0]))
-            if c not in out["open"] and c not in out["raised"]
-            and any((c[0] + dx, c[1] + dy) in out["open"] for dx, dy in NEAR4)]
-    if mute:
-        raise ValueError(f"{len(mute)} closed cells face open ground and draw nothing, for example"
-                         f" {sorted(mute)[:4]}")
-    if len(out["open"]) < 4810:
-        raise ValueError(f"the arena holds {len(out['open'])} open cells, under the 4810 of map 14,3,"
-                         f" the largest vanilla boss arena")
-    if len(OLD_LOAD) != len(NEW_LOAD) or OLD_LOAD[LOAD_BYTE + 1:] != NEW_LOAD[LOAD_BYTE + 1:] \
-            or OLD_LOAD[:LOAD_BYTE] != NEW_LOAD[:LOAD_BYTE]:
-        raise ValueError(f"the map load is not a one byte change: {OLD_LOAD.hex()} to {NEW_LOAD.hex()}")
+    # One walkable REGION, not every open cell: his map seals a pocket inside the rock ring on
+    # purpose, and both fighters have to be in the region the player can walk.
+    seed = (CELL_SPOT[0] // 8, CELL_SPOT[1] // 8)
+    if seed not in opened:
+        raise ValueError(f"Cell's own cell {seed} is closed on {MAP_DOC.name}, so round 2 would open"
+                         f" with him standing in a wall")
+    reach = reachable(opened, seed)
+    for spot, env, who in PLATEAU_SPOTS:
+        for cx, cy in envelope_cells(spot, env):
+            if (cx, cy) not in reach:
+                raise ValueError(f"{who} at {spot} draws into ({cx},{cy}), which is closed or sealed"
+                                 f" off on {MAP_DOC.name}")
+
+    # The camera stops at the world edge, so walkable ground there would let him walk into nothing.
+    edge = [c for c in opened if c[0] == 0 or c[1] == 0
+            or (c[0] + 1) * 8 >= world[0] or (c[1] + 1) * 8 >= world[1]]
+    if edge:
+        raise ValueError(f"{len(edge)} walkable cells touch the {world[0]} x {world[1]} px world"
+                         f" edge, for example {sorted(edge)[:4]}")
+
+    # Both views the split parks have to be inside HIS camera bound, or the clamp moves them and the
+    # pair is not framed where it was drawn. The load centres the view at (x - 112, y - 76).
+    for view, where in ((ARRIVE_VIEW[:2], "the parked plateau view"),
+                        ((TRUNKS_SPOT[0] - 112, TRUNKS_SPOT[1] - 76), "the view the load centres")):
+        if not (0 <= view[0] <= clamp[0] and 0 <= view[1] <= clamp[1]):
+            raise ValueError(f"{where} {view} is outside his camera bound {clamp}: the clamp would"
+                             f" move it, so the pair would not be framed where the record puts them")
+
+    # The rest is the SPLIT's own px arithmetic on map 6,100 and does not read his map at all.
+    for spot, who, up, down in ((CELL_SPOT, "Cell", ENVELOPE[2], ENVELOPE[3]),
+                                (TRUNKS_SPOT, "Trunks", TRUNKS_UP, TRUNKS_DOWN),
+                                (PUNCH_FROM, "Trunks at the punch", TRUNKS_UP, TRUNKS_DOWN)):
+        top, bottom = spot[1] - up, spot[1] + down
+        for view, where in ((SPLIT_VIEW, "the arena view"), (ARRIVE_VIEW, "the plateau view")):
+            if top < view[1] or bottom > view[1] + VIEW[1]:
+                raise ValueError(f"{who} at {spot} draws {top}..{bottom}, outside {where} {view[:2]}"
+                                 f" plus {VIEW[1]}: his frame would be cut")
+    if PUNCHED_TO[1] + ENVELOPE[3] >= SPLIT_VIEW[1] or FLIES_TO[1] + TRUNKS_DOWN >= SPLIT_VIEW[1]:
+        raise ValueError(f"the punch sends Cell to {PUNCHED_TO} and Trunks to {FLIES_TO}, which are"
+                         f" not above the view top {SPLIT_VIEW[1]}: neither leaves the frame")
+    # The walk is one axis and it closes the gap. Both are design, not taste: a diagonal walk would
+    # leave him facing sideways, and a punch from further out is what the owner rejected.
+    if PUNCH_FROM[0] != TRUNKS_SPOT[0]:
+        raise ValueError(f"the walk from {TRUNKS_SPOT} to {PUNCH_FROM} is not straight north, so the"
+                         f" mover would leave the player facing sideways at the punch")
+    gap = PUNCH_FROM[1] - CELL_SPOT[1]
+    if not 0 < gap <= TRUNKS_SPOT[1] - CELL_SPOT[1] - 8:
+        raise ValueError(f"the punch fires from {gap} px below Cell, which is not closer than the"
+                         f" staging spot {TRUNKS_SPOT} and still south of him")
+
+    xs, ys = [c[0] for c in opened], [c[1] for c in opened]
+    return {"world": world, "blocks": tuple(doc["blocks"]), "map_tiles": map_tiles(doc),
+            "clamp": clamp, "open_cells": len(opened), "reachable": len(reach),
+            "pocket_cells": len(opened) - len(reach),
+            "open_box": (min(xs) * 8, min(ys) * 8, max(xs) * 8 + 7, max(ys) * 8 + 7),
+            "priorities": {name: doc["layers"][name]["priority"] for name in sorted(doc["layers"])},
+            "static_tiles": len(doc["tiles"]), "groups": len(doc.get("animated") or [])}
 
 
 def _check(rom: bytearray, alloc) -> tuple:
@@ -696,6 +507,12 @@ def _check(rom: bytearray, alloc) -> tuple:
     for name in (ARENA, ENDING):
         if name not in alloc.notes:
             raise ValueError(f"{name} has not run: the plateau composes on its notes")
+    if not MAP_DOC.is_file():
+        raise ValueError(f"{MAP_DOC} is missing: the plateau IS that document, and this module never"
+                         f" reads his live map-editor\\maps folder")
+    if PLATEAU_VARIATIONS != import_map.VARIATIONS:
+        raise ValueError(f"this module says {PLATEAU_VARIATIONS} variation and import_map writes"
+                         f" {import_map.VARIATIONS}: the entry and the layout array would disagree")
 
     table, count = map_table(rom)
     for lit in BASE_LITERALS:
@@ -713,15 +530,13 @@ def _check(rom: bytearray, alloc) -> tuple:
     if (PLATEAU_ZONE, PLATEAU_AREA) in pairs:
         raise ValueError(f"map {PLATEAU_ZONE},{PLATEAU_AREA} already exists")
 
-    source_index, source_sha = _check_source(rom)
-
     arena_index, arena_at = map_entry(rom, ARENA_ZONE, ARENA_AREA)
     arena = bytes(rom[arena_at:arena_at + MAP_SIZE])
     if arena[F_VARIATIONS] != PLATEAU_VARIATIONS or arena[F_REGION_COUNT] != 0 \
             or arena[F_ITEM_COUNT] != ARENA_ITEMS:
         raise ValueError(f"map {ARENA_ZONE},{ARENA_AREA} carries {arena[F_VARIATIONS]} variations,"
                          f" {arena[F_REGION_COUNT]} regions and {arena[F_ITEM_COUNT]} items")
-    for off, want, what in ((F_COMBAT, 1, "combat"), (F_BANNER, ARENA_BANNER, "the banner"),
+    for off, want, what in ((F_COMBAT, ARENA_COMBAT, "combat"), (F_BANNER, ARENA_BANNER, "the banner"),
                             (F_REGIONS, 0, "the region list"), (F_MUSIC, ARENA_MUSIC, "the music"),
                             (F_MARKERS, 0, "the marker list"), (F_ENTER, 0, "the enter script"),
                             (F_LEAVE, 0, "the leave script")):
@@ -731,42 +546,95 @@ def _check(rom: bytearray, alloc) -> tuple:
     if _u32(arena, F_ITEMS) - ROM_BASE != alloc.notes[ARENA]["items"]:
         raise ValueError(f"map {ARENA_ZONE},{ARENA_AREA} does not name battle_arena's own item list")
 
+    # Record A keeps its ARENA load: rung 5 moved the plateau off word 13 and onto the round boundary.
     arrive = alloc.notes[ENDING]["arrive"]
     record = bytes(rom[arrive:record_end(rom, arrive)])
-    if record.count(OLD_LOAD) != 1:
-        raise ValueError(f"record A rom:0x{arrive:X} holds {record.count(OLD_LOAD)} copies of the"
-                         f" arena load, expected exactly 1")
-    load_at = arrive + record.index(OLD_LOAD)
+    if record.count(ARENA_LOAD) != 1:
+        raise ValueError(f"record A rom:0x{arrive:X} holds {record.count(ARENA_LOAD)} copies of the"
+                         f" arena load, expected exactly 1: round 1 must open on map"
+                         f" {ARENA_ZONE},{ARENA_AREA}")
 
-    elsewhere = []
-    for name in (ARENA, ENDING, "future_androids"):
-        for site in alloc.notes.get(name, {}).get("sites", []):
-            start, size = (site, 1) if isinstance(site, int) else tuple(site)[:2]
-            if start == arrive:
-                continue
-            found = bytes(rom[start:start + size]).count(OLD_LOAD)
-            if found:
-                elsewhere.append((name, start, found))
-    if elsewhere:
-        raise ValueError(f"the arena load is also written at {elsewhere}")
+    # The three ending_fight parts this module re-wires, each checked where it stands today.
+    fight, death, table_d = (alloc.notes[ENDING][k] for k in ("fight", "death", "table"))
+    # EVERY word that names record F has to move, not just the ending table's own word 23.
+    # future_androids gives each android enemy a COPY of the live ending table, so after a fight the
+    # scene runs out of THAT copy and reads its word 23, not the ending table's. Repointing one word
+    # would leave the whole-bar record F running whenever the player got to Cell through a fight.
+    fight_words = [FIGHT_WORD] + [t + 4 * FIGHT_INDEX
+                                  for t in sorted(alloc.notes.get(FUTURE, {}).get("tables", {}).values())]
+    for word in fight_words:
+        _expect(rom, word, _word(fight + ROM_BASE))
+    # And nothing ELSE a module wrote may name record F, or a path would keep the one round record.
+    # A vanilla address that happens to hold the same 4 bytes is data, not a table word, so only a
+    # namer inside a module's own allocation is a finding.
+    mine = set(fight_words)
+    for word in words_naming(rom, fight):
+        if word in mine:
+            continue
+        who = [name for name, (lo, n) in _written(alloc.notes) if lo <= word < lo + n]
+        if who:
+            raise ValueError(f"rom:0x{word:X} names ending_fight's record F and belongs to"
+                             f" {who}: every namer has to move, so stop and report")
+    event = alloc.notes[ARENA]["event"]
+    _expect(rom, event, _word(EVENT_RUNNER))
+    _expect(rom, event + EVENT_TABLE_AT, _word(table_d + ROM_BASE))
+    _expect(rom, table_d, _word(death + ROM_BASE))
+    if _u32(rom, alloc.notes[ARENA]["item"] + ITEM_EVENT) != event + ROM_BASE:
+        raise ValueError(f"the arena enemy does not name event struct rom:0x{event:X}")
+    if arena[F_ITEM_COUNT] != ARENA_ITEMS or ENEMY_INDEX >= ARENA_ITEMS:
+        raise ValueError(f"map {ARENA_ZONE},{ARENA_AREA} lists {arena[F_ITEM_COUNT]} items, so the"
+                         f" enemy index {ENEMY_INDEX} the two battle starts name is out of range")
+    theirs = alloc.notes[ARENA]
+    if (theirs["npc_item_index"], theirs["item_index"]) != (NPC_INDEX, ENEMY_INDEX):
+        raise ValueError(f"battle_arena orders its items {theirs['npc_item_index']} NPC and"
+                         f" {theirs['item_index']} enemy: the plateau list copies that order, so the"
+                         f" two must agree or ext 104 would name the wrong item")
+    if (theirs["cell_set"], tuple(theirs["cell_spot"]), tuple(theirs["trunks_spot"])) \
+            != (CELL_SET, CELL_SPOT, TRUNKS_SPOT):
+        raise ValueError(f"the fight pair here is set {CELL_SET} at {CELL_SPOT} and {TRUNKS_SPOT},"
+                         f" and battle_arena has set {theirs['cell_set']} at"
+                         f" {theirs['cell_spot']} and {theirs['trunks_spot']}")
+    # Round 2 must fight the SAME Cell as round 1. The plateau's enemy item is a copy of the arena's,
+    # taken live, so it inherits ending_fight's weaker future type; this proves the type is there to
+    # inherit and is not vanilla's type 60, which the main game's own Cell still carries.
+    weak_cell = alloc.notes[ENDING].get("cell_type")
+    live_cell = _u32(rom, theirs["item"] + ITEM_TYPE)
+    if weak_cell is None or live_cell != weak_cell:
+        raise ValueError(f"the arena enemy is type {live_cell} and ending_fight's weaker future Cell"
+                         f" is type {weak_cell}: round 1 and round 2 would not fight the same enemy")
+    # The two spots round 2 opens on are the ones _check_design proves against HIS collision.
+    # PUNCH_FROM and TRUNKS_START are ARENA spots and are proved against map 6,100's own frame below.
+    if {CELL_SPOT, TRUNKS_SPOT} != {spot for spot, _env, _who in PLATEAU_SPOTS}:
+        raise ValueError(f"PLATEAU_SPOTS is {[s for s, _e, _w in PLATEAU_SPOTS]}, and round 2 opens"
+                         f" with Cell at {CELL_SPOT} and Trunks at {TRUNKS_SPOT}")
+    # THE PUNCH HAPPENS ON THE ARENA, so the walk needs open ground on map 6,100 and not on the
+    # plateau. _check_design proves his map; this proves the arena, out of its own live frame.
+    arena_layout = _u32(rom, _u32(arena, F_LAYOUTS) - ROM_BASE) - ROM_BASE
+    arena_bits = _frame(rom, _u32(rom, arena_layout + L_COLLISION))
+    walk = [(TRUNKS_SPOT[0], y) for y in range(PUNCH_FROM[1], TRUNKS_SPOT[1] + 1, 8)]
+    for spot in walk + [PUNCH_FROM]:
+        for cx, cy in envelope_cells(spot, TRUNKS_ENVELOPE):
+            if not is_open(arena_bits, cx, cy):
+                raise ValueError(f"on map {ARENA_ZONE},{ARENA_AREA} the walk to {PUNCH_FROM} draws"
+                                 f" {spot} into the closed cell ({cx},{cy})")
 
-    guarded = ((SOURCE_LAYOUTS, 4, "map 7,15's layout array"),
-               (SOURCE_LAYOUT, LAYOUT_SIZE, "map 7,15's layout struct"),
-               (SOURCE_COLLISION, 4, "map 7,15's collision frame"),
-               (SOURCE_TILE_STREAM, 4, "map 7,15's tile stream"),
-               (COUNT_FN, 2, "the map count getter")) \
-        + tuple((rec, LAYER_PTRS + 4 * (g[0] * g[1]), f"map 7,15's BG{n} record")
-                for n, (rec, g) in enumerate(zip(SOURCE_LAYERS, SOURCE_GRIDS)))
     for name, (start, size) in _written(alloc.notes):
-        for lo, n, what in guarded:
-            if start < lo + n and lo < start + size:
-                raise ValueError(f"{what} rom:0x{lo:X} is also written by {name}: stop and report")
-    return table, count, arena, load_at, source_index, arena_index, source_sha
+        if start < COUNT_FN + 2 and COUNT_FN < start + size:
+            raise ValueError(f"the map count getter rom:0x{COUNT_FN:X} is also written by {name}:"
+                             f" stop and report")
+    return table, count, arena, arena_index, fight_words
 
 
-def _check_overlaps(notes: dict, sites: list, load_at: int) -> None:
+def _check_overlaps(notes: dict, sites: list, table_d: int, fight_words: list) -> None:
+    """Every write of this module that lands on an earlier module's bytes is a DECLARED hand-off.
+
+    There are three kinds: the map table literals and the count byte, which is how each relocation
+    hands the table on; ending table word 23, which moves from ending_fight's record F to record R;
+    and word 0 of ending_fight's table D, which moves from record K to record S. Record A is NOT
+    here any more, because rung 5 leaves it loading the arena."""
     expected = {(lit, 4) for lit in BASE_LITERALS} \
-        | {(ENTRY3_LITERAL, 4), (MAP_COUNT_BYTE, 1), (load_at + LOAD_BYTE, 1)}
+        | {(ENTRY3_LITERAL, 4), (MAP_COUNT_BYTE, 1), (table_d, 4)} \
+        | {(word, 4) for word in fight_words}
     for start, size, what in sites:
         for name, (lo, n) in _written(notes):
             if start >= lo + n or lo >= start + size:
@@ -779,10 +647,9 @@ def _check_overlaps(notes: dict, sites: list, load_at: int) -> None:
 # ===== patch =====
 
 def apply(rom: bytearray, alloc) -> None:
-    table, count, arena, load_at, source_index, arena_index, source_sha = _check(rom, alloc)
-    rules = learn(rom)
-    out = generate(rules)
-    _check_design(rom, out)
+    table, count, arena, arena_index, fight_words = _check(rom, alloc)
+    doc = document()
+    design = _check_design(doc)
     sites = []
 
     def place(data: bytes, name: str) -> int:
@@ -797,64 +664,94 @@ def apply(rom: bytearray, alloc) -> None:
         rom[at:at + len(data)] = data
         sites.append((at, len(data), name))
 
-    n_blocks = GRID[0] * GRID[1]
-    ground_at = {k: place(_packed_frame(b), f"the plateau's ground block {k}")
-                 for k, b in sorted(blocks_of(out["base"]).items())}
-    high_at = {k: place(_packed_frame(b), f"the plateau's high-ground block {k}")
-               for k, b in sorted(blocks_of(out["raised"]).items())}
-    bg3 = place(layer_record(bytes(rom[SOURCE_LAYERS[3]:SOURCE_LAYERS[3] + LAYER_PTRS]),
-                             GRID, ground_at),
-                f"the plateau's BG3 record ({GRID[0]}x{GRID[1]} blocks, the ground)")
-    bg2 = place(layer_record(bytes(rom[SOURCE_LAYERS[2]:SOURCE_LAYERS[2] + LAYER_PTRS]),
-                             GRID, high_at),
-                f"the plateau's BG2 record ({GRID[0]}x{GRID[1]} blocks, the high ground)")
+    # Round 2's own actors and its own death event. The plateau may not share battle_arena's item
+    # list: an item carries its death table at +0x14, and round 1 and round 2 must end differently.
+    arena_notes = alloc.notes[ARENA]
+    ending = alloc.notes[ENDING]
+    table_d = ending["table"]
+    step = place(bytes(rom[arena_notes["npc_step"]:arena_notes["npc_step"] + 8]),
+                 "the plateau NPC Cell's stand step")
+    tail = place(bytes(rom[arena_notes["tail"]:arena_notes["tail"] + 8]),
+                 "the plateau enemy's step struct")
+    table_d2 = place(bytes(rom[table_d:table_d + 4 * TABLE_WORDS]),
+                     f"table D2 (round 2's death event: the live {TABLE_WORDS} word table, word 0 left"
+                     f" at ending_fight's record K)")
+    event2 = place(_word(EVENT_RUNNER) + _word(table_d2 + ROM_BASE),
+                   "the plateau enemy's event struct (table D2, so round 2's death ends the ending)")
+    npc = place(plateau_npc_item(bytes(rom[arena_notes["npc_item"]:
+                                           arena_notes["npc_item"] + NPC_ITEM_SIZE]), step),
+                f"the plateau NPC Cell (set {CELL_SET}, cond 0, on {CELL_SPOT})")
+    enemy = place(plateau_enemy_item(bytes(rom[arena_notes["item"]:
+                                               arena_notes["item"] + ITEM_SIZE]), event2, tail),
+                  "the plateau enemy (Imperfect Cell, cond 1, its OWN death event)")
+    items = place(_word(npc + ROM_BASE) + _word(enemy + ROM_BASE),
+                  f"the plateau item list ({ARENA_ITEMS} items: the NPC, then the enemy)")
 
-    blank = place(_packed_frame(bytes(BLOCK_SIZE)),
-                  "the blank block BG0 and BG1 draw (tile 0, no pixel)")
-    blanked = {}
-    for n, off in ((0, L_BG0), (1, L_BG1)):
-        rec, grid = SOURCE_LAYERS[n], SOURCE_GRIDS[n]
-        blanked[off] = place(layer_record(bytes(rom[rec:rec + LAYER_PTRS]), grid,
-                                          {k: blank for k in range(grid[0] * grid[1])}),
-                             f"the plateau's BG{n} record (all {grid[0] * grid[1]} blocks blank)")
+    rnd1 = place(round1(ENEMY_INDEX), "record R (round 1 on the arena, the TOP half of the bar)")
+    boundary = place(split(ENEMY_INDEX),
+                     "record S (ping, flash, Cell punched off screen, Trunks flies after him, the"
+                     " plateau loads and round 2 arms with the BOTTOM half of the bar)")
 
-    frame = place(_packed_frame(collision(out["open"])),
-                  f"the plateau's collision frame ({len(out['open'])} open cells, the arena top only)")
-    layers = dict(blanked)
-    layers[L_BG3], layers[L_BG2] = bg3, bg2
-    layout = place(plateau_layout(bytes(rom[SOURCE_LAYOUT:SOURCE_LAYOUT + LAYOUT_SIZE]),
-                                  layers, frame),
-                   f"the plateau's layout copy (own ground, high ground, collision and camera pair"
-                   f" {CLAMP}; doors and props dropped)")
-    layouts = place(_word(layout + ROM_BASE), f"the plateau layout array ({PLATEAU_VARIATIONS} variation)")
-    entry = plateau_entry(arena, layouts)
-    new = place(bytes(rom[table:table + MAP_SIZE * count]) + entry,
-                f"the map table copy ({count + 1} entries)")
+    # THE MAP IS HIS, and import_map lays it: the four BG layer records, one frame per DISTINCT
+    # block, the collision and terrain frames, the tile stream, the animated tile groups, the 0x50
+    # byte layout with the camera pair COMPUTED from his world, the appended map table and the five
+    # table hand-offs. This module writes no tile and no collision bit of its own.
+    rom[:] = import_map.apply(bytes(rom), doc, PLATEAU_ZONE, PLATEAU_AREA, music=ARENA_MUSIC,
+                              banner=ARENA_BANNER, combat=ARENA_COMBAT, alloc=alloc.alloc,
+                              sites=sites)
 
-    for lit in BASE_LITERALS:
-        put(lit, _word(new + ROM_BASE), f"map table literal rom:0x{lit:X}")
-    put(ENTRY3_LITERAL, _word(new + MAP_SIZE * ENTRY3 + ROM_BASE), f"map entry {ENTRY3} literal")
-    put(MAP_COUNT_BYTE, bytes([rom[MAP_COUNT_BYTE] + 1]),
-        f"map count getter: {count} becomes {count + 1}")
-    put(load_at + LOAD_BYTE, NEW_LOAD[LOAD_BYTE:LOAD_BYTE + 1],
-        f"record A's map load: map {ARENA_ZONE},{ARENA_AREA} becomes map {PLATEAU_ZONE},{PLATEAU_AREA}")
-    _expect(rom, load_at, NEW_LOAD)
-    _check_overlaps(alloc.notes, sites, load_at)
+    new, new_count = map_table(rom)
+    if new_count != count + 1:
+        raise ValueError(f"the map table went from {count} to {new_count} entries, expected one more")
+    entry_at = new + MAP_SIZE * count
+    if (rom[entry_at], rom[entry_at + 1]) != (PLATEAU_ZONE, PLATEAU_AREA):
+        raise ValueError(f"the appended entry rom:0x{entry_at:X} is map {rom[entry_at]},"
+                         f"{rom[entry_at + 1]}, expected {PLATEAU_ZONE},{PLATEAU_AREA}")
+    layouts = _u32(rom, entry_at + F_LAYOUTS) - ROM_BASE
+    layout = _u32(rom, layouts) - ROM_BASE
+    clamp = struct.unpack_from("<HH", rom, layout + L_CLAMP)
+    if clamp != design["clamp"]:
+        raise ValueError(f"the layout carries the camera pair {clamp}, and his"
+                         f" {design['world'][0]} x {design['world'][1]} px world is"
+                         f" {design['clamp']}: a pair that is not his world's is the fault that"
+                         f" stopped the camera short of walkable ground")
 
-    opened = out["open"]
-    x0, x1 = min(c[0] for c in opened), max(c[0] for c in opened)
-    y0, y1 = min(c[1] for c in opened), max(c[1] for c in opened)
+    # The entry becomes the LIVE arena entry with three words changed, so map 7,100 keeps the arena's
+    # combat, banner, music and 2 item list, and names its OWN items and the layout import_map wrote.
+    put(entry_at, plateau_entry(arena, layouts, items),
+        f"the map {PLATEAU_ZONE},{PLATEAU_AREA} entry (the live {ARENA_ZONE},{ARENA_AREA} entry with"
+        f" the zone, the item list and the layout array changed)")
+
+    for word in fight_words:
+        where = ("the ending table" if word == FIGHT_WORD
+                 else "an android's copy of the ending table")
+        put(word, _word(rnd1 + ROM_BASE), f"{where} word {FIGHT_INDEX} (record R, round 1)")
+    put(table_d, _word(boundary + ROM_BASE),
+        "table D word 0 (record S: round 1's death is now the split, not the end of the fight)")
+    _check_overlaps(alloc.notes, sites, table_d, fight_words)
+
     alloc.notes["plateau"] = {
-        "table": new, "entry": new + MAP_SIZE * count, "entry_index": count,
-        "old_table": table, "old_count": count,
-        "source_index": source_index, "source_sha1": source_sha, "arena_index": arena_index,
+        "table": new, "entry": entry_at, "entry_index": count,
+        "old_table": table, "old_count": count, "arena_index": arena_index,
         "zone": PLATEAU_ZONE, "area": PLATEAU_AREA, "variation": PLATEAU_VARIATIONS,
-        "layout": layout, "layouts": layouts, "collision": frame,
-        "bg0": blanked[L_BG0], "bg1": blanked[L_BG1], "bg2": bg2, "bg3": bg3, "blank": blank,
-        "ground_blocks": ground_at, "high_blocks": high_at, "grid": GRID, "pixels": MAP_PIXELS,
-        "clamp": CLAMP, "blocks_each": n_blocks,
-        "open_cells": len(opened),
-        "open_box": ((x1 - x0 + 1) * 8, (y1 - y0 + 1) * 8),
-        "patches": len(out["patches"]), "formations": len(out["formations"]),
-        "load_at": load_at, "items": _u32(arena, F_ITEMS) - ROM_BASE,
+        "doc": str(MAP_DOC), "doc_sha256": hashlib.sha256(MAP_DOC.read_bytes()).hexdigest(),
+        "layout": layout, "layouts": layouts,
+        "collision": _u32(rom, layout + L_COLLISION) - ROM_BASE,
+        "terrain": _u32(rom, layout + L_TERRAIN) - ROM_BASE,
+        "tile_stream": _u32(rom, layout + L_TILE_STREAM) - ROM_BASE,
+        "chunk_table": _u32(rom, layout + L_TILE_TABLE),
+        "bg0": _u32(rom, layout + L_BG0) - ROM_BASE, "bg1": _u32(rom, layout + L_BG1) - ROM_BASE,
+        "bg2": _u32(rom, layout + L_BG2) - ROM_BASE, "bg3": _u32(rom, layout + L_BG3) - ROM_BASE,
+        "grid": design["blocks"], "map_tiles": design["map_tiles"], "world": design["world"],
+        "clamp": clamp, "priorities": design["priorities"],
+        "static_tiles": design["static_tiles"], "groups": design["groups"],
+        "open_cells": design["open_cells"], "reachable": design["reachable"],
+        "pocket_cells": design["pocket_cells"], "open_box": design["open_box"],
+        "items": items, "npc_item": npc, "item": enemy, "npc_step": step, "tail": tail,
+        "npc_item_index": NPC_INDEX, "item_index": ENEMY_INDEX,
+        "event": event2, "death_table": table_d2, "death_words": TABLE_WORDS,
+        "round1": rnd1, "split": boundary, "arena_table": table_d,
+        "fight_words": sorted(fight_words),
+        "round1_bar": ROUND1_BAR, "round2_bar": ROUND2_BAR,
+        "cell_spot": CELL_SPOT, "trunks_spot": TRUNKS_SPOT,
         "sites": sorted(sites)}

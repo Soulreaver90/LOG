@@ -62,7 +62,7 @@ TAIL_INDEX = 2                                 # the vanilla `ext 67 ; fade 240 
 MAP_BASE_LITERAL, MAP_COUNT_BYTE, MAP_SIZE = 0xEBD8, 0xE0AE, 56
 
 # ===== the design =====
-PLATEAU_ZONE, PLATEAU_AREA = 7, 100            # the final arena: plateau.py's clone of map 7,15
+PLATEAU_ZONE, PLATEAU_AREA = 7, 100            # the final arena: the map the owner composed himself
 CURRENT_ZONE, CURRENT_AREA = 8, 9              # ext 8 and ext 9: the map info bytes at 0x03002080
 PUSH_U8, EXT, AND, EQ, END, JZ = 0, 2, 4, 11, 17, 19          # base ops (rom:0x3B5C00)
 BRANCH_BYTES = 3                               # what jz skips: `push <index> ; end`
