@@ -903,11 +903,10 @@ same message as on the v7, v8 and v9 runs. It names no file of mine and the brie
 ### 12.9 Three things about this task's files
 
 1. **The one-time tools are gitignored.** `landing_census.py`, `make_v8_jobs.py` and `side_fit.py`
-   live under `scripts\one-time6-11-07-rung4-deaths\`, which `.gitignore` excludes, so the
-   census is reproducible from the working tree only.
-2. **`docsuild-log.md` carries three scratch builds to drop:** `v10try.gba`, `repro_v10.gba` and
-   `repro2_v10.gba`. The last two are the reproducibility checks, both SHA-1
+   live under `scripts\one-time\2026-11-07-rung4-deaths\`, which `.gitignore` excludes, so
+   the census is reproducible from the working tree only.
+2. **`docs\build-log.md` carries three scratch builds to drop:** `v10try.gba`, `repro_v10.gba`
+   and `repro2_v10.gba`. The last two are the reproducibility checks, both SHA-1
    `081bf247ff83863b0ecb69b202f398c98a48820f`, the second taken after a comment-only edit.
-3. **`build-log.md` and `docsacklogctive-todos.md` are NOT in this task's commits.** Both carry
-   other agents' edits as well as mine, so they are left for the controller.
-
+3. **`build-log.md` and `docs\backlog\active-todos.md` are NOT in this task's commits.** Both
+   carry other agents' edits as well as mine, so they are left for the controller.
