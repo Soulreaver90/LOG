@@ -24,6 +24,12 @@ Boxes:   BLUE a door from the LAYOUT door list, CYAN a door from the REGION list
          places and this tool draws both, each in its own colour, so the two can never be confused.
 Size:    a layer record's +4 and +8 are a SCROLL FACTOR, 0x400 = 1.0, NOT a width and height. The map
          bounds come from the block grid of the layers that scroll 1 to 1 (scene_probe.map_bounds).
+Offset:  +0x0C and +0x10 are a scroll OFFSET, and the picture is in WORLD pixels, so each layer is
+         drawn at minus its own (layer_shift). Map layers 0 to 3 usually carry 0x10000 x n, which is
+         64 n px, on 364 of the 1294 vanilla tilemap layers. Collision, doors, regions, props and the
+         actor spots are already in world pixels and do not move. Without this every picture this
+         project made put BG1 64 px, BG2 128 px and BG3 192 px right and down of the game, which the
+         owner saw as art that did not sit inside its own collision (maps 2,7, 3,11, 4,72).
 Method:  the geometry is copied from the card 4 scripts (scripts\one-time\2026-10-24-beam-struggle
          render_map.py and the 2026-10-25-chapter-cards presave_lib.py), not imported: a one-time folder is
          not a dependency a permanent tool may take.
@@ -104,11 +110,26 @@ def mask_of(img: Image.Image) -> Image.Image:
     return Image.frombytes("L", img.size, bytes(255 if v else 0 for v in img.tobytes()))
 
 
-def layer(rom: bytes, rec: int, tl: list, pal: list) -> tuple:
-    """(image, (scroll x, scroll y, blocks x, blocks y)) for one BG layer record.
+def layer_shift(offset: tuple) -> tuple:
+    """The pixels a layer record's +0x0C and +0x10 move its art LEFT and UP, as the handler does it.
 
-    +4 and +8 are a SCROLL FACTOR, 0x400 = 1.0 (bible tag BMS), not a width and height. The picture
-    is as big as the block grid, and the map bounds come from scene_probe.map_bounds."""
+    The layer update `sub_080055A4` loads rec +0x0C at `0x080055B2` and adds it to the camera
+    product at `0x080055B4`; the Y side loads rec +0x10 at `0x080055C4` and adds it at `0x080055C8`.
+    Each sum is stored `asr #10` to REG_BGxHOFS at `0x08005610` and REG_BGxVOFS at `0x08005614`, and
+    the screen-block DMA `sub_080054A4` indexes from the SAME two accumulators, so the shift does not
+    cancel. Raising a scroll register moves the view right, so the art at grid (gx, gy) is shown at
+    world (gx - x, gy - y). Bible B1082: layer pixel = world pixel + 64 n.
+    ASR is signed, so this is. All 1294 vanilla tilemap layers store a whole multiple of 1024 and
+    none is negative, and a build or a hand edit may store either."""
+    return tuple(((v - (1 << 32) if v & 0x80000000 else v) >> 10) for v in offset)
+
+
+def layer(rom: bytes, rec: int, tl: list, pal: list) -> tuple:
+    """(image, (scroll x, scroll y, blocks x, blocks y, shift x, shift y)) for one BG layer record.
+
+    +4 and +8 are a SCROLL FACTOR, 0x400 = 1.0 (bible tag BMS), not a width and height. +0x0C and
+    +0x10 are a scroll OFFSET, and layer_shift turns them into the pixels compose moves the picture
+    by. The picture is as big as the block grid, and the map bounds come from scene_probe.map_bounds."""
     w, h = _at(rom, rec + 4), _at(rom, rec + 8)
     bx, by = rom[rec - ROM_BASE + 0x14], rom[rec - ROM_BASE + 0x15]
     img = Image.new("P", (bx * 256, by * 256), 0)
@@ -133,7 +154,8 @@ def layer(rom: bytes, rec: int, tl: list, pal: list) -> tuple:
             if e & 0x800:
                 tile = tile.transpose(Image.FLIP_TOP_BOTTOM)
             img.paste(tile, (ox + (t % 32) * 8, oy + (t // 32) * 8))
-    return img, (w, h, bx, by)
+    shift = layer_shift((_at(rom, rec + 0x0C), _at(rom, rec + 0x10)))
+    return img, (w, h, bx, by, shift[0], shift[1])
 
 
 def layers(rom: bytes, layout: int) -> tuple:
@@ -156,12 +178,18 @@ is_open = scene_probe.is_open             # collision_test @0x08005D6C, the one 
 # ===== render =====
 
 def compose(ls: dict, which: tuple, size: tuple) -> Image.Image:
+    """The layers in world pixels, each moved by its own +0x0C and +0x10 (see layer_shift).
+
+    A scroll-1.0 layer lands exactly where the game draws it. A PARALLAX layer (21 of 1294 vanilla
+    tilemap layers scroll off 1.0) moves with the camera, so no single placement in a whole-map
+    picture is right for it: this one is the camera-at-(0,0) placement, which is where the handler
+    puts it on the first screenful and nowhere else."""
     img = Image.new("RGB", size, (0, 0, 0))
     for n in which:                                       # back to front
         if ls[n] is None:
             continue
-        pane = ls[n][0]
-        img.paste(pane.convert("RGB"), (0, 0), mask_of(pane))
+        pane, info = ls[n][0], ls[n][1]
+        img.paste(pane.convert("RGB"), (-info[4], -info[5]), mask_of(pane))
     return img
 
 
@@ -199,7 +227,10 @@ def render(rom: bytes, zone: int, area: int, var: int = 1, which: tuple = FULL,
     for n, v in ls.items():
         lines.append(f"  bg{n}: " + ("not a tilemap layer" if v is None else
                                      f"blocks {v[1][2]}x{v[1][3]} = {v[1][2] * 256}x{v[1][3] * 256} px, "
-                                     f"scroll 0x{v[1][0]:X}/0x{v[1][1]:X}"))
+                                     f"scroll 0x{v[1][0]:X}/0x{v[1][1]:X}, "
+                                     f"offset {v[1][4]},{v[1][5]} px"
+                                     + (", PARALLAX: drawn at camera 0,0"
+                                        if (v[1][0], v[1][1]) != (scene_probe.SCROLL_ONE,) * 2 else "")))
     if show_collision:
         bits = collision(rom, layout)
         tint, mask = Image.new("RGB", (8, 8), COLLISION_TINT), Image.new("L", (8, 8), COLLISION_ALPHA)

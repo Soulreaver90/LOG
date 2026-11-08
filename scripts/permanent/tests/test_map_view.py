@@ -105,6 +105,73 @@ class CollisionTests(unittest.TestCase):
         self.assertTrue(any(f"collision: {closed} closed cells of 8192" in ln for ln in lines), lines)
 
 
+class LayerOffsetTests(unittest.TestCase):
+    """A BG layer record's +0x0C and +0x10 move its art, and every render ignored them.
+
+    `sub_080055A4` is the layer object's update. It loads rec +0x0C at `0x080055B2`, adds it to the
+    scroll product at `0x080055B4`, loads rec +0x10 at `0x080055C4`, adds it at `0x080055C8`, then
+    stores each sum `asr #10` to REG_BGxHOFS at `0x08005610` and REG_BGxVOFS at `0x08005614`. The
+    screen-block DMA `sub_080054A4` indexes from the same two accumulators, so the shift does not
+    cancel. Bible B1082 already said so: layer pixel = world pixel + 64 n.
+
+    The witnesses are measured, not assumed. Map 2,7 (world 584x536) draws BG1 over x 64 to 647 and
+    y 64 to 599, and BG3 over x 192 to 775 and y 192 to 727: each ends exactly at world + offset - 1
+    on both axes. Map 2,2 (world 768x512) ends BG1 at x 831, BG2 at 895 and BG3 at 959. Map 2,38
+    carries offset 0 on all four layers and is the control: its picture must not move one pixel.
+    """
+
+    def extent(self, zone: int, area: int, bg: int) -> tuple:
+        """(first x, last x, first y, last y) of the pixels this one layer draws, or None when it
+        draws nothing. Black is the compose background, so a black column carries no art."""
+        img, _lines = map_view.render(BASE_ROM, zone, area, which=(bg,), show_collision=False,
+                                      show_items=False)
+        width, height = img.size
+        pixel = img.load()
+        seen = [(x, y) for y in range(height) for x in range(width) if pixel[x, y] != (0, 0, 0)]
+        if not seen:
+            return None
+        return (min(x for x, _ in seen), max(x for x, _ in seen),
+                min(y for _, y in seen), max(y for _, y in seen))
+
+    def test_map_2_7_draws_every_layer_inside_its_own_world(self):
+        """The owner's own witness: he called 2,7's collision and art out of line by eye."""
+        for bg, want in ((1, (0, 583, 0, 535)), (3, (0, 583, 0, 535))):
+            with self.subTest(bg=bg):
+                self.assertEqual(self.extent(2, 7, bg), want)
+        first_x, last_x, first_y, last_y = self.extent(2, 7, 2)
+        self.assertLessEqual(last_x, 583)
+        self.assertLessEqual(last_y, 535)
+        self.assertGreaterEqual(min(first_x, first_y), 0)
+
+    def test_map_2_2_ends_all_three_ground_layers_at_the_world_edge(self):
+        """Unfixed this reads 831, 895 and 959: the staircase in the proof picture."""
+        for bg in (1, 2, 3):
+            with self.subTest(bg=bg):
+                self.assertEqual(self.extent(2, 2, bg)[1], 767)
+
+    def test_map_2_38_carries_no_offset_and_must_not_move(self):
+        """The control. Every one of its layers stores offset 0, so the fix is a no-op here."""
+        layout = map_view.layout_of(BASE_ROM, P.map_entry(BASE_ROM, 2, 38)[1], 1) - map_view.ROM_BASE
+        for rec in P.layout_layers(BASE_ROM, layout):
+            if rec["at"] is not None:
+                self.assertEqual(rec["offset"], (0, 0), f"bg{rec['bg']} of map 2,38")
+        for bg in (0, 1, 3):
+            with self.subTest(bg=bg):
+                self.assertEqual(self.extent(2, 38, bg), (0, 511, 0, 471))
+
+    def test_the_shift_helper_mirrors_the_handlers_arithmetic_shift(self):
+        """ASR is signed, so the helper must be. No vanilla tilemap layer stores a negative word,
+        and a build or a hand edit may."""
+        self.assertEqual(map_view.layer_shift((0x10000, 0x30000)), (64, 192))
+        self.assertEqual(map_view.layer_shift((0, 0)), (0, 0))
+        self.assertEqual(map_view.layer_shift((0xFFFF0000, 0)), (-64, 0))
+
+    def test_the_report_names_each_layers_offset_in_pixels(self):
+        _img, lines = map_view.render(BASE_ROM, 2, 7, show_collision=False, show_items=False)
+        self.assertTrue(any("offset 64,64 px" in ln for ln in lines), lines)
+        self.assertTrue(any("offset 192,192 px" in ln for ln in lines), lines)
+
+
 class AnimatedGroupTests(unittest.TestCase):
     """A map loads ANIMATED tile groups beside its static stream, and the render must draw them.
 
@@ -156,7 +223,13 @@ class AnimatedGroupTests(unittest.TestCase):
         pal = map_view.palette(BASE_ROM)
         tile = pixels[64 * (slot - first):64 * (slot - first) + 64]
         self.assertTrue(all(tile), "every pixel of this tile is opaque, so every pixel is comparable")
-        found = [img.getpixel((tx * 8 + x, ty * 8 + y)) for y in range(8) for x in range(8)]
+        # The picture is in WORLD pixels, and map 7,15's BG2 carries offset 128,128, so a cell of the
+        # grid is drawn at grid pixel minus the shift. This sample moved with the renderer, by 128 px
+        # on both axes; the cell it names and the pixels it expects did not change.
+        shift = map_view.layer_shift((0x20000, 0x20000))
+        self.assertEqual(shift, (128, 128), "map 7,15 BG2's offset words")
+        found = [img.getpixel((tx * 8 - shift[0] + x, ty * 8 - shift[1] + y))
+                 for y in range(8) for x in range(8)]
         self.assertEqual(found, [tuple(pal[3 * v:3 * v + 3]) for v in tile])
 
     def test_the_tile_list_is_indexed_by_vram_slot(self):
