@@ -27,7 +27,7 @@
 */
 import {
   state, subscribe, setDoc, setView, status,
-  drawOrder, loadedSlots, groupTiles, cameraPair,
+  drawOrder, loadedSlots, groupTiles, cameraPair, gridCell, layerShiftCells,
 } from "./state.js";
 import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas } from "./render.js";
 import * as tools from "./tools.js";
@@ -318,9 +318,14 @@ function applyZoom() {
 }
 
 /*
-  The cell under a pointer. The scale is read from the canvas itself rather than from the zoom,
-  so a canvas the browser lays out one pixel off still names the cell the owner is looking at,
-  and clientLeft takes the border off the rect, which is the border box edge.
+  The WORLD cell under a pointer. The scale is read from the canvas itself rather than from the
+  zoom, so a canvas the browser lays out one pixel off still names the cell the owner is looking
+  at, and clientLeft takes the border off the rect, which is the border box edge.
+
+  cx and cy are WORLD cells, the same space as the collision grid and as what the camera shows.
+  A layer's own grid cell is state.gridCell(doc, layer, cx, cy), because each layer sits at its
+  own offset. Every tool takes this pair and converts, so the cursor, the ghost and the stroke
+  cannot land in three different places.
 */
 function cellAt(event) {
   const box = canvas.getBoundingClientRect();
@@ -328,6 +333,19 @@ function cellAt(event) {
   const x = Math.floor((event.clientX - box.left - canvas.clientLeft) / scale / 8);
   const y = Math.floor((event.clientY - box.top - canvas.clientTop) / scale / 8);
   return { cx: x, cy: y, button: event.button, event };
+}
+
+/* World first, because that is what the game and the collision grid use, then the selected
+   layer's own cell, because that is the cell a stroke writes. The two differ by the layer's
+   offset: on map 3,11's BG3 they are 24 cells apart. */
+function whereText(where) {
+  const doc = state.doc;
+  const layer = state.view.selected;
+  const text = `world ${where.cx}, ${where.cy}   px ${where.cx * 8}, ${where.cy * 8}`;
+  if (!doc || !doc.layers[layer]) return text;
+  const [gx, gy] = gridCell(doc, layer, where.cx, where.cy);
+  const [sx, sy] = layerShiftCells(doc, layer);
+  return sx || sy ? `${text}   ${layer} cell ${gx}, ${gy}` : text;
 }
 
 function wirePointer() {
@@ -340,7 +358,7 @@ function wirePointer() {
         try { canvas.setPointerCapture(event.pointerId); } catch (ignored) { void ignored; }
       }
       const where = cellAt(event);
-      $("where").textContent = `cell ${where.cx}, ${where.cy}   px ${where.cx * 8}, ${where.cy * 8}`;
+      $("where").textContent = whereText(where);
       for (const fn of pointerHooks) fn(kind === "pointercancel" ? "pointerup" : kind, where);
     });
   }
@@ -367,6 +385,7 @@ async function show(payload, title) {
   paintPalette();
   refreshCounts();
   paintTools();
+  truth.refresh();                    // its lost-art count needs the slot sheet, built just above
   paintOverlay();
   $("title").textContent = title;
   status(payload.problems.length ? `${title}: ${payload.problems.length} problem(s)` : `${title} open`,

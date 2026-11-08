@@ -106,3 +106,37 @@ export function groupTiles(group) {
 export function cameraPair(widthPx, heightPx) {
   return [widthPx - (VIEW_W - 1), heightPx - (VIEW_H - 1)];
 }
+
+// ===== world pixels and layer cells, the one transform =====
+
+/*
+  A BG layer record's +0x0C and +0x10 are a scroll OFFSET, and the game ADDS them to the camera
+  before it writes REG_BGxHOFS and REG_BGxVOFS (layer update sub_080055A4: the adds at 0x080055B4
+  and 0x080055C8, the stores at 0x08005610 and 0x08005614). Raising a scroll register moves the
+  view right, so the cell at layer grid (gx, gy) is seen at WORLD (gx - shift, gy - shift).
+
+  THE CANVAS IS IN WORLD PIXELS. Collision and terrain are already world, and they are the only
+  thing in the editor that was ever in the same space as the game. Map 3,11's lake sat 192 px off
+  its own closed region until this landed, and the owner saw it by eye. So the picture, the cursor,
+  the brush ghost, the collision wash and the screen box all live in world pixels, and a layer's
+  own grid cell is reached through gridCell() and nowhere else.
+*/
+export function layerShift(doc, name) {
+  const offset = ((doc.layers || {})[name] || {}).offset || [0, 0];
+  return offset.map((word) => (word >= 0x80000000 ? word - 0x100000000 : word) >> 10);
+}
+
+/*
+  The same shift in whole CELLS. Every layer that scrolls 1 to 1 stores a whole multiple of 64 px,
+  so this is exact on all 1273 of them; the 21 that scroll off 1.0 include three layers storing 10,
+  30 and 202 px, which floor to a cell and are only ever drawn at camera 0,0 anyway.
+*/
+export function layerShiftCells(doc, name) {
+  return layerShift(doc, name).map((px) => Math.floor(px / 8));
+}
+
+/* The cell of THIS layer's own grid that is seen at world cell (wx, wy). */
+export function gridCell(doc, name, wx, wy) {
+  const [sx, sy] = layerShiftCells(doc, name);
+  return [wx + sx, wy + sy];
+}

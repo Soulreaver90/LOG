@@ -26,7 +26,8 @@
   pair, so a cell is one drawImage with no canvas transform. A 160 x 128 map is 20,480 cells a
   layer, and a save, transform and restore on each is what makes a redraw visible to the eye.
 */
-import { BLOCK_PIXELS, TILE_INDEX, FLIP_X, FLIP_Y, drawOrder, groupTiles } from "./state.js";
+import { BLOCK_PIXELS, TILE_INDEX, FLIP_X, FLIP_Y, drawOrder, groupTiles, layerShift }
+  from "./state.js";
 
 const TILE = 8;
 const SHEET_COLUMNS = 32;
@@ -122,7 +123,36 @@ export async function buildSheet(doc, assets, atlasFor) {
   }
   sheetSlots = budget;
   sheetHeight = height;
+  blankSlot.clear();                 // the answers belong to the sheet that has just been replaced
   return sheet;
+}
+
+/*
+  Does this slot draw nothing at all? Read from the slot sheet, so it is the real pixels, never
+  `cell === 0`: on a copy of a game map slot 0 is real art. The cache is cleared by buildSheet, so
+  it can never answer for a sheet that has been replaced. The copy into a one tile canvas is not
+  waste: the sheet's own context was made for drawing, and asking an existing context for
+  willReadFrequently does nothing but log a warning.
+*/
+const peek = document.createElement("canvas");
+peek.width = TILE;
+peek.height = TILE;
+const peekCtx = peek.getContext("2d", { willReadFrequently: true });
+const blankSlot = new Map();
+
+export function slotIsBlank(slot) {
+  if (!sheet) return true;              // no sheet yet: nothing is drawn, so nothing is art
+  if (blankSlot.has(slot)) return blankSlot.get(slot);
+  peekCtx.clearRect(0, 0, TILE, TILE);
+  peekCtx.drawImage(sheet, (slot % SHEET_COLUMNS) * TILE, Math.floor(slot / SHEET_COLUMNS) * TILE,
+                    TILE, TILE, 0, 0, TILE, TILE);
+  const pixels = peekCtx.getImageData(0, 0, TILE, TILE).data;
+  let blank = true;
+  for (let n = 3; n < pixels.length; n += 4) {
+    if (pixels[n] !== 0) { blank = false; break; }
+  }
+  blankSlot.set(slot, blank);
+  return blank;
 }
 
 /* Where one cell's art sits in the sheet, flips included. */
@@ -174,8 +204,15 @@ export function drawAllLayers(doc) {
 }
 
 /*
-  Paint the shown layers onto a target context, back to front. The background is opaque black,
-  which is what map_view.compose starts from, so a hole reads as a hole and not as the page.
+  Paint the shown layers onto a target context, back to front, IN WORLD PIXELS. The background is
+  opaque black, which is what map_view.compose starts from, so a hole reads as a hole and not as
+  the page.
+
+  THE OFFSET. A layer canvas is its own grid. The game adds the record's +0x0C and +0x10 to the
+  camera before it writes the scroll registers, so a layer is seen at minus its own shift
+  (state.layerShift). 364 of the 1294 vanilla tilemap layers carry one, usually 64 n px for layer
+  n. Without this the editor drew BG1 64 px, BG2 128 px and BG3 192 px down and right of the game,
+  and of its own collision wash, which is world. map_view.compose does the same thing in Python.
 */
 export function composite(ctx, doc, shown) {
   const [width, height] = layerSize(doc);
@@ -184,7 +221,8 @@ export function composite(ctx, doc, shown) {
   ctx.fillRect(0, 0, width, height);
   for (const name of drawOrder(doc)) {
     if (!shown[name] || !layerCanvas[name]) continue;
-    ctx.drawImage(layerCanvas[name], 0, 0);
+    const [sx, sy] = layerShift(doc, name);
+    ctx.drawImage(layerCanvas[name], -sx, -sy);
   }
 }
 

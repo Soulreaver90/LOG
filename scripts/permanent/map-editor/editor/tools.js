@@ -34,13 +34,20 @@
   map_file.validate refuses a document with open ground the camera can never reach, which is the
   plateau fault in its collision form.
 
+  WORLD CELLS, EVERYWHERE. Every (cx, cy) in this file is a WORLD cell, the space the collision
+  grid and the camera already use. A layer sits at its own offset (state.layerShift), so the cell
+  of its own grid is reached through gridCell(), and putCell is the only place that converts for a
+  write. Before this, a stroke on map 3,11's BG3 landed 24 cells from the collision it was aimed
+  at, and a grab took its layers 8 and 24 cells apart from each other.
+
   UNDO is one step per stroke, pointerdown to pointerup, and it carries the art and the collision
   of that stroke together. See history.js for why it stores diffs.
 */
 import {
   state, notify, status, BLOCK_TILES, TILE_INDEX, FLIP_X, FLIP_Y, groupTiles,
+  gridCell, layerShiftCells,
 } from "./state.js";
-import { drawLayer, sheetCanvas } from "./render.js";
+import { drawLayer, slotIsBlank } from "./render.js";
 import * as history from "./history.js";
 
 // ===== CONFIG =====
@@ -66,7 +73,6 @@ let drag = null;                        // a box drag: fill rectangle, or grab
 let hover = null;
 let collisionDirty = true;              // the collision overlay is cached and redrawn on demand
 let collisionSheet = null;
-const clearSlot = new Map();            // slot -> is its art entirely transparent
 
 export function install(hooks) {
   host = hooks;
@@ -77,7 +83,6 @@ export function install(hooks) {
 
 export function reset() {
   history.clear();
-  clearSlot.clear();
   stroke = null;
   drag = null;
 }
@@ -158,7 +163,9 @@ export function pickEraser() {
 const doc = () => state.doc;
 const across = () => doc().blocks[0] * BLOCK_TILES;
 const down = () => doc().blocks[1] * BLOCK_TILES;
-const inGrid = (cx, cy) => cx >= 0 && cy >= 0 && cx < across() && cy < down();
+const inGrid = (gx, gy) => gx >= 0 && gy >= 0 && gx < across() && gy < down();
+/* The canvas is the block grid in WORLD pixels, so this is where a cursor may be. */
+const onCanvas = (cx, cy) => cx >= 0 && cy >= 0 && cx < across() && cy < down();
 
 function groupSpans() {
   return (doc().animated || []).map((g) => [g.first, g.first + groupTiles(g)]);
@@ -168,29 +175,6 @@ function inGroup(spans, slot) {
   return spans.some(([first, past]) => slot >= first && slot < past);
 }
 
-/*
-  Is this slot's art entirely transparent? Read from the slot sheet, so it is the real pixels.
-  The copy into a one tile canvas is not waste: the sheet's own context was made for drawing, and
-  asking an existing context for willReadFrequently does nothing but log a warning.
-*/
-const peek = document.createElement("canvas");
-peek.width = TILE;
-peek.height = TILE;
-const peekCtx = peek.getContext("2d", { willReadFrequently: true });
-
-function slotIsClear(slot) {
-  if (clearSlot.has(slot)) return clearSlot.get(slot);
-  peekCtx.clearRect(0, 0, TILE, TILE);
-  peekCtx.drawImage(sheetCanvas(), (slot % 32) * TILE, Math.floor(slot / 32) * TILE, TILE, TILE,
-                    0, 0, TILE, TILE);
-  const pixels = peekCtx.getImageData(0, 0, TILE, TILE).data;
-  let clear = true;
-  for (let n = 3; n < pixels.length; n += 4) {
-    if (pixels[n] !== 0) { clear = false; break; }
-  }
-  clearSlot.set(slot, clear);
-  return clear;
-}
 
 // ===== the tile stream, written =====
 
@@ -280,21 +264,24 @@ function markStamps() {
   }
 }
 
+/* (cx, cy) is a WORLD cell. This is the one place a layer's own offset is applied to a write, and
+   the recorded box is in that layer's grid, which is the space drawLayer redraws. */
 function putCell(layer, cx, cy, value) {
-  if (!inGrid(cx, cy)) return;
+  const [gx, gy] = gridCell(doc(), layer, cx, cy);
+  if (!inGrid(gx, gy)) return;
   const cells = doc().layers[layer].cells;
-  const at = cy * across() + cx;
+  const at = gy * across() + gx;
   if (cells[at] === value) return;
   const rec = stroke.cells[layer] || (stroke.cells[layer] = { idx: [], old: [], now: [] });
   rec.idx.push(at);
   rec.old.push(cells[at]);
   rec.now.push(value);
   cells[at] = value;
-  const box = stroke.boxes[layer] || (stroke.boxes[layer] = [cx, cy, cx + 1, cy + 1]);
-  box[0] = Math.min(box[0], cx);
-  box[1] = Math.min(box[1], cy);
-  box[2] = Math.max(box[2], cx + 1);
-  box[3] = Math.max(box[3], cy + 1);
+  const box = stroke.boxes[layer] || (stroke.boxes[layer] = [gx, gy, gx + 1, gy + 1]);
+  box[0] = Math.min(box[0], gx);
+  box[1] = Math.min(box[1], gy);
+  box[2] = Math.max(box[2], gx + 1);
+  box[3] = Math.max(box[3], gy + 1);
 }
 
 /* Close the stroke: push one undo step, redraw what it touched, and refresh the counts. */
@@ -344,8 +331,7 @@ let rebuilding = Promise.resolve();
 function redrawEverything() {
   rebuilding = rebuilding.then(async () => {
     await host.rebuildSheet();
-    clearSlot.clear();
-    for (const name of Object.keys(doc().layers)) drawLayer(doc(), name, null);
+      for (const name of Object.keys(doc().layers)) drawLayer(doc(), name, null);
     host.redraw();
     host.refreshCounts();
     host.refreshPalette();
@@ -444,13 +430,10 @@ function writePatch(patch, px, py, index) {
   }
 }
 
-/* The same patch repeated over a list of cell indices, anchored to the map origin. */
+/* The same patch repeated over a list of WORLD cells, anchored to the world origin. */
 function tilePatch(patch, cells, index) {
   const layers = Object.entries(patch.layers).filter(([name]) => doc().layers[name]);
-  const width = across();
-  for (const at of cells) {
-    const cx = at % width;
-    const cy = Math.floor(at / width);
+  for (const [cx, cy] of cells) {
     const sx = ((cx % patch.w) + patch.w) % patch.w;
     const sy = ((cy % patch.h) + patch.h) % patch.h;
     for (const [layer, source] of layers) {
@@ -469,13 +452,15 @@ function tilePatch(patch, cells, index) {
   leave him dragging a ghost over art that never changes, on a tool he judges entirely by eye.
 */
 function showStep(box, layers) {
-  const x0 = Math.max(0, box[0]);
-  const y0 = Math.max(0, box[1]);
-  const x1 = Math.min(across(), box[2]);
-  const y1 = Math.min(down(), box[3]);
-  if (x1 <= x0 || y1 <= y0) return;
   for (const layer of layers) {
-    if (doc().layers[layer]) drawLayer(doc(), layer, [x0, y0, x1, y1]);
+    if (!doc().layers[layer]) continue;
+    const [sx, sy] = layerShiftCells(doc(), layer);          // the box arrives in WORLD cells
+    const x0 = Math.max(0, box[0] + sx);
+    const y0 = Math.max(0, box[1] + sy);
+    const x1 = Math.min(across(), box[2] + sx);
+    const y1 = Math.min(down(), box[3] + sy);
+    if (x1 <= x0 || y1 <= y0) continue;
+    drawLayer(doc(), layer, [x0, y0, x1, y1]);
   }
   host.redraw();
 }
@@ -498,26 +483,33 @@ function stampAt(where) {
   markStamps();
   for (const layer of Object.keys(patch.layers)) {
     if (!doc().layers[layer]) continue;
-    doc().stamps.push({ name: brush.name, layer, x: where.cx, y: where.cy, w, h });
+    // The record names a LAYER, so it keeps that layer's own grid cell, which is the space
+    // map_file._check_stamps measures against the block grid.
+    const [gx, gy] = gridCell(doc(), layer, where.cx, where.cy);
+    doc().stamps.push({ name: brush.name, layer, x: gx, y: gy, w, h });
   }
 }
 
-/* Every cell joined to this one that holds the same value, four ways. */
+/* Every cell joined to this one that holds the same value, four ways. (cx, cy) is a WORLD cell
+   and so is every pair this returns; the walk itself runs over the layer's own grid. */
 function floodRegion(layer, cx, cy) {
   const width = across();
   const height = down();
+  const [sx, sy] = layerShiftCells(doc(), layer);
+  const [gx, gy] = [cx + sx, cy + sy];
+  if (!inGrid(gx, gy)) return [];
   const cells = doc().layers[layer].cells;
-  const target = cells[cy * width + cx];
+  const target = cells[gy * width + gx];
   const seen = new Uint8Array(width * height);
   const out = [];
-  const stack = [cy * width + cx];
+  const stack = [gy * width + gx];
   seen[stack[0]] = 1;
   while (stack.length) {
     const at = stack.pop();
     if (cells[at] !== target) continue;
-    out.push(at);
     const x = at % width;
     const y = Math.floor(at / width);
+    out.push([x - sx, y - sy]);
     if (x > 0 && !seen[at - 1]) { seen[at - 1] = 1; stack.push(at - 1); }
     if (x < width - 1 && !seen[at + 1]) { seen[at + 1] = 1; stack.push(at + 1); }
     if (y > 0 && !seen[at - width]) { seen[at - width] = 1; stack.push(at - width); }
@@ -526,11 +518,11 @@ function floodRegion(layer, cx, cy) {
   return out;
 }
 
+/* The world cells of a dragged box, clipped to the canvas. */
 function rectCells(x0, y0, x1, y1) {
-  const width = across();
   const out = [];
   for (let cy = Math.max(0, y0); cy <= Math.min(down() - 1, y1); cy += 1) {
-    for (let cx = Math.max(0, x0); cx <= Math.min(width - 1, x1); cx += 1) out.push(cy * width + cx);
+    for (let cx = Math.max(0, x0); cx <= Math.min(across() - 1, x1); cx += 1) out.push([cx, cy]);
   }
   return out;
 }
@@ -563,6 +555,9 @@ export function fillCollision(open) {
 
 // ===== grab: a box of real map becomes a stamp =====
 
+/* (x0, y0) to (x1, y1) is a WORLD box. Each layer is read at its own offset, so one grab takes
+   the piece of every layer that the owner actually sees under the box. Reading all four at the
+   same grid cell took them up to 24 cells apart. */
 function grabStamp(name, x0, y0, x1, y1) {
   const w = x1 - x0 + 1;
   const h = y1 - y0 + 1;
@@ -576,14 +571,18 @@ function grabStamp(name, x0, y0, x1, y1) {
   for (const layer of Object.keys(doc().layers)) {
     if (!grabs(layer)) continue;
     const source = doc().layers[layer].cells;
+    const [sx, sy] = layerShiftCells(doc(), layer);
     const list = new Array(w * h).fill(null);
     let any = false;
     for (let y = 0; y < h; y += 1) {
       for (let x = 0; x < w; x += 1) {
-        const value = source[(y0 + y) * width + x0 + x];
+        const gx = x0 + x + sx;
+        const gy = y0 + y + sy;
+        if (!inGrid(gx, gy)) continue;
+        const value = source[gy * width + gx];
         const slot = value & TILE_INDEX;
         if (slot >= tiles.length || inGroup(spans, slot)) { skipped += 1; continue; }
-        if (slotIsClear(slot)) continue;
+        if (slotIsBlank(slot)) continue;
         const flips = value & (FLIP_X | FLIP_Y);
         list[y * w + x] = [tiles[slot][0], tiles[slot][1], flips];
         any = true;
@@ -645,9 +644,12 @@ export function pointer(kind, where) {
 function down_(where) {
   // Alt picks the tile under the cursor into the brush. Cheap, and it saves hunting the pool list.
   if (where.event.altKey) {
-    const slot = doc().layers[state.view.selected].cells[where.cy * across() + where.cx] & TILE_INDEX;
+    const layer = state.view.selected;
+    const [gx, gy] = gridCell(doc(), layer, where.cx, where.cy);
+    if (!inGrid(gx, gy)) return;
+    const slot = doc().layers[layer].cells[gy * across() + gx] & TILE_INDEX;
     if (slot < doc().tiles.length) pickTile(doc().tiles[slot][0], doc().tiles[slot][1]);
-    else status(`cell ${where.cx}, ${where.cy} draws slot ${slot}, which no chunk tile owns`, "bad");
+    else status(`world ${where.cx}, ${where.cy} draws slot ${slot}, which no chunk tile owns`, "bad");
     return;
   }
   if (where.button === 2) {
@@ -816,7 +818,7 @@ export function drawOverlay(ctx) {
     ctx.strokeRect(x0 + 0.5, y0 + 0.5, w - 1, h - 1);
     return;
   }
-  if (!hover || !inGrid(hover.cx, hover.cy)) return;
+  if (!hover || !onCanvas(hover.cx, hover.cy)) return;
   if (tool === "tile" || tool === "stamp" || tool === "fill") {
     drawGhost(ctx, brushPatch(), hover.cx, hover.cy);
   }

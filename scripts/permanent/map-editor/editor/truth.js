@@ -23,12 +23,21 @@
   doc.world, never from the grid, or a first map would be told that 328 px of real ground is
   unreachable.
 
+  THE WASH IS A REGION AND THE COUNT IS ART. The wash marks where the camera can never go, which
+  is a fact about the canvas. The number beside it used to be that region's AREA, and it read as
+  "art you will never see": on map 7,15 it claimed 328 px of lost art on a map that loses none.
+  Since the canvas became world pixels, every layer is drawn at minus its own offset, so a count
+  of lost art has to be a count of CELLS THAT DRAW SOMETHING outside the reach, measured per layer
+  in world cells. lostArt does that and nothing else. Map 7,15 and map 3,11 now report none.
+
   Seams   install(host) takes addOverlay, paintOverlay, refreshCounts and the map canvas, the same
           shape tools.js takes, so this file imports nothing from panes.js and the two cannot cycle.
           probe() returns every number the panel shows, for a check driven from the browser.
 */
-import { state, subscribe, edit, status, cameraPair, VIEW_W, VIEW_H } from "./state.js";
-import { layerSize } from "./render.js";
+import {
+  state, subscribe, edit, status, cameraPair, VIEW_W, VIEW_H, layerShiftCells, TILE_INDEX,
+} from "./state.js";
+import { layerSize, slotIsBlank } from "./render.js";
 
 // ===== CONFIG =====
 
@@ -113,13 +122,42 @@ export function bands(doc) {
   return out;
 }
 
+/*
+  The cells of real art that sit outside the camera's reach, per layer, in WORLD cells. A cell is
+  art when its slot draws a pixel (render.slotIsBlank, the same test the grab tool uses), never
+  when it is nonzero: on a copy of a game map slot 0 is real art.
+*/
+export function lostArt(doc) {
+  const seen = reach(doc);
+  const across = doc.blocks[0] * 32;
+  const down = doc.blocks[1] * 32;
+  const out = [];
+  for (const name of Object.keys(doc.layers)) {
+    const [sx, sy] = layerShiftCells(doc, name);
+    const cells = doc.layers[name].cells;
+    let count = 0;
+    for (let gy = 0; gy < down; gy += 1) {
+      for (let gx = 0; gx < across; gx += 1) {
+        const wx = (gx - sx) * 8;
+        const wy = (gy - sy) * 8;
+        if (wx >= 0 && wx < seen.w && wy >= 0 && wy < seen.h) continue;
+        if (slotIsBlank(cells[gy * across + gx] & TILE_INDEX)) continue;
+        count += 1;
+      }
+    }
+    if (count) out.push([name, count]);
+  }
+  return out;
+}
+
 export function probe() {
   if (!state.doc) return { pinned, pinNote, open: false };
   const [gw, gh] = layerSize(state.doc);
   const seen = reach(state.doc);
   return { pinned, pinNote, open: true, world: [...state.doc.world], grid: [gw, gh],
            pair: seen.pair, reach: [seen.w, seen.h], maxScroll: seen.scroll,
-           bands: bands(state.doc), box: { ...box }, showShade, showBox };
+           bands: bands(state.doc), lostArt: lostArt(state.doc),
+           box: { ...box }, showShade, showBox };
 }
 
 // ===== drawing on the overlay =====
@@ -257,6 +295,12 @@ function clamp(x, y) {
           y: Math.max(0, Math.min(Math.round(y), seen.scroll[1])) };
 }
 
+/* The panel counts art, so it cannot be right until the slot sheet exists. panes.show() calls
+   this once the sheet and the layer canvases are up, which is after the doc subscriber has run. */
+export function refresh() {
+  paint();
+}
+
 export function place(x, y) {
   if (!state.doc) return;
   clamp(x, y);
@@ -307,12 +351,16 @@ function paint() {
     return [dt, dd];
   }));
 
-  const lost = bands(doc).reduce((total, band) => total + band.w * band.h, 0);
-  $("truth-lost").textContent = lost
-    ? `${lost.toLocaleString()} px of art the camera can never show. `
-      + `Shaded on the map, right of ${seen.w} px and below ${seen.h} px.`
-    : "The camera reaches every pixel of this map.";
-  $("truth-lost").className = lost ? "bad" : "good";
+  const lost = lostArt(doc);
+  const total = lost.reduce((sum, [, count]) => sum + count, 0);
+  const shaded = bands(doc).length
+    ? ` The shading marks where the camera cannot go, right of ${seen.w} px and below ${seen.h} px.`
+    : "";
+  $("truth-lost").textContent = total
+    ? `${total.toLocaleString()} cell(s) of art the camera can never show `
+      + `(${lost.map(([name, count]) => `${name} ${count}`).join(", ")}).${shaded}`
+    : `The camera reaches every cell of art on this map.${shaded}`;
+  $("truth-lost").className = total ? "bad" : "good";
 }
 
 function setWorld() {
