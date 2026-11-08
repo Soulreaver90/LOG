@@ -77,6 +77,7 @@ export const BLOCK_PIXELS = 256;
 export const TILE_INDEX = 0x3FF;
 export const FLIP_X = 0x400;
 export const FLIP_Y = 0x800;
+export const SCROLL_ONE = 0x400;   // a layer's +0x04 and +0x08: 0x400 is 1.0 (bible tag BMS)
 export const VIEW_W = 240;
 export const VIEW_H = 160;
 

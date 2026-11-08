@@ -35,7 +35,7 @@
           probe() returns every number the panel shows, for a check driven from the browser.
 */
 import {
-  state, subscribe, edit, status, cameraPair, VIEW_W, VIEW_H, layerShiftCells, TILE_INDEX,
+  state, subscribe, edit, status, cameraPair, VIEW_W, VIEW_H, layerShift, TILE_INDEX, SCROLL_ONE,
 } from "./state.js";
 import { layerSize, slotIsBlank } from "./render.js";
 
@@ -123,24 +123,37 @@ export function bands(doc) {
 }
 
 /*
-  The cells of real art that sit outside the camera's reach, per layer, in WORLD cells. A cell is
-  art when its slot draws a pixel (render.slotIsBlank, the same test the grab tool uses), never
-  when it is nonzero: on a copy of a game map slot 0 is real art.
+  The cells of real art no camera position can ever show, per layer. A cell is art when its slot
+  draws a pixel (render.slotIsBlank, the same test the grab tool uses), never when it is nonzero:
+  on a copy of a game map slot 0 is real art.
+
+  THE SPAN COMES FROM THE HANDLER, SO IT COVERS PARALLAX TOO. A layer's source pixel at screen 0 is
+  `(scroll x camera + offset) >> 10`, and the camera runs 0 to reach.scroll. So the grid pixels this
+  layer can ever show are `[shift, (scroll x maxScroll >> 10) + shift + 239]` across, and the same
+  down with 159. At scroll 1.0 that is exactly `[shift, shift + reach - 1]`, so one rule serves
+  both and a parallax layer is not counted against a span it never had.
 */
-export function lostArt(doc) {
+function visibleSpan(doc, name) {
   const seen = reach(doc);
+  const [sx, sy] = layerShift(doc, name);
+  const scroll = doc.layers[name].scroll || [SCROLL_ONE, SCROLL_ONE];
+  return [sx, Math.floor(scroll[0] * seen.scroll[0] / SCROLL_ONE) + sx + VIEW_W - 1,
+          sy, Math.floor(scroll[1] * seen.scroll[1] / SCROLL_ONE) + sy + VIEW_H - 1];
+}
+
+export function lostArt(doc) {
   const across = doc.blocks[0] * 32;
   const down = doc.blocks[1] * 32;
   const out = [];
   for (const name of Object.keys(doc.layers)) {
-    const [sx, sy] = layerShiftCells(doc, name);
+    const [x0, x1, y0, y1] = visibleSpan(doc, name);
     const cells = doc.layers[name].cells;
     let count = 0;
     for (let gy = 0; gy < down; gy += 1) {
+      // A cell spans 8 px, so a cell the camera shows any part of is not lost.
+      const inY = gy * 8 + 7 >= y0 && gy * 8 <= y1;
       for (let gx = 0; gx < across; gx += 1) {
-        const wx = (gx - sx) * 8;
-        const wy = (gy - sy) * 8;
-        if (wx >= 0 && wx < seen.w && wy >= 0 && wy < seen.h) continue;
+        if (inY && gx * 8 + 7 >= x0 && gx * 8 <= x1) continue;
         if (slotIsBlank(cells[gy * across + gx] & TILE_INDEX)) continue;
         count += 1;
       }
@@ -150,13 +163,29 @@ export function lostArt(doc) {
   return out;
 }
 
+/*
+  lostArt walks every cell of every layer, which is 102,400 of them on the 1280 x 1280 plateau, and
+  paint() runs on every pointermove of the screen box drag. The answer only changes when the
+  document does, and the doc subscriber clears this.
+*/
+let lostCache = null;
+
+export function lostArtCached(doc) {
+  if (!lostCache) lostCache = lostArt(doc);
+  return lostCache;
+}
+
+export function forgetLostArt() {
+  lostCache = null;
+}
+
 export function probe() {
   if (!state.doc) return { pinned, pinNote, open: false };
   const [gw, gh] = layerSize(state.doc);
   const seen = reach(state.doc);
   return { pinned, pinNote, open: true, world: [...state.doc.world], grid: [gw, gh],
            pair: seen.pair, reach: [seen.w, seen.h], maxScroll: seen.scroll,
-           bands: bands(state.doc), lostArt: lostArt(state.doc),
+           bands: bands(state.doc), lostArt: lostArtCached(state.doc),
            box: { ...box }, showShade, showBox };
 }
 
@@ -298,6 +327,7 @@ function clamp(x, y) {
 /* The panel counts art, so it cannot be right until the slot sheet exists. panes.show() calls
    this once the sheet and the layer canvases are up, which is after the doc subscriber has run. */
 export function refresh() {
+  forgetLostArt();
   paint();
 }
 
@@ -351,14 +381,21 @@ function paint() {
     return [dt, dd];
   }));
 
-  const lost = lostArt(doc);
+  const lost = lostArtCached(doc);
   const total = lost.reduce((sum, [, count]) => sum + count, 0);
   const shaded = bands(doc).length
     ? ` The shading marks where the camera cannot go, right of ${seen.w} px and below ${seen.h} px.`
     : "";
+  // A PARALLAX layer is named as one. Its grid is deliberately wider than the ground it covers,
+  // so a large count there is the backdrop's own design and not a fault in the map.
+  const mark = (name) => {
+    const scroll = doc.layers[name].scroll || [SCROLL_ONE, SCROLL_ONE];
+    return scroll[0] === SCROLL_ONE && scroll[1] === SCROLL_ONE
+      ? "" : `, parallax at ${(scroll[0] / SCROLL_ONE).toFixed(2)}`;
+  };
   $("truth-lost").textContent = total
     ? `${total.toLocaleString()} cell(s) of art the camera can never show `
-      + `(${lost.map(([name, count]) => `${name} ${count}`).join(", ")}).${shaded}`
+      + `(${lost.map(([name, count]) => `${name} ${count}${mark(name)}`).join(", ")}).${shaded}`
     : `The camera reaches every cell of art on this map.${shaded}`;
   $("truth-lost").className = total ? "bad" : "good";
 }
@@ -373,7 +410,7 @@ function setWorld() {
     Math.max(floor, Math.min(Math.round(Number($(id).value) || floor), cap));
   const w = want("truth-w", gw, VIEW_W);
   const h = want("truth-h", gh, VIEW_H);
-  edit((d) => { d.world = [w, h]; });
+  edit((d) => { d.world = [w, h]; });        // edit() notifies, which forgets the lost-art count
   place(box.x, box.y);                 // the reach may have shrunk under the box
   host.refreshCounts();                // the right pane's own camera row is not a doc subscriber
   const pair = cameraPair(w, h);
@@ -398,6 +435,7 @@ export async function install(given) {
   // The panel only reads here. panes.show() repaints the overlay itself once the new map's
   // canvases are sized, and painting it from inside setDoc would run against the old one.
   subscribe("doc", () => {
+    forgetLostArt();
     if (state.doc) clamp(box.x, box.y);
     paint();
   });

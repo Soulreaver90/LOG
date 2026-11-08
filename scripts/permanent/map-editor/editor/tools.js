@@ -476,16 +476,18 @@ function paintAt(where) {
 function stampAt(where) {
   const patch = brushPatch();
   const index = ensureTiles(patchPairs(patch));
-  const w = Math.min(patch.w, across() - where.cx);
-  const h = Math.min(patch.h, down() - where.cy);
-  if (w <= 0 || h <= 0) return;
+  if (where.cx >= across() || where.cy >= down()) return;
   writePatch(patch, where.cx, where.cy, index);
   markStamps();
   for (const layer of Object.keys(patch.layers)) {
     if (!doc().layers[layer]) continue;
-    // The record names a LAYER, so it keeps that layer's own grid cell, which is the space
-    // map_file._check_stamps measures against the block grid.
+    // The record names a LAYER, so it keeps that layer's own grid cell AND is clamped to that
+    // layer's own grid. map_file._check_stamps refuses x + w past the block grid, and a layer at
+    // a 24 cell offset reaches the right edge of its grid 24 cells before the canvas does.
     const [gx, gy] = gridCell(doc(), layer, where.cx, where.cy);
+    const w = Math.min(patch.w, across() - gx);
+    const h = Math.min(patch.h, down() - gy);
+    if (gx < 0 || gy < 0 || w <= 0 || h <= 0) continue;
     doc().stamps.push({ name: brush.name, layer, x: gx, y: gy, w, h });
   }
 }
