@@ -1,9 +1,8 @@
 # Rung 4: the death beats
 
 > [!NOTE]
-> **The current build is v9, `log2_plateau_v9.gba`. Read section 11 first.** v8 is superseded
-> and should not be played: its walk crossed Trunks on 77 of the 177 cells that take the
-> walk-from-his-own-spot arm. Sections 1 to 9 are the rung 4 work and section 10 is v8.
+> **The current build is v10, `log2_plateau_v10.gba`. Read section 12 first.** v8 and v9 are
+> superseded. Sections 1 to 9 are the rung 4 work, section 10 is v8 and section 11 is v9.
 
 Built 2026-11-07. ROM `builds\mockups\2026-11-07-plateau\log2_plateau_v7.gba`,
 SHA-1 `5e28c890520e47ef1dccbc2639d49a771e3a7d60`, save paired and byte identical to v5's.
@@ -734,3 +733,166 @@ agree.
    the BG art) and `docs\build-log.md` both carry other agents' edits as well as mine, so I left them
    for the controller. `build-log.md` also gained lines for `v8_check.gba`, `v9_check.gba` and
    `v9_check2.gba`, which were scratch reproducibility builds and should be deleted from it.
+
+---
+
+## 12. v10: the entry side comes from the geometry, and the view test is inverted
+
+Built 2026-11-07. ROM `builds\mockups\2026-11-07-plateau\log2_plateau_v10.gba`,
+SHA-1 `081bf247ff83863b0ecb69b202f398c98a48820f`. It builds to the same SHA-1 twice, and its `.sav`
+is paired beside it, seeded from `log2_poc_r40.sav`.
+
+The owner played v9 and sent three corrections. All three are in this build.
+
+1. "17 literally walked from the far left from behind a building, he is supposed to be standing at
+   the far right... his entry should be respective of where he is standing from trunks."
+2. His own screenshots show 17 standing plainly on screen at the far right during the 18 fight, so
+   the "already visible, just speak" arm must be the common one, not the rare one.
+3. "I fought bottom right, in this one it makes sense he walks from the left, so we have to take
+   into collision, he can't walk past collision points."
+
+### 12.1 The test is now the REAL view, and it errs toward not moving him
+
+v9 used a box deliberately SMALLER than the view, so it walked him in whenever it was unsure. That
+is backwards, and it is why the owner saw the walk at all. v10 uses his whole drawn box against the
+whole camera view, so he speaks from where he stands whenever any pixel of him is on screen.
+
+| | v9 | v10 |
+|---|---|---|
+| the box | smaller than the view, on purpose | the view itself, plus his 8 px half width and 32 px height |
+| player spots where he SPEAKS | `px` 441-583, `py` 353-431 | `px` 385-639, `py` 297-487 |
+| open cells that speak | 217 of 5,683 (3.8 %) | 394 of 5,683 (6.9 %) |
+| open cells within 200 px of Android 18 that speak | 217 of 1,425 (15.2 %) | 394 of 1,425 (27.6 %) |
+
+> [!WARNING]
+> **The walk arm still fires on 93 % of the map, and that is the honest answer, not a tuning
+> failure.** Android 17 stands at (520,408) and the view is 240x160, so from most of a 1024x1280 map
+> he simply is not on screen. The share that matters is the one near Android 18, where the fight
+> really ends: there it is 28 %, up from 15 %. Pushing the number higher would mean claiming he is
+> visible when he is not, which is the v9 mistake with the sign flipped.
+
+### 12.2 The side: geometry proposes, one measured window disposes
+
+The record has four variables, no loop and no pathfinder, so the rule has to be arithmetic.
+
+1. **Pick the axis.** `|dx| >= |dy|` with `dx = 520 - px` and `dy = 408 - py`, written without `abs`
+   as `(dx - dy) * (dx + dy) >= 0`, which is two multiplies and a compare.
+2. **Reject the vertical approach where it would cross the closed band.** The street narrows to
+   `x` 440-520 for `y` 440-700. A vertical walk from outside that gap crosses the wall, so the
+   branch falls back to horizontal when `py` is in 440-700 and `px` is outside 440-520.
+3. **Pick the side on that axis**, as `1 - 2 * (value > here)`: Android 17's own side.
+4. **Enter 24 px outside the view's own edge** on that side and walk in to 40 px from Trunks.
+
+All three builds below were scored by ONE tool, `landing_census.py`, driving each ROM's own
+bytecode over the same 5,683 cells. The share is **of the cells that walk**, because a cell that
+speaks has no path and counting it as clear would flatter whichever rule speaks more often. The
+geometry-only column is v10's own ROM with the window's `439` rewritten to `8000` in place, at the
+same two-byte length, so no later op moves.
+
+| | clear path, all open cells | clear path, within 200 px of Android 18 | entry ever seen |
+|---|---|---|---|
+| v9, one hardcoded left entry | 65.5 % | 82.9 % | 0 |
+| v10, the geometry alone | 75.6 % | 72.6 % | 0 |
+| v10, the geometry plus the window (what ships) | **82.1 %** | **79.0 %** | 0 |
+
+> [!NOTE]
+> **v9 scores better than v10 near Android 18, 82.9 % against 79.0 %, and that is expected.** v9
+> walked him in from the west every time, along the one street that is clear for its whole length.
+> It bought that number by ignoring where Android 17 was standing, which is the thing the owner
+> asked to be fixed. Over the whole map v10 is 16.6 points better.
+
+**Sides chosen on the walk arm, all open cells: E 2,117, N 2,351, W 817, S 4.** No side dominates,
+which is the check the brief asked for. Within 200 px of Android 18 it is E 530, N 175, W 322, S 4.
+
+> [!WARNING]
+> **The south entry is reachable from 4 of 5,683 cells and the player cannot stand on any of them.**
+> They are (504,272), (504,280), (504,288) and (504,296), a one-cell-wide notch north of the plaza.
+> Trunks walks up it in the collision frame but not in the game. So three approaches are real: he
+> comes from the north, the east or the west. The south arm is correct and all but dead.
+
+### 12.3 The vertical entry had to move from 104 px to 136 px
+
+One constant serves both vertical signs, so it takes the stricter one. Entering from the SOUTH has
+to clear the bottom edge by his whole 32 px height, which is `160 + 32 - 80 = 112` below the player;
+entering from the north needs only 80 above. At 104 the south entry showed the top 8 px of his
+sprite. **136 clears the south by 24 px and the north by 56 px.** The whole-map test now checks the
+entry against his real drawn box on both axes, which is what caught it.
+
+### 12.4 Confirmed in the running game, on all three live sides
+
+Every row below is read out of the GAME's own memory, not inferred from the camera. The four scene
+variables live at `0x03001FB0`, so `V_PX`, `V_PY` and `V_HX` are the player's spot and the axis the
+record itself chose. Android 17's anchor is his object `+0x158`.
+
+| run | `V_PX`, `V_PY` | `V_HX` | stop the model computes | Android 17's anchor in RAM | the frame |
+|---|---|---|---|---|---|
+| north | 496, 515 | 0, vertical | (496,475) | **(496,475)** | he walks down into the top of the picture and stops in front of Trunks |
+| east | 357, 401 | 1, horizontal | (397,401) | **(397,401)** | he stands on Trunks' right and says "It can't be!" |
+| west | 662, 504 | 1, horizontal | (622,504) | **(622,504)** | he stands 40 px to Trunks' left and Trunks has turned to face him |
+
+> [!NOTE]
+> **The model and the game agree on every one.** `run_branch` fed the game's own `V_PX`/`V_PY`
+> returns the axis the game put in `V_HX` and the stop the game put in Android 17's anchor, to the
+> pixel, on all three. So the census numbers above are game numbers, not model numbers.
+
+Two traps this measurement walked into first, both now in the bible:
+
+1. **Do not infer the player's spot from the camera.** He keeps moving, so a camera read and an
+   actor dump taken a few steps apart disagree by tens of pixels. Read `0x03001FB0` instead.
+2. **Dump EWRAM close to the death.** A dump taken 480 frames later shows no Android 17 at all,
+   because the ending has advanced and `ext 104` has replaced the NPC with the enemy. Three dumps
+   60 frames apart catch him; one at the end does not, and reads as "the walk never happened".
+
+The camera relation itself was re-confirmed inside one run: with the camera at (384,435), the player
+object `0x0202F220` holds (496.0, 515.5), which is the camera plus (112,80) exactly.
+
+### 12.5 Two questions the brief asked, answered from RAM and from the handler
+
+1. **Does Android 17 hold (520,408) through the whole Android 18 fight?** Yes. Three EWRAM dumps
+   taken after the arrival scene, after Trunks walked 150 px east, and after he walked to the far
+   west all show his object at exactly (520,408). He moves only when the death record moves him.
+2. **Does `ext 104` build the enemy where he ended up?** Yes. `Sprite_ReplaceWithEntry` @0x0800AAC6
+   removes the live NPC of that set and builds the item **at the removed NPC's position and facing**,
+   so the item's own (520,408) is only what the item reads on disk. The Android 17 fight therefore
+   starts where he walked to, not where he spawned.
+
+### 12.6 What v10 does NOT prove
+
+1. **The BG layer art is still not enumerated.** It is backlog item 9 and it is the carrier the
+   owner described as "from behind a building". It lives in the layer tiles, so no walk of the
+   collision frame, the props, the items, the break records or the markers reaches it, and the
+   83 % path score does not count it. What v10 does instead is keep the walk short and inside the
+   view, so the ground Android 17 crosses is the ground Trunks is already standing on.
+2. **I could not drive Trunks to a south-of-17 finish.** The notch is one cell wide.
+3. **The clear-path score samples the straight line in 8 px steps.** A keep-out narrower than 8 px
+   between two samples would not be seen.
+4. **A ki blast flies the way Trunks faces.** Four capture runs ended on map 7,100, the respawn,
+   because the lead ended facing away from Android 18. That is a capture limitation, not a defect
+   in the build, but it means every finish I photographed is one Trunks could win from.
+
+### 12.7 What the owner should check when he plays v10
+
+1. **Beat Android 18 standing next to her, anywhere in the courtyard.** Android 17 should NOT move
+   at all. He speaks from the far right where he has been standing all fight. This is now the common
+   case and it is the one to try first.
+2. **Beat her from well below.** He should come down from the NORTH, into the top of the picture,
+   and stop in front of you.
+3. **Beat her from well to her west.** He should come in from the EAST, the side he was standing on,
+   and stop on your right.
+4. **Beat her from the bottom right.** He should come in from the WEST, which is the case the
+   collision window exists for.
+5. **He must never walk through you**, and you must never see him appear out of nothing.
+
+### 12.8 The suite on v10
+
+**1,703 tests, FAILED (failures=1, skipped=3, expected failures=1)**, so the unittest exit code is 1.
+The one failure is `test_battle_start.test_form_survives_the_leader_change`, the same record and the
+same message as on the v7, v8 and v9 runs. It names no file of mine and the brief named it as known.
+`test_future_androids.py` is 44 tests, all green.
+
+> [!WARNING]
+> **Another agent was editing `scene\map_view.py` and `map-editor\` while this suite ran.** The
+> count moved from 1,647 on v9 to 1,703, which is that agent's work, not mine. A green run taken
+> during another agent's edits can hide a real failure, so this exit code should be read again on a
+> quiet tree before the wave closes.
+

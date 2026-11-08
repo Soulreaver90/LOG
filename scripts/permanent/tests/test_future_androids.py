@@ -73,18 +73,22 @@ FIGHT17_OPS = [(104, (A17_SET, ENEMY_17)), (85, (A17_SET,)), (86, (1,)), (33, (P
 # just goes to his dialogue. If he is offscreen, then he walks onscreen, facing trunks".
 # Every number here is restated from the brief and the disassembly, never imported from the module.
 A17_SPOT, BLAST_SPEED = (520, 408), 100       # 17's own item spot; the n of vanilla's rom:0x3E523F
-CAM_X, CAM_Y = 112, 80                        # the follow camera's offset from the player (B1144)
+CAM_X, CAM_Y = 112, 80                        # the follow camera's offset, READ OUT OF RAM, not assumed
 SCREEN_W, SCREEN_H = 240, 160
-ENTRY_INSET, STOP_INSET = 24, 72              # how far outside, and inside, the left edge of the view
+ENTRY_INSET, STOP_REACH = 24, 40
 A17_HALF_W, A17_TOP = 8, 32                   # his drawn box, from his anchor
-TALK_X, TALK_Y = 88, 52                       # half extents of the "already beside Trunks" box
-# The player spots from which 17's drawn box has NO pixel on screen. Restated from the geometry, not
-# imported: his box spans x 512-528 and y 376-408, and the view is the player minus (112,80).
+ENTRY_WEST, ENTRY_EAST = -ENTRY_INSET, SCREEN_W + ENTRY_INSET          # -24, 264, from the camera
+ENTRY_MID, ENTRY_SWING = (ENTRY_EAST + ENTRY_WEST) // 2, (ENTRY_EAST - ENTRY_WEST) // 2
+ENTRY_UP = SCREEN_H + A17_TOP - CAM_Y + ENTRY_INSET   # 136: one constant for both signs, so it takes
+#                                                      the stricter one, which is entering from the south
+# The player spots from which 17's drawn box has NO pixel on screen. This is the WHOLE test now:
+# inside it he speaks where he stands. Restated from the geometry, not imported: his box spans
+# x 512-528 and y 376-408, and the view is the player minus (112,80).
 GONE_X = (A17_SPOT[0] - A17_HALF_W - SCREEN_W + CAM_X + 1, A17_SPOT[0] + A17_HALF_W + CAM_X - 1)
 GONE_Y = (A17_SPOT[1] - A17_TOP - SCREEN_H + CAM_Y + 1, A17_SPOT[1] + CAM_Y - 1)
+VERT_BAND, VERT_GAP = (440, 700), (440, 520)  # where a vertical approach is rejected, and the way through
 HALF = 1 << 16
-V_SPOT, V_PY, V_PX, V_FLAG = 0, 1, 2, 3       # scene variables: set_var n writes 0x03001FB0 + 4n
-V_GONE, SIDE_STEP = V_SPOT, 80                # the packed spot's slot, reused; and the left-to-right swing
+V_SPOT, V_PY, V_PX, V_HX = 0, 1, 2, 3         # scene variables: set_var n writes 0x03001FB0 + 4n
 JZ, END_OP = 19, 17
 # No death record may carry one of these: a camera move, a camera hand-off, a map load, a fade or a
 # flash. "NO transition" is the owner's emphasis and this is the list that enforces it. ext 62 is NOT
@@ -114,12 +118,10 @@ def blast_ops(enemy_set):
 
 def read_player_ops():
     """ext 143 pushes the player's spot PACKED as (x << 16) | (y & 0xFFFF). Multiplying by 65536
-    shifts the x half out in 32 bits, so one divide gives y; subtracting y and dividing again gives
-    x. V_FLAG is then `px < 112`, the one camera clamp map 1,100's open cells can reach."""
+    shifts the x half out in 32 bits, so one divide gives y; subtracting y and dividing again gives x."""
     return (_ext(143, PLAYER) + [(3, V_SPOT)]
             + _ext(V_SPOT) + _push(HALF) + [(9, None)] + _push(HALF) + [(10, None), (3, V_PY)]
-            + _ext(V_SPOT) + _ext(V_PY) + [(8, None)] + _push(HALF) + [(10, None), (3, V_PX)]
-            + _ext(V_PX) + _push(CAM_X) + [(15, None), (3, V_FLAG)])
+            + _ext(V_SPOT) + _ext(V_PY) + [(8, None)] + _push(HALF) + [(10, None), (3, V_PX)])
 
 
 def outside_ops(slot, lo, hi):
@@ -127,25 +129,50 @@ def outside_ops(slot, lo, hi):
     return _ext(slot) + _push(lo) + [(15, None)] + _ext(slot) + _push(hi) + [(13, None), (5, None)]
 
 
-def screen_x_ops(back, floor_x):
-    """max(px - back, floor_x), written without a jump as a + (floor - a) * V_FLAG."""
-    a = _ext(V_PX) + _push(back) + [(8, None)]
-    return a + _push(floor_x) + a + [(8, None)] + _ext(V_FLAG) + [(9, None), (7, None)]
+def cam_x_ops():
+    """max(px - 112, 0), written as (px - 112) * (px > 112): no register and no jump."""
+    return (_ext(V_PX) + _push(CAM_X) + [(8, None)]
+            + _ext(V_PX) + _push(CAM_X) + [(13, None), (9, None)])
+
+
+def sign_ops(slot, here):
+    """1 - 2 * (value > here): +1 when 17's own spot is at or beyond the player on this axis."""
+    return _push(1) + _push(2) + _ext(slot) + _push(here) + [(13, None), (9, None), (8, None)]
+
+
+def horizontal_ops():
+    """The approach axis. |dx| >= |dy| squared into (dx - dy) * (dx + dy) >= 0, OR the one measured
+    window where a vertical approach would cross the band that narrows the street to x 440-520."""
+    geometry = (_push(A17_SPOT[0] - A17_SPOT[1]) + _ext(V_PX) + [(8, None)] + _ext(V_PY) + [(7, None)]
+                + _push(A17_SPOT[0] + A17_SPOT[1]) + _ext(V_PX) + [(8, None)] + _ext(V_PY) + [(8, None)]
+                + [(9, None)] + _push(-1) + [(13, None)])
+    blocked = (_ext(V_PY) + _push(VERT_BAND[0] - 1) + [(13, None)]
+               + _ext(V_PY) + _push(VERT_BAND[1] + 1) + [(15, None), (4, None)]
+               + _ext(V_PX) + _push(VERT_GAP[0]) + [(15, None)]
+               + _ext(V_PX) + _push(VERT_GAP[1]) + [(13, None), (5, None), (4, None)])
+    return geometry + blocked + [(5, None)]
+
+
+def along_ops(slot, here, reach, horizontal_axis):
+    """reach * sign * axis: the offset from the player along the chosen axis, or 0."""
+    axis = _ext(V_HX) if horizontal_axis else _push(1) + _ext(V_HX) + [(8, None)]
+    return _push(reach) + sign_ops(slot, here) + [(9, None)] + axis + [(9, None)]
 
 
 def approach_ops(npc_set):
-    """17 is left standing, walks from where he stands, or is dropped just outside the left edge of
-    the view with ext 62 and walks 96 px in. Both face ops run on every path."""
-    enter = _push(npc_set) + screen_x_ops(CAM_X + ENTRY_INSET, -ENTRY_INSET) + _ext(V_PY) + _ext(62)
-    side = (_push(SIDE_STEP) + _ext(V_PX) + _push(A17_SPOT[0]) + [(15, None), (9, None)]
-            + _push(1) + _ext(V_GONE) + [(8, None), (9, None)])
-    walk = (_push(npc_set) + screen_x_ops(CAM_X - STOP_INSET, STOP_INSET) + side + [(7, None)]
-            + _push(HALF) + [(9, None)] + _ext(V_PY) + [(7, None)] + _ext(144))
-    gone = (outside_ops(V_PX, *GONE_X) + outside_ops(V_PY, *GONE_Y) + [(5, None), (3, V_GONE)]
-            + _ext(V_GONE))
-    away = (outside_ops(V_PX, A17_SPOT[0] - TALK_X, A17_SPOT[0] + TALK_X)
-            + outside_ops(V_PY, A17_SPOT[1] - TALK_Y, A17_SPOT[1] + TALK_Y) + [(5, None)])
-    return (read_player_ops() + away + [(JZ, None)] + gone + [(JZ, None)] + enter + walk
+    """One test, the real view: inside it he speaks, outside it he is repositioned 24 px beyond the
+    view's own edge on HIS side and walks 64 or 96 px in. Both face ops run on every path."""
+    entry_x = (_ext(V_PX) + cam_x_ops() + _push(ENTRY_MID) + [(7, None)]
+               + _push(ENTRY_SWING) + sign_ops(V_PX, A17_SPOT[0]) + [(9, None), (7, None)]
+               + _ext(V_PX) + [(8, None)] + _ext(V_HX) + [(9, None), (7, None)])
+    entry_y = _ext(V_PY) + along_ops(V_PY, A17_SPOT[1], ENTRY_UP, False) + [(7, None)]
+    stop_x = _ext(V_PX) + along_ops(V_PX, A17_SPOT[0], STOP_REACH, True) + [(7, None)]
+    stop_y = _ext(V_PY) + along_ops(V_PY, A17_SPOT[1], STOP_REACH, False) + [(7, None)]
+    move = (horizontal_ops() + [(3, V_HX)]
+            + _push(npc_set) + entry_x + entry_y + _ext(62)
+            + _push(npc_set) + stop_x + _push(HALF) + [(9, None)] + stop_y + [(7, None)] + _ext(144))
+    gone = outside_ops(V_PX, *GONE_X) + outside_ops(V_PY, *GONE_Y) + [(5, None)]
+    return (read_player_ops() + gone + [(JZ, None)] + move
             + _ext(56, npc_set, PLAYER) + _ext(56, PLAYER, npc_set))
 
 
@@ -167,7 +194,8 @@ def record_ops(rom, rec):
 # scene_harness cannot do this job: its ext handling clears the whole stack, so a record that reads
 # a value back with ext 0 to ext 3 loses it. This models only what the branch uses, in 32 bits,
 # because the exact-dy trick depends on the engine's multiply wrapping.
-BINARY_32 = {5: lambda a, b: int(bool(a) or bool(b)), 7: lambda a, b: a + b,
+BINARY_32 = {4: lambda a, b: int(bool(a) and bool(b)),
+             5: lambda a, b: int(bool(a) or bool(b)), 7: lambda a, b: a + b,
              8: lambda a, b: a - b, 9: lambda a, b: a * b,
              10: lambda a, b: int(a / b), 13: lambda a, b: int(a > b), 15: lambda a, b: int(a < b)}
 # How many values each plain ext op in a death record pops, from docs\research\scene-vm-ext-ops.md.
@@ -644,130 +672,142 @@ class DeathTables(unittest.TestCase):
             self.assertIn((56, (PLAYER, set_id)), ops, "Trunks must turn to her before he fires")
 
     def test_only_android_18s_record_branches_on_the_players_spot(self):
-        """18's record carries exactly two jz: one for "he is already beside Trunks" and one for "his
-        drawn box has no pixel on screen". 17's own record is the last beat before the vanilla fade
-        at word 13 and needs neither."""
+        """ONE branch now, and it is the real view. 17's own record is the last beat before the
+        vanilla fade at word 13 and needs none."""
         rom = built()["rom"]
         jumps18 = [op for _, op, _ in raw_ops(rom, built()["notes"]["deaths"][A18_SET] + 3)
                    if op in (JZ, 18, 28)]
-        self.assertEqual(jumps18, [JZ, JZ], "two branches, both jz: the talk box and the view")
+        self.assertEqual(jumps18, [JZ], "one branch, a jz: has his drawn box any pixel on screen")
         jumps17 = [op for _, op, _ in raw_ops(rom, built()["notes"]["deaths"][A17_SET] + 3)
                    if op in (JZ, 18, 28)]
         self.assertEqual(jumps17, [], "Android 17's own death record must not branch")
 
-    def test_each_jz_skips_exactly_its_own_arm(self):
-        """The outer jz must land on the face ops and the inner one on the walk, so a 17 who is
-        already beside Trunks moves at all and a visible 17 is never teleported."""
+    def test_the_jz_skips_the_whole_approach(self):
+        """When Android 17 is on screen the record must land on the face ops, so nothing moves him
+        and no reposition can be seen by a player who has been looking straight at him."""
         rom = built()["rom"]
         rec = built()["notes"]["deaths"][A18_SET]
         body = raw_ops(rom, rec + 3)
-        spots = [at for at, _, _ in body]
-        outer, inner = [i for i, (_, op, _) in enumerate(body) if op == JZ]
-        after_outer = spots.index(body[outer][2])
-        after_inner = spots.index(body[inner][2])
-        enter = _push(A17_SET) + screen_x_ops(CAM_X + ENTRY_INSET, -ENTRY_INSET) + _ext(V_PY) + _ext(62)
-        self.assertEqual([(op, arg) for _, op, arg in body[inner + 1:after_inner]], enter,
-                         "the inner jz must skip the ext 62 reposition and nothing else")
-        self.assertEqual([(op, arg) for _, op, arg in body[after_outer:after_outer + 2]],
+        at = next(i for i, (_, op, _) in enumerate(body) if op == JZ)
+        after = [a for a, _, _ in body].index(body[at][2])
+        skipped = [(op, arg) for _, op, arg in body[at + 1:after]]
+        self.assertIn((2, 62), skipped, "the jz must skip the reposition")
+        self.assertIn((2, 144), skipped, "the jz must skip the walk")
+        self.assertEqual([(op, arg) for _, op, arg in body[after:after + 2]],
                          _ext(56, A17_SET, PLAYER),
                          "every path must end by facing Android 17 at the player")
 
     def test_the_approach_decides_and_lands_the_way_the_geometry_says(self):
-        """RUNS the arithmetic, it does not read the bytes. Every expected value is written out from
-        the geometry: he stops at max(px - 40, 72) on the player's own row and enters at
-        max(px - 136, -24), and the teleport runs only from inside the GONE band."""
+        """RUNS the arithmetic. Every expected value is written out from the geometry here, not
+        imported: the side is Android 17's own side on whichever axis separates him from Trunks the
+        most, the vertical approach is rejected inside the measured window, and the entry sits 24 px
+        beyond the view's own edge with the left camera clamp folded in."""
         rom = built()["rom"]
         rec = built()["notes"]["deaths"][A18_SET]
         qx, qy = A17_SPOT
-        cases = ((qx, qy, False, False, "standing on 17"),
-                 (qx + TALK_X, qy, False, False, "on the right edge of the talk box"),
-                 (qx + TALK_X + 1, qy, True, False, "one px outside it, and still on screen"),
-                 (qx - TALK_X - 1, qy, True, False, "one px outside it on the left"),
-                 (qx, qy + TALK_Y, False, False, "on the bottom edge of the talk box"),
-                 (qx, qy + TALK_Y + 1, True, False, "one px below it, and still on screen"),
-                 (GONE_X[0] - 1, qy, True, True, "one px past the left edge of the view"),
-                 (GONE_X[1] + 1, qy, True, True, "one px past the right edge of the view"),
-                 (qx, GONE_Y[0] - 1, True, True, "one px above the top edge of the view"),
-                 (qx, GONE_Y[1] + 1, True, True, "one px below the bottom edge of the view"),
-                 (104, 504, True, True, "against the left map edge, where the camera clamps"),
-                 (496, 504, True, True, "the talk spot, where the fight starts"),
-                 (496, 648, True, True, "the player start"))
-        for px, py, want_walk, want_entry, why in cases:
+
+        def want(px, py):
+            dx, dy = qx - px, qy - py
+            horizontal = abs(dx) >= abs(dy) or (VERT_BAND[0] <= py <= VERT_BAND[1]
+                                                and not VERT_GAP[0] <= px <= VERT_GAP[1])
+            if horizontal:
+                sx = 1 if dx >= 0 else -1
+                return (max(px - CAM_X, 0) + ENTRY_MID + ENTRY_SWING * sx, py), (px + STOP_REACH * sx, py)
+            sy = 1 if dy >= 0 else -1
+            return (px, py + ENTRY_UP * sy), (px, py + STOP_REACH * sy)
+
+        cases = ((qx, qy, "standing on his spot"),
+                 (600, 430, "inside the view, to the south east of him"),
+                 (GONE_X[0] - 1, qy, "one px past the left edge of the view"),
+                 (GONE_X[1] + 1, qy, "one px past the right edge of the view"),
+                 (qx, GONE_Y[0] - 1, "one px above the top edge of the view"),
+                 (qx, GONE_Y[1] + 1, "one px below the bottom edge of the view"),
+                 (700, 408, "due east of him, so he comes from the west"),
+                 (300, 408, "due west of him, so he comes from the east"),
+                 (470, 700, "due south in the gap column, so he comes from the north"),
+                 (470, 264, "due north in the gap column, so he comes from the south"),
+                 (300, 600, "south west, but the vertical approach is rejected"),
+                 (104, 504, "against the left map edge, where the camera clamps"),
+                 (496, 515, "where the capture runs finish the fight"))
+        for px, py, why in cases:
             run = run_branch(rom, rec, (px, py))
-            self.assertEqual(run["walked"], want_walk, f"({px},{py}) {why}: walked")
+            visible = GONE_X[0] <= px <= GONE_X[1] and GONE_Y[0] <= py <= GONE_Y[1]
             self.assertEqual(run["left"], 0,
                              f"({px},{py}) left {run['left']} value(s) on the stack: op 17 would turn"
                              f" one of them into the next table index")
-            if want_walk:
-                stop = (max(px - CAM_X + STOP_INSET, STOP_INSET) if want_entry
-                        else px - 40 + SIDE_STEP * (px < A17_SPOT[0]))
-                self.assertEqual(run["target"], (stop, py),
-                                 f"({px},{py}) {why}: the ext 144 target")
-            else:
-                self.assertIsNone(run["target"], f"({px},{py}) {why}: nobody should walk")
-            if want_entry:
-                self.assertEqual(run["entry"], (max(px - CAM_X - ENTRY_INSET, -ENTRY_INSET), py),
-                                 f"({px},{py}) {why}: the ext 62 entry")
-            else:
-                self.assertIsNone(run["entry"], f"({px},{py}) {why}: nobody should be repositioned")
+            if visible:
+                self.assertFalse(run["walked"], f"({px},{py}) {why}: he is on screen, so he speaks")
+                self.assertIsNone(run["entry"], f"({px},{py}) {why}: nothing may move him")
+                continue
+            entry, stop = want(px, py)
+            self.assertEqual(run["entry"], entry, f"({px},{py}) {why}: the ext 62 entry")
+            self.assertEqual(run["target"], stop, f"({px},{py}) {why}: the ext 144 stop")
 
-    def test_17_is_never_repositioned_where_anyone_could_see_it(self):
-        """The whole point of the ext 62. Over EVERY open cell of map 1,100 the entry must be at
-        least his own half width outside the left edge of the view, the stop must be inside it with
-        room for his sprite, and the arm that walks him from his own spot must not take him THROUGH
-        Trunks. The camera is the player minus (112,80) held inside the map, which three capture
-        runs confirm in RAM: 0x0300109C and 0x030010A0 read (384,435), (0,489) and (384,297) with
-        the player at (496,515), (16,569) and (496,377)."""
+    def test_the_arms_and_the_sides_over_every_open_cell(self):
+        """The whole-map proof, and the three things the owner's v9 session turned into rules.
+
+        1. He speaks on EVERY cell where his drawn box has a pixel on screen, and only there.
+        2. The reposition is never inside the view, and the stop always is, on both axes.
+        3. All four sides are chosen somewhere, so the geometry is really being read.
+
+        The camera is the player minus (112,80) held inside the map, which three capture dumps
+        confirm in RAM: 0x0300109C and 0x030010A0 read (384,435), (0,489) and (384,297) with the
+        player at (496,515), (16,569) and (496,377)."""
         rom = built()["rom"]
         rec = built()["notes"]["deaths"][A18_SET]
-        entry = P.map_entry(rom, CLONE_ZONE, CLONE_AREA)[1]
-        layout = P.layouts(rom, entry)[0]
+        entry_at = P.map_entry(rom, CLONE_ZONE, CLONE_AREA)[1]
+        layout = P.layouts(rom, entry_at)[0]
         width, height = P.map_bounds(rom, layout)
         _, _, bits = P.collision_bits(rom, layout)
-        seen, off_view, through, cells, walks_himself = [], [], [], 0, 0
+        seen, off_view, wrong_arm, sides, cells = [], [], [], {}, 0
         for y in range(0, 2048, 8):
             for x in range(0, 2048, 8):
                 if not P.is_open(bits, x, y):
                     continue
                 cells += 1
                 run = run_branch(rom, rec, (x, y))
+                visible = GONE_X[0] <= x <= GONE_X[1] and GONE_Y[0] <= y <= GONE_Y[1]
+                if visible != (not run["walked"]):
+                    wrong_arm.append((x, y))
+                if not run["walked"]:
+                    continue
                 cam = (min(max(x - CAM_X, 0), width - SCREEN_W),
                        min(max(y - CAM_Y, 0), height - SCREEN_H))
-                if run["entry"] and run["entry"][0] + A17_HALF_W > cam[0]:
+                e, t = run["entry"], run["target"]
+                # His box spans x anchor-8..anchor+8 and y anchor-32..anchor, so ANY pixel of it is
+                # on screen when the anchor is inside these two open ranges.
+                inside = (cam[0] - A17_HALF_W < e[0] < cam[0] + SCREEN_W + A17_HALF_W
+                          and cam[1] < e[1] < cam[1] + SCREEN_H + A17_TOP)
+                if inside:
                     seen.append((x, y))
-                if run["walked"] and not (cam[0] + A17_HALF_W <= run["target"][0]
-                                          <= cam[0] + SCREEN_W - A17_HALF_W):
+                if not (cam[0] + A17_HALF_W <= t[0] <= cam[0] + SCREEN_W - A17_HALF_W
+                        and cam[1] + A17_TOP <= t[1] <= cam[1] + SCREEN_H):
                     off_view.append((x, y))
-                if run["walked"] and run["entry"] is None:
-                    walks_himself += 1
-                    start, stop = A17_SPOT, run["target"]
-                    steps = max(abs(stop[0] - start[0]), abs(stop[1] - start[1])) or 1
-                    if any(abs(start[0] + (stop[0] - start[0]) * t // steps - x) <= A17_HALF_W + 4
-                           and abs(start[1] + (stop[1] - start[1]) * t // steps - y) <= A17_TOP // 2
-                           for t in range(0, steps + 1, 4)):
-                        through.append((x, y))
+                side = ("E" if t[0] > x else "W") if t[1] == y else ("S" if t[1] > y else "N")
+                sides[side] = sides.get(side, 0) + 1
         self.assertGreater(cells, 5000, "the collision frame must really have been read")
-        self.assertGreater(walks_himself, 100,
-                           "the arm that walks him from his own spot must really be reached")
+        self.assertEqual(wrong_arm, [], f"{len(wrong_arm)} cells take the wrong arm, first {wrong_arm[:1]}")
         self.assertEqual(seen, [], f"{len(seen)} cells show the reposition, first {seen[:1]}")
         self.assertEqual(off_view, [], f"{len(off_view)} cells stop him outside the view")
-        self.assertEqual(through, [], f"{len(through)} cells walk him through Trunks, first {through[:1]}")
+        self.assertEqual(set(sides), {"N", "S", "E", "W"},
+                         f"the geometry must choose every side somewhere, not {sides}")
 
-    def test_the_geometry_is_what_decides_and_not_something_else(self):
+    def test_the_view_is_what_decides_and_not_something_else(self):
         """A negative control, because a green branch test proves nothing on its own. Moving the
-        BOTTOM edge of the view out to 8000 IN THE BUILT BYTES must stop the talk spot teleporting,
-        while he still walks. 487 and 8000 both zigzag into two varint bytes, so no later op moves."""
+        BOTTOM edge of the view out to 8000 IN THE BUILT BYTES must turn a cell that walks him in
+        into one that leaves him standing. 487 and 8000 both zigzag into two varint bytes, so no
+        later op moves."""
         rom = built()["rom"]
         rec = built()["notes"]["deaths"][A18_SET]
-        self.assertIsNotNone(run_branch(rom, rec, (496, 504))["entry"], "the talk spot teleports")
+        self.assertTrue(run_branch(rom, rec, (496, 504))["walked"], "the talk spot walks him in")
         old, new = bytes([29, 1]) + zigzag(GONE_Y[1]), bytes([29, 1]) + zigzag(8000)
         self.assertEqual(len(old), len(new), "the control must not move any later op")
         mutant = bytearray(rom)
         at = rom.index(old, rec, rec + 0x100)
         mutant[at:at + len(old)] = new
         run = run_branch(bytes(mutant), rec, (496, 504))
-        self.assertIsNone(run["entry"], "a view 8000 px tall must leave him where he stands")
-        self.assertTrue(run["walked"], "he must still walk: only the view test moved")
+        self.assertFalse(run["walked"], "a view 8000 px tall must leave him where he stands")
+        self.assertIsNone(run["entry"], "and must move nobody")
 
     def test_android_17s_own_death_record_runs_clean_too(self):
         """It has no branch, so the only thing to run is the stack: it must end empty."""
@@ -778,18 +818,23 @@ class DeathTables(unittest.TestCase):
 
     def test_the_view_test_reads_the_player_and_17s_real_spot(self):
         """17 never moves off his item spot, so the question is only where the player is. ext 143
-        reads the PLAYER, and every bound in the record is derived from 17's own item spot."""
+        reads the PLAYER, and every bound in the record is derived from 17's own item spot or from
+        the one measured collision window."""
         rom = built()["rom"]
         rec = built()["notes"]["deaths"][A18_SET]
         ops = ext_sequence(rom, rec)
         self.assertIn((143, (PLAYER,)), ops, "the test must read the PLAYER's spot")
-        values = {v for _, op, arg in raw_ops(rom, rec + 3) if op == 29 for v in arg}
+        values = {v for _, op, arg in raw_ops(rom, rec + 3) if op in (0, 1, 29) for v in arg}
         for want, name in ((GONE_X[0], "the left edge of the view"),
                            (GONE_X[1], "the right edge of the view"),
                            (GONE_Y[0], "the top edge of the view"),
                            (GONE_Y[1], "the bottom edge of the view"),
-                           (A17_SPOT[0] - TALK_X, "the left edge of the talk box"),
-                           (A17_SPOT[1] + TALK_Y, "the bottom edge of the talk box")):
+                           (A17_SPOT[0] - A17_SPOT[1], "the dx minus dy constant"),
+                           (A17_SPOT[0] + A17_SPOT[1], "the dx plus dy constant"),
+                           (VERT_BAND[0] - 1, "the top of the vertical reject window"),
+                           (VERT_BAND[1] + 1, "the bottom of it"),
+                           (VERT_GAP[0], "the west side of the way through"),
+                           (VERT_GAP[1], "the east side of it")):
             self.assertIn(want, values, name)
         self.assertEqual(A17_SPOT, struct.unpack_from("<hh", rom, clone_items(rom)[NPC_17] + F.N_AT),
                          "A17_SPOT must be the spot the clone's own NPC item carries")
