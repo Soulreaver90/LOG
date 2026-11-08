@@ -40,6 +40,13 @@
   map_file.validate refuses a document with open ground the camera can never reach, which is the
   plateau fault in its collision form.
 
+  A STAMP IS NOT TIED TO THE LAYER IT CAME FROM. Its layer names are provenance, exactly as its
+  [chunk, tile] pairs are art and not slots, so a single-layer stamp lands on the layer being
+  painted on and a multi-layer stamp slides along the draw order until its front layer sits there.
+  state.js owns that rule and the clamped box each landing records. Grass grabbed from BG3 has to
+  go on the BG1 a cliff is drawn on, and a layer's PRIORITY decides whether the player then walks
+  in front of that grass or behind it, so the brush note says which way round before he clicks.
+
   WORLD CELLS, EVERYWHERE. Every (cx, cy) in this file is a WORLD cell, the space the collision
   grid and the camera already use. A layer sits at its own offset (state.layerShift), so the cell
   of its own grid is reached through gridCell(), and putCell is the only place that converts for a
@@ -51,7 +58,7 @@
 */
 import {
   state, notify, status, BLOCK_TILES, TILE_INDEX, FLIP_X, FLIP_Y,
-  gridCell, layerShiftCells, GROUP_MAX, GROUP_MAX_TILES,
+  gridCell, layerShiftCells, stampLanding, stampRecord, GROUP_MAX, GROUP_MAX_TILES,
 } from "./state.js";
 import { drawLayer, slotIsBlank, sheetCanvas } from "./render.js";
 import {
@@ -107,7 +114,8 @@ export function reset() {
 
 export function current() {
   return { tool, brushSize, brush, collisionPaint, showCollision, showAnimated, grabLayers,
-           grabCollision, library, sizes: BRUSH_SIZES, undo: history.counts() };
+           grabCollision, library, sizes: BRUSH_SIZES, undo: history.counts(),
+           landing: landingNote() };
 }
 
 /*
@@ -215,7 +223,9 @@ export function pickStamp(name) {
   const found = library.find((s) => s.name === name);
   if (!found) return;
   brush = { kind: "stamp", name, stamp: found };
-  if (tool === "tile" || tool === "fill") host.refreshTools();
+  // Always, and not only on the two tools that change: the brush note carries where this stamp
+  // will LAND and what that does to it, and that sentence is per stamp.
+  host.refreshTools();
   host.paintOverlay();
 }
 
@@ -462,17 +472,91 @@ export function redo() {
 function brushPatch() {
   if (brush.kind === "stamp") {
     const stamp = brush.stamp;
-    return { w: stamp.w, h: stamp.h, layers: stamp.cells, animated: stamp.animated || [],
-             collision: stamp.collision || null };
+    const landing = stampLanding(doc(), state.view.selected, Object.keys(stamp.cells));
+    // A NEW object, keyed by the layers it LANDS on. brush.stamp is the library entry itself, so
+    // re-keying that would rewrite the stamp for every map he opens afterwards.
+    const layers = {};
+    for (const [from, to] of Object.entries(landing.map || {})) layers[to] = stamp.cells[from];
+    return { w: stamp.w, h: stamp.h, layers, animated: stamp.animated || [],
+             collision: stamp.collision || null, landing };
   }
   const size = brushSize;
   if (brush.kind === "anim") {
     const one = new Array(size * size).fill(animatedCell(0, brush.tile, 0));
     return { w: size, h: size, layers: { [state.view.selected]: one },
-             animated: [brush.group], collision: null };
+             animated: [brush.group], collision: null, landing: null };
   }
   const one = new Array(size * size).fill([brush.pair[0], brush.pair[1], 0]);
-  return { w: size, h: size, layers: { [state.view.selected]: one }, animated: [], collision: null };
+  return { w: size, h: size, layers: { [state.view.selected]: one }, animated: [],
+           collision: null, landing: null };
+}
+
+/*
+  The same patch, for the three paths that WRITE. brushPatch itself never raises, because the ghost
+  rebuilds it on every pointer move and a hover may not break the overlay. A landing this map
+  cannot hold raises here instead, where down_, move_, up_ and dropAt already turn a raise into the
+  status line and leave the document alone.
+*/
+function patchToWrite() {
+  const patch = brushPatch();
+  if (patch.landing && patch.landing.problem) throw new Error(patch.landing.problem);
+  return patch;
+}
+
+// ===== what moving a stamp to another layer costs him, said before he clicks =====
+
+/*
+  PRIORITY IS THE CONSEQUENCE HE CANNOT SEE. It is stored per layer per map, and it decides whether
+  the player walks in front of the art or behind it. On map 7,15 BG1 is priority 1 and the other
+  three are 3, so the same grass is ground on BG3 and a canopy over the player's head on BG1. He
+  may want exactly that. He must not have to work it out from a number on the layer panel.
+
+  A priority BELOW the player's draws over him and ABOVE it draws under him. Priority 1 over an
+  actor is the owner's own capture of map 6,1 (bible B1182) and 7,15's BG1 canopy (B2113); 3 under
+  is the same two maps. The player's own OBJ priority of 2 is an inference from the gap the BG
+  priorities leave (B0158, graded L), so a layer AT 2 is not called either way.
+*/
+const PLAYER_PRIORITY = 2;
+
+function drawSide(priority) {
+  if (priority < PLAYER_PRIORITY) return "over";
+  if (priority > PLAYER_PRIORITY) return "under";
+  return "";                                   // a layer level with the player, which is unproven
+}
+
+const up = (name) => name.toUpperCase();
+
+function priorityLine(from, to) {
+  const held = doc().layers[from];
+  const there = doc().layers[to].priority;
+  const side = drawSide(there);
+  if (!held || held.priority === there) {
+    return side ? `${up(to)} is priority ${there}, so it draws ${side} the player here.`
+                : `${up(to)} is priority ${there}, level with the player.`;
+  }
+  const was = drawSide(held.priority);
+  if (side && was && side !== was) {
+    return `priority ${held.priority} to ${there}, so this draws ${side.toUpperCase()} the player `
+           + `now, not ${was} it.`;
+  }
+  return `priority ${held.priority} to ${there}, so what it draws in front of changes.`;
+}
+
+/*
+  One line for the brush note: where this stamp will land, and what that does to it. Null when it
+  lands where it was taken from, which is the quiet case and deserves no words.
+*/
+function landingNote() {
+  if (brush.kind !== "stamp" || !doc()) return null;
+  const landing = stampLanding(doc(), state.view.selected, Object.keys(brush.stamp.cells));
+  if (landing.problem) return { text: landing.problem, kind: "bad" };
+  const moves = Object.entries(landing.map).filter(([from, to]) => from !== to);
+  if (!moves.length) return null;
+  const where = moves.map(([from, to]) => `${up(from)} to ${up(to)}`).join(", ");
+  const shifted = moves.find(([from, to]) => (doc().layers[from] || {}).priority
+                                             !== doc().layers[to].priority);
+  const pair = shifted || moves[0];
+  return { text: `${where}: ${priorityLine(pair[0], pair[1])}`, kind: "info" };
 }
 
 /* Place a patch with its top left at (px, py). Collision, when it carries one, goes with it. */
@@ -538,7 +622,7 @@ function showStep(box, layers) {
 }
 
 function paintAt(where) {
-  const patch = brushPatch();
+  const patch = patchToWrite();
   const plan = planFor(patch);
   writePatch(patch, where.cx, where.cy, plan);
   showStep([where.cx, where.cy, where.cx + patch.w, where.cy + patch.h],
@@ -546,21 +630,19 @@ function paintAt(where) {
 }
 
 function stampAt(where) {
-  const patch = brushPatch();
+  const patch = patchToWrite();
   const plan = planFor(patch);
   if (where.cx >= across() || where.cy >= down()) return;
   writePatch(patch, where.cx, where.cy, plan);
   markStamps();
+  // The record names the layer this placement LANDED on, which is not the layer the stamp was
+  // grabbed from, and it is clamped to THAT layer's own grid. The two layers sit at different
+  // scroll offsets, so the clamp has to be recomputed here or a drop near an edge records a span
+  // past the block grid and map_file._check_stamps refuses the save.
   for (const layer of Object.keys(patch.layers)) {
     if (!doc().layers[layer]) continue;
-    // The record names a LAYER, so it keeps that layer's own grid cell AND is clamped to that
-    // layer's own grid. map_file._check_stamps refuses x + w past the block grid, and a layer at
-    // a 24 cell offset reaches the right edge of its grid 24 cells before the canvas does.
-    const [gx, gy] = gridCell(doc(), layer, where.cx, where.cy);
-    const w = Math.min(patch.w, across() - gx);
-    const h = Math.min(patch.h, down() - gy);
-    if (gx < 0 || gy < 0 || w <= 0 || h <= 0) continue;
-    doc().stamps.push({ name: brush.name, layer, x: gx, y: gy, w, h });
+    const box = stampRecord(doc(), layer, where.cx, where.cy, patch.w, patch.h);
+    if (box) doc().stamps.push({ name: brush.name, layer, ...box });
   }
 }
 
@@ -602,7 +684,7 @@ function rectCells(x0, y0, x1, y1) {
 }
 
 function fillCells(cells) {
-  const patch = brushPatch();
+  const patch = patchToWrite();
   const plan = planFor(patch);
   tilePatch(patch, cells, plan);
 }

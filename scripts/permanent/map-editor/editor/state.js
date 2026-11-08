@@ -169,3 +169,82 @@ export function gridCell(doc, name, wx, wy) {
   const [sx, sy] = layerShiftCells(doc, name);
   return [wx + sx, wy + sy];
 }
+
+// ===== where a stamp lands, and the box it records =====
+
+/*
+  A STAMP'S LAYER NAMES ARE PROVENANCE, NOT IDENTITY. It is the same rule that makes a stamp store
+  a [chunk, tile] pair rather than a VRAM slot, and that keeps an animated group's `first` as a
+  note: what the stamp recorded about the map it came from may mean something else in the map it
+  lands in. Grass taken from BG3 is grass, and it has to go on the BG1 a cliff is drawn on.
+
+  ONE LAYER LANDS ON THE SELECTED LAYER. No option and no question. That is what a stamp is for.
+
+  SEVERAL LAYERS KEEP THEIR STACK, because the order is what makes a boulder with ground under it
+  read correctly. The whole stack SLIDES along the draw order until its frontmost layer sits on
+  the selected one. Sliding keeps the gaps inside the stack, and it is the identity when the stamp
+  goes back on the layer it came from, which the common case of restamping the same map needs.
+
+  THE SLIDE IS ONE STEP OF DRAW ORDER, NEVER OF BG NUMBER. Priority is per layer per map, so BG
+  number is not the draw order: map 7,15 draws BG3, BG2, BG0, BG1 back to front. A BG-number slide
+  of a BG2 + BG3 stamp onto BG0 would land it on BG0 and BG1 and come back REVERSED, with its back
+  layer in front. A draw-order slide cannot reverse a stack, because it moves every layer of it by
+  the same number of places.
+
+  A STACK WITH NO ROOM BEHIND IT IS REFUSED WHOLE, and the message names the layers and the
+  nearest selection that would hold it. Half an object is worse than none.
+
+  A stamp records no priority, so the draw order used is the DESTINATION map's. Inside one map
+  that is exact, and it is the most a stamp from another map can know.
+
+  Returns {map, problem}: `map` is {stamp layer -> destination layer}, or null when `problem` is
+  the sentence to show him.
+*/
+export function stampLanding(doc, selected, names) {
+  const up = (name) => name.toUpperCase();
+  const list = (of) => of.map(up).join(", ");
+  if (!names.length) return { map: {}, problem: null };
+  if (!(doc.layers || {})[selected]) {
+    return { map: null, problem: `this map has not got a layer ${up(selected)}` };
+  }
+  if (names.length === 1) return { map: { [names[0]]: selected }, problem: null };
+
+  const missing = names.filter((name) => !doc.layers[name]);
+  if (missing.length) {
+    return { map: null,
+             problem: `this stamp is drawn across ${names.length} layers (${list(names)}) and this `
+                      + `map has not got ${list(missing)}, so nothing was placed` };
+  }
+  const order = drawOrder(doc);                       // back to front
+  const at = new Map(order.map((name, index) => [name, index]));
+  const front = names.reduce((best, name) => (at.get(name) > at.get(best) ? name : best));
+  const back = names.reduce((worst, name) => (at.get(name) < at.get(worst) ? name : worst));
+  const shift = at.get(selected) - at.get(front);
+  if (at.get(back) + shift < 0) {
+    const nearest = order[at.get(front) - at.get(back)];
+    return { map: null,
+             problem: `this stamp is drawn across ${list(names)}, and this map has no room for `
+                      + `that stack at or behind ${up(selected)}. Nothing was placed. Select `
+                      + `${up(nearest)} or a layer in front of it.` };
+  }
+  const map = {};
+  for (const name of names) map[name] = order[at.get(name) + shift];
+  return { map, problem: null };
+}
+
+/*
+  The box one layer of a stamp placement records, in that layer's OWN grid cells, clamped to that
+  layer's OWN grid. The layer is the one it LANDS on, never the one it was grabbed from.
+  map_file._check_stamps refuses x + w past the block grid, and a layer at a 24 cell offset reaches
+  the right edge of its grid 24 cells before the canvas does. On map 7,15 BG1 sits at 8 cells and
+  BG3 at 24, so one drop records two different boxes depending on where it lands.
+  null when that layer has no room at the drop at all.
+*/
+export function stampRecord(doc, layer, cx, cy, w, h) {
+  const [gx, gy] = gridCell(doc, layer, cx, cy);
+  const across = doc.blocks[0] * BLOCK_TILES;
+  const down = doc.blocks[1] * BLOCK_TILES;
+  const box = { x: gx, y: gy, w: Math.min(w, across - gx), h: Math.min(h, down - gy) };
+  if (box.x < 0 || box.y < 0 || box.w <= 0 || box.h <= 0) return null;
+  return box;
+}

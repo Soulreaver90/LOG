@@ -101,6 +101,15 @@ canvas.tile:hover { outline: 1px solid var(--gold); }
   background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 4px 7px; }
 .bar input:not([type]) { width: 110px; }
 #brushnote { font-family: var(--mono); font-size: 11px; color: var(--mute); }
+/* A stamp landing on a layer it was not grabbed from. Gold, because it is the one sentence in
+   this row that changes what the map does, and red is the collision wash and the refusals.
+   ONE LINE, ALWAYS. The bar wraps, so a long refusal grew the row by 28 px and pushed the map
+   down while he was aiming at it. It shrinks to an ellipsis instead, and the whole sentence is
+   in the tooltip and on the status line when he tries the placement. */
+#landing:not(:empty) { font-size: 11px; color: var(--gold); flex: 1 0 100%; min-width: 0;
+                       line-height: 16px; white-space: nowrap; overflow: hidden;
+                       text-overflow: ellipsis; }
+#landing.bad { color: var(--bad); }
 
 /* The map and its overlay share one content box, so a cell is the same cell on both. */
 .stack { position: relative; display: inline-block; line-height: 0; }

@@ -303,6 +303,16 @@ function paintTools() {
   $("brushnote").textContent = `brush: ${now.brush.name}`
     + (now.brush.kind === "stamp" ? ` (${now.brush.stamp.w} x ${now.brush.stamp.h})` : "")
     + `   layer ${state.view.selected.toUpperCase()}   ${now.undo.done} step(s) back`;
+  // WHERE THE STAMP IN HIS HAND WILL LAND, before he clicks and not after. A stamp goes on the
+  // layer he is painting on, and that layer's priority decides whether the player walks in front
+  // of the art or behind it. This note is here rather than on the status line because the status
+  // line is written over by the next thing that happens, and this has to hold while he aims.
+  const landing = now.landing;
+  $("landing").textContent = landing ? landing.text : "";
+  $("landing").className = landing ? landing.kind : "";
+  // The row holds ONE line, so a long refusal is cut with an ellipsis. The whole sentence stays
+  // reachable here, and it is also put on the status line when he tries the placement.
+  $("landing").title = landing ? landing.text : "";
   paintStamps();
 }
 
