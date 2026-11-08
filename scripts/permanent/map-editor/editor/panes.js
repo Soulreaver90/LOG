@@ -11,8 +11,10 @@
                          index.html, beside every other control on this page, and truth.js wires
                          them by id.
     addToolbarItem(node) a later tool's controls go in the centre pane's second bar.
-    addOverlay(fn)       the truth panel's shading draws onto the overlay canvas, which sits
-                         exactly over the map, without touching tools.js.
+    addOverlay(fn)       the truth panel's shading and the size ruler's sprite draw onto the
+                         overlay canvas, which sits exactly over the map, without touching
+                         tools.js. The hooks run in the order they were added, so the one added
+                         last draws on top.
     redraw()             redraw the visible canvas from the layer canvases.
     refreshCounts()      redraw the right pane after an edit changed the tile list.
 
@@ -34,6 +36,7 @@ import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas, d
 import { groupAtSlot, isAnimatedCell } from "./cells.js";
 import * as tools from "./tools.js";
 import * as truth from "./truth.js";
+import * as ruler from "./ruler.js";
 import * as autosave from "./autosave.js";
 
 const BLOCK_CAP = 8;       // 8 blocks is 2048 px, which is where the 256 cell collision grid stops
@@ -680,6 +683,10 @@ export async function start() {
   // The truth panel takes the same kind of host as the tools, so neither file imports this one
   // and the three cannot form an import cycle. It reads the camera rule out of map_file.py here.
   await truth.install({ addOverlay, paintOverlay, refreshCounts, canvas });
+  // The size ruler takes the same kind of host, and goes in AFTER the truth panel because an
+  // overlay hook draws in the order it was added: the figure must sit OVER the camera shading,
+  // not under it. The truth panel's one pointer drag moves this sprite as well as its own box.
+  await ruler.install({ addOverlay, paintOverlay, canvas });
   // The net under every unsaved change. It hooks the history and the dirty flag, so no edit in
   // any other file has to remember to call it.
   autosave.install({ paintMarker, show });

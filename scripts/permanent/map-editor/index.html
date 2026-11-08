@@ -175,8 +175,8 @@
         Shade what the camera can never show</label>
       <label class="chip wide"><input type="checkbox" id="truth-box" checked>
         Show the 240 x 160 screen box</label>
-      <label class="chip wide" title="The middle button always drags the box. Tick this to drag it with the left button, which paints nothing while it is on.">
-        <input type="checkbox" id="truth-move"> Drag the box with the left button</label>
+      <label class="chip wide" title="The middle button always drags the box and the sprite. Tick this to drag them with the left button, which paints nothing while it is on.">
+        <input type="checkbox" id="truth-move"> Drag the box and the sprite with the left button</label>
       <label class="worldrow" for="truth-w">World
         <input id="truth-w" type="number" min="240" step="8"
                title="The world is what the camera scrolls over, and it is NOT the block grid. The map carries world - 239 and world - 159 as its camera words.">
@@ -186,6 +186,19 @@
         <span>px</span>
       </label>
       <div id="truth-note" class="hint"></div>
+
+      <!--
+        The size ruler. The 240 x 160 box says what fits on screen and nothing about how big a
+        person is beside a hill, which is the thing being judged while a map is composed. The
+        sprite is a reference overlay: it is never saved, never exported, never placed as tiles,
+        and it does not mark the map dirty. It stands on the ACTOR'S POINT, which is where the
+        green cross sits, never on the corner of its own padded picture.
+      -->
+      <div class="grouphead">Size next to a character</div>
+      <label class="chip wide" title="Stand one standing frame on the map. Drag it with the middle button, or with the left button when the tick above is on.">
+        <input type="checkbox" id="ruler-show"> Stand a character on the map</label>
+      <select id="ruler-set" title="Which character stands on the map."></select>
+      <div id="ruler-note" class="hint"></div>
     </div>
   </section>
 

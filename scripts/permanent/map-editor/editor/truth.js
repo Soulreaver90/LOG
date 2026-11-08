@@ -33,11 +33,18 @@
   Seams   install(host) takes addOverlay, paintOverlay, refreshCounts and the map canvas, the same
           shape tools.js takes, so this file imports nothing from panes.js and the two cannot cycle.
           probe() returns every number the panel shows, for a check driven from the browser.
+
+  THE DRAG BELOW IS SHARED WITH ruler.js, which stands a character on the map for scale. There is
+  one capture listener on the map stack and it decides which thing was pressed, because
+  stopPropagation does not stop a second listener on the SAME element: two of them would move the
+  box and the sprite together on one middle drag. ruler.js imports nothing from here, so the
+  dependency runs one way and the two cannot cycle.
 */
 import {
   state, subscribe, edit, status, cameraPair, VIEW_W, VIEW_H, layerShift, TILE_INDEX, SCROLL_ONE,
 } from "./state.js";
 import { layerSize, slotIsBlank } from "./render.js";
+import * as ruler from "./ruler.js";       // the drag below is the one the sprite shares
 
 // ===== CONFIG =====
 
@@ -275,24 +282,50 @@ function wireDrag(canvas) {
              y: (event.clientY - area.top - canvas.clientTop) / scale };
   };
 
-  const mine = (event) => showBox && pinned && state.doc
-    && (event.button === 1 || (moveMode && event.button === 0));
+  /*
+    ONE DISPATCHER, NOT TWO LISTENERS. The ruler's sprite drags with the same buttons as this box.
+    A second capture listener on this same element would not be stopped by the stopPropagation
+    below, because that stops the other ELEMENTS and not the other listeners here, so one middle
+    drag would move the box AND the sprite together. So this handler decides which one was
+    pressed. The sprite wins when the press is on the figure, because that is where the hand is.
+  */
+  const target = (event, at) => {
+    if (!state.doc) return null;
+    if (!(event.button === 1 || (moveMode && event.button === 0))) return null;
+    if (ruler.grabbed(at)) return "sprite";
+    return showBox && pinned ? "box" : null;
+  };
+
+  const move = (at) => {
+    if (drag.what === "sprite") ruler.place(at.x - drag.dx, at.y - drag.dy);
+    else place(at.x - drag.dx, at.y - drag.dy);
+  };
 
   stack.addEventListener("mousedown", (event) => {
     if (event.button === 1) event.preventDefault();      // or Windows Chrome starts autoscroll
   }, true);
 
   stack.addEventListener("pointerdown", (event) => {
-    if (!mine(event)) return;
+    const at = mapPoint(event);
+    const what = target(event, at);
+    if (!what) return;
     event.stopPropagation();
     event.preventDefault();
     // Capture, so a release over the right pane or a scrollbar still comes back here. A synthetic
     // event carries no live pointer id, and refusing to capture one must not stop the drag.
     try { canvas.setPointerCapture(event.pointerId); } catch (ignored) { void ignored; }
-    const at = mapPoint(event);
-    const inside = at.x >= box.x && at.x < box.x + VIEW_W && at.y >= box.y && at.y < box.y + VIEW_H;
-    drag = inside ? { dx: at.x - box.x, dy: at.y - box.y } : { dx: VIEW_W / 2, dy: VIEW_H / 2 };
-    place(at.x - drag.dx, at.y - drag.dy);
+    if (what === "sprite") {
+      // The grab holds the figure where it was taken, so it does not jump under the hand. The
+      // offset is to the ACTOR'S POINT, which is what ruler.place moves.
+      const point = ruler.probe().at;
+      drag = { what, dx: at.x - point.x, dy: at.y - point.y };
+    } else {
+      const inside = at.x >= box.x && at.x < box.x + VIEW_W
+                  && at.y >= box.y && at.y < box.y + VIEW_H;
+      drag = inside ? { what, dx: at.x - box.x, dy: at.y - box.y }
+                    : { what, dx: VIEW_W / 2, dy: VIEW_H / 2 };
+    }
+    move(at);
   }, true);
 
   stack.addEventListener("pointermove", (event) => {
@@ -302,8 +335,7 @@ function wireDrag(canvas) {
     // stroke, because the lines below would stop their pointerup.
     if (event.buttons === 0) { drag = null; return; }
     event.stopPropagation();
-    const at = mapPoint(event);
-    place(at.x - drag.dx, at.y - drag.dy);
+    move(mapPoint(event));
   }, true);
 
   for (const kind of ["pointerup", "pointercancel"]) {

@@ -2,7 +2,9 @@ r"""
 serve.py - Run the map editor: a local file server plus the three ROM reads the page needs.
 
 Usage:   py -3.14 -P scripts\permanent\map-editor\serve.py
-         It exports the tile assets on a first run, then opens http://127.0.0.1:8777/ in a browser.
+         It exports the tile assets and the ruler sprites on a first run, then opens
+         http://127.0.0.1:8777/ in a browser. A machine whose assets were exported before the
+         sprites existed gains them on the next start: see ensure_assets.
          --port N picks another port. --no-browser skips the open. --rom PATH serves a build instead
          of the base ROM, so an appended map can be opened.
 --rom:   the tile atlases are exported ONCE, from the base ROM's chunk pool. A build may give a map
@@ -552,11 +554,29 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def ensure_assets() -> None:
-    """Export the tile atlases on a first run. Without them the page opens with an empty palette."""
-    if (ASSETS / "assets.json").exists():
+    """Export the tile atlases on a first run, and the sprites on the first run that wants them.
+
+    THE TWO ARE CHECKED APART ON PURPOSE. export() refuses a folder that already holds something,
+    so a machine whose assets were written before the sprites existed would keep answering 404 for
+    sprites.json for ever and the size ruler would never arrive. The sprite step costs 0.033 s.
+    """
+    rom = None
+    if not (ASSETS / "assets.json").exists():
+        print(f"exporting the tile assets to {ASSETS} (first run: 168 atlases, 1 MB, measured 1.5 s)")
+        rom = map_view.BASE.read_bytes()
+        export_assets.export(rom, ASSETS)
+    sprites = ASSETS / export_assets.SPRITES_IN
+    if (sprites / "sprites.json").exists():
         return
-    print(f"exporting the tile assets to {ASSETS} (first run: 168 atlases, 1 MB, measured 1.5 s)")
-    export_assets.export(map_view.BASE.read_bytes(), ASSETS)
+    print(f"exporting {len(export_assets.SPRITE_SETS)} ruler sprites to {sprites}")
+    try:
+        export_assets.export_sprites(rom if rom is not None else map_view.BASE.read_bytes(), sprites)
+    except (FileExistsError, OSError, ValueError) as problem:
+        # Never fatal. The sprite is a reference overlay, and the editor must open without it:
+        # a half-written sprites\ from an interrupted run would otherwise block every map. The
+        # fix is to delete that folder, because the export refuses to write over one.
+        print(f"the ruler sprites were NOT exported, and the editor opens without them: {problem}\n"
+              f"delete {sprites} and start this again to get them.")
 
 
 def main(argv: list) -> None:
