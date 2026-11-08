@@ -15,12 +15,18 @@
   WHY A STAMP IS NOT A LIST OF SLOTS. A cell holds a VRAM slot, and slot 300 of map 7,15 is not
   slot 300 of a blank map. So a stamp stores [chunk, tile, flips] per cell, which is a tile in the
   168 chunk pool and means the same thing in every map, and placing it appends the pairs the target
-  map has not got. Two kinds of cell are stored as null, meaning "leave what is under me":
-    - a cell whose slot belongs to an ANIMATED GROUP, which has no chunk pair at all. Map 7,15
-      names slots 894 and 895 in 57 cells, and resolving those through doc.tiles would lift a tile
-      from the far side of the map.
-    - a cell whose art is entirely TRANSPARENT, tested against the slot sheet's own pixels. Never
-      by `cell == 0`: on a copy of a game map slot 0 is real art.
+  map has not got. A cell whose art is entirely TRANSPARENT is stored as null, meaning "leave what
+  is under me", tested against the slot sheet's own pixels. Never by `cell == 0`: on a copy of a
+  game map slot 0 is real art.
+
+  ANIMATED CELLS ARE CARRIED, NOT DROPPED. A slot that belongs to an ANIMATED GROUP has no chunk
+  pair at all, and a grab used to store null there. Vanilla map 7,15 names its group's slots in 57
+  cells, and the map the owner is composing from it names them in 224, which is its waving grass,
+  so a grab of a field came back with 224 holes in it. A
+  cell of a group is now stored as {g, t, f} and the stamp carries the group's own PIXELS, which
+  is what lets it place that grass into a map that has never held it. cells.js owns that format
+  and the slot every cell lands in. Every reader of a patch cell branches: patchPairs, writePatch,
+  tilePatch and drawGhost here, drawStamp in panes.js.
 
   THE STREAM CAN RUN OUT, AND IT RUNS OUT EARLY. Placed art appends to doc.tiles, and the slot a
   tile lands in is its position in that list. Map 7,15 streams 633 tiles and its group owns 894 and
@@ -44,10 +50,13 @@
   of that stroke together. See history.js for why it stores diffs.
 */
 import {
-  state, notify, status, BLOCK_TILES, TILE_INDEX, FLIP_X, FLIP_Y, groupTiles,
-  gridCell, layerShiftCells,
+  state, notify, status, BLOCK_TILES, TILE_INDEX, FLIP_X, FLIP_Y,
+  gridCell, layerShiftCells, GROUP_MAX, GROUP_MAX_TILES,
 } from "./state.js";
-import { drawLayer, slotIsBlank } from "./render.js";
+import { drawLayer, slotIsBlank, sheetCanvas } from "./render.js";
+import {
+  animatedCell, applyPlan, cellFlips, findGroup, groupAtSlot, isAnimatedCell, planPlacement,
+} from "./cells.js";
 import * as history from "./history.js";
 
 // ===== CONFIG =====
@@ -66,6 +75,7 @@ let brushSize = 1;
 let brush = { kind: "tile", name: "chunk 0 tile 0", pair: [0, 0] };
 let collisionPaint = "wall";            // what right drag writes: "wall" closes, "floor" opens
 let showCollision = true;
+let showAnimated = false;               // the animated tile wash, off until he asks for it
 let grabLayers = "scenery";             // which layers a grab takes: scenery, ground or all
 let grabCollision = "take";             // whether a grab keeps the collision under the box
 let library = [];                       // the stamps, which outlive the open map
@@ -74,6 +84,10 @@ let drag = null;                        // a box drag: fill rectangle, or grab
 let hover = null;
 let collisionDirty = true;              // the collision overlay is cached and redrawn on demand
 let collisionSheet = null;
+let animatedDirty = true;               // the animated tile overlay, cached the same way
+let animatedSheet = null;
+let animatedShown = "";                 // the layers that sheet was built from, so a hide rebuilds
+let lastRefusal = "";                   // the refusal already on the status line, said once
 
 export function install(hooks) {
   host = hooks;
@@ -86,11 +100,14 @@ export function reset() {
   history.clear();
   stroke = null;
   drag = null;
+  collisionDirty = true;
+  animatedDirty = true;
+  lastRefusal = "";
 }
 
 export function current() {
-  return { tool, brushSize, brush, collisionPaint, showCollision, grabLayers, grabCollision,
-           library, sizes: BRUSH_SIZES, undo: history.counts() };
+  return { tool, brushSize, brush, collisionPaint, showCollision, showAnimated, grabLayers,
+           grabCollision, library, sizes: BRUSH_SIZES, undo: history.counts() };
 }
 
 /*
@@ -154,9 +171,42 @@ export function setShowCollision(on) {
   host.paintOverlay();
 }
 
+/*
+  WHERE THE ANIMATED TILES ARE. His map carries 224 of them and nothing on screen said so until a
+  grab turned them into holes. Magenta, because the collision wash is red, the grab box is blue
+  and the brush ghost is orange, and because the ground he is working on is green: magenta is the
+  one strong hue that green cannot swallow.
+*/
+export function setShowAnimated(on) {
+  showAnimated = on;
+  animatedDirty = true;
+  host.paintOverlay();
+}
+
 /* A tile from either list in the left pane becomes the brush. */
 export function pickTile(chunk, tile) {
   brush = { kind: "tile", name: `chunk ${chunk} tile ${tile}`, pair: [chunk, tile] };
+  host.refreshTools();
+  host.paintOverlay();
+}
+
+/*
+  One tile of an animated group becomes the brush, so waving grass can be painted by hand and a
+  stamp can be touched up. The group is COPIED into the brush rather than pointed at, because he
+  switches maps with a brush in his hand, and a brush that pointed at the old document's group
+  would place a group that is no longer there.
+*/
+export function pickAnimatedTile(which, tile) {
+  const group = (doc().animated || [])[which];
+  if (!group) return;
+  brush = {
+    kind: "anim",
+    name: `animated group ${which} tile ${tile}`,
+    tile,
+    group: { first: group.first,
+             frames: (group.frames || []).map((f) => ({ duration: f.duration,
+                                                        pixels: Array.from(f.pixels || []) })) },
+  };
   host.refreshTools();
   host.paintOverlay();
 }
@@ -184,57 +234,36 @@ const inGrid = (gx, gy) => gx >= 0 && gy >= 0 && gx < across() && gy < down();
 /* The canvas is the block grid in WORLD pixels, so this is where a cursor may be. */
 const onCanvas = (cx, cy) => cx >= 0 && cy >= 0 && cx < across() && cy < down();
 
-function groupSpans() {
-  return (doc().animated || []).map((g) => [g.first, g.first + groupTiles(g)]);
-}
+// ===== the tile stream and the animated groups, written =====
 
-function inGroup(spans, slot) {
-  return spans.some(([first, past]) => slot >= first && slot < past);
-}
-
-
-// ===== the tile stream, written =====
-
-const pairKey = (chunk, tile) => `${chunk},${tile}`;
-
-function streamIndex() {
-  const index = new Map();
-  doc().tiles.forEach(([chunk, tile], slot) => {
-    const key = pairKey(chunk, tile);
-    if (!index.has(key)) index.set(key, slot);
-  });
-  return index;
-}
+const limits = () => ({ budget: state.assets.tile_budget,
+                        groupMax: GROUP_MAX, groupMaxTiles: GROUP_MAX_TILES });
 
 /*
-  Every [chunk, tile] this placement needs, as slots, appending the ones the map has not got.
-  Raises rather than appending past the budget or into an animated group's slots.
+  What this patch needs, worked out by cells.js, then given to the map: the [chunk, tile] pairs it
+  has not got, and the animated groups it has not got. Both are recorded for undo first.
+
+  Raises when the static stream cannot fit, which stops the whole placement. A group that cannot
+  fit refuses only its own cells, and `refusals` says which limit stopped it: his grass is worth
+  one plain sentence and not a silent hole.
 */
-function ensureTiles(pairs) {
-  const index = streamIndex();
-  const spans = groupSpans();
-  const budget = state.assets.tile_budget;
-  const added = [];
-  for (const [chunk, tile] of pairs) {
-    const key = pairKey(chunk, tile);
-    if (index.has(key)) continue;
-    const slot = doc().tiles.length + added.length;
-    if (slot >= budget) {
-      throw new Error(`this map already loads ${budget} tiles, which is the hardware's limit. `
-                      + `Place art it already loads, or free some.`);
-    }
-    if (inGroup(spans, slot)) {
-      throw new Error(`this map's tile stream stops at slot ${slot}, where an animated group `
-                      + `begins. Place art it already loads.`);
-    }
-    index.set(key, slot);
-    added.push([chunk, tile]);
-  }
-  if (added.length) {
-    markTiles();
-    doc().tiles.push(...added);
-  }
-  return index;
+function planFor(patch) {
+  const plan = planPlacement(doc(), patch, limits());
+  if (plan.addTiles.length) markTiles();
+  if (plan.addGroups.length) markAnimated();
+  applyPlan(doc(), plan);
+  if (plan.addGroups.length) animatedDirty = true;
+  sayRefusals(plan);
+  return plan;
+}
+
+/* One sentence per refusal, and never the same one twice in a row while he drags. */
+function sayRefusals(plan) {
+  const note = [...new Set(plan.refusals)].join(". ");
+  if (!note) { lastRefusal = ""; return; }
+  if (note === lastRefusal) return;
+  lastRefusal = note;
+  status(note, "bad");
 }
 
 // ===== collision =====
@@ -268,11 +297,25 @@ function putCollision(cx, cy, open) {
 
 function begin(label) {
   stroke = { label, cells: {}, collision: { idx: [], old: [], now: [] },
-             boxes: {}, tilesBefore: null, stampsBefore: null };
+             boxes: {}, tilesBefore: null, stampsBefore: null, animatedBefore: null };
 }
 
 function markTiles() {
   if (stroke && !stroke.tilesBefore) stroke.tilesBefore = doc().tiles.map((p) => p.slice());
+}
+
+/* A placement may ADD an animated group, so undo has to be able to take one away again. The
+   whole list is kept: it is a handful of groups of at most 64 tiles, and a diff of pixels would
+   cost more to write than the list costs to copy. */
+function markAnimated() {
+  if (stroke && !stroke.animatedBefore) stroke.animatedBefore = copyGroups(doc().animated);
+}
+
+function copyGroups(groups) {
+  return (groups || []).map((g) => ({
+    first: g.first,
+    frames: (g.frames || []).map((f) => ({ duration: f.duration, pixels: Array.from(f.pixels) })),
+  }));
 }
 
 function markStamps() {
@@ -306,13 +349,15 @@ function commit() {
   if (!stroke) return;
   const touched = Object.keys(stroke.cells);
   const moved = touched.length || stroke.collision.idx.length
-                || stroke.tilesBefore || stroke.stampsBefore;
+                || stroke.tilesBefore || stroke.stampsBefore || stroke.animatedBefore;
   if (!moved) { stroke = null; return; }
 
-  const before = { cells: {}, collision: null, tiles: stroke.tilesBefore, stamps: stroke.stampsBefore };
+  const before = { cells: {}, collision: null, tiles: stroke.tilesBefore,
+                   stamps: stroke.stampsBefore, animated: stroke.animatedBefore };
   const after = { cells: {}, collision: null,
                   tiles: stroke.tilesBefore ? doc().tiles.map((p) => p.slice()) : null,
-                  stamps: stroke.stampsBefore ? (doc().stamps || []).map((s) => ({ ...s })) : null };
+                  stamps: stroke.stampsBefore ? (doc().stamps || []).map((s) => ({ ...s })) : null,
+                  animated: stroke.animatedBefore ? copyGroups(doc().animated) : null };
   for (const [layer, rec] of Object.entries(stroke.cells)) {
     before.cells[layer] = { idx: rec.idx, values: rec.old };
     after.cells[layer] = { idx: rec.idx, values: rec.now };
@@ -322,9 +367,14 @@ function commit() {
     after.collision = { idx: stroke.collision.idx, values: stroke.collision.now };
   }
   const boxes = stroke.boxes;
-  const grew = Boolean(stroke.tilesBefore);
+  // A new group is new PIXELS, so the slot sheet has to be rebuilt for it exactly as a new tile
+  // does. Without this the group's slots draw from a sheet that never held them.
+  const grew = Boolean(stroke.tilesBefore || stroke.animatedBefore);
   const name = stroke.label;
   stroke = null;
+  // The wash is rebuilt once a stroke ends, never inside it. A rebuild walks every cell of every
+  // shown layer, and doing that on each pointer move of a drag would cost him the frame rate.
+  animatedDirty = true;
 
   history.push(before, after, boxes, name);
   if (grew) {
@@ -372,12 +422,17 @@ function applyPatch(patch, back) {
   }
   if (patch.tiles) doc().tiles = patch.tiles.map((p) => p.slice());
   if (patch.stamps) doc().stamps = patch.stamps.map((s) => ({ ...s }));
+  if (patch.animated) {
+    doc().animated = copyGroups(patch.animated);
+    animatedDirty = true;
+  }
 }
 
 async function step(move) {
   if (!move) { status("nothing to step back to"); return; }
   applyPatch(move.patch, move.back);
-  if (move.patch.tiles) {
+  animatedDirty = true;
+  if (move.patch.tiles || move.patch.animated) {
     await redrawEverything();
   } else {
     for (const [layer, box] of Object.entries(move.boxes || {})) drawLayer(doc(), layer, box);
@@ -400,37 +455,36 @@ export function redo() {
 // ===== the brush, as a patch anyone can place =====
 
 /*
-  One shape for both kinds of brush: a w x h grid of [chunk, tile, flips] per layer, plus an
-  optional collision grid of the same size. A null cell leaves what is under it alone.
+  One shape for all three kinds of brush: a w x h grid of cells per layer, the animated groups
+  those cells may name, and an optional collision grid of the same size. A null cell leaves what
+  is under it alone. cells.js owns what a cell may be.
 */
 function brushPatch() {
   if (brush.kind === "stamp") {
     const stamp = brush.stamp;
-    return { w: stamp.w, h: stamp.h, layers: stamp.cells, collision: stamp.collision || null };
+    return { w: stamp.w, h: stamp.h, layers: stamp.cells, animated: stamp.animated || [],
+             collision: stamp.collision || null };
   }
   const size = brushSize;
-  const one = new Array(size * size).fill([brush.pair[0], brush.pair[1], 0]);
-  return { w: size, h: size, layers: { [state.view.selected]: one }, collision: null };
-}
-
-function patchPairs(patch) {
-  const pairs = [];
-  for (const cells of Object.values(patch.layers)) {
-    for (const cell of cells) if (cell) pairs.push([cell[0], cell[1]]);
+  if (brush.kind === "anim") {
+    const one = new Array(size * size).fill(animatedCell(0, brush.tile, 0));
+    return { w: size, h: size, layers: { [state.view.selected]: one },
+             animated: [brush.group], collision: null };
   }
-  return pairs;
+  const one = new Array(size * size).fill([brush.pair[0], brush.pair[1], 0]);
+  return { w: size, h: size, layers: { [state.view.selected]: one }, animated: [], collision: null };
 }
 
 /* Place a patch with its top left at (px, py). Collision, when it carries one, goes with it. */
-function writePatch(patch, px, py, index) {
+function writePatch(patch, px, py, plan) {
   for (const [layer, cells] of Object.entries(patch.layers)) {
     if (!doc().layers[layer]) continue;
     for (let y = 0; y < patch.h; y += 1) {
       for (let x = 0; x < patch.w; x += 1) {
         const cell = cells[y * patch.w + x];
-        if (!cell) continue;
-        const slot = index.get(pairKey(cell[0], cell[1]));
-        putCell(layer, px + x, py + y, slot | (cell[2] || 0));
+        const slot = plan.slotOf(cell);
+        if (slot === null) continue;          // a null cell, or a group this map could not take
+        putCell(layer, px + x, py + y, slot | cellFlips(cell));
       }
     }
   }
@@ -448,15 +502,16 @@ function writePatch(patch, px, py, index) {
 }
 
 /* The same patch repeated over a list of WORLD cells, anchored to the world origin. */
-function tilePatch(patch, cells, index) {
+function tilePatch(patch, cells, plan) {
   const layers = Object.entries(patch.layers).filter(([name]) => doc().layers[name]);
   for (const [cx, cy] of cells) {
     const sx = ((cx % patch.w) + patch.w) % patch.w;
     const sy = ((cy % patch.h) + patch.h) % patch.h;
     for (const [layer, source] of layers) {
       const cell = source[sy * patch.w + sx];
-      if (!cell) continue;
-      putCell(layer, cx, cy, index.get(pairKey(cell[0], cell[1])) | (cell[2] || 0));
+      const slot = plan.slotOf(cell);
+      if (slot === null) continue;
+      putCell(layer, cx, cy, slot | cellFlips(cell));
     }
   }
 }
@@ -484,17 +539,17 @@ function showStep(box, layers) {
 
 function paintAt(where) {
   const patch = brushPatch();
-  const index = ensureTiles(patchPairs(patch));
-  writePatch(patch, where.cx, where.cy, index);
+  const plan = planFor(patch);
+  writePatch(patch, where.cx, where.cy, plan);
   showStep([where.cx, where.cy, where.cx + patch.w, where.cy + patch.h],
            Object.keys(patch.layers));
 }
 
 function stampAt(where) {
   const patch = brushPatch();
-  const index = ensureTiles(patchPairs(patch));
+  const plan = planFor(patch);
   if (where.cx >= across() || where.cy >= down()) return;
-  writePatch(patch, where.cx, where.cy, index);
+  writePatch(patch, where.cx, where.cy, plan);
   markStamps();
   for (const layer of Object.keys(patch.layers)) {
     if (!doc().layers[layer]) continue;
@@ -548,8 +603,8 @@ function rectCells(x0, y0, x1, y1) {
 
 function fillCells(cells) {
   const patch = brushPatch();
-  const index = ensureTiles(patchPairs(patch));
-  tilePatch(patch, cells, index);
+  const plan = planFor(patch);
+  tilePatch(patch, cells, plan);
 }
 
 /* Right drag: collision, in whichever direction the toolbar is set to. */
@@ -581,12 +636,26 @@ function grabStamp(name, x0, y0, x1, y1) {
   const w = x1 - x0 + 1;
   const h = y1 - y0 + 1;
   const width = across();
-  const spans = groupSpans();
   const tiles = doc().tiles;
   const cells = {};
   const drawn = new Uint8Array(w * h);      // did ANY layer taken put art in this cell
-  let skipped = 0;
+  const groups = [];                        // the animated groups this stamp carries, by pixels
+  const groupSeat = new Map();              // document group index -> its index in `groups`
+  let unknown = 0;
+  let animated = 0;
   let kept = 0;
+
+  /* A group is seated in the stamp the first time a cell names it, and its PIXELS come with it.
+     That is what lets this stamp place its waving grass into a map that has never held it. */
+  function seat(which) {
+    if (groupSeat.has(which)) return groupSeat.get(which);
+    const group = doc().animated[which];
+    groupSeat.set(which, groups.length);
+    groups.push({ first: group.first,
+                  frames: (group.frames || []).map((f) => ({ duration: f.duration,
+                                                             pixels: Array.from(f.pixels) })) });
+    return groups.length - 1;
+  }
 
   for (const layer of Object.keys(doc().layers)) {
     if (!grabs(layer)) continue;
@@ -601,9 +670,22 @@ function grabStamp(name, x0, y0, x1, y1) {
         if (!inGrid(gx, gy)) continue;
         const value = source[gy * width + gx];
         const slot = value & TILE_INDEX;
-        if (slot >= tiles.length || inGroup(spans, slot)) { skipped += 1; continue; }
-        if (slotIsBlank(slot)) continue;
         const flips = value & (FLIP_X | FLIP_Y);
+        // THE GROUP IS TESTED FIRST, and a group cell is never run past slotIsBlank: the slot
+        // sheet holds frame 0 alone, so a tile that is blank in frame 0 can be art in frame 1.
+        const which = groupAtSlot(doc(), slot);
+        if (which >= 0) {
+          list[y * w + x] = animatedCell(seat(which), slot - doc().animated[which].first, flips);
+          drawn[y * w + x] = 1;
+          any = true;
+          kept += 1;
+          animated += 1;
+          continue;
+        }
+        // Past the stream and in no group: this cell names a slot the SOURCE map never loads, so
+        // there is nothing to take. It draws nothing in the game either.
+        if (slot >= tiles.length) { unknown += 1; continue; }
+        if (slotIsBlank(slot)) continue;
         list[y * w + x] = [tiles[slot][0], tiles[slot][1], flips];
         drawn[y * w + x] = 1;
         any = true;
@@ -629,8 +711,9 @@ function grabStamp(name, x0, y0, x1, y1) {
   // a layer it did not read. The hole is invisible in the box and plain in the stamp.
   const blank = drawn.reduce((total, cell) => total + (cell ? 0 : 1), 0);
   const take = grabCollision === "take";
-  return { stamp: { name, w, h, cells, collision: take && anyOpen ? bits : null },
-           skipped, kept, blank, took: Object.keys(cells) };
+  return { stamp: { name, w, h, cells, animated: groups,
+                    collision: take && anyOpen ? bits : null },
+           unknown, animated, kept, blank, took: Object.keys(cells) };
 }
 
 // ===== the stamp library, which outlives the open map =====
@@ -707,8 +790,10 @@ function down_(where) {
     const [gx, gy] = gridCell(doc(), layer, where.cx, where.cy);
     if (!inGrid(gx, gy)) return;
     const slot = doc().layers[layer].cells[gy * across() + gx] & TILE_INDEX;
-    if (slot < doc().tiles.length) pickTile(doc().tiles[slot][0], doc().tiles[slot][1]);
-    else status(`world ${where.cx}, ${where.cy} draws slot ${slot}, which no chunk tile owns`, "bad");
+    const which = groupAtSlot(doc(), slot);
+    if (which >= 0) pickAnimatedTile(which, slot - doc().animated[which].first);
+    else if (slot < doc().tiles.length) pickTile(doc().tiles[slot][0], doc().tiles[slot][1]);
+    else status(`world ${where.cx}, ${where.cy} draws slot ${slot}, which this map never loads`, "bad");
     return;
   }
   if (where.button === 2) {
@@ -733,9 +818,11 @@ function down_(where) {
     return;
   }
   if (tool === "stamp") { commit(); drag = null; return; }
-  // The brush does not change inside a stroke, so only this first touch can add a tile. The sheet
-  // catches up while he drags, and the new slot draws blank for the frame or two that takes.
-  if (stroke.tilesBefore) redrawEverything();
+  // The brush does not change inside a stroke, so only this first touch can add a tile or a
+  // group. The sheet catches up while he drags, and the new slot draws blank for the frame or
+  // two that takes. A GROUP counts here too: its pixels are new, so a drag that began by adding
+  // one would paint from a sheet that never held it until he let go.
+  if (stroke.tilesBefore || stroke.animatedBefore) redrawEverything();
   drag = { mode: "paint", last: `${where.cx},${where.cy}` };
 }
 
@@ -810,7 +897,17 @@ async function finishGrab(x0, y0, x1, y1) {
   }
   brush = { kind: "stamp", name, stamp: made.stamp };
   setTool("stamp");
-  const note = made.skipped ? `, ${made.skipped} animated cell(s) left out` : "";
+  // WHAT IT TOOK, not what it lost. These cells used to be dropped and reported as "left out",
+  // which described a loss he never agreed to. A grab now carries the group's pixels, so the
+  // count is of art in hand.
+  const note = made.animated
+    ? `, ${made.animated} of them waving tiles from ${made.stamp.animated.length} animated `
+      + `group(s), which travel with the stamp`
+    : "";
+  const lost = made.unknown
+    ? `. ${made.unknown} cell(s) name a tile slot this map never loads, so there was nothing `
+      + "there to take"
+    : "";
   // The blank count, and where the missing art probably is. A hole in a stamp reads as a defect
   // in the grab, and it is nearly always the layer choice: another layer holds that art.
   const hole = made.blank
@@ -823,7 +920,8 @@ async function finishGrab(x0, y0, x1, y1) {
   const old = answer.replaced
     ? `. The stamp it replaced is kept as library\\deleted\\${answer.replaced}` : "";
   status(`grabbed "${name}", ${made.stamp.w} x ${made.stamp.h} cells, ${made.kept} of them art`
-         + `${made.stamp.collision ? ", with its collision" : ", no collision"}${note}${hole}${old}`,
+         + `${made.stamp.collision ? ", with its collision" : ", no collision"}`
+         + `${note}${lost}${hole}${old}`,
          made.blank ? "info" : "good");
 }
 
@@ -890,8 +988,77 @@ function collisionLayer() {
   return collisionSheet;
 }
 
+/*
+  WHERE THE ANIMATED TILES ARE, cached exactly as the collision wash is. A world cell is marked
+  when any SHOWN layer draws a slot that an animated group owns, read through that layer's own
+  shift so the mark lands under the art it describes.
+
+  MAGENTA, AND A DARK KEYLINE. The collision wash is red at 0.32, the grab box is blue and the
+  brush ghost is orange, so the one free strong hue is magenta, and magenta is also the hue a
+  green field cannot swallow. Measured on his own map at 3x: the wash alone reaches only 1.25
+  luminance contrast over bright grass, so the mark is drawn as a dark keyline with a bright
+  magenta line inside it. That pair reads on dark grass, bright grass and bare earth alike,
+  which a single line cannot.
+*/
+function animatedLayer() {
+  const [width, height] = [across() * TILE, down() * TILE];
+  const shown = Object.keys(doc().layers).filter((name) => state.view.shown[name]).join(",");
+  if (!animatedSheet || animatedSheet.width !== width || animatedSheet.height !== height) {
+    animatedSheet = document.createElement("canvas");
+    animatedSheet.width = width;
+    animatedSheet.height = height;
+    animatedDirty = true;
+  }
+  if (shown !== animatedShown) { animatedShown = shown; animatedDirty = true; }
+  if (!animatedDirty) return animatedSheet;
+
+  const ctx = animatedSheet.getContext("2d");
+  ctx.clearRect(0, 0, width, height);
+  ctx.lineWidth = 1;
+  const marked = new Uint8Array(across() * down());
+  for (const name of Object.keys(doc().layers)) {
+    if (!state.view.shown[name]) continue;
+    const cells = doc().layers[name].cells;
+    const [sx, sy] = layerShiftCells(doc(), name);
+    for (let cy = 0; cy < down(); cy += 1) {
+      for (let cx = 0; cx < across(); cx += 1) {
+        const gx = cx + sx;
+        const gy = cy + sy;
+        if (!inGrid(gx, gy)) continue;
+        if (groupAtSlot(doc(), cells[gy * across() + gx] & TILE_INDEX) < 0) continue;
+        marked[cy * across() + cx] = 1;
+      }
+    }
+  }
+  for (let cy = 0; cy < down(); cy += 1) {
+    for (let cx = 0; cx < across(); cx += 1) {
+      if (!marked[cy * across() + cx]) continue;
+      const x = cx * TILE;
+      const y = cy * TILE;
+      ctx.fillStyle = "rgba(236, 72, 232, 0.45)";
+      ctx.fillRect(x, y, TILE, TILE);
+      ctx.strokeStyle = "rgba(32, 0, 36, 0.85)";
+      ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
+      ctx.strokeStyle = "rgba(255, 140, 255, 1)";
+      ctx.strokeRect(x + 1.5, y + 1.5, TILE - 3, TILE - 3);
+    }
+  }
+  animatedDirty = false;
+  return animatedSheet;
+}
+
 /* The brush, drawn where it would land. Real art when its chunk atlas is loaded, an outline else. */
 function drawGhost(ctx, patch, px, py) {
+  // Each group is matched ONCE per ghost, not once per cell. findGroup compares whole frames, so
+  // a 64 tile group is 65,536 numbers a comparison, and the ghost redraws on every mouse move.
+  const groupFirst = new Map();
+  const firstOf = (which) => {
+    if (!groupFirst.has(which)) {
+      const held = findGroup(doc(), (patch.animated || [])[which]);
+      groupFirst.set(which, held < 0 ? null : doc().animated[held].first);
+    }
+    return groupFirst.get(which);
+  };
   ctx.save();
   ctx.globalAlpha = 0.75;
   for (const [layer, cells] of Object.entries(patch.layers)) {
@@ -900,6 +1067,18 @@ function drawGhost(ctx, patch, px, py) {
       for (let x = 0; x < patch.w; x += 1) {
         const cell = cells[y * patch.w + x];
         if (!cell) continue;
+        // An animated cell is drawn from the SLOT SHEET, which already holds every group this
+        // map loads. A group the map has not got yet draws nothing here, because the ghost may
+        // not add one: a hover must change no document.
+        if (isAnimatedCell(cell)) {
+          const sheet = sheetCanvas();
+          const first = firstOf(cell.g);
+          if (!sheet || first === null) continue;
+          const slot = first + cell.t;
+          ctx.drawImage(sheet, (slot % 32) * TILE, Math.floor(slot / 32) * TILE, TILE, TILE,
+                        (px + x) * TILE, (py + y) * TILE, TILE, TILE);
+          continue;
+        }
         const atlas = host.atlasReady(cell[0]);
         if (!atlas) continue;
         ctx.drawImage(atlas, (cell[1] % 16) * TILE, Math.floor(cell[1] / 16) * TILE, TILE, TILE,
@@ -916,6 +1095,7 @@ function drawGhost(ctx, patch, px, py) {
 export function drawOverlay(ctx) {
   if (!state.doc) return;
   if (showCollision) ctx.drawImage(collisionLayer(), 0, 0);
+  if (showAnimated) ctx.drawImage(animatedLayer(), 0, 0);
 
   if (drag && drag.mode === "box") {
     const x0 = Math.min(drag.x0, drag.x1) * TILE;
@@ -939,6 +1119,7 @@ export function drawOverlay(ctx) {
 export function dropAt(payload, where) {
   if (!state.doc) return;
   if (payload.kind === "stamp") pickStamp(payload.name);
+  else if (payload.kind === "anim") pickAnimatedTile(payload.group, payload.tile);
   else pickTile(payload.chunk, payload.tile);
   setTool(payload.kind === "stamp" ? "stamp" : "tile");
   try {

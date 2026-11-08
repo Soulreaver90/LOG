@@ -147,6 +147,38 @@ def load_map(name: str, root: Path = HERE) -> dict:
     return map_file.load(root / MAPS_IN / f"{safe_name(name)}.json")
 
 
+def _check_stamp_groups(stamp: dict) -> None:
+    r"""A stamp cell names either a pool tile or one of the stamp's OWN animated groups.
+
+    Three cell forms, and the editor's cells.js owns them: null leaves what is under it,
+    [chunk, tile, flips] is a tile of the shared pool, and {"g", "t", "f"} is tile "t" of the
+    stamp's animated group "g". A group travels as PIXELS, in stamp["animated"], which is what
+    lets a stamp place waving grass into a map that never held it. A cell naming a group the
+    stamp does not carry would place nothing and say nothing, so it is refused here, at the one
+    door every stamp goes through. The three-element form is untouched: every stamp grabbed
+    before this change loads exactly as it did.
+    """
+    groups = stamp.get("animated") or []
+    if not isinstance(groups, list):
+        raise ValueError('a stamp\'s "animated" is a list of groups, or is absent')
+    for layer, cells in (stamp.get("cells") or {}).items():
+        for n, cell in enumerate(cells if isinstance(cells, list) else []):
+            if cell is None or isinstance(cell, list):
+                continue
+            if not isinstance(cell, dict) or not isinstance(cell.get("g"), int) \
+                    or not isinstance(cell.get("t"), int):
+                raise ValueError(f"stamp cell {layer}[{n}] is {cell!r}, which is neither a "
+                                 f"[chunk, tile, flips] pair nor an animated cell")
+            if not 0 <= cell["g"] < len(groups):
+                raise ValueError(f"stamp cell {layer}[{n}] names animated group {cell['g']}, and "
+                                 f"this stamp carries {len(groups)}. Its pixels travel with it, "
+                                 f"so a cell cannot name a group that is not here")
+            tiles = map_file.group_tiles(groups[cell["g"]])
+            if not 0 <= cell["t"] < tiles:
+                raise ValueError(f"stamp cell {layer}[{n}] names tile {cell['t']} of an animated "
+                                 f"group of {tiles} tiles")
+
+
 def save_stamp(stamp: dict, root: Path = HERE, replace: bool = False) -> tuple:
     """One grabbed stamp, and what it moved aside: (path, retired file name).
 
@@ -158,6 +190,7 @@ def save_stamp(stamp: dict, root: Path = HERE, replace: bool = False) -> tuple:
     """
     if not isinstance(stamp, dict) or not isinstance(stamp.get("cells"), dict):
         raise ValueError("a stamp carries a name, a width, a height and a cells object")
+    _check_stamp_groups(stamp)
     folder = root / STAMPS_IN
     folder.mkdir(exist_ok=True)
     stamp = {**stamp, "name": safe_name(stamp.get("name"))}

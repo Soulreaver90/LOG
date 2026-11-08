@@ -102,6 +102,11 @@
       <button id="floorall" class="chip" title="Open every cell inside the world in one step.">Fill walkable</button>
       <button id="wallall" class="chip" title="Close every cell in one step.">Fill solid</button>
       <label class="chip"><input type="checkbox" id="showcoll" checked> Show collision</label>
+      <!-- Off by default: the map must look like the map until he asks where the waving tiles
+           are. Magenta, because red is collision, blue is the grab box and orange is the brush. -->
+      <label class="chip"
+             title="Tint every cell that draws a tile from an animated group, such as waving grass. It reads the layers you are showing.">
+        <input type="checkbox" id="showanim"> Show animated tiles</label>
 
       <div class="sep"></div>
       <label for="stampname">Grab name</label>

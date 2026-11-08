@@ -70,6 +70,23 @@ function groupTileImage(ctx, pixels, start, palette, transparent) {
 }
 
 /*
+  One tile of an animated group, drawn anywhere. The stamp thumbnails need this: a stamp carries
+  its groups as raw 8bpp pixels, and no atlas holds them. It goes through a one tile canvas and
+  drawImage because putImageData REPLACES the pixels under it, which would rub out the layers a
+  thumbnail has already drawn.
+*/
+const one8 = blank(TILE, TILE);
+
+export function drawGroupTile(target, group, tile, dx, dy, palette, transparent) {
+  const frame = ((group || {}).frames || [])[0];
+  if (!frame) return;
+  const ctx = one8.getContext("2d");
+  ctx.putImageData(groupTileImage(ctx, frame.pixels, tile * TILE * TILE, palette, transparent),
+                   0, 0);
+  target.drawImage(one8, dx, dy);
+}
+
+/*
   Draw every slot the map loads, then mirror the result into the three flipped variants.
   `atlases` maps a chunk index to its loaded <img>. A chunk the document names but the manifest
   has not got is left empty rather than guessed, so a missing atlas shows as a hole and not as

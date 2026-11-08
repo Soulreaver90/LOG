@@ -102,6 +102,12 @@ export const FLIP_Y = 0x800;
 export const SCROLL_ONE = 0x400;   // a layer's +0x04 and +0x08: 0x400 is 1.0 (bible tag BMS)
 export const VIEW_W = 240;
 export const VIEW_H = 160;
+/* The two animated group limits, mirrored from map_file.py as the constants above are. They are
+   not in assets.json because that manifest describes the ART, and these are the loader's own
+   bounds: 16 groups in the IWRAM state array, and 64 tiles a group in the 0x1000 byte load
+   buffer (bible B1078). map_file._check_animated refuses a document that breaks either. */
+export const GROUP_MAX = 16;
+export const GROUP_MAX_TILES = 64;
 
 /*
   Every VRAM slot the map fills: the static +0x48 stream, then each animated group's own span.

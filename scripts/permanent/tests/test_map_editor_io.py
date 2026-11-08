@@ -39,6 +39,17 @@ STAMP = {"name": "boulder", "w": 2, "h": 2,
          "cells": {"bg3": [[4, 7, 0], None, None, [4, 8, 0x400]]},
          "collision": [1, 0, 0, 1]}
 
+# A stamp grabbed from a map with waving grass in it. An animated cell is {"g", "t", "f"}, naming
+# tile "t" of the stamp's OWN group "g", and the group travels as PIXELS so the stamp can place
+# that grass into a map which has never held it. map-editor\editor\cells.js owns this format and
+# test_map_editor_cells.py runs it.
+WAVING = {"name": "grass patch", "w": 2, "h": 1,
+          "cells": {"bg3": [[4, 7, 0], {"g": 0, "t": 1, "f": 0}]},
+          "animated": [{"first": 892,
+                        "frames": [{"duration": 20, "pixels": [7] * 128},
+                                   {"duration": 20, "pixels": [9] * 128}]}],
+          "collision": None}
+
 
 class SavedMapTests(unittest.TestCase):
     """A map the owner composed, on its way to disk and back."""
@@ -172,6 +183,66 @@ class StampLibraryTests(unittest.TestCase):
 
     def test_the_library_is_empty_before_the_first_grab(self):
         self.assertEqual(serve.stamps(self.folder), [])
+
+
+class AnimatedStampTests(unittest.TestCase):
+    """A stamp may carry animated groups, and a cell may name one instead of a pool tile.
+
+    THE DEFECT THIS SHAPE EXISTS FOR. A grab used to store null wherever a cell named an animated
+    group, because a group slot has no [chunk, tile] pair behind it. The map the owner was
+    composing names its group's slots in 224 cells, which is its waving grass, so a grab of a
+    field came back with 224 holes. A null records NOTHING about what was there, so those holes
+    are permanent and the stamps that carry them have to be grabbed again.
+
+    EVERY STAMP ALREADY ON DISK MUST STILL LOAD, which is why the three-element form is untouched
+    and why nothing is rewritten on the way in. The owner holds twelve of them."""
+
+    def setUp(self):
+        self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+
+    def test_a_stamp_with_an_animated_cell_round_trips_whole(self):
+        serve.save_stamp(WAVING, self.folder)
+        self.assertEqual(serve.stamps(self.folder), [WAVING])
+
+    def test_an_old_three_element_stamp_still_loads_beside_a_new_one(self):
+        """The library holds both shapes at once, because his twelve stamps are his work."""
+        serve.save_stamp(STAMP, self.folder)
+        serve.save_stamp(WAVING, self.folder)
+        self.assertEqual([s["name"] for s in serve.stamps(self.folder)],
+                         ["boulder", "grass patch"])
+        self.assertEqual(serve.stamps(self.folder)[0], STAMP)
+
+    def test_a_cell_naming_a_group_the_stamp_does_not_carry_is_refused(self):
+        """It would place nothing and say nothing, which is the failure this whole change is
+        about. It is caught at the one door every stamp goes through."""
+        with self.assertRaises(ValueError) as caught:
+            serve.save_stamp({**WAVING, "animated": []}, self.folder)
+        self.assertIn("names animated group 0", str(caught.exception))
+        self.assertEqual(serve.stamps(self.folder), [])
+
+    def test_a_cell_naming_a_tile_past_the_group_is_refused(self):
+        bad = {**WAVING, "cells": {"bg3": [{"g": 0, "t": 9, "f": 0}]}}
+        with self.assertRaises(ValueError) as caught:
+            serve.save_stamp(bad, self.folder)
+        self.assertIn("tile 9", str(caught.exception))
+
+    def test_a_cell_that_is_neither_shape_is_refused(self):
+        bad = {**WAVING, "cells": {"bg3": ["grass"]}}
+        with self.assertRaises(ValueError):
+            serve.save_stamp(bad, self.folder)
+
+    def test_the_check_runs_before_a_replace_moves_anything(self):
+        serve.save_stamp(WAVING, self.folder)
+        with self.assertRaises(ValueError):
+            serve.save_stamp({**WAVING, "animated": []}, self.folder, replace=True)
+        self.assertEqual(serve.stamps(self.folder), [WAVING])
+        self.assertFalse((self.folder / serve.STAMPS_IN / serve.DELETED_IN).exists())
+
+    def test_stripping_the_collision_of_an_animated_stamp_keeps_its_groups(self):
+        serve.save_stamp({**WAVING, "collision": [1, 1]}, self.folder)
+        stripped = serve.strip_stamp("grass patch", self.folder)
+        self.assertIsNone(stripped["collision"])
+        self.assertEqual(stripped["animated"], WAVING["animated"])
 
 
 class DefaultStampNameTests(unittest.TestCase):

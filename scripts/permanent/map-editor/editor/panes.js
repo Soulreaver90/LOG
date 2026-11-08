@@ -29,7 +29,9 @@ import {
   state, subscribe, setDoc, setView, status, markClean,
   drawOrder, loadedSlots, groupTiles, cameraPair, gridCell, layerShiftCells,
 } from "./state.js";
-import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas } from "./render.js";
+import { buildSheet, drawAllLayers, composite, layerSize, forget, sheetCanvas, drawGroupTile }
+  from "./render.js";
+import { groupAtSlot, isAnimatedCell } from "./cells.js";
 import * as tools from "./tools.js";
 import * as truth from "./truth.js";
 import * as autosave from "./autosave.js";
@@ -118,7 +120,9 @@ function tileButton(label, draw, payload) {
   if (!payload) return cell;
   cell.draggable = true;
   cell.ondragstart = (event) => event.dataTransfer.setData("text/plain", JSON.stringify(payload));
-  cell.onclick = () => tools.pickTile(payload.chunk, payload.tile);
+  cell.onclick = () => (payload.kind === "anim"
+    ? tools.pickAnimatedTile(payload.group, payload.tile)
+    : tools.pickTile(payload.chunk, payload.tile));
   return cell;
 }
 
@@ -130,13 +134,21 @@ function paintPalette() {
   const sheet = sheetCanvas();
   const tiles = state.doc.tiles || [];
   for (const slot of slots) {
-    // A slot past the static stream belongs to an animated group and has no chunk tile behind it,
-    // so it can be looked at but not picked up.
-    const pair = slot < tiles.length ? tiles[slot] : null;
+    // A slot an ANIMATED GROUP owns has no chunk tile behind it, so it carries the group and the
+    // tile inside it instead. It is picked up like any other tile: the brush then places waving
+    // grass by hand, which is the only way to touch up what a stamp laid down.
+    const which = groupAtSlot(state.doc, slot);
+    const pair = which < 0 && slot < tiles.length ? tiles[slot] : null;
+    const payload = which >= 0
+      ? { kind: "anim", group: which, tile: slot - state.doc.animated[which].first }
+      : (pair ? { kind: "tile", chunk: pair[0], tile: pair[1] } : null);
+    const label = which >= 0
+      ? `slot ${slot}: animated group ${which}, tile ${slot - state.doc.animated[which].first}`
+      : (pair ? `slot ${slot}: chunk ${pair[0]} tile ${pair[1]}` : `slot ${slot}: nothing loads it`);
     list.append(tileButton(
-      pair ? `slot ${slot}: chunk ${pair[0]} tile ${pair[1]}` : `slot ${slot}: an animated group`,
+      label,
       (c) => c.drawImage(sheet, (slot % 32) * 8, Math.floor(slot / 32) * 8, 8, 8, 0, 0, 8, 8),
-      pair ? { kind: "tile", chunk: pair[0], tile: pair[1] } : null));
+      payload));
   }
   $("palette-count").textContent = `${slots.length} loaded`;
 }
@@ -230,16 +242,27 @@ async function stripStamp(name) {
   }
 }
 
-/* A stamp preview, back to front, from the chunk atlases. A chunk still loading draws next time. */
+/*
+  A stamp preview, back to front. A static cell comes from its chunk atlas, and a chunk still
+  loading draws next time. An ANIMATED cell comes from the group the stamp carries, drawn at its
+  first frame, which is what the map itself shows at rest.
+*/
 function drawStamp(target, stamp) {
+  const palette = state.assets.palettes[0];
+  const transparent = state.assets.transparent_index;
   for (const [layer, cells] of Object.entries(stamp.cells)) {
     void layer;
     cells.forEach((cell, at) => {
       if (!cell) return;
+      const dx = (at % stamp.w) * 8;
+      const dy = Math.floor(at / stamp.w) * 8;
+      if (isAnimatedCell(cell)) {
+        drawGroupTile(target, (stamp.animated || [])[cell.g], cell.t, dx, dy, palette, transparent);
+        return;
+      }
       const atlas = atlasReady(cell[0]);
       if (!atlas) return;
-      target.drawImage(atlas, (cell[1] % 16) * 8, Math.floor(cell[1] / 16) * 8, 8, 8,
-                       (at % stamp.w) * 8, Math.floor(at / stamp.w) * 8, 8, 8);
+      target.drawImage(atlas, (cell[1] % 16) * 8, Math.floor(cell[1] / 16) * 8, 8, 8, dx, dy, 8, 8);
     });
   }
 }
@@ -262,6 +285,7 @@ function paintTools() {
   $("erase").classList.toggle("on", now.brush.name === "eraser");
   $("collmode").value = now.collisionPaint;
   $("showcoll").checked = now.showCollision;
+  $("showanim").checked = now.showAnimated;
   // These two name LAYERS and not kinds of thing, and which layer they mean moves with the
   // selection. The game splits one picture across layers: on map 7,15 there are cells where BG3
   // draws nothing and BG1 or BG2 draws the art, so a grab of one layer comes back with a hole
@@ -710,6 +734,7 @@ export async function start() {
   $("erase").onclick = () => tools.pickEraser();
   $("collmode").onchange = () => tools.setCollisionPaint($("collmode").value);
   $("showcoll").onchange = () => tools.setShowCollision($("showcoll").checked);
+  $("showanim").onchange = () => tools.setShowAnimated($("showanim").checked);
   $("grablayers").onchange = () => tools.setGrabLayers($("grablayers").value);
   $("grabcoll").onchange = () => tools.setGrabCollision($("grabcoll").value);
   $("restore-go").onclick = restoreChosen;
