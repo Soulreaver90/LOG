@@ -15,19 +15,26 @@ Routes:  GET /                  the editor page and its files, from THIS folder 
          GET /api/blank?bw=&bh=          the same for a new empty map
          GET /api/saved         the maps the owner has saved, by name
          GET /api/load?name=    one of them, through map_file.load
-         POST /api/save         {"name", "doc", "retire"} through map_file.save, into maps\
+         POST /api/save         {"name", "doc", "retire", "replace"} through map_file.save, into maps\
          GET /api/stamps        the stamp library, every file in library\
-         POST /api/stamp        one grabbed stamp into library\<name>.json
+         GET /api/stampname     the name an unnamed grab proposes, from next_stamp_name
+         POST /api/stamp        {"name", "cells", ..., "replace"} into library\<name>.json
          POST /api/stamp/delete {"name"}: the file MOVES to library\deleted\, it is never unlinked
          POST /api/stamp/strip  {"name"}: drop a stamp's collision, old copy to library\deleted\
          GET /api/autosaves     the autosaves that are NEWER than the saved map of the same name
          GET /api/autosave?name=         one of them, for a Restore
          POST /api/autosave     {"name", "session", "doc"}: the live document, into autosave\
-SAVING:  a saved map goes to maps\<name>.json through map_file.save, which VALIDATES it and
-         refuses to overwrite. The browser never writes the file itself: a download would land in
-         the Downloads folder and would skip the one gate that stops an unsound map reaching a
-         ROM. The stamp library lives in library\, one file per stamp, because it outlives the
-         open map: a stamp grabbed from a game map is placed in a blank one.
+SAVING:  a saved map goes to maps\<name>.json through map_file.save, which VALIDATES it. The
+         browser never writes the file itself: a download would land in the Downloads folder and
+         would skip the one gate that stops an unsound map reaching a ROM. The stamp library
+         lives in library\, one file per stamp, because it outlives the open map: a stamp grabbed
+         from a game map is placed in a blank one.
+REPLACING: a name already in use is a QUESTION and not a refusal, for a map AND for a stamp,
+         because saving one map again is how the owner works on it and grabbing one piece of art
+         twice is normal. /api/save and /api/stamp answer {"taken": name} and the page asks him.
+         His yes sends the same write with "replace": true, which MOVES the old file aside, into
+         maps\older\ or library\deleted\, and never unlinks it. The new map is validated BEFORE
+         anything moves, so a write that cannot happen never costs him the copy he already holds.
 AUTOSAVE: a map the owner has not saved yet lived ONLY in the page's memory until 2026-11-07, when
          a reload he was told to make threw away an evening of composing. So the page writes the
          live document here on every change, debounced, and autosave\ is that safety net. It is
@@ -78,10 +85,11 @@ ASSETS = HERE / "assets"
 HOST, PORT = "127.0.0.1", 8777
 MAPS_IN, STAMPS_IN = "maps", "library"      # folders beside this file, made on the first save
 AUTOSAVE_IN = "autosave"                    # the live document, overwritten; never a saved map
-OLDER_IN = "older"                          # under autosave\: a session that was about to be lost
+OLDER_IN = "older"                          # under autosave\ and maps\: a copy about to be lost
 DELETED_IN = "deleted"                      # under library\: a stamp the owner removed, kept whole
 UNSAFE = re.compile(r"[^A-Za-z0-9 _-]")     # a name is a file name, so it holds nothing else
 NAME_MAX = 60
+STAMP_DEFAULT = re.compile(r"^stamp (\d+)$")   # the name an unnamed grab proposes
 
 # One writer at a time. ThreadingHTTPServer answers requests concurrently, and two autosave posts
 # landing together would interleave a replace with a read of the same file.
@@ -99,18 +107,38 @@ def safe_name(name: str) -> str:
     return cleaned
 
 
-def save_map(doc: dict, name: str, root: Path = HERE) -> Path:
-    """Write a map the owner composed. map_file.save validates it and never overwrites."""
+class NameTaken(FileExistsError):
+    """A map or a stamp of this name is on disk. The page ASKS; it does not report a failure."""
+
+
+def save_map(doc: dict, name: str, root: Path = HERE, replace: bool = False) -> tuple:
+    """Write a map the owner composed, and say what it moved aside: (path, retired file name).
+
+    A taken name raises NameTaken and writes NOTHING, so the page can ask rather than refuse.
+    replace MOVES the old file into maps\\older\\ and never unlinks it, so a wrong yes costs a
+    trip to a folder. The new document is VALIDATED BEFORE anything moves: an unsound map must
+    never raise the question, and must never take the place of a sound map that is already saved.
+    """
     folder = root / MAPS_IN
     folder.mkdir(exist_ok=True)
     path = folder / f"{safe_name(name)}.json"
-    if path.exists():
-        raise FileExistsError(f'a map called "{path.stem}" is already saved. Pick another name.')
-    map_file.save(doc, path)
-    return path
+    if not path.exists():
+        map_file.save(doc, path)                        # validates, and "x" so it cannot overwrite
+        return path, ""
+    problems = map_file.validate(doc)
+    if problems:
+        raise ValueError("this document is not sound:\n  " + "\n  ".join(problems))
+    if not replace:
+        raise NameTaken(f'a map called "{path.stem}" is already saved.')
+    with WRITING:
+        retired = _retire_file(path, folder / OLDER_IN)  # the move frees the name for "x" below
+        map_file.save(doc, path)
+    return path, retired.name
 
 
 def saved_maps(root: Path = HERE) -> list:
+    """Every saved map by name. The glob is maps\\*.json and is NOT recursive, so a copy a replace
+    moved into maps\\older\\ is never offered back as a map of its own."""
     folder = root / MAPS_IN
     return sorted(p.stem for p in folder.glob("*.json")) if folder.is_dir() else []
 
@@ -119,20 +147,47 @@ def load_map(name: str, root: Path = HERE) -> dict:
     return map_file.load(root / MAPS_IN / f"{safe_name(name)}.json")
 
 
-def save_stamp(stamp: dict, root: Path = HERE) -> Path:
-    """One grabbed stamp. The library is files, so it survives the page and the open map."""
+def save_stamp(stamp: dict, root: Path = HERE, replace: bool = False) -> tuple:
+    """One grabbed stamp, and what it moved aside: (path, retired file name).
+
+    The library is files, so it survives the page and the open map. A taken name raises NameTaken
+    and writes NOTHING, exactly as a saved map does: grabbing one piece of art a second time is
+    normal, and a refusal only sends him hunting for a free name. replace MOVES the old file into
+    library\\deleted\\, where the delete control already puts things, and the move frees the name
+    for the "x" below, so no write here can ever land on top of a stamp.
+    """
     if not isinstance(stamp, dict) or not isinstance(stamp.get("cells"), dict):
         raise ValueError("a stamp carries a name, a width, a height and a cells object")
     folder = root / STAMPS_IN
     folder.mkdir(exist_ok=True)
     stamp = {**stamp, "name": safe_name(stamp.get("name"))}
     path = folder / f"{stamp['name']}.json"
-    if path.exists():
-        raise FileExistsError(f'a stamp called "{stamp["name"]}" is already in the library. '
-                              f"Pick another name.")
-    with open(path, "x", encoding="utf-8") as handle:           # "x": never overwrite
-        json.dump(stamp, handle)
-    return path
+    retired = ""
+    with WRITING:
+        if path.exists():
+            if not replace:
+                raise NameTaken(f'a stamp called "{stamp["name"]}" is already in the library.')
+            retired = _retire_file(path, folder / DELETED_IN).name
+        with open(path, "x", encoding="utf-8") as handle:       # "x": never overwrite
+            json.dump(stamp, handle)
+    return path, retired
+
+
+def next_stamp_name(root: Path = HERE) -> str:
+    """The name an unnamed grab proposes: one past the highest "stamp N" this library has HELD.
+
+    Numbering from the library COUNT was the defect. Once anything is deleted the count no longer
+    matches the highest number in use, so the next grab proposed a name that was already taken.
+    library\\deleted\\ is read too, so a number he deleted is never handed to a different stamp,
+    and only the server can see that folder, which is why the page asks rather than counting.
+    """
+    folder = root / STAMPS_IN
+    highest = 0
+    for path in list(folder.glob("*.json")) + list((folder / DELETED_IN).glob("*.json")):
+        found = STAMP_DEFAULT.match(path.stem)
+        if found:
+            highest = max(highest, int(found.group(1)))
+    return f"stamp {highest + 1}"
 
 
 def stamps(root: Path = HERE) -> list:
@@ -389,6 +444,8 @@ class Handler(SimpleHTTPRequestHandler):
             return {"doc": doc, "problems": map_file.validate(doc)}
         if path == "/api/stamps":
             return {"stamps": stamps(self.root)}
+        if path == "/api/stampname":
+            return {"name": next_stamp_name(self.root)}
         if path == "/api/autosaves":
             return {"autosaves": autosaves(self.root)}
         if path == "/api/autosave":
@@ -401,7 +458,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _write(self, path: str, body: dict) -> dict:
         if path == "/api/save":
-            saved = save_map(body.get("doc"), body.get("name"), self.root).stem
+            replace = body.get("replace") is True
+            try:
+                written, moved = save_map(body.get("doc"), body.get("name"), self.root, replace)
+            except NameTaken:
+                # A question and not a failure, so it carries no "error" and returns HERE. Nothing
+                # was written, so nothing may be retired: a No must leave his net exactly as it is.
+                return {"taken": safe_name(body.get("name"))}
             # Only after the real file is on disk. A refused save keeps its net. A failure to
             # retire is never fatal: the map IS saved, and reporting 400 for it would make the
             # owner save again under another name.
@@ -409,9 +472,16 @@ class Handler(SimpleHTTPRequestHandler):
                 retired = autosave_retire(body.get("retire") or "", self.root)
             except (OSError, ValueError):
                 retired = False
-            return {"saved": saved, "maps": saved_maps(self.root), "retired": retired}
+            return {"saved": written.stem, "maps": saved_maps(self.root), "retired": retired,
+                    "replaced": moved}
         if path == "/api/stamp":
-            return {"kept": save_stamp(body, self.root).stem}
+            # The body IS the stamp, so "replace" is lifted out before it reaches the file.
+            stamp = {key: value for key, value in body.items() if key != "replace"}
+            try:
+                kept, moved = save_stamp(stamp, self.root, body.get("replace") is True)
+            except NameTaken:
+                return {"taken": safe_name(body.get("name"))}     # a question, so it carries no error
+            return {"kept": kept.stem, "replaced": moved}
         if path == "/api/stamp/delete":
             return {"deleted": body.get("name"),
                     "moved_to": str(delete_stamp(body.get("name"), self.root).parent.name),

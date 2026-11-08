@@ -645,16 +645,48 @@ async function loadLibrary() {
   host.refreshTools();
 }
 
-async function keepStamp(stamp) {
-  const answer = await (await fetch("/api/stamp", {
+async function postStamp(stamp, replace) {
+  return (await fetch("/api/stamp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(stamp),
+    body: JSON.stringify({ ...stamp, replace }),
   })).json();
+}
+
+/*
+  A name already in the library is a QUESTION and not a refusal, exactly like a saved map: he
+  grabs one piece of art twice while he is composing. The server wrote nothing to reach the
+  question, so a No costs him nothing, and his Yes MOVES the old file into library\deleted\,
+  which is where the delete control already puts things.
+*/
+async function keepStamp(stamp) {
+  let answer = await postStamp(stamp, false);
+  if (answer.taken) {
+    const go = window.confirm(`A stamp called "${answer.taken}" is already in the library.\n\n`
+                              + "Replace it? The stamp in the library now moves to "
+                              + "map-editor\\library\\deleted\\, so it can be put back by hand.");
+    if (!go) return { kept: false, replaced: "" };
+    answer = await postStamp(stamp, true);
+  }
   if (answer.error) throw new Error(answer.error);
   library = library.filter((s) => s.name !== stamp.name).concat([stamp]);
   library.sort((a, b) => a.name.localeCompare(b.name));
   host.refreshTools();
+  return { kept: true, replaced: answer.replaced || "" };
+}
+
+/*
+  The SERVER names an unnamed grab, because only the server sees library\deleted\. Numbering from
+  the library count proposed a name that was already taken as soon as anything had been deleted.
+*/
+async function defaultStampName() {
+  try {
+    const answer = await (await fetch("/api/stampname")).json();
+    if (answer.name) return answer.name;
+  } catch (problem) {
+    status(`the library could not be read: ${problem}. Is serve.py still running?`, "bad");
+  }
+  return `stamp ${library.length + 1}`;
 }
 
 // ===== the pointer, which is where every tool starts =====
@@ -758,16 +790,22 @@ function endStroke() {
 }
 
 async function finishGrab(x0, y0, x1, y1) {
-  const name = host.stampName() || `stamp ${library.length + 1}`;
+  const name = host.stampName() || await defaultStampName();
   const made = grabStamp(name, x0, y0, Math.min(x1, across() - 1), Math.min(y1, down() - 1));
   if (!made.kept) {
     status(`nothing to grab at ${x0}, ${y0}: every cell in that box is empty`, "bad");
     return;
   }
+  let answer;
   try {
-    await keepStamp(made.stamp);
+    answer = await keepStamp(made.stamp);
   } catch (problem) {
     status(`${problem.message}`, "bad");
+    return;
+  }
+  if (!answer.kept) {
+    status(`"${name}" was NOT replaced and nothing was grabbed. Type another name in Grab name, `
+           + "then drag the box again.", "info");
     return;
   }
   brush = { kind: "stamp", name, stamp: made.stamp };
@@ -781,8 +819,11 @@ async function finishGrab(x0, y0, x1, y1) {
       + (grabLayers === "all" ? ". That ground is empty in the map itself."
                               : ", and another layer may hold that art. Try every layer.")
     : "";
+  // answer.replaced is the file the server moved aside, which a second replace timestamps.
+  const old = answer.replaced
+    ? `. The stamp it replaced is kept as library\\deleted\\${answer.replaced}` : "";
   status(`grabbed "${name}", ${made.stamp.w} x ${made.stamp.h} cells, ${made.kept} of them art`
-         + `${made.stamp.collision ? ", with its collision" : ", no collision"}${note}${hole}`,
+         + `${made.stamp.collision ? ", with its collision" : ", no collision"}${note}${hole}${old}`,
          made.blank ? "info" : "good");
 }
 

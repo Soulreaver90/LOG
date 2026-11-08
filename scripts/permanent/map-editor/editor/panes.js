@@ -510,22 +510,47 @@ async function fillSavedPicker(names) {
   $("openSaved").disabled = list.length === 0;
 }
 
-async function saveMap() {
-  if (!state.doc) return;
-  const name = $("savename").value.trim() || state.title;
-  const under = state.title;                  // the title the autosaves were written under
-  let answer;
-  // Stop the clock and let any autosave in flight land first, so the two writes cannot cross.
-  await autosave.quiet();
+/* One send, so the first try and the replace get the same handling. null means it threw. */
+async function postSave(name, under, replace) {
   try {
-    answer = await (await fetch("/api/save", {
+    return await (await fetch("/api/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, doc: state.doc, retire: under }),
+      body: JSON.stringify({ name, doc: state.doc, retire: under, replace }),
     })).json();
   } catch (problem) {
     // A stopped server must say so here. Silence on a Save is how a morning's work is lost.
     status(`the map was NOT saved: ${problem}. Is serve.py still running?`, "bad");
+    return null;
+  }
+}
+
+async function saveMap() {
+  if (!state.doc) return;
+  const name = $("savename").value.trim() || state.title;
+  const under = state.title;                  // the title the autosaves were written under
+  // Stop the clock and let any autosave in flight land first, so the two writes cannot cross.
+  // Every exit below that is not a success restarts it with flush().
+  await autosave.quiet();
+  let answer = await postSave(name, under, false);
+  if (answer && answer.taken) {
+    /*
+      A name he already holds is a QUESTION, because saving one map again is how he works on it.
+      The server wrote nothing and retired nothing to reach here, so a No costs him nothing. The
+      name in the question is the server's, which is the file on disk: safe_name can change his.
+    */
+    const go = window.confirm(`A map called "${answer.taken}" is already saved.\n\n`
+                              + "Replace it? The copy on disk now moves to "
+                              + "map-editor\\maps\\older\\, so it can be put back by hand.");
+    if (!go) {
+      status(`nothing was saved. "${answer.taken}" is untouched. Type another name to keep this `
+             + "map beside it.", "info");
+      await autosave.flush();
+      return;
+    }
+    answer = await postSave(name, under, true);
+  }
+  if (!answer) {
     await autosave.flush();              // quiet() stopped the clock, so restart the net by hand
     return;
   }
@@ -543,7 +568,11 @@ async function saveMap() {
   $("title").textContent = answer.saved;
   markClean();
   autosave.forget();
-  status(`saved as "${answer.saved}", in map-editor\\maps\\${answer.saved}.json`, "good");
+  const where = `saved as "${answer.saved}", in map-editor\\maps\\${answer.saved}.json`;
+  // answer.replaced is the file name the server moved aside, which a second replace timestamps.
+  status(answer.replaced
+         ? `${where}. The copy it replaced is kept as map-editor\\maps\\older\\${answer.replaced}`
+         : where, "good");
 }
 
 // ===== unsaved work: the marker, and the offer of an autosave on start =====
