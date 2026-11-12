@@ -8,6 +8,11 @@ Usage:   py -3 -I log2_save.py info    <file.sav> [--flags]
                                        [--set farewell|farewell_test]
          py -3 -I log2_save.py set     <in.sav> <out.sav> <slot 1-3> key=value [key=value ...]
 Keys:    leader=0-5  map=zone,area,var  pos=x,y  flag+=N  flag-=N  item=id,count  visited=all|none
+         slot+=char,k  slot-=char,k   open or shut ABILITY SLOT k (0-3) for one character. Slot k is
+                                      record +0x14 bit 3 + k. Which form that slot fires is in the
+                                      character's own +0x18 array: Piccolo's 9, 8, 11, 2 put his Super
+                                      Namek in SLOT 2. Prefer this over charflags.
+         charflags=char,value         the whole record +0x14 byte, when you really mean the byte.
 Prints:  info: options block, then each slot: checksum, header, map, position, party, flags, items.
          journal: each slot's quests as the Journal shows them (quest table run on the slot's flags and items).
 Writes:  build: a level 40 test save (3 slots, see PRESET_SETS). Default set "cellgames"; "postcell" rebuilds
@@ -112,6 +117,12 @@ LAB_EP = 9999
 # Gohan on slot 3, the ki blast, so B never reaches the transform. The lab points every character at its
 # own transform: ability 12 is the Saiyan transform, 11 is Piccolo's Super Namek (bible section 6).
 O_REC_EP, O_REC_SLOT, O_REC_ABILITIES = 4, 9, 0x18
+# Record +0x14 holds the party bits 0-2 and the ABILITY SLOT enables in bits 3-6: slot k is bit 3 + k,
+# which is how slot cycling 0x08004284 reads it (`lsl r1,r2,#0x19 ; lsr r1,r1,#0x1C`, then `8 << slot`).
+# ext 82 sets bit 5 and ext 83 (char, k) sets bit 2 + k, so an ext 83 k is one LESS than the slot it opens.
+# Which FORM a slot fires is in that character's own +0x18 array, never in the bit number: Piccolo's ids
+# are 9, 8, 11, 2, so his Super Namek is slot 2 (bit 5) and bit 4 only opens ability 8.
+O_REC_FLAGS, SLOT_BIT0, SLOTS = 0x14, 3, 4
 TRANSFORM_ABILITIES = (12, 11)
 LAB_RECORDS = []
 for _hexrec in LV40_RECORDS:
@@ -475,6 +486,12 @@ def build(base: Path, out: Path, preset_set: str = DEFAULT_SET) -> None:
               f"zone {zone} area {area} var {var} pos ({x},{y})")
     write(out, ram)
 
+def _char(c: int) -> int:
+    if not 0 <= c < len(CHAR_NAMES):
+        sys.exit(f"character {c} is not 0-{len(CHAR_NAMES) - 1} ({', '.join(CHAR_NAMES)}).")
+    return c
+
+
 def edit(src: Path, out: Path, n: int, pairs) -> None:
     ram = read_ram(src.read_bytes())
     sl = slot_range(n)
@@ -495,6 +512,17 @@ def edit(src: Path, out: Path, n: int, pairs) -> None:
         elif key == "visited":
             for v in range(VISITED_BITS):
                 set_bit(s, O_VISITED, v, val == "all")
+        elif key == "charflags":
+            c, v = _char(nums[0]), nums[1]
+            if not 0 <= v <= 0xFF:
+                sys.exit(f"charflags value {v} is not a byte.")
+            s[O_CHARS + CHAR_SIZE * c + O_REC_FLAGS] = v
+        elif key in ("slot+", "slot-"):
+            c, k = _char(nums[0]), nums[1]
+            if not 0 <= k < SLOTS:
+                sys.exit(f"ability slot {k} is not 0-{SLOTS - 1}.")
+            at, mask = O_CHARS + CHAR_SIZE * c + O_REC_FLAGS, 1 << (SLOT_BIT0 + k)
+            s[at] = (s[at] | mask) if key == "slot+" else (s[at] & ~mask & 0xFF)
         else:
             sys.exit(f"Unknown key {key}.")
     ram[sl] = s

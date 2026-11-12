@@ -337,5 +337,54 @@ class JournalEvaluatorTests(unittest.TestCase):
         self.assertTrue(all(st == "hidden" for _, st in ls.journal(bytes(ls.SLOT_SIZE), BASE_ROM)[:28]))
 
 
+class AbilitySlotKeyTests(unittest.TestCase):
+    """`slot+` / `slot-` / `charflags` write record +0x14. Slot k is bit 3 + k, which is NOT the k an
+    ext 83 takes: ext 83 (char, k) sets bit 2 + k. The two numberings differ by one and have been
+    confused, so each test names the bit it expects."""
+
+    def edited(self, *pairs) -> bytes:
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out.sav"
+            ls.edit(CELLGAMES_SAV, out, 0, list(pairs))
+            ram = ls.read_ram(out.read_bytes())
+            return bytes(ram[ls.slot_range(0)])
+
+    def flags(self, slot: bytes, c: int) -> int:
+        return slot[ls.O_CHARS + ls.CHAR_SIZE * c + ls.O_REC_FLAGS]
+
+    def test_slot_k_is_bit_3_plus_k(self):
+        before = self.flags(_slot(ls.read_ram(CELLGAMES_SAV.read_bytes()), 0), 1)
+        for k in range(4):
+            with self.subTest(slot=k):
+                self.assertEqual(self.flags(self.edited(f"slot-=1,{k}"), 1), before & ~(1 << (3 + k)) & 0xFF)
+                self.assertEqual(self.flags(self.edited(f"slot+=1,{k}"), 1), before | 1 << (3 + k))
+
+    def test_charflags_writes_the_whole_byte(self):
+        self.assertEqual(self.flags(self.edited("charflags=1,0x6f"), 1), 0x6F)
+
+    def test_only_the_named_character_changes(self):
+        was = _slot(ls.read_ram(CELLGAMES_SAV.read_bytes()), 0)
+        now = self.edited("slot-=1,2")
+        for c in range(len(ls.CHAR_NAMES)):
+            with self.subTest(who=ls.CHAR_NAMES[c]):
+                if c == 1:
+                    continue
+                self.assertEqual(_rec(now, c), _rec(was, c))
+
+    def test_the_checksum_is_redone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out.sav"
+            ls.edit(CELLGAMES_SAV, out, 0, ["slot-=1,2"])
+            ram = ls.read_ram(out.read_bytes())
+            data = bytes(ram[ls.slot_range(0)])
+            self.assertEqual(struct.unpack_from("<I", data, ls.SLOT_DATA)[0],
+                             ls.adler32(data[:ls.SLOT_DATA]))
+
+    def test_a_bad_character_or_slot_exits(self):
+        for pair in ("slot+=9,0", "slot+=1,4", "charflags=1,300", "charflags=9,0"):
+            with self.subTest(pair=pair), self.assertRaises(SystemExit):
+                self.edited(pair)
+
+
 if __name__ == "__main__":
     unittest.main()
