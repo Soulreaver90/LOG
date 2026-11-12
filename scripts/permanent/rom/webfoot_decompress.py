@@ -9,6 +9,8 @@ Prints:  frame: header type, sizes and SHA-1 of the unpacked bytes (writes out.b
          set:   a sprite set's animations, frame records and unpacked sizes; with png_dir, one PNG per frame.
 Source:  the codec mirrors the ARM routine the game copies to IWRAM 0x03000000 (ROM 0x7FD6BC).
          Frame headers are {u32 type, u32 size, stream}, read by the dispatcher at 0x0801F394.
+Sets:    a set id resolves through THIS ROM's own table, which set_table() reads from the literal
+         rom:0x959C. A build that moved the table (gohan_gi) is read correctly, ids 157-160 included.
 Read-only on the ROM. Offsets are file offsets (ROM address minus 0x08000000).
 """
 import hashlib
@@ -17,9 +19,11 @@ import sys
 from pathlib import Path
 
 ROM_BASE = 0x08000000
-SET_TABLE = 0x3B4E90       # sprite set pointers; set id N >= 7 uses entry N - 7 (code 0x08009364)
-SET_COUNT = 200            # walk stops early at the first entry that is not a valid set
-SET_DIRS = 4               # the game hardcodes 4 directions (row 0 at set+0x4C, @0x08007568)
+SET_TABLE = 0x3B4E90        # the BASE ROM's sprite set pointers; set_table() resolves THIS ROM's own table
+SET_TABLE_LITERAL = 0x959C  # the u32 the set lookup loads the table address from (ldr, code 0x08009364)
+FIRST_ID = 7                # entry 0 of the table is set id 7
+SET_COUNT = 200             # walk stops early at the first entry that is not a valid set
+SET_DIRS = 4                # the game hardcodes 4 directions (row 0 at set+0x4C, @0x08007568)
 MASK = 0xFFFFFFFF
 
 
@@ -163,6 +167,19 @@ def rom_ptr(rom: bytes, off: int) -> int | None:
     return value - ROM_BASE if ROM_BASE <= value < ROM_BASE + len(rom) else None
 
 
+def set_table(rom: bytes) -> int:
+    """File offset of THIS ROM's set table, read from the literal rom:0x959C. gohan_gi copies the table
+    into the expansion area, appends ids 157-160 and repoints that literal, so a build whose table has
+    moved reads its own entries. SET_TABLE is the base ROM's value and would read the dead copy. On the
+    base ROM this returns SET_TABLE, so base behaviour is unchanged."""
+    return struct.unpack_from("<I", rom, SET_TABLE_LITERAL)[0] - ROM_BASE
+
+
+def set_offset(rom: bytes, set_id: int) -> int | None:
+    """File offset of one set's header, through THIS ROM's own table. None if the entry is not a pointer."""
+    return rom_ptr(rom, set_table(rom) + 4 * (set_id - FIRST_ID))
+
+
 def read_set(rom: bytes, set_off: int) -> dict:
     """Set header: u16 slot (OBJ VRAM and buffer bytes, @0x080075B0), u8 anims, u8 ?; u32 ?; u32 ptr-or-0;
     4 x 16-byte box; anims x 4 pointers. Byte +1 is the slot's high byte, not a direction count."""
@@ -229,7 +246,7 @@ def cmd_find(rom: bytes, args: list[str]):
 
 def cmd_set(rom: bytes, args: list[str]):
     key = args[0]
-    set_off = int(key, 16) if key.lower().startswith("0x") else rom_ptr(rom, SET_TABLE + 4 * (int(key) - 7))
+    set_off = int(key, 16) if key.lower().startswith("0x") else set_offset(rom, int(key))
     s = read_set(rom, set_off)
     png_dir = Path(args[1]) if len(args) > 2 else None
     palette = Path(args[2]).read_bytes() if png_dir else b""

@@ -15,10 +15,17 @@ Model:   the runner @0x0800B520 reads table[index]; an entry below 0x10000 ends 
          the next index (@0x0800B19C). A type 1-4 record shows text and goes to its +0 index. CONFIRMED
          (bible SS3). An ext op pops every value pushed since the last ext op; that is how our modules write
          them, and the piccolo_gi_scene header states the same rule.
+Camera:  run.camera_owner names which object owns 0x03000FF4 after the last op that wrote it, and
+         run.screen_covered says whether a fade or flash was open at each op. Pass ONE Run to run_record()
+         for every word of a table and both follow the table's WALK order, which is what the battle-start
+         census counted. See the CAMERA_ and COVER_ constants for what each op is claimed to do.
 Limits:  it models the stack, the ops in OPS below, and the ext ops it knows how to read. It does not model
          timing, animation, collision or combat. An ext op it does not know is still recorded, with its
          arguments, so a scene that uses one is testable; only its side effect is missing. Pass state=State(...) with the
          leader, the flags and the visited bits when the record branches on any of them.
+         Inside a record it follows jz, jmp and the loop ops, so an op on a path not taken is not recorded.
+         Across records it reads the order you call it in, not the next-index chain, unless you use
+         run_table(). Neither is proof of what the game runs: a jz or a next index can branch either way.
 """
 import struct
 import sys
@@ -31,6 +38,44 @@ from scene import scene_lib as S                                         # noqa:
 # ext ops this harness understands as a side effect: op -> (what, how to read its args)
 PLACE_OPS = {51: "spawn", 53: "walk", 54: "fly", 62: "move_to", 136: "walk_fast"}
 MAX_STEPS = 400
+
+# ===== the camera owner and the screen cover =====
+# Who owns 0x03000FF4, the word that names the live camera object. Each op that writes it gets its own
+# label, because they do not install the same object: ext 33 installs the player follow camera 0x030020C0
+# (vtable 0x08025A6C) and ext 119 installs 0x030020F4 (vtable 0x08025034), which is NOT the follow camera.
+# Source: docs\tasks\2026-11-06-vanilla-battle-starts\report.md sections 3 and 5.
+CAMERA_FIXED, CAMERA_FOLLOW, CAMERA_EXT37, CAMERA_EXT119 = "fixed", "follow", "ext37", "ext119"
+CAMERA_OWNERS = {31: CAMERA_FIXED,          # ext31_move @0x0800DF1C, the scene's own fixed camera
+                 33: CAMERA_FOLLOW,         # camera_follow: the player follow camera
+                 37: CAMERA_EXT37,          # also writes 0x03000FF4; which object it installs is not read
+                 119: CAMERA_EXT119}        # the other object, not the follow camera
+# A map load installs the camera and REPLACES it, writing the new player into 0x030020C0 + 4 and storing
+# that object in 0x03000FF4, which is what ext 33 (0) does. It never eases, so the view SNAPS.
+# LIKELY: read from map_load @0x0800C584 by the study agent, not re-read here (report section 5).
+MAP_LOAD_OPS = (35, 38, 39)
+# The owners that count as giving the camera back to the player. ext 119 is not one of them.
+HANDS_BACK = (CAMERA_FOLLOW, CAMERA_EXT37)
+
+# Is a fade or a flash open? COVER_UNKNOWN is "covered by no op we can name": ext 34 writes something
+# whose effect lives in whatever reads [0x03001FC0 + 4], and that reader was never read, so a load behind
+# an ext 34 is not proved uncovered either way (report section 6).
+COVER_CLEAR, COVER_OPEN, COVER_UNKNOWN = "clear", "open", "unknown"
+COVER_OPENS = (40, 42)                      # fade_out, palette_fx (the white flash)
+COVER_CLOSES = (41, 43)                     # fade_in, flash_wait
+COVER_OWN = 38                              # load_map_fade carries its own cover across the load
+COVER_UNREAD = 34                           # LIKELY a screen effect; its reader was never read
+
+# Base ops 21-26: the six get-and-set variable ops. Each runs the ext op named by its operand byte as a
+# getter, which pushes the variable, then adds or subtracts 1 and calls the setter rom:0x3B5F70 + 4n.
+# They differ only in what they leave on the stack. CONFIRMED from the handlers, read 2026-11-06:
+#   21 @0x08009130  var += 1, pops the pushed value      24 @0x080091BC  var -= 1, pops the pushed value
+#   22 @0x08009160  var += 1, leaves the NEW value       25 @0x080091EC  var -= 1, leaves the NEW value
+#   23 @0x08009190  var += 1, leaves the OLD value       26 @0x08009224  var -= 1, leaves the OLD value
+# Ops 21 and 24 decrement the stack count and then read the slot they just freed; 22 and 25 rewrite the
+# top slot in place; 23 and 26 leave the top slot alone. Bible row 1894 (CJR) names the same six ops and
+# agrees that op 21 pushes nothing. Each row: op -> (step, what stays on the stack)
+VAR_STEP_OPS = {21: (1, None), 22: (1, "new"), 23: (1, "old"),
+                24: (-1, None), 25: (-1, "new"), 26: (-1, "old")}
 
 # Base ops that pop two values and push one. Every entry is CONFIRMED from its handler in the base op table
 # rom:0x3B5C00: each one decrements the stack count, reads the top and the value below it, and stores the
@@ -85,6 +130,18 @@ class Run:
         self.indexes = []          # the table indexes visited, in order
         self.next_index = None
         self.ended = False
+        # Which object owns 0x03000FF4 after the last op that wrote it: one of the CAMERA_* labels, or
+        # None when no op in this run touched the camera. Read it after the run to answer "did the scene
+        # give the camera back": camera_owner in HANDS_BACK. Pass the same Run to run_record() for every
+        # word of a table and this follows the table's WALK order, which is what the census counted.
+        self.camera_owner = None
+        # COVER_CLEAR, COVER_OPEN or COVER_UNKNOWN as of each entry of calls, same length and same order.
+        # The entry for an op is the state AFTER that op's own cover effect, so a fade_out reads
+        # COVER_OPEN, a fade_in reads COVER_CLEAR, and a map load reads whatever is current.
+        self.screen_covered = []
+        # The cover the NEXT op will see. It differs from screen_covered[-1] after a load_map_fade, which
+        # covers its own load and then reveals.
+        self.cover_state = COVER_CLEAR
         # True when the run had to invent a value: an ext op pushed a result this harness does not model,
         # so a later comparison or branch found the stack short. The ops and the side effects are still
         # real; a branch taken after that point is a guess. Assert it is False in a test that checks a branch.
@@ -100,6 +157,11 @@ class Run:
         n = S.EXT_BY_NAME[which] if isinstance(which, str) else which
         return [args for op, args in self.calls if op == n]
 
+    def cover_at(self, which) -> list:
+        """The cover state at every call of one ext op: run.cover_at("load_map_at") -> ["open"]."""
+        n = S.EXT_BY_NAME[which] if isinstance(which, str) else which
+        return [self.screen_covered[i] for i, (op, _) in enumerate(self.calls) if op == n]
+
     def __repr__(self) -> str:
         return (f"<Run {len(self.calls)} ops, {len(self.spawns)} spawn(s), "
                 f"flags+{sorted(self.flags_set)}, next {self.next_index}>")
@@ -114,9 +176,36 @@ def _pop(stack: list, run: Run) -> int:
     return 0
 
 
+def _record(run: Run, n: int, args: tuple) -> None:
+    """Put one ext op on run.calls, with the cover state it ran under and the camera owner it leaves.
+
+    Every path that appends to run.calls goes through here, so calls and screen_covered stay the same
+    length and the same order."""
+    run.calls.append((n, args))
+    if n in COVER_OPENS:
+        run.cover_state = COVER_OPEN
+        cover = COVER_OPEN
+    elif n in COVER_CLOSES:
+        run.cover_state = COVER_CLEAR
+        cover = COVER_CLEAR
+    elif n == COVER_UNREAD:
+        run.cover_state = COVER_UNKNOWN
+        cover = COVER_UNKNOWN
+    elif n == COVER_OWN:
+        cover = COVER_OPEN                  # its own fade covers the load, and reveals after it
+        run.cover_state = COVER_CLEAR
+    else:
+        cover = run.cover_state
+    run.screen_covered.append(cover)
+    if n in CAMERA_OWNERS:
+        run.camera_owner = CAMERA_OWNERS[n]
+    elif n in MAP_LOAD_OPS:
+        run.camera_owner = CAMERA_FOLLOW
+
+
 def _apply(run: Run, n: int, args: tuple) -> None:
     """Record the side effect of one ext op."""
-    run.calls.append((n, args))
+    _record(run, n, args)
     if n in PLACE_OPS and len(args) >= 3:
         set_id, x, y = args[0], args[1], args[2]
         run.positions[set_id] = (x, y)
@@ -170,19 +259,26 @@ def run_record(rom: bytes, at: int, state: State = None, run: Run = None) -> Run
             n, args = rom[o + 1], tuple(stack)
             stack = []
             if n == 11:                                   # pushes the leader
-                run.calls.append((11, ()))
+                _record(run, 11, ())
                 stack = [state.leader]
             elif n == 23:                                 # pushes a visited bit
                 args = tuple(args[-2:])
-                run.calls.append((23, args))
+                _record(run, 23, args)
                 stack = [int(args in state.visited)]
             elif n in (19, 20):                           # pushes a flag
-                run.calls.append((n, args))
+                _record(run, n, args)
                 stack = [int(bool(args) and args[0] in state.flags)]
             else:
                 _apply(run, n, args)
         elif op == 3:
             state.variables[rom[o + 1]] = stack.pop() if stack else 0
+        elif op in VAR_STEP_OPS:
+            step, keeps = VAR_STEP_OPS[op]
+            slot = rom[o + 1]
+            old = state.variables.get(slot, 0)
+            state.variables[slot] = old + step
+            if keeps is not None:
+                stack.append(state.variables[slot] if keeps == "new" else old)
         elif op == 6:
             if stack:
                 stack[-1] = -stack[-1]                    # the only unary op: it pops nothing
@@ -222,7 +318,9 @@ def run_table(rom: bytes, table_at: int, start: int = 0, count: int = None,
               state: State = None, max_records: int = 120) -> Run:
     """Run the table from index start until an END entry, following each record's next index."""
     state = state or State()
-    count = count or S.table_end(rom, table_at)
+    # table_length, not table_end: count bounds the index range, and a record whose next index
+    # sits past the first END entry is in range. table_end would stop the run early.
+    count = count or S.table_length(rom, table_at)
     words = S.table_words(rom, table_at, count)
     run, index = Run(), start
     for _ in range(max_records):

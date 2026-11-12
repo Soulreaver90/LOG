@@ -9,8 +9,12 @@ Usage:   (from scripts\permanent) py -3 -I disasm\symbols.py [list | check | jso
 API:     addr(name) -> GBA address; rom(name) -> file offset; ptr(name) -> the value code stores for a
          function (start + 1 for Thumb, start for ARM); name_of(addr) -> name or None; S.<name> -> address;
          bible_rows() -> [Row]; bible_tag(addr) -> "s14 #boot C OVW" or "";
-         for_codemap(game) -> {"names", "tags", "functions", "ptr_tables"} (USA only; empty for others).
-Rules:   A name here is a label for an address the bible already states; the bible row is the evidence.
+         for_codemap(game) -> {"names", "tags", "functions", "ptr_tables"} (USA only; empty for others);
+         parse_rows(lines), assign_ids(lines), split_id(line), is_data_row(cells), highest_id(lines).
+Rules:   A bible row is cited by its id (`B0001`), never by its line number. Row.line_no is where the
+         row sits today, and every merge moves it. assign_ids is the one assigner: the bible migration,
+         the merge tool and the test all call it, so a stability proof covers the tool that runs.
+         A name here is a label for an address the bible already states; the bible row is the evidence.
          Kinds: func (a function start), table (ROM data), vtable (base-relative method table, ROM),
          ram (IWRAM or EWRAM global). Call sites and mid-function addresses stay in the bible only;
          listing.py shows them as comments. Patches use scripts\permanent\rom\re_sym.py (sym, sym_rom, sym_ptr),
@@ -93,8 +97,8 @@ FUNCS = [
     (0x08020EC2, "glyph_draw"), (0x08021188, "blit"), (0x0802130A, "fill_rect"), (0x0800BDCC, "portrait"),
     (0x080264A8, "always_visible"),
     # script VM and cutscenes
-    (0x080092E4, "script_run"), (0x08008F44, "op_push_u8"), (0x08009466, "ext131_gain_str"),
-    (0x08009478, "ext132_gain_pow"), (0x0800948A, "ext133_gain_end"), (0x080095E4, "ext21_item_count"),
+    (0x080092E4, "script_run"), (0x08008F44, "op_push_u8"), (0x08009466, "ext131_push_gain_str"),
+    (0x08009478, "ext132_push_gain_pow"), (0x0800948A, "ext133_push_gain_end"), (0x080095E4, "ext21_item_count"),
     (0x080096CA, "ext76_item_dec"), (0x080096E8, "ext77_item_sub"), (0x08009740, "ext29_party_msg"),
     (0x0800975E, "ext30_party_msg"), (0x08009B5E, "ext42_palette_fx"), (0x08009BF8, "ext46_sound_start"),
     (0x08009C54, "ext47_sound_stop"), (0x08009C8A, "ext49_music"), (0x08009FC4, "ext57_set_state"),
@@ -161,7 +165,7 @@ DATA = [
     (0x08025E20, "vt_state39_hold", "vtable"),
     (0x03000E1C, "scene_manager", "ram"), (0x03000E20, "vblank_count", "ram"), (0x03000E3C, "video", "ram"),
     (0x03000E90, "save_struct", "ram"), (0x03000FF4, "camera", "ram"), (0x03001090, "map_view", "ram"),
-    (0x03001120, "world", "ram"), (0x03001D18, "suspended_list", "ram"), (0x03001FA8, "player_ptr", "ram"),
+    (0x03001120, "world", "ram"), (0x03001D18, "suspended_list", "ram"), (0x03001FA8, "Sprite_CurrentDirectory", "ram"),
     (0x03001FB0, "script_regs", "ram"), (0x03001FC0, "sram_probe", "ram"), (0x03001FC1, "level_gains", "ram"),
     (0x03001FC4, "map_return", "ram"), (0x03001FE0, "regions", "ram"), (0x03002080, "map_info", "ram"),
     (0x030020F8, "actor_queue_obj", "ram"), (0x030021E0, "form_objects", "ram"), (0x0300229C, "input", "ram"),
@@ -221,31 +225,112 @@ def ptr(name: str) -> int:
 
 # ===== bible parser =====
 
+# A row's identity is its id, never its line number. Every merge inserts rows, so a line number names
+# a different fact after every merge: the 2026-11-07 measurement found 5 of 13 in-bible "row N"
+# citations already pointing at an unrelated fact. The id lives in the last cell of the row.
+ID_FORM = re.compile(r"^B\d{4}$")
+_ID_CELL = re.compile(r"\|\s*(B\d{4})\s*\|\s*$")
+_SECTION = re.compile(r"## (\d+[a-z]?)\.")
+_HEAD_CELLS = ("Fact", "Question", "Decision", "Search for")
+
+
 class Row:
-    def __init__(self, line_no, section, text, tags, label, src):
-        self.line_no, self.section, self.text, self.tags, self.label, self.src = \
-            line_no, section, text, tags, label, src
+    """One bible table row. id is the identity. line_no is where it sits today and is NOT an identity:
+    it changes on every merge, so never cite it and never store it."""
+
+    def __init__(self, line_no, section, text, tags, label, src, id=""):
+        self.line_no, self.section, self.text, self.tags, self.label, self.src, self.id = \
+            line_no, section, text, tags, label, src, id
 
     def tag(self):
         return f"s{self.section} {self.tags} {self.label} {self.src}".strip()
+
+
+def split_id(line: str):
+    """(the line without its trailing id cell, the id or "") for one table line."""
+    m = _ID_CELL.search(line)
+    return (line[:m.start() + 1], m.group(1)) if m else (line, "")
+
+
+def is_data_row(cells: list) -> bool:
+    """The one test for a data row. Header lines and separator lines are the only table lines it rejects."""
+    return len(cells) >= 3 and cells[0] not in _HEAD_CELLS and not set(cells[0]) <= set("-")
+
+
+def cells_of(line: str) -> list:
+    """The cells of a table line, with any trailing id cell already removed."""
+    body, _ = split_id(line)
+    return [c.strip() for c in body.strip().strip("|").split("|")] if line.startswith("|") else []
+
+
+def parse_rows(lines) -> list:
+    """Every data row of the given bible lines. The id cell is stripped before the cells are read, so
+    every other cell index means what it meant before the Id column existed."""
+    rows, section = [], ""
+    for n, line in enumerate(lines, 1):
+        m = _SECTION.match(line)
+        if m:
+            section = m.group(1)
+        cells = cells_of(line)
+        if is_data_row(cells):
+            rows.append(Row(n, section, cells[0], cells[1], cells[2],
+                            cells[3] if len(cells) > 3 else "", split_id(line)[1]))
+    return rows
+
+
+def highest_id(lines) -> int:
+    """The largest id number in the file, or 0. The next id counts up from here."""
+    return max((int(i[1:]) for i in (split_id(l)[1] for l in lines) if i), default=0)
+
+
+def assign_ids(lines) -> tuple:
+    """(new lines, [(line index, id)]) with an id appended to every data row that has none.
+
+    An existing id is never changed, never renumbered and never reused, so a row keeps its id when
+    rows are inserted above it. A table that gains an id also gains its Id header and separator cell.
+    """
+    out, assigned, nxt = list(lines), [], highest_id(lines) + 1
+    i = 0
+    while i < len(out):
+        if not out[i].startswith("|"):
+            i += 1
+            continue
+        end = i
+        while end < len(out) and out[end].startswith("|"):
+            end += 1
+        new_here = []
+        for k in range(i, end):
+            cells = cells_of(out[k])
+            if is_data_row(cells) and not split_id(out[k])[1]:
+                out[k] = f"{out[k].rstrip()} B{nxt:04d} |"
+                new_here.append((k, f"B{nxt:04d}"))
+                nxt += 1
+        if new_here:
+            _add_id_column(out, i, end)
+            assigned += new_here
+        i = end
+    return out, assigned
+
+
+def _add_id_column(out: list, i: int, end: int) -> None:
+    """Give this table's header and separator their Id cell, once."""
+    head = cells_of(out[i])
+    if not is_data_row(head) and head and head[-1] != "Id":
+        out[i] = f"{out[i].rstrip()} Id |"
+    if end > i + 1 and set(cells_of(out[i + 1])[0]) <= set("-"):
+        sep = out[i + 1].rstrip()
+        if len(sep.strip("|").split("|")) < len(cells_of(out[i])):
+            out[i + 1] = sep + "---|"
 
 
 _ROWS = None
 
 
 def bible_rows() -> list:
-    """Every 4-column fact row of the bible: | fact | tags | label | src |."""
+    """Every data row of the bible: | fact | tags | label | src | id |. Cite row.id, not row.line_no."""
     global _ROWS
     if _ROWS is None:
-        _ROWS, section = [], ""
-        for n, line in enumerate(BIBLE.read_text(encoding="utf-8").splitlines(), 1):
-            m = re.match(r"## (\d+[a-z]?)\.", line)
-            if m:
-                section = m.group(1)
-            cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.startswith("|") else []
-            if len(cells) >= 3 and cells[0] not in ("Fact", "Question", "Decision", "Search for") \
-                    and not set(cells[0]) <= set("-"):
-                _ROWS.append(Row(n, section, cells[0], cells[1], cells[2], cells[3] if len(cells) > 3 else ""))
+        _ROWS = parse_rows(BIBLE.read_text(encoding="utf-8").split("\n"))
     return _ROWS
 
 
@@ -330,7 +415,7 @@ def _check(path=OUT_DIR / "codemap.json"):
                 k = "string"
             else:
                 k = "data in code region"
-                rows.append(f"  {a:#010x} data in code region (bible line {refs[0].line_no})")
+                rows.append(f"  {a:#010x} data in code region (bible {refs[0].id or 'row has no id'})")
         counts[k] = counts.get(k, 0) + 1
     print("bible code-region addresses:", sum(counts.values()))
     for k, v in sorted(counts.items(), key=lambda kv: -kv[1]):

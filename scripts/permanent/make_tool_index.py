@@ -20,6 +20,7 @@ STATS = {}                      # what the last build() counted, for main() to p
 
 # One line per folder of tools. A folder with no line here is still listed, with a plain note.
 FOLDER_NOTES = {
+    "art": "Shared art tools: palettes, frame locks, art tables, the gi and aura builders.",
     "rom": "Read and write the ROM: sprites, saves, compression, free space.",
     "scene": "Cutscenes: read one, write one, draw a map, run one in a test.",
     "disasm": "The project's own disassembler, for reading game code.",
@@ -77,10 +78,14 @@ def tool_folders() -> list:
     r"""Every subfolder of scripts\permanent that holds tools, read from disk and never listed.
 
     A fixed tuple here is what left map-editor, emu, review and ghidra out of the index from the
-    day each was created, so nothing found them in the search CLAUDE.md asks for first. The four
-    names below are left out for a reason, not by omission: tests are not tools, patches and art
-    have their own sections, and __pycache__ is not source."""
-    skip = {"tests", "patches", "art", "__pycache__"}
+    day each was created, so nothing found them in the search CLAUDE.md asks for first. The three
+    names below are left out for a reason, not by omission: tests are not tools, patches have their
+    own section, and __pycache__ is not source.
+
+    `art` was skipped here until 2026-11-08 on the belief that the art section covered it. It does
+    not: that section globs the TOP LEVEL `art\` tree, so all 12 tools in scripts\permanent\art\
+    were invisible to the index and to the search."""
+    skip = {"tests", "patches", "__pycache__"}
     return sorted(d for d in PERM.iterdir()
                   if d.is_dir() and d.name not in skip and any(d.glob("*.py")))
 
