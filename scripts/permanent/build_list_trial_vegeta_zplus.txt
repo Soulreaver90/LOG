@@ -1,0 +1,7 @@
+# Trial list: the dev master plus Vegeta's second Super Saiyan grade, "Z+".
+# vegeta_zplus is NOT approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# It runs LAST: it relocates the appearance table a second time and the dialog portrait block a second
+# time, and it reads the LIVE ability 12 action and HUD literal, which must still hold ssj2_form's own
+# gate and HUD hook. Every module that keeps its own copy of either address runs before it.
+include build_list_dev.txt
+vegeta_zplus        # trial 2026-11-12: entry 23, Vegeta Z+ from Super Saiyan (ascended grade stats, Z+ icon)
