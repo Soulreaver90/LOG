@@ -1,0 +1,7 @@
+# Trial list: the dev master plus the battle arena and the ending's Imperfect Cell kill as a player fight.
+# Neither module is approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# battle_arena moves the map table, so it must run AFTER every module that edits a map entry in place
+# (chamber_spar edits 6,70) and BEFORE ending_fight, which fills in the arena enemy's death event.
+include build_list_dev.txt
+battle_arena
+ending_fight

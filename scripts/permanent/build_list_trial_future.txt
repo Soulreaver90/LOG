@@ -1,0 +1,13 @@
+# Trial list: the ending trial plus the two FUTURE android fights, 18 at ending word 8 and 17 at word 11.
+# Neither this module nor the ending trial's two is approved into build_list.txt, build_list_dev.txt or
+# build_list_core.txt. The included list brings dev, battle_arena and ending_fight, in that order.
+# future_androids runs LAST: it appends to the map table battle_arena moved, and ending_fight checks
+# that ending words 0, 4, 6, 8 and 11 are still vanilla when it runs.
+include build_list_trial_ending.txt
+future_androids
+# pool_refill wraps the LIVE ext 73 word, so a SCRIPTED form change gives the leader a FULL Super
+# Saiyan ki pool. Without it ending word 13's ext 73 leaves the pool tag alone, and the transform
+# against Cell keeps the pool the android fights drained (the owner, 2026-11-09 and 2026-11-12).
+# It runs after bf_ki_pool and after chapter_cards, which owns the LIVE ext op table. Both are in
+# build_list_core.txt. finale_blast is not in this list, so the before-finale_blast rule is moot.
+pool_refill

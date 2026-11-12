@@ -63,8 +63,12 @@ Method:  Ending scene table rom:0x3B8140. Word 8 is the scripted beating of set 
          7a. THE DEATH BEATS (rung 4, 2026-11-07). Each death record now carries the owner's own beat:
             "18 fight -> she collapses -> Trunks blasts her, NO transition". The record poses her down,
             holds, turns Trunks to her, fires `ext 96` with the PLAYER as attacker, polls `ext 60`
-            until the blast lands and removes her. It carries NO fade, NO camera op, NO `ext 62` and
-            no map load, so the scene never leaves the ground the fight ended on. Android 18's record
+            until the blast lands, then blows the body up and removes it. It carries NO fade, NO camera
+            op, NO `ext 62` and no map load, so the scene never leaves the ground the fight ended on.
+            The explosion is rung 4's own follow-up (owner, 2026-11-08: "the androids do not explode
+            (no smoke) if we can add that"): `ext 94` spark, the poof sound, a hold, then the remove.
+            Both androids carry the BOSS death descriptor, which builds no effect at all, so there is
+            nothing to suppress and nothing in the call is Cell Jr specific. See explode(). Android 18's record
             then brings Android 17 in. The engine has no "is this actor on screen" op, so the record
             unpacks the player's spot (`ext 143`), works out where the view is, and either leaves 17
             standing, walks him from where he stands, or drops him just outside the left edge of the
@@ -77,11 +81,16 @@ Method:  Ending scene table rom:0x3B8140. Word 8 is the scripted beating of set 
          9. The map table is relocated a SECOND time. battle_arena already moved it and appended map
             6,100; this module reads the LIVE base from the literal rom:0xEBD8 and the LIVE count from
             rom:0xE0AE, copies every live entry and appends map 1,100.
+        10. THE TWO FUTURE ANDROIDS ARE 25 PERCENT WEAKER (the owner, 2026-11-08: "The stats for
+            future 17 and 18 should be weaker than vanilla, that is actually canon ... Weaker stats,
+            like 25%"). Each enemy item names a FRESH type entry, allocated on the enemy table's
+            24-byte stride and built by ending_fight's weak_type(). Vanilla types 3 and 4 are not
+            written, because they also carry the main game's own Android fights.
 Rules:   Every source byte is checked before the first write; a second run raises. No vanilla map
          entry, item, enemy item, event struct or enemy type is written, so the main game's Android 17
          and 18 fights on maps 11,4 to 11,6 and map 8,49 keep every byte. The two enemy items are
-         fresh copies with their OWN event struct and tail, so writing a death table cannot reach the
-         vanilla struct the main game names.
+         fresh copies with their OWN event struct, tail and enemy type, so neither a death table nor
+         a stat change can reach the structures the main game names.
          The four base writes are ending table words 0, 4, 6, 8 and 11, the four map table literals
          and the map count byte. The literals and the count byte are the ONE overlap with battle_arena
          and are excluded from the overlap guard by name; everything else must be untouched.
@@ -92,6 +101,8 @@ import struct
 
 from scene.scene_lib import (battle_start, call, camera, code, ext, fade_in, leader, face, pose, push,
                              record_end, relocate, remove, wait, walk_to, words_naming)
+# The weakening rule lives in ONE place, so the three future enemies cannot drift apart.
+from patches.ending_fight import WEAKER_PERCENT, _alloc_on_stride, weak_type   # noqa: PLC2701
 
 # ===== constants: the map table, read LIVE (battle_arena has already moved it) =====
 ROM_BASE = 0x08000000
@@ -120,17 +131,31 @@ SOURCE_ENTRY = bytes.fromhex("01020101" "04000000" "01000000" "e5000000" "f0d73e
 SOURCE_MUSIC = 0x083ED73C          # +0x24: a SCRIPT, `test_flag(196) ; jz(3) ; push 38 ; end`, so it
                                    # returns song 38 under flag 196. The clone must NOT copy it. See
                                    # WALK_IN_MUSIC: vanilla's ext 35 load never reads +0x24 at all.
-WALK_IN_MUSIC = 42                 # the song record 0 starts at rom:0x3B7B0B and the one playing at the
-                                   # load. CONFIRMED that vanilla never changes it here: `Map_Load`
-                                   # @0x0800C664, the ext 35 path, does not call `sub_0800C390` and so
-                                   # never reaches the +0x24 read at `loc_0800C4D6`. Only `sub_0800C584`,
-                                   # the ext 38 and ext 39 path, calls it (`BL loc_0800C390`). So an
-                                   # ext 39 load DOES read +0x24, and naming the script would start the
-                                   # Android theme under the black, 11 ops before vanilla's own cue.
-                                   # Naming 42 instead makes the read a no-op: `loc_0800C4F4` runs
-                                   # `LDRB r2,[r0,#0x5] ; CMP r2,#1 ; BNE` and `LDR r2,[r0,#0xC] ;
-                                   # CMP r2,r1 ; BEQ`, which skips `music_play` when that exact record
-                                   # is already playing. Record 0's closing `music(38)` then cues on time.
+# THE MUSIC DOES NOT CHANGE WHEN GOHAN FLIES OFF (the owner, 2026-11-09: "When the game ends and
+# gohan flies off, lets change it so music doesnt change").
+# The track he means is 18. The Dende farewell, record 87 `rom:0x3DCEDC`, opens with `music(18)`,
+# runs `ext 27 (196)` to set flag 196, and then loads map 9,1 with `ext 38`. That map's `+0x24` is
+# the script `rom:0x403E34`, `push 196 ; test_flag ; jz 3 ; push 18 ; end`, which returns 18 while
+# the flag is set, so that load is silent too. 18 is therefore still playing when record 0 begins.
+# REVERTED 2026-11-09 after the owner play-tested `future_v3.gba`: "You changed the wrong track, the
+# opening is still there and plays over the music that plays when trunks walks to the time machine,
+# that needs to be reverted." So record 0's opening `music(42)` is BACK and this word is 42 again.
+# What the attempt got wrong is not yet known. It did what it claimed: the op is gone from the record
+# and the clone named 18. The opening he still hears therefore comes from somewhere this analysis
+# never looked, and `ext 125` at the end of record 87 is the one path that was measured and NOT read
+# (its vtable `0x08023EB8` pushes a scene whose own behaviour is unread). Read that before touching
+# these two values again.
+# WHY THIS WORD AND NOT MAP 6,23's. Record 0's Capsule Corp beat loads map 6,23 with `ext 35`, and
+# `ext 35` NEVER reads `+0x24`: `Map_Load` `@0x0800C664` does not call `sub_0800C390` and so never
+# reaches the read at `loc_0800C4D6`. Only `sub_0800C584`, the `ext 38` and `ext 39` path, calls it.
+# So the ONE load in this record that reads a music word is the `ext 39` of the clone, and this is
+# that clone's word. Map 6,23 is vanilla and is not touched.
+# Naming the song already playing makes the read a no-op: `loc_0800C4F4` runs `LDRB r2,[r0,#0x5] ;
+# CMP r2,#1 ; BNE` and `LDR r2,[r0,#0xC] ; CMP r2,r1 ; BEQ`, which skips `music_play` when that exact
+# record is already playing (bible B1191, B2176, B2028). Record 0's closing `music(38)` is untouched
+# vanilla and still cues the Android theme on time, which is the one change he expects to hear.
+FAREWELL_MUSIC = 18                # record 87 `rom:0x3DCEDC` opens with it, and map 9,1 names it back
+WALK_IN_MUSIC = 42                 # REVERTED to vanilla's value. Was FAREWELL_MUSIC for one build.
 SOURCE_LAYOUTS, SOURCE_LAYOUT = 0x3ED748, 0x6ACB68
 LAYOUT_SIZE = 0xCC                 # battle_arena's measure: the closest pair of layout addresses is 204
 L_BG0, L_BG1, L_BG2, L_BG3 = 0x14, 0x18, 0x1C, 0x20
@@ -202,6 +227,7 @@ RECORDS = {ARRIVE_INDEX: (0x3B7B08, "7e3656e7e865f08e5c51e39c43e6200bbde5536e"),
            FIGHT17_INDEX: (0x3B7D6E, "65ddfc45540d206fb0248ece4349b01ca002e73e")}
 
 # Record 0's op starts, read with scene_lib.ops in 01_probe.py. relocate() checks every one of them.
+R0_MUSIC = (0x3B7B0B, "002a0231")                         # music(42): KEPT. Deleting it was reverted.
 R0_LOAD = (0x3B7B64, "1d05020402860088500223")            # load_map(1,2,1,384,552), ext 35: no player
 R0_FACE = (0x3B7B6F, "1d028208020237")                    # face(132,1)
 R0_FOLLOW = (0x3B7B7A, "00840221")                        # camera_follow(132)
@@ -239,6 +265,16 @@ HANDBACK_HOLD = 60                                        # the wait each vanill
 # ===== constants: the death beats (rung 4) =====
 A17_SPOT = (520, 408)                                     # SOURCE_NPCS[A17] +8: where NPC 17 stands and waits
 BLAST_SPEED = 100                                         # vanilla's own n for a PLAYER blast, rom:0x3E523F
+SPARK_AT = (0, 0)                                         # ext 94's offset from the body's centre
+BOOM, SPARK_HOLD = 31, 12                                 # celljr's own poof sound; the spark shows before
+                                                          # the body goes
+# THE WHITE FLASH IS BACK (the owner, 2026-11-09: "Yes the wolrd map and the flash").
+# It was left out of rung 4 because `ext 42` and `ext 43` are on this module's NO_TRANSITION list,
+# which carries his earlier "NO transition" rule for these two records. He has now asked for it by
+# name, so the ban keeps every other transition op and makes ONE scoped exception: the flash pair
+# that covers the body's removal, and only there. Both lengths are celljr_fight's own FLASH and
+# FLASH_WAIT, which are vanilla seq 27's values and which he has play tested three times.
+BOOM_FLASH, BOOM_FLASH_WAIT = 5, 5        # NOT the transform's FLASH, which is 10
 
 # ----- the approach: he speaks where he stands unless he is off screen, and then he comes from
 # ----- HIS OWN side, by whichever axis separates him from Trunks the most
@@ -294,6 +330,14 @@ def arrive(rom: bytes, zone: int, area: int) -> bytes:
         walk(132,496,504) ; camera(384,368,2) ; wait(60) ; face(9,2) ; wait(30) ; music(38)
 
     Four edits, each load bearing:
+
+      0. THE MUSIC IS VANILLA. The opening `music(42)` is KEPT, and so is the closing `music(38)`.
+         One build deleted the opening op and named 18 in the clone's `+0x24`, to carry the farewell
+         track through. The owner play-tested `future_v3.gba` and rejected it: a vanilla track plays
+         after the farewell, and deleting the cue left the walk to the androids silent. His ruling on
+         2026-11-12: "The goal was to remove the farewell but that would be part of a longer change,
+         so revert the change." Both values are back. See WALK_IN_MUSIC for the whole chain and for
+         why map 6,23, which this record also loads, is NOT the word that matters.
 
       1. `ext 39`, never `ext 35`. Only `ext 38` and `ext 39` reach `sub_0800C584` and through it the
          player constructor `sub_080086D4`; `ext 35` reaches `Map_Load @0x0800C664` only and builds no
@@ -614,7 +658,46 @@ def blast(enemy_set: int) -> bytes:
             + call("attack", PLAYER, enemy_set, BLAST_SPEED)
             + ext(60, enemy_set)
             + call("block_end")
-            + remove(enemy_set))
+            + explode(enemy_set))
+
+
+def explode(enemy_set: int) -> bytes:
+    """The android goes up in a spark and the poof sound, instead of just vanishing.
+
+    The owner, 2026-11-08: "the androids do not explode (no smoke) if we can add that".
+
+    WHY THERE IS NOTHING TO SUPPRESS. Enemy types 3 and 4 carry the BOSS death descriptor
+    `0x086FF3C4` in vanilla (bible B2172, B0979), and this module writes no type entry, so both
+    androids keep it. That descriptor's release `@0x0801A82C` runs the EXP task and the event task
+    only: no world remove and no effect (B2004, B2006). So the engine shows nothing when an android
+    reaches HP 0, which is what he saw. The NORMAL descriptor is the one that builds the poof, and
+    nothing here names it.
+
+    WHY THE CELL JR CALL SUITS AN ANDROID. `ext 94 (actor, dx, dy)` builds ONE fixed effect, id 0x27,
+    descriptor `0x086D7750`, at the actor's own centre (B0793). The id does not depend on the actor's
+    set, so the spark is the same for a Cell Jr, an android or anyone else, and it follows the body it
+    is built on. Sound 31 is one of the two the engine's OWN enemy poof picks at random, `rand_n(2) +
+    0x1F` (B2007), so it is the game's generic death sound and not a Cell Jr sound.
+
+    WHAT IT CANNOT BE. The real smoke is effect 0x28, and no script op builds it: the two `ext 94`
+    call sites pass 0x27 and only the normal release passes 0x28 (B2014). So 0x27 plus sound 31 is
+    the closest a script can get, and bible B0900 records that it reads as an explosion in play.
+
+    THE WHITE FLASH COVERS THE REMOVE, as celljr's own `_explode()` does. He asked for it by name on
+    2026-11-09 after seeing rung 4 without it. The order is celljr's, with ONE thing kept from the
+    version he saw: the `ext 69` hold stays IN FRONT of the flash, so the spark plays for its own 12
+    frames in the clear and only then does the screen go white and the body go. celljr has no hold
+    there, so its spark and its remove land together.
+
+    Final spacing: spark, sound 31, 12 frames, white in over 5, the body removed under the white,
+    white out over 5. `ext 42` does not block (the record pairs it with `ext 43`, which does), so
+    the remove really does happen while the screen is white. See BOOM_FLASH."""
+    return (ext(94, enemy_set, *SPARK_AT)
+            + call("sound", BOOM)
+            + wait(SPARK_HOLD)
+            + call("palette_fx", BOOM_FLASH)
+            + remove(enemy_set)
+            + call("flash_wait", BOOM_FLASH_WAIT))
 
 
 def death(enemy_set: int, nxt: int, entrance: int = None) -> bytes:
@@ -735,21 +818,25 @@ def npc_item(source: bytes, step_at: int) -> bytes:
     return bytes(item)
 
 
-def enemy_item(source: bytes, at: tuple, event_at: int, tail_at: int) -> bytes:
-    """One android's enemy item: the vanilla bytes with condition 1, the NPC's spot, and a FRESH
-    event struct and step struct of its own.
+def enemy_item(source: bytes, at: tuple, event_at: int, tail_at: int, type_id: int) -> bytes:
+    """One android's enemy item: the vanilla bytes with condition 1, the NPC's spot, a FRESH event
+    struct and step struct of its own, and the FUTURE android's own weaker enemy type.
 
     The event struct is where a death table is written, so it MUST be a new copy. The vanilla items
     name rom:0x40339C (Android 18) and rom:0x40648C (Android 17), and writing a table into either
     would change the main game's own Android fights, which the owner ruled out.
 
+    The type word is a new copy for the same reason. Vanilla type 4 also spawns on map 8,49 and
+    vanilla type 3 on maps 11,4, 11,5 and 11,6, so weakening either entry in place would weaken the
+    main game's own Android fights. Both new entries keep the BOSS death descriptor, which is what
+    lets each death record pose the body down and remove it itself.
+
     Condition 1 is "never at load": the map build leaves the item alone and only the fight record's
-    `ext 104` turns it into a live enemy. The type word is untouched, so Android 18 keeps type 4
-    (HP 2910, AI 21) and Android 17 type 3 (HP 3550, AI 21), both with the boss death descriptor.
-    The spot is kept at the NPC's own spot so the item reads right, although `ext 104` overwrites it
-    with the replaced NPC's position and facing."""
+    `ext 104` turns it into a live enemy. The spot is kept at the NPC's own spot so the item reads
+    right, although `ext 104` overwrites it with the replaced NPC's position and facing."""
     item = bytearray(source)
     item[ITEM_COND:ITEM_COND + 4] = _word(COND_NEVER_AT_LOAD)
+    item[ITEM_TYPE:ITEM_TYPE + 4] = _word(type_id)
     item[ITEM_AT:ITEM_AT + 4] = struct.pack("<hh", *at)
     item[ITEM_EVENT:ITEM_EVENT + 4] = _word(event_at + ROM_BASE)
     item[ITEM_TAIL:ITEM_TAIL + 4] = _word(tail_at + ROM_BASE)
@@ -966,17 +1053,22 @@ def apply(rom: bytearray, alloc) -> None:
     table18 = place(death_table(rom, dead18), f"Android 18's event table ({TABLE_WORDS} words)")
     table17 = place(death_table(rom, dead17), f"Android 17's event table ({TABLE_WORDS} words)")
 
-    # 3. The clone's items. Each enemy gets its OWN event struct and step struct.
-    enemies, events = {}, {}
+    # 3. The clone's items. Each enemy gets its OWN event struct, step struct and enemy type.
+    enemies, events, types = {}, {}, {}
     for set_id, at, event_table, label in ((A18_SET, SOURCE_NPCS[A18][1], table18, "Android 18"),
                                            (A17_SET, SOURCE_NPCS[A17][1], table17, "Android 17")):
         item_at, body, _, event_body, _, tail_body = TEMPLATES[set_id]
         tail = place(tail_body, f"{label}'s step struct (a fresh copy)")
         event = place(_word(EVENT_RUNNER) + _word(event_table + ROM_BASE),
                       f"{label}'s event struct (a fresh copy, naming her own death table)")
+        vanilla_type = _u32(body, ITEM_TYPE)
+        type_at = _alloc_on_stride(alloc, ENEMY_ENTRY, ENEMY_TABLE, ENEMY_ENTRY)
+        put(type_at, weak_type(bytes(rom[ENEMY_TABLE + ENEMY_ENTRY * vanilla_type:][:ENEMY_ENTRY])),
+            f"the FUTURE {label} type ({WEAKER_PERCENT} percent weaker than type {vanilla_type})")
+        types[set_id] = (type_at - ENEMY_TABLE) // ENEMY_ENTRY
         spot = struct.unpack_from("<hh", at, N_AT)
-        enemies[set_id] = place(enemy_item(body, spot, event, tail),
-                                f"the enemy {label} (type {_u32(body, ITEM_TYPE)}, condition 1)")
+        enemies[set_id] = place(enemy_item(body, spot, event, tail, types[set_id]),
+                                f"the enemy {label} (the weaker future type, condition 1)")
         events[set_id] = event
 
     # NPC Future Gohan and NPC Trunks are not built, so the item list holds the two androids first,
@@ -1013,7 +1105,7 @@ def apply(rom: bytearray, alloc) -> None:
         "table": new, "entry": new + MAP_SIZE * count, "entry_index": count,
         "old_table": table, "old_count": count, "source_index": index,
         "zone": CLONE_ZONE, "area": CLONE_AREA, "variation": CLONE_VARIATIONS,
-        "items": items, "npc_items": npcs, "enemies": enemies, "events": events,
+        "items": items, "npc_items": npcs, "enemies": enemies, "events": events, "types": types,
         "tables": {A18_SET: table18, A17_SET: table17},
         "deaths": {A18_SET: dead18, A17_SET: dead17},
         "layout": layout, "layouts": layouts,

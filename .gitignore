@@ -101,3 +101,6 @@ kai/
 # The ledger is my day-by-day work diary, not something a modder cloning this needs.
 # It stays on disk and keeps being written; it just does not go to the repository.
 docs/ledger/
+
+# The superpowers skill workspace: per-plan ledgers, briefs and review packages. Session scratch.
+.superpowers/

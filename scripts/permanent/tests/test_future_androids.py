@@ -35,7 +35,14 @@ NPC_18, NPC_17, ENEMY_18, ENEMY_17 = 0, 1, 2, 3   # positional: the two dropped 
 PLAYER_START, TRUNKS_SPOT = (496, 648), (496, 504)
 A18_AT, A17_AT, GOHAN_AT = (472, 408), (520, 408), (216, 368)
 REVEAL_VIEW, TALK_VIEW, SPEED, REVEAL = (384, 552), (384, 368), 2, 180
-NO_BANNER, MUSIC_SCRIPT, WALK_IN_MUSIC = 0xDD, 0x083ED73C, 42
+NO_BANNER, MUSIC_SCRIPT = 0xDD, 0x083ED73C
+# The track Gohan flies home on, and the one that must now carry unbroken into the ending.
+# The Dende farewell rom:0x3DCEDC opens with music(18), sets flag 196, and then loads nine maps
+# whose +0x24 scripts all return 18 while that flag is set. See the module's WALK_IN_MUSIC.
+FAREWELL_AT, FAREWELL_MUSIC, WALK_IN_MUSIC = 0x3DCEDC, 18, 42
+ANDROID_THEME = 38                                # record 0's own closing cue, untouched vanilla
+OPENING_THEME = 42                                # record 0's opening cue, reverted to vanilla
+MUSIC_OP, LOAD_READS_0X24 = 49, (38, 39)          # ext 35 never reads +0x24 (bible B1554)
 COLLAPSE_HOLD, HANDBACK = 60, 60
 DOWN, UP = 0, 1
 POWER_UP, AURA_SOUND, FLASH = 9, 55, 10
@@ -73,6 +80,7 @@ FIGHT17_OPS = [(104, (A17_SET, ENEMY_17)), (85, (A17_SET,)), (86, (1,)), (33, (P
 # just goes to his dialogue. If he is offscreen, then he walks onscreen, facing trunks".
 # Every number here is restated from the brief and the disassembly, never imported from the module.
 A17_SPOT, BLAST_SPEED = (520, 408), 100       # 17's own item spot; the n of vanilla's rom:0x3E523F
+SPARK_AT, BOOM, SPARK_HOLD = (0, 0), 31, 12   # ext 94's offset, the poof sound, the hold before the remove
 CAM_X, CAM_Y = 112, 80                        # the follow camera's offset, READ OUT OF RAM, not assumed
 SCREEN_W, SCREEN_H = 240, 160
 ENTRY_INSET, STOP_REACH = 24, 40
@@ -90,12 +98,16 @@ VERT_BAND, VERT_GAP = (440, 700), (440, 520)  # where a vertical approach is rej
 HALF = 1 << 16
 V_SPOT, V_PY, V_PX, V_HX = 0, 1, 2, 3         # scene variables: set_var n writes 0x03001FB0 + 4n
 JZ, END_OP = 19, 17
-# No death record may carry one of these: a camera move, a camera hand-off, a map load, a fade or a
-# flash. "NO transition" is the owner's emphasis and this is the list that enforces it. ext 62 is NOT
+# No death record may carry one of these: a camera move, a camera hand-off, a map load or a fade.
+# "NO transition" is the owner's emphasis and this is the list that enforces it. ext 62 is NOT
 # on the list: it is the reposition that puts 17 outside the left edge of the view, it runs only when
 # his drawn box has no pixel on screen, and its command writes nothing but +0x158/+0x15C
 # (`sub_0800A44E`, start `@0x0800E1DC`, done `@0x08026498` = `mov r0,#1 ; bx lr`).
-NO_TRANSITION_OPS = (31, 33, 35, 38, 39, 40, 41, 42, 43)
+# ext 42 and ext 43 LEFT this list on 2026-11-09, when the owner asked for the explosion's white
+# flash by name. They are not unguarded: the test below allows the pair ONLY as the explosion's own
+# cover, wrapped around the remove, so a stray flash anywhere else in these records still fails.
+NO_TRANSITION_OPS = (31, 33, 35, 38, 39, 40, 41)
+BOOM_FLASH, BOOM_FLASH_WAIT = 5, 5            # celljr's own pair; NOT the transform's FLASH of 10
 
 
 def _push(*vals):
@@ -110,10 +122,19 @@ def _ext(n, *vals):
 
 
 def blast_ops(enemy_set):
-    """Trunks turns to the body, fires ext 96 as the PLAYER, ext 60 waits for the hit, the body goes."""
+    """Trunks turns to the body, fires ext 96 as the PLAYER, ext 60 waits for the hit, the body blows up."""
     return (_ext(56, PLAYER, enemy_set) + _ext(63)
             + _ext(96, PLAYER, enemy_set, BLAST_SPEED) + _ext(60, enemy_set) + _ext(64)
-            + _ext(52, enemy_set))
+            + explode_ops(enemy_set))
+
+
+def explode_ops(enemy_set):
+    """The spark, the poof sound, a hold, then the white flash that covers the remove.
+
+    celljr_fight's own `_explode()` with ONE thing added: the `ext 69` hold stays in front of the
+    flash, so the spark plays in the clear for its 12 frames before the screen goes white."""
+    return (_ext(94, enemy_set, *SPARK_AT) + _ext(46, BOOM) + _ext(69, SPARK_HOLD)
+            + _ext(42, BOOM_FLASH) + _ext(52, enemy_set) + _ext(43, BOOM_FLASH_WAIT))
 
 
 def read_player_ops():
@@ -199,7 +220,8 @@ BINARY_32 = {4: lambda a, b: int(bool(a) and bool(b)),
              8: lambda a, b: a - b, 9: lambda a, b: a * b,
              10: lambda a, b: int(a / b), 13: lambda a, b: int(a > b), 15: lambda a, b: int(a < b)}
 # How many values each plain ext op in a death record pops, from docs\research\scene-vm-ext-ops.md.
-EXT_ARITY = {52: 1, 55: 2, 56: 2, 57: 2, 60: 1, 63: 0, 64: 0, 69: 1, 86: 1, 88: 0, 96: 3}
+EXT_ARITY = {42: 1, 43: 1, 46: 1, 52: 1, 55: 2, 56: 2, 57: 2, 60: 1, 63: 0, 64: 0, 69: 1,
+             86: 1, 88: 0, 94: 3, 96: 3}
 
 
 def _signed(v):
@@ -298,6 +320,58 @@ def body(rom: bytes, word: int) -> list:
     return ext_sequence(rom, u32(rom, TABLE + 4 * word) - ROM_BASE)
 
 
+def _music_word(rom: bytes, word: int, flags: set) -> int:
+    """The song a map's +0x24 resolves to: a literal under 0x10000, or the script it points at.
+
+    `music_getter @0x0800EB58` does exactly this test: `ldr r1,[r0,#0x24] ; lsr r2,r1,#16 ; bne`,
+    and on the non-zero arm it runs the scene VM on that pointer and takes [sp,#8]. The scripts in
+    this chain are one shape, `push F ; test_flag ; jz 3 ; push A ; end ; push B ; end`."""
+    if word < 0x10000:
+        return word
+    rows = raw_ops(rom, word - ROM_BASE)
+    where = {at: k for k, (at, _op, _arg) in enumerate(rows)}
+    stack, k = [], 0
+    while k < len(rows):
+        _at, op, arg = rows[k]
+        k += 1
+        if op in (0, 1, 29):
+            stack += list(arg)
+        elif op == 2 and arg == 19:                              # ext 19 test_flag
+            stack = [1 if stack.pop() in flags else 0]
+        elif op == 19:                                           # jz: pop, jump forward when zero
+            k = where[arg] if not stack.pop() else k
+        elif op == 17:
+            return stack[-1] if stack else None
+    raise AssertionError(f"the music script rom:0x{word - ROM_BASE:X} did not end")
+
+
+def _farewell_songs(rom: bytes) -> tuple:
+    """(the song every music cue and every +0x24-reading load of record 87 gives, the flags it sets).
+
+    `ext 35` is left out on purpose: it never reads +0x24 (bible B1554). `neg` is honoured, because
+    one of the loads builds its x with it and a decoder that drops it loses the load's arguments."""
+    songs, flags, stack = [], set(), []
+    for _o, op, arg in raw_ops(rom, FAREWELL_AT + 3):
+        if op in (0, 1, 29):
+            stack += list(arg)
+        elif op == 6:                                            # neg
+            stack.append(-stack.pop())
+        elif op == 20:                                           # drop
+            stack.pop()
+        elif op == 2:
+            args, stack = tuple(stack), []
+            if arg == 27 and args:                               # ext 27 set_flag
+                flags.add(args[0])
+            elif arg == MUSIC_OP and args:
+                songs.append(args[0])
+            elif arg in LOAD_READS_0X24 and len(args) >= 2:
+                entry = F.map_entry(rom, args[0], args[1])[1]
+                songs.append(_music_word(rom, u32(rom, entry + F.F_MUSIC), flags))
+        else:
+            stack = []
+    return songs, flags
+
+
 class BuildOrder(unittest.TestCase):
     def test_future_androids_runs_last(self):
         """It appends to the table battle_arena moved, and ending_fight checks that words 0, 4, 6, 8
@@ -330,13 +404,46 @@ class VanillaUntouched(unittest.TestCase):
             self.assertEqual(b["rom"][tail:tail + 8], tail_body, f"step struct of set {set_id}")
 
     def test_the_android_enemy_types_are_not_written(self):
-        """No stat change: Android 18 keeps type 4 and Android 17 type 3, both at AI 21."""
+        """Vanilla type 4 also spawns on map 8,49 and vanilla type 3 on maps 11,4, 11,5 and 11,6, so
+        the FUTURE androids get fresh entries and neither vanilla row is touched. The owner drew the
+        line himself on 2026-11-07: "We do not touch any earlier 18 and 17 fights"."""
         b = built()
         for type_id, hp in ((A18_TYPE, A18_HP), (A17_TYPE, A17_HP)):
             at = F.ENEMY_TABLE + F.ENEMY_ENTRY * type_id
             self.assertEqual(b["rom"][at:at + F.ENEMY_ENTRY], b["base"][at:at + F.ENEMY_ENTRY])
             self.assertEqual(u32(b["rom"], at + 4), hp)
             self.assertEqual(u32(b["rom"], at + 8), ANDROID_AI)
+
+    def test_each_future_android_has_its_own_weaker_type_entry(self):
+        """The owner, 2026-11-08: "The stats for future 17 and 18 should be weaker than vanilla, that
+        is actually canon ... Weaker stats, like 25%". 25 percent WEAKER, not 25 percent of vanilla.
+        HP rounds onto a multiple of 10 and the three byte stats round half up. The AI id, the two
+        damage factors and the BOSS death descriptor all stay: each death record poses the body down
+        and removes it itself, which the normal descriptor would fight."""
+        b = built()
+        want = {A18_SET: (A18_TYPE, 2180, (22, 26, 20)), A17_SET: (A17_TYPE, 2660, (24, 29, 26))}
+        self.assertEqual(sorted(b["notes"]["types"]), sorted(want))
+        for set_id, (vanilla, hp, stats) in want.items():
+            type_id = b["notes"]["types"][set_id]
+            at = F.ENEMY_TABLE + F.ENEMY_ENTRY * type_id
+            self.assertGreaterEqual(at, 0x800000, "a new type entry lives in the expansion area")
+            self.assertEqual((at - F.ENEMY_TABLE) % F.ENEMY_ENTRY, 0, "it must sit on the table stride")
+            new, old = b["rom"][at:at + F.ENEMY_ENTRY], F.TYPES[vanilla]
+            self.assertEqual(u32(new, 4), hp, f"set {set_id} HP")
+            self.assertEqual((new[0xC], new[0xD], new[0xE]), stats, f"set {set_id} STR, POW, END")
+            for off in (0, 8, 0x10, 0x14):
+                self.assertEqual(new[off:off + 4], old[off:off + 4], f"set {set_id} +0x{off:X}")
+            self.assertEqual(u32(new, 8), ANDROID_AI, f"set {set_id} keeps AI 21")
+
+    def test_the_main_game_android_enemy_items_still_name_the_vanilla_types(self):
+        """Android 18's one vanilla spawn is map 8,49 item 0 and Android 17's four are map 11,4
+        item 1, map 11,5 item 0 and map 11,6 items 0 and 4 (bible B2172). None may be retyped."""
+        b = built()
+        spawns = ((0x4033A4, A18_TYPE), (0x406494, A17_TYPE), (0x40657C, A17_TYPE),
+                  (0x406654, A17_TYPE), (0x4066E4, A17_TYPE))
+        for item, type_id in spawns:
+            self.assertEqual(u32(b["rom"], item + F.ITEM_TYPE), type_id, f"rom:0x{item:X}")
+            self.assertEqual(b["rom"][item:item + 0x20], b["base"][item:item + 0x20], f"rom:0x{item:X}")
 
     def test_the_main_game_android_map_entries_keep_every_byte(self):
         b = built()
@@ -468,7 +575,8 @@ class CloneItems(unittest.TestCase):
     set 11 and NPC set 8 standing through the whole Piccolo fight."""
 
     def test_the_two_npcs_are_built_at_load_and_the_two_enemies_are_not(self):
-        rom = built()["rom"]
+        b = built()
+        rom = b["rom"]
         items = clone_items(rom)
         self.assertEqual(len(items), CLONE_ITEMS)
         for k, (set_id, spot) in enumerate(((A18_SET, A18_AT), (A17_SET, A17_AT))):
@@ -483,7 +591,9 @@ class CloneItems(unittest.TestCase):
             self.assertEqual(u32(rom, at), ENEMY_FACTORY, f"item {k}")
             self.assertEqual(u32(rom, at + F.ITEM_COND), COND_NEVER_AT_LOAD,
                              f"item {k} must NOT exist until its own ext 104 builds it")
-            self.assertEqual(u32(rom, at + F.ITEM_TYPE), type_id)
+            self.assertEqual(u32(rom, at + F.ITEM_TYPE), b["notes"]["types"][set_id],
+                             f"item {k} must name the FUTURE android's own weaker type, not"
+                             f" vanilla type {type_id}, which the main game still spawns")
             self.assertEqual(u32(rom, at + F.ITEM_SET), set_id)
             self.assertEqual(struct.unpack_from("<hh", rom, at + F.ITEM_AT), spot)
 
@@ -537,9 +647,46 @@ class Records(unittest.TestCase):
         rom = built()["rom"]
         got = body(rom, 0)
         self.assertEqual(got[-len(ARRIVE_TAIL):], ARRIVE_TAIL)
-        self.assertEqual(got[0], (49, (42,)), "the record still opens on vanilla's own music(42)")
         self.assertNotIn((35, (1, 2, 1, 384, 552)), got, "the vanilla map 1,2 load must be gone")
         self.assertEqual([op for op, _ in got].count(39), 1, "exactly one player-building load")
+
+    def test_the_opening_music_cue_is_back_to_vanilla(self):
+        """REVERTED, and this test pins the revert so it is not quietly undone.
+
+        The owner play-tested `future_v3.gba` on 2026-11-09: "You changed the wrong track, the
+        opening is still there and plays over the music that plays when trunks walks to the time
+        machine, that needs to be reverted."
+
+        The attempt deleted record 0's opening `music(42)` and made the clone's +0x24 name 18. Both
+        are now back to vanilla's numbers. **The attempt is not known to have been wrong about what
+        it changed**, only about whether that was the track he hears, so this test asserts the
+        vanilla state and nothing about the cause."""
+        rom = built()["rom"]
+        got = body(rom, 0)
+        cues = [args[0] for op, args in got if op == MUSIC_OP]
+        self.assertEqual(cues, [OPENING_THEME, ANDROID_THEME],
+                         "record 0 opens with its vanilla cue and closes with the Android theme")
+        self.assertEqual(WALK_IN_MUSIC, OPENING_THEME,
+                         "the clone's +0x24 is vanilla's value again")
+        self.assertEqual(u32(rom, clone(rom) + F.F_MUSIC), OPENING_THEME,
+                         "and the built clone carries it")
+        self.assertNotEqual(WALK_IN_MUSIC, FAREWELL_MUSIC,
+                            "if these are equal again, the reverted change has come back")
+
+    def test_the_farewell_really_is_playing_18_when_the_ending_starts(self):
+        """Checked, not assumed: the whole farewell is read out of the built ROM.
+
+        Record 87 opens with `music(18)` and sets flag 196 BEFORE its first map load. Every map it
+        then loads carries a `+0x24` script of the shape `push F ; test_flag ; jz 3 ; push A ; end`,
+        and with 196 set every one of them returns 18, so not one of those loads restarts the
+        music. If any map in that chain returned something else, 18 would be the wrong number to
+        name on the clone and this test is where that shows."""
+        rom = built()["rom"]
+        songs, flags = _farewell_songs(rom)
+        self.assertEqual(songs[0], FAREWELL_MUSIC, "record 87 opens with music(18)")
+        self.assertIn(196, flags, "and sets flag 196 before the loads that read it")
+        self.assertEqual(set(songs), {FAREWELL_MUSIC},
+                         f"every load in the farewell has to resolve to 18, got {songs}")
 
     def test_word_0_drives_the_player_and_not_the_removed_npc(self):
         """Only the three ops that ran on map 1,2 change. The six that walk NPC 132 around map 6,23,
@@ -644,9 +791,37 @@ class DeathTables(unittest.TestCase):
             other = A17_SET if set_id == A18_SET else A18_SET
             self.assertNotIn((52, (other,)), ops, "a death record must not remove the other android")
 
+    def test_the_explosion_flashes_white_over_the_body(self):
+        """The owner, 2026-11-09: "Yes the wolrd map and the flash".
+
+        The pair has to WRAP the remove, or it covers nothing: `ext 42` takes the screen to white,
+        the body goes while it is white, and `ext 43` brings it back. The hold stays in FRONT of the
+        flash, so the spark is seen before the screen turns. Both lengths are celljr_fight's, which
+        are vanilla seq 27's and which he has play tested."""
+        rom = built()["rom"]
+        for set_id in (A18_SET, A17_SET):
+            ops = ext_sequence(rom, built()["notes"]["deaths"][set_id])
+            names = [n for n, _ in ops]
+            self.assertEqual(ops.count((42, (BOOM_FLASH,))), 1, f"set {set_id} flashes once")
+            self.assertEqual(ops.count((43, (BOOM_FLASH_WAIT,))), 1, f"set {set_id} comes back once")
+            # Every index is taken AFTER the spark: the death record holds an earlier ext 69, the
+            # collapse hold, and an index() from the start of the record would find that one.
+            spark = names.index(94)
+            hold, flash, gone, back = (names.index(n, spark) for n in (69, 42, 52, 43))
+            self.assertLess(spark, hold, "the spark comes first")
+            self.assertLess(hold, flash, "and is held in the clear before the screen turns")
+            self.assertLess(flash, gone, "the body goes UNDER the white")
+            self.assertLess(gone, back, "and the screen comes back after it has gone")
+            self.assertEqual(ops[flash:back + 1],
+                             [(42, (BOOM_FLASH,)), (52, (set_id,)), (43, (BOOM_FLASH_WAIT,))],
+                             "nothing else may run inside the flash")
+
     def test_neither_death_record_transitions(self):
         """The owner's emphasis: "she collapses -> Trunks blasts her, NO transition". So no fade, no
-        flash, no camera move, no camera hand-off and no map load, in either record.
+        camera move, no camera hand-off and no map load, in either record.
+
+        The white flash is the ONE exception, added 2026-11-09 at his request, and it is checked on
+        its own above: it may appear only as the explosion's cover, wrapped around the remove.
 
         ext 62 left that list when the approach gained its reposition, so Android 17's OWN record is
         checked for it by name here. Nothing in his record needs to move anybody, and an ext 62 that
