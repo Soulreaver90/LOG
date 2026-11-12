@@ -373,13 +373,23 @@ def _farewell_songs(rom: bytes) -> tuple:
 
 
 class BuildOrder(unittest.TestCase):
-    def test_future_androids_runs_last(self):
+    # What may run AFTER future_androids, and why each one is harmless. A module that relocates the
+    # MAP table or writes an ending record must never be added here: it would undo this module.
+    MAY_FOLLOW = {"pool_refill": "wraps the ext 73 table word; writes no map entry and no record"}
+
+    def test_future_androids_runs_after_what_it_reads(self):
         """It appends to the table battle_arena moved, and ending_fight checks that words 0, 4, 6, 8
-        and 11 are still vanilla when it runs. Either one out of order is a silent wrong build."""
+        and 11 are still vanilla when it runs. Either one out of order is a silent wrong build.
+
+        This used to assert that the module ran LAST, which was the position it happened to hold and
+        not the rule. Adding one harmless module after it failed a green suite for no defect."""
         order = built()["order"]
-        self.assertEqual(order[-1], "future_androids")
         self.assertLess(order.index("battle_arena"), order.index("future_androids"))
         self.assertLess(order.index("ending_fight"), order.index("future_androids"))
+        after = order[order.index("future_androids") + 1:]
+        unknown = [m for m in after if m not in self.MAY_FOLLOW]
+        self.assertEqual(unknown, [], f"these run after future_androids and are not in MAY_FOLLOW,"
+                                      f" so each one needs a reason: {unknown}")
 
     def test_the_two_masters_do_not_carry_this_module(self):
         for name in ("build_list.txt", "build_list_core.txt", "build_list_dev.txt"):
