@@ -108,3 +108,8 @@ docs/ledger/
 # The map editor's crash-recovery snapshots. One file per autosave tick, 30 of them for one map.
 # The owner's real work is in map-editor\maps\ and map-editor\library\, which ARE kept.
 scripts/permanent/map-editor/autosave/
+# The editor's other two recovery folders, for the same reason as autosave\: maps\older\ holds one
+# timestamped snapshot per save (24 of them for map 142), and library\deleted\ is its recycle bin.
+# Git history is the durable record of both, and these two folders grow without a bound.
+scripts/permanent/map-editor/maps/older/
+scripts/permanent/map-editor/library/deleted/
