@@ -14,6 +14,9 @@ Rules:   Pixels are 8bpp tiles in 1D order (w/8 tiles per row, 64 bytes a tile).
          A clone writes only into space handed out by the Allocator. New frames are raw type 0
          ({u32 0, u32 len, data}; dispatcher @0x0801F394 copies `size` bytes from header + 8).
          Every pointer written into a clone is a GBA address (file offset + 0x08000000).
+Sets:    `export <rom> <set id>` resolves the id through THIS ROM's own table (webfoot_decompress
+         `set_offset`, which reads the literal rom:0x959C), so a build that moved its table is read
+         correctly, ids 157-160 included.
 Source:  Set layout in docs\research\re-sprite-decompression.md "Sprite indexing". Reads through webfoot_decompress.
 """
 import json
@@ -24,7 +27,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P and -I omit the script folder
 
 from rom.rom_space import Allocator
-from rom.webfoot_decompress import ROM_BASE, SET_TABLE, frames_of, read_record, read_set, rom_ptr, unpack_frame
+from rom.webfoot_decompress import ROM_BASE, frames_of, read_record, read_set, rom_ptr, set_offset, unpack_frame
 
 # ===== constants =====
 PALETTE_OFF = 0x1DA6C8
@@ -236,7 +239,7 @@ def _main(argv: list):
         return 1
     rom = Path(argv[1]).read_bytes()
     key = argv[2]
-    set_off = int(key, 16) if key.lower().startswith("0x") else rom_ptr(rom, SET_TABLE + 4 * (int(key) - 7))
+    set_off = int(key, 16) if key.lower().startswith("0x") else set_offset(rom, int(key))
     path = export_set(rom, set_off, Path(argv[3]))
     print(path)
     counts = {}

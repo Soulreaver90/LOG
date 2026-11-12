@@ -12,9 +12,13 @@ Gate:    this file must never change what a module writes. The encoders and relo
 
 API:     encode   zigzag(v) push(*vals) ext(n, *args) code(nxt, *ops) text(nxt, portrait, line)
                   named ext ops: spawn(), walk(), fly(), pose(), sound(), ... -> the same bytes as ext(n, ...)
+                  battle_start(...) -> the standard battle start, four ops: the enemy, the bar, the HUD,
+                  the camera back. battle_start_that_opens_a_scene(...) -> the other shape, for a fight
+                  that really begins on another map: cover, load, form, frame, reveal, hold, HUD, bar.
+                  scene_harness and tests\test_battle_start.py check the same two shapes.
          decode   op_end(rom, o) ops(rom, start, end) listing(rom, start, end)
                   record_end(rom, at) decode_record(rom, at, length) -> Record (with .code of Op)
-         tables   table_words(rom, at, count) table_end(rom, at) walk(rom, at, count) records(...)
+         tables   table_words(...) table_length(rom, at) [table_end = floor] walk(...) records(...)
                   is_end_entry(word) stray_before(rom, at)
          namers   words_naming(rom, target, lo, hi) copy_and_redirect(rom, alloc, src, length, namers, ...)
 
@@ -165,7 +169,9 @@ EXT_OPS = {
     19: ("test_flag", ("flag",), "C"),          # bible section 8 flag ops
     20: ("test_flag_alt", ("flag",), "C"),
     21: ("item_count", ("item",), "C"),         # @0x080095E4 ext21_item_count
-    23: ("visited", ("map",), "C"),             # @0x080041A6 ext23_visited
+    23: ("visited", ("zone", "area"), "C"),     # @0x08009628, pops TWO and pushes the answer.
+                                                # Was ("map",): the handler pops twice, and
+                                                # chapter_cards already emits `push 8,1 ; ext 23`.
     27: ("set_flag", ("flag",), "C"),           # `00 C3 02 1B` = push 195 ; SETFLAG
     28: ("clear_flag", ("flag",), "C"),
     29: ("party_add", ("who",), "C"),           # @0x08009740, broadcast message 4 with 2n+1
@@ -210,12 +216,17 @@ EXT_OPS = {
     112: ("hit", ("set", "sound"), "L"),
     115: ("leader_alt", ("who",), "C"),         # @0x0800A680
     121: ("fly_pose", ("set", "state"), "L"),
-    131: ("gain_str", ("amount",), "C"),        # @0x08009466
-    132: ("gain_pow", ("amount",), "C"),        # @0x08009478
-    133: ("gain_end", ("amount",), "C"),        # @0x0800948A
+    # 131-133 take NO argument. Each pushes one byte of 0x03001FC0, the level-up stat gains at
+    # +1, +2 and +3 (bible row 1904). They are GETTERS: the handlers raise the stack depth. The
+    # names were right and the arity was wrong, which is how they read as setters taking an amount.
+    131: ("gain_str", (), "C"),                 # @0x08009466, pushes [0x03001FC1]
+    132: ("gain_pow", (), "C"),                 # @0x08009478, pushes [0x03001FC2]
+    133: ("gain_end", (), "C"),                 # @0x0800948A, pushes [0x03001FC3]
     135: ("flash", ("set", "r", "g", "b", "frames"), "L"),      # RGB888 pulse (PGS r29)
     136: ("walk_fast", ("set", "x", "y", "n"), "L"),            # speed n x 0x290 >> 8 (CJ2)
-    145: ("card", ("id",), "L"),                # chapter card (C4T); ext word 145 is data, not an op
+    145: ("card", ("id",), "L"),                # chapter card (C4T). NOT a real ext op: the handler
+                                                # table rom:0x3B5D28 has 145 entries, 0 to 144,
+                                                # and word 145 is 0x03000E90, IWRAM, not code.
 }
 EXT_BY_NAME = {row[0]: n for n, row in EXT_OPS.items()}
 
@@ -322,6 +333,127 @@ def appearance(character, s):
 
 def leader(who):
     return ext(70, who)
+
+
+# ===== the standard battle start =====
+# THE DEFAULT IS FOUR OPS AND NOTHING ELSE. Of the 30 records that raise a boss bar in our own trial
+# build, 25 are vanilla and every one of those 25 loads no map and runs no fade: the talk ends and the
+# fight begins on the spot. The model is Piccolo against Android 17, rom:0x3E47DC (map 11,4 word 6):
+#   ext104(9, 1) ; bar_set(9,75,100) ; header_bit1(1) ; camera_follow(0)
+# Record 0 of that same table parked camera(152,96,3) for the whole conversation, so camera_follow(0)
+# is what glides the view onto the player. battle_start() emits those four ops.
+#
+# The owner, 2026-11-06: "There should not be a fade at all after the diague! Dialogue ends fight begins
+# with a camera pan to the user and the hud appearing, like every single fight int he game."
+#
+# battle_start_that_opens_a_scene() is the OTHER shape, for a record that really does open a scene on a
+# new map. Its template is the Cell Games start, rom:0x3E9384 (map 14,3), the only vanilla record that
+# both shows a bar and loads a map:
+#   fade_out(120) ; load_map_at(14,3,1,368,440) ; ext84(5) ; leader(0) ; face(30,2) ; face(0,3)
+#   camera(328,344,10) ; spawn(60,552,96) ; fade_in(120) ; wait(60) ; camera_follow(0)
+#   header_bit1(1) ; bar_set(30,60,100) ; set_flag(192)
+# It emits that order, less ext84 and set_flag, which belong to the scene and not to the shape.
+COVER_KINDS = ("fade", "flash")         # fade_out / fade_in, or palette_fx / flash_wait
+
+
+def battle_start(*, enemy_set, enemy_item, bar=None, bar_range=None, follow=0, hud=True) -> bytes:
+    """Emit the standard battle start: the enemy, the bar, the HUD, the camera back. Four ops.
+
+    enemy_set is the set id of the LIVE NPC standing where the fight starts, and enemy_item the index
+    of the enemy item in the current map's own item list. ext 104 removes that NPC and builds the item
+    at his position and facing. CONFIRMED from Sprite_ReplaceWithEntry @0x0800AAC6 and
+    Object_SpawnFromEntry @0x0800C75C: the item is built by its OWN +0 factory, so an enemy item keeps
+    its +0x14 death event, and the item's condition is never tested. The vanilla pairing is map 11,4
+    item 0 (NPC set 9, condition 0) with item 1 (enemy set 9, condition 1).
+
+    bar is the boss's own set id. bar_range=(lo, hi) picks ext 90 bar_set, which carries a DISPLAY
+    SEGMENT for one round of a multi-round boss; without it ext 85 bar_show draws the whole bar. A
+    single round fight wants ext 85.
+
+    hud=False leaves header_bit1(1) out, for a record whose table never took the HUD away.
+    follow=None leaves camera_follow out, for a table that holds no fixed camera.
+    Returns op bytes, not a record: wrap it with code(next_index, battle_start(...)).
+
+    What the emitter cannot know: whether a live actor of enemy_set really stands there, whether the
+    item index is inside the map's count, or the boss's real bar range.
+    """
+    if bar_range is not None and bar is None:
+        raise ValueError("bar_range needs the boss set id in bar=")
+    if enemy_set == 0:
+        raise ValueError("ext 104 needs an NPC to replace: set 0 is the player, who is not the enemy")
+    out = [ext(104, enemy_set, enemy_item)]
+    if bar is not None:
+        out.append(call("bar_set", bar, *bar_range) if bar_range else call("bar_show", bar))
+    if hud:
+        out.append(call("header_bit1", 1))
+    if follow is not None:
+        out.append(call("camera_follow", follow))
+    return b"".join(out)
+
+
+def battle_start_that_opens_a_scene(*, leader_who, zone, area, var, player_xy, facing,
+                                    frame_xy, frame_speed=10, hold=60, cover=("fade", 120),
+                                    bar=None, bar_range=None, spawn_list=None,
+                                    appearance=None, follow=0, form_before_load=False) -> bytes:
+    """Emit a battle start that OPENS A SCENE: cover, load, form, frame, reveal, hold, HUD, bar.
+
+    Use this only where the fight really begins on another map. Where the talk already stands on the
+    fight's own ground, battle_start() is the shape, and a fade there is the defect the owner rejected
+    on 2026-11-06. One vanilla record in the whole game uses this shape.
+
+    The five obligations, in the template's order:
+      1. cover    (kind, frames), kind "fade" (ext 40 / ext 41) or "flash" (ext 42 / ext 43). None emits
+                  no cover, and the map load is then naked, which test_map_load_is_covered fails.
+      2. load     load_map_at(zone, area, var, *player_xy). The load places the player, so no ext 62 is
+                  needed and none is emitted.
+      3. form     appearance=(who, set) emits ext 73 BEFORE the ext 70 leader change. appearance_revert
+                  @0x08003ED4 leaves the new leader's record alone, so an ext 73 on the character who
+                  becomes leader survives. CONFIRMED (report section 0).
+      4. frame    camera(*frame_xy, frame_speed), under the cover.
+      5. reveal   the cover's closing op, then wait(hold), then the hand-back: camera_follow(follow) when
+                  follow is not None, header_bit1(1), and the bar.
+
+    form_before_load moves the form block (ext 73, then ext 70) in front of the map load. The template
+    leaves it after, and the default keeps that order byte for byte. Use True when the leader REALLY
+    changes: ext 70 writes the party roster, but the block that installs the new leader's BODY is guarded
+    (sub_0800A680: CMP r4,#0 then BEQ on Sprite_CurrentDirectory 0x03001FA8), so a scene that changes the
+    leader must let the following map load build the player from the roster. The template's own leader(0)
+    names a character who already leads, so it never proved the other order for a real change.
+
+    bar is the boss's own set id. bar_range=(lo, hi) picks ext 90 bar_set; without it ext 85 bar_show.
+    spawn_list is [(set, x, y)]; ext 51 is the one op that cannot address the player, so never spawn set 0.
+    Returns op bytes, not a record: wrap it with code(next_index, battle_start(...)).
+
+    The emitter writes the shape. It cannot know whether a story flag makes the form legal, whether
+    frame_xy survives the map view clamp, or the boss's real set and bar range.
+    """
+    if cover is not None and (len(cover) != 2 or cover[0] not in COVER_KINDS):
+        raise ValueError(f"cover must be None or (kind, frames) with kind in {COVER_KINDS}, got {cover!r}")
+    if spawn_list and any(s == 0 for s, _, _ in spawn_list):
+        raise ValueError("ext 51 spawn cannot address the player: set 0 builds a new NPC (report section 2)")
+    if bar_range is not None and bar is None:
+        raise ValueError("bar_range needs the boss set id in bar=")
+    kind, frames = cover if cover else (None, 0)
+
+    form = (ext(73, *appearance) if appearance is not None else b"") + leader(leader_who)
+
+    out = [call("palette_fx", frames) if kind == "flash" else fade_out(frames) if kind else b""]
+    if form_before_load:
+        out.append(form)
+    out.append(call("load_map_at", zone, area, var, *player_xy))
+    if not form_before_load:
+        out.append(form)
+    out.append(face(0, facing))                       # set 0 is the player, whoever leads (report section 2)
+    out.append(camera(*frame_xy, frame_speed))
+    out += [spawn(s, x, y) for s, x, y in (spawn_list or ())]
+    out.append(call("flash_wait", frames) if kind == "flash" else fade_in(frames) if kind else b"")
+    out.append(wait(hold))
+    if follow is not None:
+        out.append(call("camera_follow", follow))
+    out.append(call("header_bit1", 1))
+    if bar is not None:
+        out.append(call("bar_set", bar, *bar_range) if bar_range else call("bar_show", bar))
+    return b"".join(out)
 
 
 # ===== decoding =====
@@ -492,8 +624,64 @@ def walk(rom: bytes, at: int, count: int) -> dict:
     return dict(enumerate(table_words(rom, at, count)))
 
 
+# A table word is a record POINTER, or an END entry below 0x10000. A record lives in the vanilla
+# script region, or, once a patch has moved it, in the expansion area a build allocates from.
+# EXPANSION_REGION mirrors log2_build.BASE_SIZE and ART_REGION[0]. scene_lib must not import
+# log2_build, because the patch modules import scene_lib, so test_ext_ops pins the two together.
+TOOL_INDEX_NOTE = ("**Call `table_length()`, never `table_end()`.** `table_end()` stops at the "
+                   "first END entry, and an END entry is an ordinary table word carrying a resume "
+                   "index, not a terminator. Measured 2026-11-06: the first-END rule truncates 229 "
+                   "of 303 map-owned tables and loses 1,398 words.")
+
+SCRIPT_REGION = (0x3B0000, 0x420000)
+EXPANSION_REGION = (0x800000, 0xF00000)
+
+
+def is_record_pointer(word: int) -> bool:
+    """Does this table word name a record: a vanilla one, or one a patch moved into expansion?
+    A walker that only checks SCRIPT_REGION stops at the first moved record. Measured 2026-11-06 on
+    log2_poc_r41_arena_v7: table rom:0x3DE6F4 reads 32 words that way and 36 with this test."""
+    at = word - ROM_BASE
+    return (SCRIPT_REGION[0] <= at < SCRIPT_REGION[1]) or (EXPANSION_REGION[0] <= at < EXPANSION_REGION[1])
+
+
+def table_length(rom: bytes, at: int, limit: int = 256, records: set = None) -> int:
+    """How many words the scene table at file offset at really has. USE THIS, not table_end().
+
+    It walks while a word is an END entry or a pointer into the script region, and stops at the
+    first word that is neither. An END entry does NOT end a table: it is an ordinary word carrying
+    a resume index, and tables interleave them freely.
+
+    Measured over the 302 readable map-owned tables, the first-END rule truncates 229 of them and
+    loses 1,398 words. Re-walking with this rule raised the op census from 4,725 sites to 5,304 and
+    from 94 to 102 distinct ops.
+
+    WITHOUT records it over-reads by one word on 150 of the 302 readable base-ROM tables. The
+    extra word is always the LAST of the walk and is the first word of the next record, whose
+    header is below 0x10000 and so reads as an END entry. No site count moves, because every
+    walker skips END entries, but the length is one too high. Pass records, a set of file
+    offsets other tables name as records, and the walk stops exactly."""
+    n = 0
+    for i in range(limit):
+        if not 0 <= at + 4 * i + 4 <= len(rom):      # a null or stray pointer reaches here
+            break
+        if records and at + 4 * i in records:       # the next record starts here, not a word
+            break
+        word = struct.unpack_from("<I", rom, at + 4 * i)[0]
+        if is_end_entry(word) or is_record_pointer(word):
+            n = i + 1
+            continue
+        break
+    if n >= limit:                                  # never return the limit as a length
+        raise ValueError(f"rom:0x{at:X}: no table end in {limit} words")
+    return n
+
+
 def table_end(rom: bytes, at: int, limit: int = 256) -> int:
-    """The word count up to and including the first END entry, for a table whose length you do not know.
+    """The word count up to and including the first END entry. A FLOOR, never a length.
+
+    Call table_length() instead for any census, sweep or listing. This one stays because a few
+    callers want the first break, and because its number is in older reports.
     It reads forward from at, so the stray word before word 0 cannot shift it."""
     for i in range(limit):
         if is_end_entry(struct.unpack_from("<I", rom, at + 4 * i)[0]):

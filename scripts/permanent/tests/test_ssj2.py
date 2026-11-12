@@ -332,6 +332,11 @@ class Cpu:
             if k:
                 self.c = bool(x >> (32 - k) & 1) if op == "lsl" else bool(x >> (k - 1) & 1)
             r[d] = self._nz(x << k if op == "lsl" else x >> k)
+        elif op == "asr":                                  # the signed shift (finale_blast's copies)
+            x, k = r[REGNO[a[1]]], val(a[2])
+            if k:
+                self.c = bool(x >> (k - 1) & 1)
+            r[d] = self._nz((x - (1 << 32) if x >> 31 else x) >> k)
         else:
             raise AssertionError(f"interpreter cannot run: {text}")
         return nxt

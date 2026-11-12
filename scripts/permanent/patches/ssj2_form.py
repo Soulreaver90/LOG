@@ -323,6 +323,8 @@ def _encode(pc: int, op: str, a: list, labels: dict, syms: dict, pool: list, poo
         return h((0xB400 if op == "push" else 0xBC00) | lr << 8 | mask)
     if op in ("lsl", "lsr") and len(a) == 3:
         return h((0x0000 if op == "lsl" else 0x0800) | _imm(a[2], syms, 5) << 6 | _reg(a[1]) << 3 | _reg(a[0]))
+    if op == "asr" and len(a) == 3:                                      # format 1, the signed shift
+        return h(0x1000 | _imm(a[2], syms, 5) << 6 | _reg(a[1]) << 3 | _reg(a[0]))
     if op in ("add", "sub") and len(a) == 3:
         if a[2].startswith("#"):
             return h((0x1C00 if op == "add" else 0x1E00) | _imm(a[2], syms, 3) << 6 | _reg(a[1]) << 3 | _reg(a[0]))
