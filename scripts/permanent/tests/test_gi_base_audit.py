@@ -4,7 +4,7 @@ test_gi_base_audit.py - Tests for patches.gi_base_audit (trial 2026-10-30): set 
 
 Run (from the LOG root):
   py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_gi_base_audit.py -v
-Builds build_list_trial_gi_base.txt in memory: "before" = the list up to gi_base_audit (the main list, pinned to r40
+Builds build_list_trial_gi_base.txt in memory: "before" = the list up to gi_base_audit (the dev master, pinned
 by SHA-1), "rom" = with it. Expected frames are read from the approved PNGs here with PIL and from art\gi_base,
 never from the patch module. Counts are restated from scripts\one-time\2026-10-30-gi-base-ingest\s1_map.txt.
 """
@@ -29,12 +29,12 @@ from rom.webfoot_decompress import unpack_frame
 # ===== constants (brief, s1_map.txt) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_gi_base.txt"
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list.txt r40 (2026-10-30)
+DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"        # build_list_dev.txt, the dev master (r41, 2026-10-31)
 APPROVED = log_paths.ART / "base-audit" / "approved"
 GI_BASE = log_paths.ART / "gi_base"
 SET_TABLE_LITERAL, FIRST_ID = 0x959C, 7
 PER_ANIM = {0: 3, 3: 12, 5: 12, 9: 16, 11: 8, 12: 8, 14: 20, 17: 8, 20: 16}   # 103 approved keys
-FRAMES, CHANGED = 39, 1765                               # frame headers written; bytes that differ from r40
+FRAMES, CHANGED = 39, 1765                               # frame headers written; bytes the dev master lacks
 SHARED = ((12, 2, 0), (12, 3, 0))                        # dir 3 shows the h-flip of dir 2's frame
 
 _CACHE = {}
@@ -88,8 +88,8 @@ class ListTests(unittest.TestCase):
             self.skipTest("approved: the line is in build_list_core.txt, so build_list_trial_gi_base.txt is retired")
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["gi_base_audit"])
 
-    def test_before_is_r40(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), R40_SHA1)
+    def test_before_is_the_dev_master(self):
+        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), DEV_SHA1)
 
 
 # ===== tests: the frames land, nothing else changes =====

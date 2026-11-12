@@ -3,11 +3,11 @@ gi_art.py - Make Gohan's purple gi sprite frames (base, Super Saiyan, Super Saiy
 
 Usage:   py -3 -I scripts\permanent\art\gi_art.py all      (from the LOG root; needs art\vanilla-sets\set53,56,58,59 and,
          for compare, set60,61,129,130,137,140)
-         Commands: all | frames | sheets | anim | compare | z2   (all = frames, sheets, anim, compare; z2 on request)
+         Commands: all | frames | sheets | anim | compare | z2 | zplus   (all = frames, sheets, anim, compare)
 Output:  art\gi_base\, gi_ssj\, gi_ssj2\ (one indexed PNG per frame header, plus manifest.json with the
          geometry and the checks of every frame), contact sheets art\gi_*_sheet.png, gi_overview.png,
          gi_ssj_9_2_test_cases.png, flipbook strips and GIFs under art\anim\<form>\, the transform
-         comparison art\anim\compare_transform.png with GIFs in anim\compare\, and (z2) hud_z2*.
+         comparison art\anim\compare_transform.png with GIFs in anim\compare\, (z2) hud_z2* and (zplus) hud_zplus*.
 API:     make_gi_set(name, layout, out_dir, palette, fixes) -> None      form_layout(name) -> {key: (geometry, source)}
          armor_to_gi(px, mask, parts, key, sash_anchor, sash_cap) -> (pixels, notes)   sash_rows(name) -> dict
          finish(px, mask, key, keep, arms) -> (V, notes)
@@ -2139,6 +2139,49 @@ def make_z2_icons(rom: bytes, out_dir: Path) -> None:
     sheet.paste(small, (sheet.width - small.width - 10, sheet.height - small.height - 4))
     sheet.save(Path(out_dir) / "hud_z2.png")
 
+# ===== HUD "Z+" icon (Vegeta's second Super Saiyan grade, 2026-11-12) =====
+# Same method as the Z2 pair above, which is approved and must not change: the Z moves left inside its
+# black panel and a glyph sits at the bottom right. Only the glyph differs, so the two icons read as a set.
+
+PLUS = (".#.", "###", ".#.")                               # 3 x 3 glyph, in the corner the "2" uses
+PLUS_AT = (26, 5)
+
+def make_zplus_icons(rom: bytes, out_dir: Path) -> None:
+    """Usable and dim "Z+" icons from the "Z" icons, as raw 32x16 8bpp tiles plus a review sheet."""
+    palette = bytes(rom[PALETTE_OFF:PALETTE_OFF + PALETTE_LEN])
+    x0, y0, x1, y1 = Z_PANEL
+    imgs = {}
+    for kind, off in (("usable", Z_USABLE), ("dim", Z_DIM)):
+        img = tiles_to_image(bytes(rom[off:off + ICON_LEN]), 32, 16, palette)
+        old = img.copy()
+        for y in range(y0, y1 + 1):                             # clear the panel to black, then redraw the Z
+            for x in range(x0, x1 + 1):
+                img.putpixel((x, y), 1)
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                v = old.getpixel((x, y))
+                if v != 1 and x0 <= x - Z_SHIFT:
+                    img.putpixel((x - Z_SHIFT, y), v)
+        for dy, line in enumerate(PLUS):
+            for dx, c in enumerate(line):
+                if c == "#":
+                    img.putpixel((PLUS_AT[0] + dx, PLUS_AT[1] + dy), TWO_COLOR[kind])
+        (Path(out_dir) / f"hud_zplus_{kind}.bin").write_bytes(image_to_tiles(img))
+        imgs[kind] = (old, img)
+    s = 10
+    sheet = Image.new("RGB", (2 * (32 * s + 20) + 20, 2 * (16 * s + 20) + 30), SHEET_BG)
+    draw = ImageDraw.Draw(sheet)
+    draw.text((10, 4), "top: LoG II Z (usable, dim)   bottom: Z+ (usable, dim)   10x", fill=(0, 0, 0))
+    for i, kind in enumerate(("usable", "dim")):
+        for j, img in enumerate(imgs[kind]):
+            big = img.convert("RGB").resize((32 * s, 16 * s), Image.NEAREST)
+            sheet.paste(big, (10 + i * (32 * s + 20), 20 + j * (16 * s + 20)))
+    small = Image.new("RGB", (32 * 2 + 12, 16 + 8), SHEET_BG)
+    for i, kind in enumerate(("usable", "dim")):
+        small.paste(imgs[kind][1].convert("RGB"), (4 + i * 36, 4))
+    sheet.paste(small, (sheet.width - small.width - 10, sheet.height - small.height - 4))
+    sheet.save(Path(out_dir) / "hud_zplus.png")
+
 # ===== hand fixes and check exceptions =====
 # Hand fixes are applied last, in the image of the output frame: {folder: {"anim.dir.index": {(x, y): index}}}.
 # Index 0 clears a pixel. fix_rows("x,y: i i i") sets pixels from (x, y) to the right.
@@ -2247,7 +2290,7 @@ def make_compare() -> None:
     transform_test_sheet(ART / "gi_ssj_9_2_test_cases.png")
 
 def _main(argv: list) -> int:
-    if not argv or argv[0] not in ("all", "frames", "sheets", "anim", "compare", "z2"):
+    if not argv or argv[0] not in ("all", "frames", "sheets", "anim", "compare", "z2", "zplus"):
         print(__doc__)
         return 1
     cmd = argv[0]
@@ -2261,6 +2304,8 @@ def _main(argv: list) -> int:
         make_compare()
     if cmd == "z2":
         make_z2_icons(BASE_ROM.read_bytes(), ART)
+    if cmd == "zplus":
+        make_zplus_icons(BASE_ROM.read_bytes(), ART)
     for name in FORMS:
         man = load_manifest(ART / name)
         bad = [(m, failing(m)) for m in man if failing(m) and not m["check_exception"]]

@@ -4,7 +4,7 @@ test_sprite_lab.py - Tests for patches.sprite_lab (trial 2026-10-31): the sprite
 
 Run (from the LOG root):
   py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_sprite_lab.py -v
-Builds build_list_trial_spritelab.txt in memory: "r40" = the dev master (pinned by SHA-1) and "rom" = that
+Builds build_list_trial_spritelab.txt in memory: "dev" = the dev master (pinned by SHA-1) and "rom" = that
 list plus sprite_lab. The trial includes the dev master, so it carries the gi art. The wrapper is decoded with thumb_dis, never with the encoder. The enter script is
 decoded with scene_lib's own op walker. Expected values are restated from
 docs\tasks\2026-10-31-sprite-lab\sprite-lab.md and from the ROM reads in
@@ -19,12 +19,12 @@ from scene import scene_lib
 from patches import sprite_lab
 from rom.thumb_dis import listing
 
-# ===== constants (brief, the task probes, the base and r40 bytes) =====
+# ===== constants (brief, the task probes, the base and dev master bytes) =====
 ROM_BASE = 0x08000000
 ROOT = log2_build.ROOT
 DEV_LIST = log2_build.DEV_LIST                                  # the trial list includes this, not golden
 TRIAL_LIST = ROOT / "scripts" / "permanent" / "build_list_trial_spritelab.txt"
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"
+DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"       # the dev master (r41, 2026-10-31)
 # The hook: vt_player (symbols.py) slot +8, whose only reference the codemap names "vt_player+0x8".
 VT_PLAYER, HOOK, VANILLA_PLAYER_UPDATE = 0x08025604, 0x2560C, 0x08008767
 # The lab map: zone 8 area 36, entry rom:0x40C778 (s7_spots.txt). Its name index +0xC is 222.
@@ -57,16 +57,16 @@ class Built(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.r40, _ = log2_build.assemble(log2_build.BASE, log2_build.read_build_list(DEV_LIST))
+        cls.dev, _ = log2_build.assemble(log2_build.BASE, log2_build.read_build_list(DEV_LIST))
         cls.rom, cls.alloc = log2_build.assemble(log2_build.BASE, log2_build.read_build_list(TRIAL_LIST))
         cls.note = cls.alloc.notes["sprite_lab"]
         cls.base = log2_build.BASE.read_bytes()
 
 
 class ListTests(Built):
-    def test_the_dev_list_still_rebuilds_to_r40(self):
+    def test_the_dev_list_still_rebuilds_to_the_dev_master(self):
         """The one test the brief names: sprite_lab must not change the shipped build."""
-        self.assertEqual(hashlib.sha1(bytes(self.r40)).hexdigest(), R40_SHA1)
+        self.assertEqual(hashlib.sha1(bytes(self.dev)).hexdigest(), DEV_SHA1)
 
     def test_the_trial_list_is_dev_plus_sprite_lab(self):
         dev = log2_build.read_build_list(DEV_LIST)
@@ -203,7 +203,7 @@ class HookTests(Built):
     def test_the_hooked_slot_held_the_vanilla_player_update(self):
         """Vtable words are base-relative: vt_player + word = the Thumb target (CHF bible row)."""
         self.assertEqual((VT_PLAYER + _u32(self.base, HOOK)) & 0xFFFFFFFF, VANILLA_PLAYER_UPDATE)
-        self.assertEqual(_u32(self.base, HOOK), _u32(self.r40, HOOK), "r40 must leave the slot vanilla")
+        self.assertEqual(_u32(self.base, HOOK), _u32(self.dev, HOOK), "the dev master leaves the slot vanilla")
 
     def test_the_hook_now_names_the_wrapper(self):
         want = (self.note["wrapper"] + ROM_BASE) | 1
@@ -248,7 +248,7 @@ class SiteTests(Built):
         sites = [(s, s + n - 1) for s, n, _ in self.note["sites"]]
         runs, cur = [], None
         for i in range(len(self.rom)):
-            if self.rom[i] != self.r40[i]:
+            if self.rom[i] != self.dev[i]:
                 cur = [i, i] if cur is None else cur
                 cur[1] = i
             elif cur is not None:
@@ -269,7 +269,7 @@ class SiteTests(Built):
         for key, size_key in (("wrapper", "size"), ("enter_script", "enter_script_size")):
             at, size = self.note[key], self.note[size_key]
             self.assertGreaterEqual(at, 0x800000)
-            self.assertEqual(set(self.r40[at:at + size]), {0xFF}, f"{key} chunk was not free in r40")
+            self.assertEqual(set(self.dev[at:at + size]), {0xFF}, f"{key} chunk was not free in the dev master")
 
     def test_a_second_run_raises(self):
         with self.assertRaises(ValueError):

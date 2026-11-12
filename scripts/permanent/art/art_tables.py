@@ -81,7 +81,11 @@ def dialog_indices(rom: bytes) -> set:
 
 
 def allowed_indices(rom: bytes, palette: dict) -> set:
-    return (dialog_indices(rom) | set(palette)) - NEVER
+    # The whole OBJ table, because the whole OBJ table is live. It is DMA'd to OBJ palette RAM at
+    # 0x05000200 as one 512 byte block, and only entries 0 and 168 are written at run time (B0250).
+    # This used to return only the indices a VANILLA dialog portrait happens to use, which refused
+    # 72 real colours that palette_export.py hands the artist in log2-obj-256.gpl.
+    return (set(range(256)) | set(palette)) - NEVER
 
 
 def check_palette_entry(rom: bytes, palette: dict, index: int, rgb: tuple) -> tuple:

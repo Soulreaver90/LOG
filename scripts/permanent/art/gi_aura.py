@@ -157,6 +157,11 @@ def reference_compare() -> dict:
         gold = Image.open(GOLDEN / f"golden_gi_ssj2_d{d}.png")
         px, pal = gold.tobytes(), gold.getpalette()
         gif, diffs = Image.open(REF_DIR / f"aura2_outline_d{d}.gif"), []
+        # Pillow writes no gif frame for one identical to the frame before it, so a reference whose
+        # columns ever repeat would make these seeks compare the WRONG column, silently.
+        if gif.n_frames != REF_COLUMNS:
+            raise ValueError(f"aura2_outline_d{d}.gif holds {gif.n_frames} frames, not "
+                             f"{REF_COLUMNS}: the seeks below would compare the wrong column")
         for c in range(REF_COLUMNS):
             gif.seek(c)
             want = gif.convert("RGB").tobytes()
@@ -173,11 +178,11 @@ def _seeded(tag: str, *parts) -> random.Random:
 
 
 def _layout_rows(set_id: int) -> set:
-    """(anim, dir) rows of a base ROM set (set 58 for Rage)."""
+    """(anim, dir) rows of a base ROM set (set 58 for Rage), through that ROM's own set table."""
     from rom.log2_sprites import set_records
-    from rom.webfoot_decompress import SET_TABLE, rom_ptr
+    from rom.webfoot_decompress import set_offset
     rom = BASE_ROM.read_bytes()
-    return {(r["anim"], r["dir"]) for r in set_records(rom, rom_ptr(rom, SET_TABLE + 4 * (set_id - 7)))}
+    return {(r["anim"], r["dir"]) for r in set_records(rom, set_offset(rom, set_id))}
 
 
 def _load(folder: Path) -> tuple:

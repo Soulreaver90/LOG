@@ -26,7 +26,8 @@ LIST = ["gohan_gi", "ssj2_form", "gohan_portraits", "status_bonus", "ssj2_idle",
         "rage_text", "art_inject", "status_portrait", "rage_stats", "cellgames_ssj", "scene_drain_pause",
         "fullpower_ssj", "piccolo_gi_scene", "superperfect_cell", "chamber_spar",   # r37: chamber_spar
         "bf_hud", "bf_ki_pool",                                                    # r39: the HUD v2b
-        "relay_cooldown", "fullpower_hud", "beam_struggle", "vegeta_ssj_scene"]    # r40: four approved trials
+        "relay_cooldown", "fullpower_hud", "beam_struggle", "vegeta_ssj_scene",    # r40: four approved trials
+        "chapter_cards", "vegeta_19_reveal", "celljr_fight"]                       # r41: three approved trials
 R22_NOTES = {   # what r22 (portrait_remaster twice) gave each patch; art_inject must not move any of it
     "npc_gi": {"block": 0x894EAC, "pool": 0x894EA8, "pre_id": 121},
     "rage_text": {"record": 0x895434, "size": 0x31},
@@ -212,13 +213,21 @@ class ArtInjectTests(unittest.TestCase):
         self.assertEqual(rom[at.OBJ_PAL:at.OBJ_PAL + 512], BASE_ROM[at.OBJ_PAL:at.OBJ_PAL + 512])
         self.assertEqual(rom[at.RGB_TABLE:at.RGB_TABLE + 1536], BASE_ROM[at.RGB_TABLE:at.RGB_TABLE + 1536])
 
-    def test_a_palette_entry_makes_its_index_usable(self):
+    def test_the_gate_allows_the_whole_obj_table_but_not_the_live_entry(self):
+        """The OBJ palette reaches the screen as one 512 byte DMA block, so every index in it is a
+        real colour (B0250). The gate used to allow only the subset a VANILLA dialog portrait
+        happens to use, and it refused 71 colours that palette_export.py hands the artist in the
+        .gpl. Index 168 is still refused, because the engine writes that entry at run time and art
+        drawn through it does not keep the colour it was drawn in."""
         index, rgb = SKIN
         px = edited(65, index)
-        with self.assertRaisesRegex(ValueError, "not dialog portrait colors"):
-            art_only({}, {**self.png, 65: px})
-        rom, _ = art_only({index: rgb}, {**self.png, 65: px})
+        rom, _ = art_only({}, {**self.png, 65: px})            # no palette entry needed any more
         self.assertEqual(at.live_frame(rom, self.block, 65)[1], px)
+        rom, _ = art_only({index: rgb}, {**self.png, 65: px})  # and an entry still sets the colour
+        self.assertEqual(at.live_frame(rom, self.block, 65)[1], px)
+        self.assertEqual(at.obj_palette(rom)[index], rgb)
+        with self.assertRaisesRegex(ValueError, "not dialog portrait colors"):
+            art_only({}, {**self.png, 65: edited(65, 168)})
 
     def test_status_page_shows_the_table_art(self):
         table = self.notes["ssj2_form"]["table"]
