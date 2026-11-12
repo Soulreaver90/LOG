@@ -1,0 +1,4 @@
+# Trial: Super Namek from the start, with the healing removed (2026-11-12, phase 1 of two).
+# The dev master plus one module. Neither master list changes, so both master SHA-1s stay.
+include build_list_dev.txt
+piccolo_z_start     # slot 2 open on the default record; the Namek tick moves to the ki pool tick (no HP heal)
