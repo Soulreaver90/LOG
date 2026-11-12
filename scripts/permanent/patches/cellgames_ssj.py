@@ -73,6 +73,14 @@ RECORDS = {
         0x13: ("0000", (GOHAN_SSJ_RECORD + GOHAN_EP_FULL).hex() + "0000")}),     # before push 0 ; ext 70
 }
 
+# tests\test_battle_start.py rule 6: a record that raises a boss bar loads no map and opens no fade.
+# The Cell Games start is the one vanilla record in the whole game that does both, because the fight
+# really does begin on another map. This copy keeps that vanilla shape, so it is declared here. The
+# key is a path into this module's own alloc.notes: an allocated record moves when an earlier one does.
+BATTLE_START_EXCEPTIONS = {
+    "records.fight_cell_seq21": "the Cell Games start really opens a scene: the fight is on map 14,3",
+}
+
 
 def _u32(rom: bytes, off: int) -> int:
     return struct.unpack_from("<I", rom, off)[0]

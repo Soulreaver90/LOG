@@ -16,7 +16,8 @@ test_celljr_fight.py - Tests for patches.celljr_fight (trial 2026-10-24): 7 Cell
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_celljr_fight.py -v
-Builds build_list_trial.txt in memory: "before" = the list up to celljr_fight (the main list, r40), "rom" = with it.
+Builds build_list_trial.txt in memory (from r41 an alias of build_list_dev.txt): "before" = the list up to
+celljr_fight (r40 + chapter_cards + vegeta_19_reveal), "rom" = with it (= the r41 dev master); both pinned.
 Scripts are decoded with test_cellgames_ssj's decoder (ops) and run in a small stack model here. Expected values
 are restated from docs\tasks\2026-10-24-celljr-trial\celljr-trial*.md (final decisions v1-v5),
 docs\tasks\2026-10-30-celljr-rework\celljr-rework.md (v6), the plan docs\tasks\2026-10-30-celljr-rework-plan\
@@ -140,8 +141,11 @@ ARITY = {1: 0, 24: 1, 29: 1, 30: 1, 31: 3, 33: 1, 39: 5, 40: 1, 41: 1, 42: 1, 43
          90: 3, 94: 3, 95: 1, 96: 3, 110: 2, 112: 2, 119: 0, 121: 2, 136: 4, 139: 1}
 GETTERS = {0, 1, 2, 3}
 
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list.txt r40 (2026-10-30; r39 was aa51dc16)
-R40_MODULES = ("relay_cooldown", "fullpower_hud", "beam_struggle", "vegeta_ssj_scene")
+# The r41 chain: the r41 dev master is BEFORE_SHA1 + celljr_fight. BEFORE_SHA1 is built here (2026-11-02).
+BEFORE_SHA1 = "644e4fcaed2dfd10192a332c9503a7ccb4242ddd"     # r40 + chapter_cards + vegeta_19_reveal
+DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"        # build_list_dev.txt, the dev master (r41, 2026-10-31)
+PRIOR_MODULES = ("relay_cooldown", "fullpower_hud", "beam_struggle", "vegeta_ssj_scene",   # r40
+                 "chapter_cards", "vegeta_19_reveal")                                      # r41
 _CACHE = {}
 
 
@@ -358,18 +362,22 @@ def bind_set_31(got: list) -> list:
 class ListTests(unittest.TestCase):
     def test_trial_list_is_the_main_list_plus_the_trial_line(self):
         dev = log2_build.read_build_list(log2_build.DEV_LIST)
-        if "celljr_fight" in dev:
-            self.skipTest("approved: the trial line is in build_list_core.txt, so build_list_trial.txt is retired")
+        if "celljr_fight" in dev:                            # approved in r41: the trial list is an alias of dev
+            self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev)
+            self.assertEqual(dev[dev.index("celljr_fight") - 1], "vegeta_19_reveal")   # the r41 order
+            return
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["celljr_fight"])
 
-    def test_before_is_r40(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), R40_SHA1)
+    def test_before_and_the_dev_master_are_pinned(self):
+        b = built()
+        self.assertEqual(hashlib.sha1(b["before"]).hexdigest(), BEFORE_SHA1)
+        self.assertEqual(hashlib.sha1(b["rom"]).hexdigest(), DEV_SHA1)
 
-    def test_no_write_inside_an_r40_module_site(self):
-        """celljr_fight checks no other module's sites, and from r40 it runs after vegeta_ssj_scene."""
+    def test_no_write_inside_an_earlier_module_site(self):
+        """celljr_fight checks no other module's sites, and it runs after vegeta_19_reveal."""
         b = built()
         notes = b["alloc_before"].notes
-        sites = [(s[0], s[1], m) for m in R40_MODULES for s in notes[m]["sites"]]
+        sites = [(s[0], s[1], m) for m in PRIOR_MODULES for s in notes[m]["sites"]]
         self.assertEqual([(hex(s), m) for s, n, m in sites if b["rom"][s:s + n] != b["before"][s:s + n]], [])
 
     def test_second_run_raises(self):

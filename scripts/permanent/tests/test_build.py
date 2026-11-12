@@ -73,7 +73,12 @@ class BuildTests(unittest.TestCase):
                 build(bad, OUT_DIR / "bad.gba", [])
 
     def test_command_line_runs_isolated(self):
+        """A SUBPROCESS build, so setUp's mock of BUILD_LOG cannot reach it. On 2026-11-06 this test
+        wrote `build cli.gba` into the real docs\\build-log.md and still passed, because nothing here
+        looked at the real log. The assertion below is what was missing."""
         out = OUT_DIR / "cli.gba"
+        real = log2_build.ROOT / "docs" / "build-log.md"
+        before = real.read_bytes() if real.is_file() else b""
         script = ROOT / "scripts" / "permanent" / "log2_build.py"
         res = subprocess.run([sys.executable, "-I", str(script), "--out", str(out),
                               "--log", str(TEST_LOG)], capture_output=True, text=True,
@@ -81,6 +86,26 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn(PADDED_SHA1, res.stdout)
         self.assertEqual(len(out.read_bytes()), FULL_SIZE)
+        after = real.read_bytes() if real.is_file() else b""
+        self.assertEqual(before, after, "a test build reached the real docs\\build-log.md")
+
+    def test_a_throwaway_build_never_reaches_the_project_log(self):
+        """The project log is keyed on WHERE the ROM lands, not on --log, which a caller can forget."""
+        self.assertTrue(log2_build.is_throwaway(OUT_DIR / "nopatch.gba"))
+        self.assertTrue(log2_build.is_throwaway(OUT_DIR / "deeper" / "nopatch.gba"))
+        self.assertFalse(log2_build.is_throwaway(log_paths.BUILDS / "log2_poc_r41.gba"))
+        self.assertFalse(log2_build.is_throwaway(log_paths.BUILDS / "mockups" / "x" / "trial.gba"))
+
+    def test_a_real_build_always_appends_even_when_log_names_another_file(self):
+        """--log adds a SECOND copy beside the ROM. It must never replace the project log, which is how
+        arena v2 and v3 were built, shipped and reviewed without a line in docs\\build-log.md."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project, extra = Path(tmp) / "build-log.md", Path(tmp) / "beside-the-rom.log"
+            with mock.patch.object(log2_build, "BUILD_LOG", project), \
+                 mock.patch.object(log2_build, "EXTRA_LOG", extra):
+                build(BASE, Path(tmp) / "real.gba", [])
+            self.assertIn("build real.gba", project.read_text(encoding="utf-8"))
+            self.assertIn("build real.gba", extra.read_text(encoding="utf-8"))
 
     def test_list_option_reads_the_main_list_or_a_named_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -139,14 +164,17 @@ class BuildTests(unittest.TestCase):
                     log2_build.read_build_list(d / name)
 
     def test_every_trial_list_is_dev_plus_its_own_lines(self):
-        """A trial carries the work-in-progress gi art, so it includes the dev master, not the golden one."""
+        """A trial carries the work-in-progress gi art, so it includes the dev master, not the golden one.
+        A trial may include another trial instead, which is how build_list_trial_trunkstank.txt builds on
+        the sprite lab. Either way the expanded names must still start with the whole dev master."""
         dev = log2_build.read_build_list(log2_build.DEV_LIST)
         lists = sorted(log2_build.BUILD_LIST.parent.glob("build_list_trial*.txt"))
         self.assertLessEqual({"build_list_trial.txt", "build_list_trial_chapters.txt",
                               "build_list_trial_vegeta19.txt"}, {p.name for p in lists})
         for path in lists:
             lines = [ln.split("#", 1)[0].strip() for ln in path.read_text(encoding="utf-8").splitlines()]
-            self.assertEqual([ln for ln in lines if ln][0], "include build_list_dev.txt", path.name)
+            first = [ln for ln in lines if ln][0]
+            self.assertRegex(first, r"^include build_list_(dev|trial_\w+)\.txt$", path.name)
             names = log2_build.read_build_list(path)
             self.assertEqual(names[:len(dev)], dev, path.name)
             self.assertFalse(set(names[len(dev):]) & set(dev), path.name)
@@ -215,7 +243,7 @@ class SavePairingTests(unittest.TestCase):
 
     def test_seed_save_picks_the_highest_main_build_and_skips_scenario_saves(self):
         seed = log2_build.seed_save()
-        self.assertIsNotNone(seed, "no builds\log2_poc_r<N>.sav to seed from")
+        self.assertIsNotNone(seed, r"no builds\log2_poc_r<N>.sav to seed from")
         self.assertRegex(seed.name, r"^log2_poc_r\d+\.sav$")
         numbers = [int(p.stem[len("log2_poc_r"):]) for p in (ROOT / "builds").glob("log2_poc_r*.sav")
                    if p.stem[len("log2_poc_r"):].isdigit()]

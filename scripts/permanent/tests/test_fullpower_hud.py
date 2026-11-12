@@ -4,7 +4,7 @@ test_fullpower_hud.py - Tests for patches.fullpower_hud (trial 2026-10-25): the 
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_fullpower_hud.py -v
-Builds build_list_trial_fullpower.txt in memory (from r40 an alias of build_list.txt): "before" = the list up to
+Builds build_list_trial_fullpower.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
 fullpower_hud (r39 + relay_cooldown, pinned by SHA-1), "rom" = before + fullpower_hud only. New code is decoded with thumb_dis (never with the encoder) and run with
 tests.test_bf_ki_pool.Cpu2 (thumb_dis text; stretch_on, pool_ref and bf_ki_pool's hud_draw run for real; the
 vanilla Super Saiyan enter, the vanilla HUD draw and the ARM divide are stubs). Expected values are restated from

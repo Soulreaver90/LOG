@@ -4,7 +4,7 @@ test_beam_struggle.py - Tests for patches.beam_struggle (trial 2026-10-25): the 
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_beam_struggle.py -v
-Builds build_list_trial_beam.txt in memory (from r40 an alias of build_list.txt): "before" = the list up to
+Builds build_list_trial_beam.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
 beam_struggle (r39 + relay_cooldown + fullpower_hud, pinned by SHA-1), "rom" = before + beam_struggle only (pinned).
 One test also builds r39 + beam_struggle, the trial ROM I played (pinned). Every record is decoded from
 the ROM with webfoot_decompress (never with the module's encoder). Expected values are restated from the base

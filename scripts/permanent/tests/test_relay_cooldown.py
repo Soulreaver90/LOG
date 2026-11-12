@@ -4,7 +4,7 @@ test_relay_cooldown.py - Tests for patches.relay_cooldown (trial 2026-10-25): a 
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_relay_cooldown.py -v
-Builds build_list_trial_cooldown.txt in memory (from r40 an alias of build_list.txt): "before" = the list up to
+Builds build_list_trial_cooldown.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
 relay_cooldown (r39, pinned by SHA-1), "rom" = before + relay_cooldown only (later r40 modules are not applied). The wrapper is decoded with thumb_dis (never with the encoder) and run with
 tests.test_ssj2.Cpu, which executes thumb_dis text. Expected values are restated from
 docs\tasks\2026-10-24-form-cooldown\relay-cooldown-trial.md, form-cooldown-report.md and the r39 bytes, never

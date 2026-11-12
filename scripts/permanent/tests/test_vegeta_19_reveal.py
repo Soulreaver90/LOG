@@ -5,8 +5,9 @@ test_vegeta_19_reveal.py - Tests for patches.vegeta_19_reveal (trial 2026-10-30)
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_vegeta_19_reveal.py -v
-Builds build_list_trial_vegeta19.txt in memory: "before" = the list up to vegeta_19_reveal (the main list, pinned to
-r40 by SHA-1), "rom" = with it. Scripts are decoded with test_cellgames_ssj's decoder. The form proof runs the
+Builds build_list_trial_vegeta19.txt in memory (from r41 an alias of build_list_dev.txt): "before" = the list up
+to vegeta_19_reveal (r40 + chapter_cards, pinned by SHA-1), "rom" = before + vegeta_19_reveal only (celljr_fight
+is not applied). Scripts are decoded with test_cellgames_ssj's decoder. The form proof runs the
 ROM's own code (ext 126, ext 11, the state 35 callback chain into transform(player, 1), the pool fill, the pool
 tick, ability 12) as thumb_dis text in test_bf_ki_pool's Cpu2; sound and the form methods are stubs at their
 addresses. Expected values are restated from docs\tasks\2026-10-30-vegeta-19\vegeta-19-trial.md, plan-report.md
@@ -27,7 +28,7 @@ from tests.test_cellgames_ssj import diff, ext_sequence, ops
 # ===== constants (brief, plan item 11, base reads) =====
 ROM_BASE, M32 = 0x08000000, 0xFFFFFFFF
 TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_vegeta19.txt"
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list.txt r40 (2026-10-30; r39 was aa51dc16)
+BEFORE_SHA1 = "b1743beb4bb73217ae0474d3e1ef25e08efa8da1"     # r40 + chapter_cards (log2_poc_r40_chapters_v12)
 TABLE, TABLE_NAMER = 0x3D40C8, 0x3FD4F4                 # Android 19 table, named by map 7,15 region 0 item
 WORD40, WORD41 = 0x3D4168, 0x3D416C                     # seq 41 (the line) and seq 42 (the fight start)
 SEQ41, SEQ42 = 0x3D4076, 0x3D40B2
@@ -74,7 +75,7 @@ def built() -> dict:
         i = names.index("vegeta_19_reveal")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
         _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
-        log2_build.apply_patches(rom, alloc, names[i:])
+        log2_build.apply_patches(rom, alloc, ["vegeta_19_reveal"])   # this module alone: celljr_fight follows
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["vegeta_19_reveal"], labels=alloc.notes["bf_ki_pool"]["labels"])
     return _CACHE
 
@@ -94,12 +95,14 @@ def words(rom: bytes, lo: int, hi: int) -> list:
 class ListTests(unittest.TestCase):
     def test_trial_list_is_the_main_list_plus_the_trial_line(self):
         dev = log2_build.read_build_list(log2_build.DEV_LIST)
-        if "vegeta_19_reveal" in dev:
-            self.skipTest("approved: the line is in build_list_core.txt, so build_list_trial_vegeta19.txt is retired")
+        if "vegeta_19_reveal" in dev:                        # approved in r41: the trial list is an alias of dev
+            self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev)
+            self.assertEqual(dev[dev.index("vegeta_19_reveal") - 1], "chapter_cards")
+            return
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["vegeta_19_reveal"])
 
-    def test_before_is_r40(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), R40_SHA1)
+    def test_before_is_r40_plus_chapter_cards(self):
+        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), BEFORE_SHA1)
 
 
 class FailClosedTests(unittest.TestCase):

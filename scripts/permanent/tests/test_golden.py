@@ -24,8 +24,8 @@ from rom.webfoot_decompress import SET_TABLE, rom_ptr, unpack_frame
 # ===== constants =====
 ROM_BASE = 0x08000000
 SET_TABLE_LITERAL, FIRST_ID = 0x959C, 7
-GOLDEN_SHA1 = "232fcceb9292adddbbf567bee8c1b8fc4d229551"      # build_list.txt, the golden master (2026-10-31)
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list_dev.txt r40, byte for byte
+GOLDEN_SHA1 = "acf1b15f46628255bdf00d025464b807ce7410a9"      # build_list.txt, the golden master (r41, 2026-10-31)
+DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"         # build_list_dev.txt, the dev master (r41, 2026-10-31)
 NOTE_KEYS = ["appearance_copy", "set_157", "set_158", "set_159", "set_160", "set_table"]
 LAYOUTS = {157: 56, 158: 59, 159: 59, 160: 58}               # new set id: the vanilla set it is laid out from
 IDLE = {157: 2, 158: 2, 159: 6, 160: 6}                      # anim 0 records per dir each set publishes
@@ -64,7 +64,7 @@ def vanilla_keys(set_id: int) -> dict:
 def expected_keys(set_id: int) -> dict:
     """What golden must publish: every vanilla record, with anim 0 widened to IDLE[set_id] records a dir.
     The tests index by this map, because set_records walks a rebuilt set past the end of a packed list and
-    reports records the patch never wrote. It reports the same extra records for dev, which is r40."""
+    reports records the patch never wrote. It reports the same extra records for the dev build too."""
     vanilla = vanilla_keys(set_id)
     shapes = IDLE[set_id] // 2                               # vanilla publishes 2 idle records a dir
     out = {k: v for k, v in vanilla.items() if k[0] != 0}
@@ -97,9 +97,9 @@ class BuildTests(unittest.TestCase):
     def test_golden_builds_to_its_pinned_sha1(self):
         self.assertEqual(hashlib.sha1(built()["golden"]).hexdigest(), GOLDEN_SHA1)
 
-    def test_dev_still_rebuilds_to_r40(self):
-        """The arbiter of the split: dev is r40 byte for byte, so every trial keeps its SHA-1."""
-        self.assertEqual(hashlib.sha1(built()["dev"]).hexdigest(), R40_SHA1)
+    def test_dev_builds_to_its_pinned_sha1(self):
+        """The arbiter of the split: dev carries the gi art over the same tail, so every trial keeps its SHA-1."""
+        self.assertEqual(hashlib.sha1(built()["dev"]).hexdigest(), DEV_SHA1)
 
     def test_both_masters_publish_the_same_six_note_keys(self):
         b = built()

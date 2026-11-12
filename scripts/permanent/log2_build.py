@@ -10,7 +10,8 @@ Lists:   one patch name a line, '#' starts a comment. 'include <file>' (path rel
          follows dev. A missing file, an include cycle or a name listed twice (after expansion) raises.
 Masters: build_list.txt is the GOLDEN master and the default of --list. build_list_dev.txt is the DEV master.
          They differ in line 1 only (gohan_gi_vanilla against gohan_gi) and both include build_list_core.txt.
-Output:  builds\log2_hack.gba, SHA-1 printed, one line appended to docs\build-log.md.
+Output:  builds\log2_hack.gba, SHA-1 printed, one line appended to docs\build-log.md. That append ALWAYS
+         happens. --log PATH adds a second copy of the same line beside the ROM; it does not redirect.
 Saves:   a ROM with no .sav beside it opens as a new game, so every build pairs one. The seed is the save
          of the highest numbered main build (builds\log2_poc_r<N>.sav), or --save PATH. Suffixed builds
          (_spar, _computer) are skipped: they hold scenario saves. An existing .sav is never replaced.
@@ -40,7 +41,8 @@ from rom.rom_space import Allocator  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
 OUT = log_paths.BUILDS / "log2_hack.gba"
-BUILD_LOG = ROOT / "docs" / "build-log.md"
+BUILD_LOG = ROOT / "docs" / "build-log.md"           # ALWAYS written. --log adds a second file, never replaces this
+EXTRA_LOG = None                                     # --log <path>: a per-build copy beside the ROM
 BUILD_LIST = ROOT / "scripts" / "permanent" / "build_list.txt"       # the golden master, and the --list default
 DEV_LIST = BUILD_LIST.parent / "build_list_dev.txt"                  # the dev master, which every trial includes
 BASE_SIZE = 8388608
@@ -124,6 +126,15 @@ def pair_save(out: Path, src: Path = None) -> None:
     print(f"save seeded from {Path(src).name}")
 
 
+def is_throwaway(out: Path) -> bool:
+    """A ROM the tests rebuild every run. It never belongs in the project build log."""
+    try:
+        out.resolve().relative_to(log_paths.TEST_ROMS.resolve())
+        return True
+    except ValueError:
+        return False
+
+
 def build(base: Path, out: Path, patch_names: list, save: Path = None) -> str:
     out = Path(out).resolve()
     if (ROOT / "data").resolve() in out.parents:
@@ -134,22 +145,28 @@ def build(base: Path, out: Path, patch_names: list, save: Path = None) -> str:
     sha = hashlib.sha1(rom).hexdigest()
     print(f"{out.name} sha1={sha}")
     pair_save(out, save)
-    BUILD_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with BUILD_LOG.open("a", encoding="utf-8", newline="\n") as f:
-        f.write(f"- {datetime.now():%Y-%m-%d %H:%M} build {out.name} patches="
-                f"{','.join(patch_names) or 'none'} sha1={sha}\n")
+    line = (f"- {datetime.now():%Y-%m-%d %H:%M} build {out.name} patches="
+            f"{','.join(patch_names) or 'none'} sha1={sha}\n")
+    # The project log is keyed on WHERE the ROM lands, never on a flag. Until 2026-11-06 --log REPLACED
+    # it, so arena v2 and v3 shipped without ever reaching docs\build-log.md. A throwaway under
+    # scratch\test-roms is still skipped, because a caller cannot forget where its own output goes.
+    logs = [] if is_throwaway(out) else [BUILD_LOG]
+    for path in logs + ([EXTRA_LOG] if EXTRA_LOG else []):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8", newline="\n") as f:
+            f.write(line)
     return sha
 
 
 def _main(argv: list) -> None:
-    global BUILD_LOG
+    global EXTRA_LOG
     out, names, save = OUT, [], None
     while argv:
         arg = argv.pop(0)
         if arg == "--out":
             out = Path(argv.pop(0))
         elif arg == "--log":
-            BUILD_LOG = Path(argv.pop(0))
+            EXTRA_LOG = Path(argv.pop(0))
         elif arg == "--save":
             save = Path(argv.pop(0))
         elif arg == "--list":

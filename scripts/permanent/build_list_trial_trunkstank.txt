@@ -1,0 +1,6 @@
+# Trial build: the sprite lab, then trunks_tank
+# (log2_build.py --list scripts\permanent\build_list_trial_trunkstank.txt).
+# The tank art is a work in progress, so it never goes into build_list_core.txt yet.
+# The include brings the dev list and sprite_lab, in that order (test_trunks_tank).
+include build_list_trial_spritelab.txt
+trunks_tank         # trial 2026-11-01: base Trunks (set 128) wears the tank top; art\trunks_tank

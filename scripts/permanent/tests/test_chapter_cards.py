@@ -7,8 +7,9 @@ test_chapter_cards.py - Tests for patches.chapter_cards (trial 2026-10-25, v8): 
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_chapter_cards.py -v
-Builds build_list_trial_chapters.txt in memory: "before" = the list up to chapter_cards (the main list, pinned to
-r40 by SHA-1), "rom" = with it. The code is decoded with thumb_dis (never with the encoder) and run with
+Builds build_list_trial_chapters.txt in memory (from r41 an alias of build_list_dev.txt): "before" = the list up
+to chapter_cards (the dev master r40, pinned by SHA-1), "rom" = before + chapter_cards only (the two later r41
+modules are not applied). The code is decoded with thumb_dis (never with the encoder) and run with
 tests.test_ssj2.Cpu (plus mul and the I/O, palette and VRAM regions). Expected values are restated from
 docs\tasks\2026-10-25-chapter-cards\chapter-cards-report.md, chapter-cards-trial-v5.md, chapter-cards-trial-v6.md,
 the probe listings scripts\one-time\2026-10-25-chapter-cards\v5_records_probe.txt and v6_probe.txt, the v7 fade rules
@@ -33,7 +34,7 @@ from rom.thumb_dis import dis, listing
 # ===== constants (report, base ROM reads) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_chapters.txt"
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list.txt r40 (2026-10-30; r39 was aa51dc16)
+R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list_dev.txt r40 (2026-10-30), the r41 base
 HOOK, FS_VTABLE, VANILLA_CONTINUE = 0x23B38, 0x08023B0C, 0x0800180D          # file select vtable +0x2C
 SLOT_VALID, ALLOC, FREE, SCENE_PUSH, MUSIC_PLAY = 0x080019F7, 0x0801F08D, 0x0801F111, 0x0801F2F5, 0x08020A4D
 IMAGE_VTABLE = 0x080237C0
@@ -186,7 +187,7 @@ def built() -> dict:
         i = names.index("chapter_cards")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
         _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
-        log2_build.apply_patches(rom, alloc, names[i:])
+        log2_build.apply_patches(rom, alloc, ["chapter_cards"])      # this module alone: r41 appends two more
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["chapter_cards"])
     return _CACHE
 
@@ -273,8 +274,10 @@ class Gba(Cpu):
 class ListTests(unittest.TestCase):
     def test_trial_list_is_the_main_list_plus_the_trial_line(self):
         dev = log2_build.read_build_list(log2_build.DEV_LIST)
-        if "chapter_cards" in dev:
-            self.skipTest("approved: the line is in build_list_core.txt, so build_list_trial_chapters.txt is retired")
+        if "chapter_cards" in dev:                           # approved in r41: the trial list is an alias of dev
+            self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev)
+            self.assertEqual(dev[dev.index("chapter_cards") - 1], "vegeta_ssj_scene")   # the last r40 line
+            return
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["chapter_cards"])
 
     def test_before_is_r40(self):

@@ -23,3 +23,6 @@ relay_cooldown      # r40: a scripted fighter change (ext 70) clears the party t
 fullpower_hud       # r40: full-power Super Saiyan shows the yellow ki row, no aura loop for Goku and Gohan until Cell is beaten
 beam_struggle       # r40: grand beam struggle on map 14,4 BG0 (BF sphere, orbs, sway, soft flash; mockup v2)
 vegeta_ssj_scene    # r40: Vegeta goes Super Saiyan when he attacks Super Perfect Cell (seq 50 and seq 17; v5); after beam_struggle
+chapter_cards       # r41: chapter title card on Continue (BF chapter cards, stand-in song 25; card 4 v12)
+vegeta_19_reveal    # r41: Vegeta goes Super Saiyan after his line to Android 19 (state 35, flash; no permanent form)
+celljr_fight        # r41: Cell spawns 7 Jrs, Gohan (SSJ2) fights 4 at once before Cell (v10 facings)

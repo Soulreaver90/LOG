@@ -189,7 +189,7 @@ def cpu_with(rom: bytes, leader: int, entries: dict) -> PageCpu:
         cpu.store(STRUCT + 0xC + 28 * ch + 8, 1, entries.get(ch, 2 if ch == GOHAN else 6))
     for obj, vt in FORM_VTABLES.items():
         cpu.store(obj, 4, vt)
-    cpu.store(0x03001FA8, 4, PLAYER)                                     # player_ptr
+    cpu.store(0x03001FA8, 4, PLAYER)                                     # Sprite_CurrentDirectory
     cpu.store(PLAYER, 4, PLAYER_VT)
     cpu.r[13], cpu.r[14] = STACK, RET | 1
     cpu.r[4:8] = [0x44444444, 0x55555555, 0x66666666, 0x77777777]

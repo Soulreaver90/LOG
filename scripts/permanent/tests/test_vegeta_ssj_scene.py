@@ -11,7 +11,7 @@ test_vegeta_ssj_scene.py - Tests for patches.vegeta_ssj_scene (trial 2026-10-24)
 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_vegeta_ssj_scene.py -v
-Builds build_list_trial_vegeta.txt in memory (from r40 an alias of build_list.txt): "before" = the list up to
+Builds build_list_trial_vegeta.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
 vegeta_ssj_scene (r39 + relay_cooldown + fullpower_hud + beam_struggle), "rom" = with it (= r40); both pinned. The old
 trial order (celljr_fight first) refuses from celljr_fight v6, which needs this patch's fly row. Scripts are decoded by
 test_cellgames_ssj's decoder. Expected values are restated from docs\tasks\2026-10-24-vegeta-ssj\vegeta-ssj-report.md
@@ -32,7 +32,7 @@ from rom.webfoot_decompress import ROM_BASE
 LISTS = log2_build.ROOT / "scripts" / "permanent"
 TRIAL_LIST, VEGETA_LIST = LISTS / "build_list_trial.txt", LISTS / "build_list_trial_vegeta.txt"
 BEFORE_SHA1 = "9256a6ba861e03743c1d971a3f054bea1bcc6aae"   # r39 + relay_cooldown + fullpower_hud + beam_struggle
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"      # build_list.txt r40 (2026-10-30)
+R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"      # build_list_dev.txt r40 (2026-10-30)
 VEGETA, VEGETA_SSJ, CELL = 137, 140, 58
 SPC_TABLE, DEATH_TABLE = 0x3EB704, 0x3EC758
 SEQ50, SEQ50_WORD = 0x3EB134, 0x3EB7C8                 # word 49: the attack after "He will pay!!!!"
@@ -227,7 +227,7 @@ class ListTests(unittest.TestCase):
     def test_a_shared_write_refuses(self):
         b = built()
         alloc = copy.deepcopy(b["alloc_before"])
-        self.assertNotIn("celljr_fight", alloc.notes)            # r40: celljr_fight is a trial after main
+        self.assertNotIn("celljr_fight", alloc.notes)            # celljr_fight runs after this patch
         alloc.notes["celljr_fight"] = {"sites": [(SEQ52_BYTE, 1, "a pretend celljr write")]}
         with self.assertRaises(ValueError):
             vegeta_ssj_scene.apply(bytearray(b["before"]), alloc)

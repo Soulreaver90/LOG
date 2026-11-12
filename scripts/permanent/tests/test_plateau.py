@@ -28,6 +28,37 @@ from scene.scene_lib import ext  # noqa: E402
 
 ROM_BASE = 0x08000000
 MAP_SIZE = 56
+# The dialog box: 4 lines of 144 px a page (bible C4S and B2095), on the font at rom:0x2CC64. The
+# widest box the ending talk renders in vanilla is 294 px, ending word 3.
+DIALOG_FONT, DIALOG_WIDTH, BOX_LINES, WIDEST_VANILLA_BOX = 0x2CC64, 0x90, 4, 294
+
+
+def _dialog_wrap(rom, box):
+    """Lines of one box as the dialog line counter breaks them: past 144 px, at the last space.
+
+    The same model test_chapter_cards uses, which reproduces every vanilla box."""
+    def adv(c):
+        glyph = struct.unpack_from("<H", rom, DIALOG_FONT + 2 * c)[0]
+        return struct.unpack_from("<H", rom, DIALOG_FONT + 2 * glyph)[0] + 1
+
+    out, p = [], 0
+    while p < len(box):
+        while p < len(box) and box[p] == 0x20:
+            p += 1
+        if p >= len(box):
+            break
+        q, w, brk = p, 0, None
+        while q < len(box):
+            if box[q] == 0x20:
+                brk = q
+            w += adv(box[q])
+            if w > DIALOG_WIDTH:
+                q = brk if brk is not None else q
+                break
+            q += 1
+        out.append((box[p:q].decode(), sum(adv(c) for c in box[p:q])))
+        p = q
+    return out
 
 
 def _ops(rom, at):
@@ -47,6 +78,31 @@ def _ops(rom, at):
             break
         else:
             raise AssertionError(f"rom:0x{at:X} carries base op {op.op}, which _ops cannot read")
+    return out
+
+
+def _vanilla_transition() -> dict:
+    """The fade pair of vanilla's own fastest map-load transition, read out of the BASE ROM.
+
+    `plateau.FAST_TRANSITION` names the record. The walk stops at its fade in, because what follows
+    carries base ops this file's reader has no reason to understand. `waits` totals every blocking
+    wait between the two fades, and vanilla spends none here."""
+    rom = log2_build.BASE.read_bytes()
+    at = plateau.FAST_TRANSITION
+    out, stack = {"out": None, "in": None, "waits": 0}, []
+    for op in S.ops(rom, at + 3, S.record_end(rom, at)):
+        if op.ext is None:
+            if op.op in (0, 1, 29):
+                stack += list(op.args)
+            continue
+        args, stack = tuple(stack), []
+        if op.ext == 40 and out["out"] is None:
+            out["out"] = args[0]
+        elif op.ext == 69 and out["out"] is not None:
+            out["waits"] += args[0]
+        elif op.ext == 41 and out["out"] is not None:
+            out["in"] = args[0]
+            break
     return out
 
 
@@ -82,21 +138,24 @@ class PlateauTests(unittest.TestCase):
         at = self.notes["entry"]
         self.assertEqual(struct.unpack_from("<I", self.rom, at + 0x08)[0], 1, "combat")
         self.assertEqual(struct.unpack_from("<I", self.rom, at + 0x0C)[0], 0xDD, "banner")
-        self.assertEqual(struct.unpack_from("<I", self.rom, at + 0x24)[0], 38, "music")
+        self.assertEqual(struct.unpack_from("<I", self.rom, at + 0x24)[0], plateau.ROUND1_MUSIC,
+                         "music: the song round 1 is playing, so the load does not restart it")
         self.assertEqual(self.rom[at + 4], 2, "item count")
         self.assertEqual(struct.unpack_from("<I", self.rom, at + 0x14)[0] - ROM_BASE,
                          self.notes["items"])
 
-    def test_the_entry_is_the_live_arena_entry_with_three_words_changed(self):
-        """The zone, the ITEM LIST and the layout array. The item list may not be shared: an item
-        carries its own death event, and the two rounds have to end differently."""
+    def test_the_entry_is_the_live_arena_entry_with_four_words_changed(self):
+        """The zone, the ITEM LIST, the layout array and the music. The item list may not be shared:
+        an item carries its own death event, and the two rounds have to end differently."""
         at = self.notes["entry"]
         _, arena_at = plateau.map_entry(self.rom, 6, 100)
         ours = bytearray(self.rom[at:at + MAP_SIZE])
         theirs = bytearray(self.rom[arena_at:arena_at + MAP_SIZE])
         self.assertNotEqual(ours[0x14:0x18], theirs[0x14:0x18], "the item list must be its own")
+        self.assertNotEqual(ours[0x24:0x28], theirs[0x24:0x28], "the music must be its own")
         ours[0] = theirs[0]
         ours[0x14:0x18] = theirs[0x14:0x18]
+        ours[0x24:0x28] = theirs[0x24:0x28]
         ours[0x2C:0x30] = theirs[0x2C:0x30]
         self.assertEqual(bytes(ours), bytes(theirs))
 
@@ -189,7 +248,8 @@ class PlateauTests(unittest.TestCase):
         doc = plateau.document()
         bits = plateau._frame(self.rom, self.notes["collision"] + ROM_BASE)
         opened = plateau.open_cells(doc)
-        reach = plateau.reachable(opened, (plateau.CELL_SPOT[0] // 8, plateau.CELL_SPOT[1] // 8))
+        reach = plateau.reachable(opened, (plateau.PLATEAU_CELL_SPOT[0] // 8,
+                                           plateau.PLATEAU_CELL_SPOT[1] // 8))
         self.assertEqual(len(reach), self.notes["reachable"])
         self.assertEqual(len(opened) - len(reach), self.notes["pocket_cells"])
         for spot, env, who in plateau.PLATEAU_SPOTS:
@@ -224,24 +284,199 @@ class PlateauTests(unittest.TestCase):
             self.assertEqual(bytes(self.rom[word:word + 4]), want, hex(word))
 
     def test_round_1_is_the_standard_battle_start_with_the_top_half_of_the_bar(self):
+        """Track 28 opens it. The owner, design section 3: "Track 28 plays when the battle starts"."""
         self.assertEqual(_ops(self.rom, self.notes["round1"]),
-                         [(104, (28, 1)), (90, (28, 50, 100)), (86, (1,)), (33, (0,))])
+                         [(49, (plateau.ROUND1_MUSIC,)),
+                          (104, (28, 1)), (90, (28, 50, 100)), (86, (1,)), (33, (0,))])
+        self.assertEqual(plateau.ROUND1_MUSIC, 28)
 
-    def test_the_split_is_round_1s_death_and_arms_round_2_on_the_plateau(self):
+    def test_the_split_is_round_1s_death_and_opens_the_plateau_arrival(self):
         """The owner's beat: ping, white flash, Cell punched off screen, Trunks flies after him, then
-        the plateau loads and the SAME bar shows its bottom half."""
+        the plateau loads and the arrival scene plays."""
         self.assertEqual(struct.unpack_from("<I", self.rom, self.notes["arena_table"])[0],
                          self.notes["split"] + ROM_BASE, "table D word 0 is the split")
         ops = _ops(self.rom, self.notes["split"])
         names = [n for n, _ in ops]
         self.assertEqual(ops[:4], [(88, ()), (86, (0,)), (46, (60,)), (42, (10,))])
-        self.assertEqual(ops[-4:], [(104, (28, 1)), (90, (28, 0, 50)), (86, (1,)), (33, (0,))])
-        self.assertIn((39, (7, 100, 1) + plateau.TRUNKS_SPOT), ops)
+        self.assertIn((39, (7, 100, 1) + plateau.PLATEAU_FLY_FROM), ops)
         self.assertIn((136, (28,) + plateau.PUNCHED_TO + (plateau.KNOCK_N,)), ops)
         self.assertIn((121, (0, plateau.FLY_STATE)), ops)
         self.assertIn((136, (0,) + plateau.FLIES_TO + (plateau.FLY_N,)), ops)
         self.assertLess(names.index(40), names.index(39), "the load runs under a fade")
         self.assertLess(names.index(39), names.index(41), "and the screen comes back after it")
+        self.assertNotIn(104, names, "round 2 arms in its own record, after the talk")
+
+    def test_the_arrival_shows_cell_down_then_trunks_flies_in_from_the_west(self):
+        """The owner, 2026-11-08: "with cell in a down state, trunks flies in (from the left), cell
+        stands up, placeholder convo, then fight continues".
+
+        Order is the whole test. `ext 136` blocks outside a group (handler @0x0800A346 ends in
+        BL actor_queue @0x0800E04C), so Trunks really lands before Cell stands."""
+        ops = _ops(self.rom, self.notes["split"])
+        flat = [(n, a) for n, a in ops]
+        load = flat.index((39, (7, 100, 1) + plateau.PLATEAU_FLY_FROM))
+        after = flat[load:]
+        want = [(52, (28,)),
+                (51, (28,) + plateau.PLATEAU_CELL_SPOT),
+                (55, (28, plateau.WEST)),
+                (57, (28, plateau.DOWN_STATE)),
+                (55, (0, plateau.EAST)),
+                (121, (0, plateau.FLY_STATE)),
+                (31, plateau.PLATEAU_VIEW),
+                (41, (plateau.SPLIT_FADE,))]
+        here = [after.index(op) for op in want]
+        self.assertEqual(here, sorted(here), "the staging has to finish before the fade in")
+        reveal = after.index((41, (plateau.SPLIT_FADE,)))
+        land = after.index((136, (0,) + plateau.PLATEAU_TRUNKS_SPOT + (plateau.ARRIVE_SPEED,)))
+        stand = after.index((121, (28, plateau.STAND_STATE)))
+        self.assertLess(reveal, land, "the screen is back before he flies in")
+        self.assertLess(land, stand, "he lands before Cell stands up")
+        self.assertLess(plateau.PLATEAU_TRUNKS_SPOT[0], plateau.PLATEAU_CELL_SPOT[0],
+                        "Trunks on the left, Cell on the right")
+        self.assertEqual(plateau.PLATEAU_TRUNKS_SPOT[1], plateau.PLATEAU_CELL_SPOT[1], "one row")
+        self.assertLess(plateau.PLATEAU_FLY_FROM[0], plateau.PLATEAU_TRUNKS_SPOT[0], "from the west")
+        self.assertLess(plateau.PLATEAU_FLY_FROM[0] + plateau.TRUNKS_ENVELOPE_LR[1],
+                        plateau.PLATEAU_VIEW[0], "and from off screen")
+
+    def test_the_hand_off_runs_vanillas_fastest_transition_and_no_settle_wait(self):
+        """The owner: "what is the normal transition length in vanilla???" and, twice more, that
+        this one is still too long. The answer is not a number this project picked. It is read out
+        of the BASE ROM here: rom:0x3E424A is vanilla's fastest map-load transition, and both of
+        this hand-off's fades have to equal its own two.
+
+        No wait may run between the load and the fade in, because 0x3E424A spends none either, and
+        `ext 57 (28, 3)` is staging, not a load margin: the cover finishes before the load runs."""
+        want = _vanilla_transition()
+        self.assertEqual(want, {"out": 30, "in": 30, "waits": 0},
+                         f"rom:0x{plateau.FAST_TRANSITION:X} is no longer the fast transition")
+        ops = _ops(self.rom, self.notes["split"])
+        flat = [(n, a) for n, a in ops]
+        load = flat.index((39, (7, 100, 1) + plateau.PLATEAU_FLY_FROM))
+        reveal = flat.index((41, (plateau.SPLIT_FADE,)))
+        self.assertEqual(plateau.SPLIT_FADE, want["out"], "the cover is vanilla's own fade_out")
+        self.assertEqual(plateau.SPLIT_FADE, want["in"], "the reveal is vanilla's own fade_in")
+        self.assertEqual(flat[load - 1], (40, (plateau.SPLIT_FADE,)), "the cover is the same value")
+        self.assertEqual([n for n, _ in flat[load + 1:reveal] if n == 69], [],
+                         "no wait runs between the load and the fade in")
+        self.assertFalse(hasattr(plateau, "LOAD_SETTLE"), "the settle is deleted, not shrunk")
+        self.assertIn((57, (28, plateau.DOWN_STATE)), flat,
+                      "Cell is posed down, and his 64 frames are staging under the black")
+
+    def test_the_arrival_talk_is_the_owners_own_lines_then_round_2(self):
+        """A type 0 record cannot carry text, so the split hands on to table D words 1 to 7. Table D
+        already runs vanilla TEXT records from words 24 and 25.
+
+        The chain runs in index order, 0 to 7, and each record hands on to the next index."""
+        table = self.notes["arena_table"]
+        spots = {0: self.notes["split"], plateau.TRANSFORM_INDEX: self.notes["transform"],
+                 plateau.ROUND2_INDEX: self.notes["round2"]}
+        spots.update(dict(zip(plateau.TALK_WORDS, self.notes["talk"])))
+        for index in sorted((0,) + plateau.TALK_CHAIN):
+            at = spots[index]
+            self.assertEqual(struct.unpack_from("<I", self.rom, table + 4 * index)[0], at + ROM_BASE,
+                             f"table D word {index}")
+            want = plateau.END_INDEX if index == plateau.ROUND2_INDEX else index + 1
+            self.assertEqual(struct.unpack_from("<H", self.rom, at)[0], want,
+                             f"table D word {index} hands on to word {want}")
+
+    def test_every_talk_record_carries_his_own_words_and_the_right_face(self):
+        """Every character is his, quoted from the design of 2026-11-08, section 4. The only byte
+        added is the box break 0x0B, and it only ever sits at a mark he wrote himself."""
+        for at, (index, portrait, line) in zip(self.notes["talk"], plateau.TALK):
+            self.assertEqual(self.rom[at + 2], 1, "a type 1 text record")
+            self.assertEqual(self.rom[at + 3], portrait, f"table D word {index}")
+            end = bytes(self.rom).index(b"\0", at + 4)
+            self.assertEqual(bytes(self.rom[at + 4:end]).decode("ascii"), line)
+            self.assertNotIn("PLACEHOLDER", line, "the placeholders are gone")
+        said = [line for _, _, line in plateau.TALK]
+        self.assertEqual(said[1], "Enough!")
+        self.assertEqual(said[4], "But count me as the last!")
+
+    def test_every_talk_box_stays_inside_the_widest_box_the_talk_renders(self):
+        """The dialog box holds 4 lines of 144 px a page (bible B2095), and the widest box the ending
+        talk renders in vanilla is 294 px. Three of his segments ran past that as one box and were
+        split into two boxes at a mark he wrote, so the text is the same text."""
+        for _index, _portrait, line in plateau.TALK:
+            for box in line.split("\x0b"):
+                lines = _dialog_wrap(self.before, box.encode("ascii"))
+                self.assertLessEqual(sum(w for _, w in lines), WIDEST_VANILLA_BOX, box)
+                self.assertLessEqual(len(lines), BOX_LINES, f"{box!r} pages on")
+
+    def test_the_portrait_turns_super_saiyan_only_after_the_transform(self):
+        """He is base Trunks until word 3 changes his body, so a Super Saiyan face before it would
+        disagree with the sprite on screen."""
+        before = [p for i, p, _ in plateau.TALK if i < plateau.TRANSFORM_INDEX]
+        after = [p for i, p, _ in plateau.TALK if i > plateau.TRANSFORM_INDEX]
+        self.assertEqual([p for p in before if p != plateau.CELL_PORTRAIT],
+                         [plateau.TRUNKS_BASE_PORTRAIT])
+        self.assertEqual([p for p in after if p != plateau.CELL_PORTRAIT],
+                         [plateau.TRUNKS_SSJ_PORTRAIT, plateau.TRUNKS_SSJ_PORTRAIT])
+
+    def test_the_transform_sets_the_base_body_before_it_poses_the_power_up(self):
+        """Only the base set carries anim 9 (bible B2179), and the player may have transformed by
+        hand in round 1. No scene op reads his form, so the record makes the body certain instead:
+        ext 73 (3,132) in front, then the aura, the pose, the white flash and ext 73 (3,133)."""
+        ops = _ops(self.rom, self.notes["transform"])
+        self.assertEqual(ops, [(73, (3, 132)), (46, (55,)), (57, (0, 9)), (42, (10,)), (47, (55,)),
+                               (73, (3, 133)), (43, (10,)), (55, (0, plateau.EAST))])
+        self.assertLess(ops.index((57, (0, 9))), ops.index((73, (3, 133))),
+                        "the power up has to play on the body that owns anim 9")
+        self.assertLess(ops.index((42, (10,))), ops.index((73, (3, 133))))
+        self.assertLess(ops.index((73, (3, 133))), ops.index((43, (10,))),
+                        "the body swap hides under the white flash")
+
+    def test_round_2_is_the_standard_battle_start_with_the_bottom_half_of_the_bar(self):
+        """Track 35 opens it. The owner, design section 4: "Track 35 starts as the fight starts",
+        and he changed the number himself: "track 35 instead of 15"."""
+        self.assertEqual(_ops(self.rom, self.notes["round2"]),
+                         [(49, (plateau.ROUND2_MUSIC,)),
+                          (104, (28, 1)), (90, (28, 0, 50)), (86, (1,)), (33, (0,))])
+        self.assertEqual(plateau.ROUND2_MUSIC, 35)
+        self.assertEqual(struct.unpack_from("<H", self.rom, self.notes["round2"])[0], 26, "then END")
+
+    def test_the_music_runs_unbroken_from_round_1_to_the_moment_round_2_starts(self):
+        """His complaint: "the music transitions to a different track between capsule corp and the
+        arena, that should not be the case", and his ruling: "yes it should be 28, no transition
+        until 35 when the round 2 starts."
+
+        `ext 39` reads the new map's +0x24 and restarts the music unless the new map names the
+        record already playing (bible B1191, B2176, B2028). So the whole chain is read here, in the
+        order it runs, and three things have to hold together:
+          1. the plateau map's +0x24 is the song playing at the moment the split loads it, which is
+             the last music op before that load;
+          2. nothing between that load and the end of the arrival talk plays music or loads a map;
+          3. round 2's own battle start plays 35, the ONE transition he asked to hear.
+        Part 1 is what failed: the entry carried the arena's 38 and he heard 28, then 38, then 35."""
+        music, load = 49, 39
+        before = [args[0] for op, args in _ops(self.rom, self.notes["round1"]) if op == music]
+        self.assertEqual(before, [plateau.ROUND1_MUSIC], "round 1 opens the chain with one cue")
+
+        split = _ops(self.rom, self.notes["split"])
+        loads = [k for k, (op, _a) in enumerate(split) if op in (38, load)]
+        self.assertEqual(len(loads), 1, "the split loads exactly one map")
+        self.assertEqual(split[loads[0]][1][:2], (plateau.PLATEAU_ZONE, plateau.PLATEAU_AREA))
+        self.assertEqual([op for op, _a in split[:loads[0]] if op == music], [],
+                         "nothing in the split changes the track before the load,"
+                         " so round 1's cue is still what is playing")
+
+        entry = struct.unpack_from("<I", self.rom, self.notes["entry"] + 0x24)[0]
+        self.assertEqual(entry, plateau.ROUND1_MUSIC,
+                         "the plateau map has to NAME the song playing, or the load restarts it")
+        self.assertEqual(self.notes["plateau_music"], entry)
+
+        after = list(split[loads[0] + 1:]) + _ops(self.rom, self.notes["transform"])
+        for at in self.notes["talk"]:
+            self.assertEqual(self.rom[at + 2], 1,
+                             "each of his five lines is a TEXT record, which runs no script op")
+        self.assertEqual([op for op, _a in after if op == music], [],
+                         "the arrival and the transform leave the music alone")
+        self.assertEqual([op for op, _a in after if op in (38, load)], [],
+                         "and neither loads a map, which would read a +0x24 of its own")
+
+        self.assertEqual([args[0] for op, args in _ops(self.rom, self.notes["round2"])
+                          if op == music], [plateau.ROUND2_MUSIC],
+                         "round 2's battle start is the one transition he wants")
+        self.assertNotEqual(plateau.ROUND2_MUSIC, plateau.ROUND1_MUSIC, "and it is audible")
 
     def test_trunks_walks_to_cell_before_the_punch(self):
         """The owner, 2026-11-08: "trunks should walk to cell and punch him, not punch him a mile
@@ -313,17 +548,22 @@ class PlateauTests(unittest.TestCase):
     def test_the_npc_cell_the_plateau_builds_stands_on_the_fight_spot(self):
         npc = struct.unpack_from("<I", self.rom, self.notes["items"])[0] - ROM_BASE
         self.assertEqual(struct.unpack_from("<I", self.rom, npc + 4)[0], 0, "condition 0: built at load")
-        self.assertEqual(struct.unpack_from("<hh", self.rom, npc + 8), plateau.CELL_SPOT)
+        self.assertEqual(struct.unpack_from("<hh", self.rom, npc + 8), plateau.PLATEAU_CELL_SPOT)
         self.assertEqual(struct.unpack_from("<I", self.rom, npc + 0xC)[0], plateau.CELL_SET)
 
     def test_both_parked_views_hold_both_fighters_whole(self):
         """Bible B0246: set 28 reaches 56 px above his own point and the Trunks sets 24. A view is
         240 x 160 from its TOP LEFT, so the pair has to fit inside it or a frame is cut."""
-        for view in (plateau.SPLIT_VIEW, plateau.ARRIVE_VIEW):
-            for spot, up, down in ((plateau.CELL_SPOT, plateau.ENVELOPE[2], plateau.ENVELOPE[3]),
-                                   (plateau.TRUNKS_SPOT, plateau.TRUNKS_UP, plateau.TRUNKS_DOWN)):
-                self.assertGreaterEqual(spot[1] - up, view[1], f"{spot} head above {view}")
-                self.assertLessEqual(spot[1] + down, view[1] + plateau.VIEW[1], f"{spot} feet below")
+        pairs = ((plateau.SPLIT_VIEW, ((plateau.CELL_SPOT, plateau.ENVELOPE),
+                                       (plateau.TRUNKS_SPOT, plateau.TRUNKS_ENVELOPE))),
+                 (plateau.PLATEAU_VIEW, ((plateau.PLATEAU_CELL_SPOT, plateau.ENVELOPE_LR),
+                                         (plateau.PLATEAU_TRUNKS_SPOT, plateau.TRUNKS_ENVELOPE_LR))))
+        for view, spots in pairs:
+            for spot, env in spots:
+                self.assertGreaterEqual(spot[1] - env[2], view[1], f"{spot} head above {view}")
+                self.assertLessEqual(spot[1] + env[3], view[1] + plateau.VIEW[1], f"{spot} feet")
+                self.assertGreaterEqual(spot[0] - env[0], view[0], f"{spot} left of {view}")
+                self.assertLessEqual(spot[0] + env[1], view[0] + plateau.VIEW[0], f"{spot} right")
         self.assertLess(plateau.PUNCHED_TO[1] + plateau.ENVELOPE[3], plateau.SPLIT_VIEW[1])
         self.assertLess(plateau.FLIES_TO[1] + plateau.TRUNKS_DOWN, plateau.SPLIT_VIEW[1])
 
@@ -393,8 +633,11 @@ class PlateauTests(unittest.TestCase):
         slot, so a null test would report that every layer draws everywhere. Each layer is shifted
         by its own scroll offset first (layer pixel = world pixel + 64 n, bible B1082), or every
         count would be 64 px out. Measured 2026-11-08: BG0 draws NO cell anywhere, so nothing was
-        blanked away from it either, and BG1 stands over 477 cells of walkable ground, which is
-        where he walks behind scenery."""
+        blanked away from it either, and BG1 stands over 488 cells of walkable ground, which is
+        where he walks behind scenery. 488 was 477 before the owner moved his overhead cliff from
+        BG3 to BG1 on 2026-11-08, and the new number was READ out of this build, never reached by
+        trying values. BG0 at 0 is the other half of the test: BG0 drawing over walkable ground
+        would be a defect to report, not a number to update."""
         lay = self.notes["layout"]
         draws = {n: any(px) for n, px in enumerate(scene_probe.static_tiles(self.rom, lay))}
         for group in scene_probe.layout_groups(self.rom, lay):
@@ -403,7 +646,8 @@ class PlateauTests(unittest.TestCase):
                                                 for f in group["frames"])
         doc = plateau.document()
         reach = plateau.reachable(plateau.open_cells(doc),
-                                  (plateau.CELL_SPOT[0] // 8, plateau.CELL_SPOT[1] // 8))
+                                  (plateau.PLATEAU_CELL_SPOT[0] // 8,
+                                   plateau.PLATEAU_CELL_SPOT[1] // 8))
         across = doc["blocks"][0] * plateau.BLOCK_TILES
         drawn = {}
         for name in ("bg0", "bg1"):
@@ -413,7 +657,7 @@ class PlateauTests(unittest.TestCase):
                            for n, cell in enumerate(layer["cells"])
                            if draws.get(cell & map_file.TILE_INDEX, False)}
         self.assertEqual({name: len(cells & reach) for name, cells in drawn.items()},
-                         {"bg0": 0, "bg1": 477})
+                         {"bg0": 0, "bg1": 488})
         for spot, env, who in plateau.PLATEAU_SPOTS:
             box = set(plateau.envelope_cells(spot, env))
             for name, cells in drawn.items():

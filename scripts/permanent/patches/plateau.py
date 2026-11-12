@@ -29,16 +29,18 @@ THE MAP IS THE OWNER'S. He composed map 7,100 in the editor and saved it as "map
             player, and BG2 and BG3 are priority 3 and draw behind him. Measured on the document
             2026-11-08, counting a cell as drawing only when its tile holds a non-zero pixel and
             shifting each layer by its own scroll offset: BG0 draws NO cell anywhere, and BG1 draws
-            1100 cells, 477 of them over reachable walkable ground in 11 clusters. So the player walks
+            1109 cells, 488 of them over reachable walkable ground. So the player walks
             BEHIND scenery in those places, which is what a priority 1 layer is for.
-         5. HIS COLLISION IS KEPT. 4987 cells are open, 4848 of them reachable from Cell's own cell,
+         5. HIS COLLISION IS KEPT. 4988 cells are open, 4849 of them reachable from Cell's own cell,
             and one sealed pocket of 139 cells sits inside the rock ring, cell origins px (488,536) to
             (616,608). No open cell touches the world edge. Both fight spots stand on reachable open
             ground, which this module proves before it writes a byte.
-         6. THE ENTRY IS THE LIVE 6,100 ENTRY with three words changed: +0x00 to zone 7, +0x14 to the
-            plateau's OWN two item list, and +0x2C to the layout array import_map wrote. It carries
-            combat 1, banner 0xDD, music 38 and 0 regions. import_map builds the same 56 bytes from
+         6. THE ENTRY IS THE LIVE 6,100 ENTRY with four words changed: +0x00 to zone 7, +0x14 to the
+            plateau's OWN two item list, +0x2C to the layout array import_map wrote, and +0x24 to
+            the song already playing when the split loads this map, so the load is silent. It
+            carries combat 1, banner 0xDD and 0 regions. import_map builds the same 56 bytes from
             zeros, and this module overwrites them with the arena's own, so the two have to agree.
+            See PLATEAU_MUSIC for why +0x24 may not be the arena's 38.
          7. THE ROUND SPLIT (rung 5, the owner 2026-11-07 and 2026-11-08). The Cell fight is ONE fight
             in TWO ROUNDS, and the plateau is round 2's ground, not the whole fight's. His words:
             "Cell: Trunks starts NOT Super Saiyan / half way: white flash + ping -> cutscene, Cell
@@ -52,9 +54,17 @@ THE MAP IS THE OWNER'S. He composed map 7,100 in the editor and saved it as "map
         7b. The boundary is record S, word 0 of the table battle_arena's enemy names, so it runs when
             round 1's Cell reaches HP 0. Its head is celljr_fight's own relay head, which the owner has
             play tested: sound 60, the white flash pair, a hold. The staging, the punch and the fly
-            follow, then the plateau loads and round 2 arms. See split().
+            follow, then the plateau loads and the ARRIVAL plays. See split().
+        7bb. THE ARRIVAL IS A SCENE (the owner, 2026-11-08: "with cell in a down state, trunks flies in
+            (from the left), cell stands up, placeholder convo, then fight continues"). The screen comes
+            back on Cell already down on the RIGHT, Trunks flies in from off screen to the WEST and
+            lands on the LEFT, Cell stands up, and the two face each other along X instead of along Y.
+            Round 2 then has its own pair of spots on his map, PLATEAU_TRUNKS_SPOT and
+            PLATEAU_CELL_SPOT; the ARENA staging that round 1 and the punch use does not move.
         7c. Round 2 is the SAME bar, bottom half, and Cell RE-ARMED by `ext 104`, which is vanilla's own
-            multi-round wiring (bible B0832). It needs its own death event, or Cell's death on the
+            multi-round wiring (bible B0832). It arms in its OWN record, table D word 3, because record
+            S ends in the owner's own talk, five text records, and a type 0 record cannot carry text.
+            Round 2 needs its own death event, or Cell's death on the
             plateau would run the split again and the fight would never end, so the plateau carries its
             OWN item list: an NPC Cell on the fight spot and an enemy Cell whose event struct names
             table D2. D2 is the live 27 word table with word 0 left at ending_fight's record K, the
@@ -63,8 +73,10 @@ THE MAP IS THE OWNER'S. He composed map 7,100 in the editor and saved it as "map
 Rules:   Every source byte is checked before the first write; a second run raises. No vanilla map entry,
          item, layout, layer record or tile is written. The ONE base overlap with the earlier modules is
          the 4 map table literals and the count byte, which is how each relocation hands the table on.
-         This module writes ONE base word of its own, ending table word 23, and ONE word inside
-         ending_fight's own table D. Both are declared hand-offs. Record A is left alone.
+         This module writes ONE base word of its own, ending table word 23, and FOUR words inside
+         ending_fight's own table D: word 0 (record S) and words 1, 2 and 3, which were END words and
+         now carry the arrival talk and round 2's battle start. All are declared hand-offs. Record A
+         is left alone, and so is every byte of ending_fight itself.
 """
 import hashlib
 import struct
@@ -73,8 +85,8 @@ from pathlib import Path
 
 import log_paths
 from rom.webfoot_decompress import unpack_frame
-from scene.scene_lib import (battle_start, call, code, ext, fade_in, fade_out, record_end, wait,
-                             walk_to, words_naming)
+from scene.scene_lib import (battle_start, call, code, ext, fade_in, fade_out, record_end, text,
+                             wait, walk_to, words_naming)
 
 # map-editor\ carries a hyphen, so it is not an importable package: its folder goes on sys.path, the
 # way scripts\permanent\tests\test_import_map.py already reaches it.
@@ -136,6 +148,13 @@ ARENA_LOAD = ext(39, ARENA_ZONE, ARENA_AREA, MAP_VARIATION, *TRUNKS_START)
 # never moved; only word 23 changes, from ending_fight's record F to this module's record R.
 TABLE, TABLE_WORDS = 0x3B8140, 27
 FIGHT_INDEX, END_INDEX = 23, 26
+# The words of ending_fight's table D that the plateau arrival uses. D word 0 is record S, words 24
+# and 25 are the vanilla ending records and word 26 is the END, so 1 to 23 are spare END words. The
+# seven taken here are the lowest of them, and each one is a declared hand-off in _check_overlaps.
+# Words 1, 2, 4, 5 and 6 are the owner's five lines, word 3 is the transform and word 7 starts round 2.
+# Each record hands on to the NEXT index, so the chain is 1, 2, 3, 4, 5, 6, 7 and then END.
+TALK_WORDS, TRANSFORM_INDEX, ROUND2_INDEX = (1, 2, 4, 5, 6), 3, 7
+TALK_CHAIN = TALK_WORDS + (TRANSFORM_INDEX, ROUND2_INDEX)
 FIGHT_WORD = TABLE + 4 * FIGHT_INDEX
 EVENT_RUNNER, EVENT_TABLE_AT = 0x080106B3, 4
 
@@ -145,7 +164,10 @@ NPC_ITEM_SIZE, N_AT, N_STEP_LIST = 0x18, 8, 0x14
 NPC_INDEX, ENEMY_INDEX = 0, 1                   # the plateau list keeps battle_arena's own order
 
 PLAYER, CELL_SET = 0, 28                        # set 0 is the player; 28 is IMPERFECT Cell, not 30
-DOWN, UP = 0, 1                                 # ext 55 facings (celljr_fight and chapter_cards agree)
+DOWN, UP, WEST, EAST = 0, 1, 2, 3               # ext 55 facings (celljr_fight and chapter_cards agree;
+                                                # the vanilla template rom:0x3E9384 faces the eastern
+                                                # actor 2 and the western actor 3, which is the same
+                                                # reading: 2 looks WEST and 3 looks EAST)
 CELL_SPOT, TRUNKS_SPOT = (244, 504), (248, 568)  # battle_arena's own fight pair, 64 px apart
 
 # The bar. ext 90 (set, lo, hi) is ONE DISPLAY SEGMENT of the 60 px boss bar: Sprite_NewSpan
@@ -189,36 +211,172 @@ PUNCH_FROM = (248, 528)                         # 24 px below CELL_SPOT, on TRUN
 # owner's "punched off screen". y 392 is also map 6,1 item 6's own row, so it is open ground.
 PUNCHED_TO, FLIES_TO = (244, 392), (248, 392)
 
-# The two parked views, each proved by arithmetic against bible B0246's envelopes, which are the same
+# The ARENA's parked view, proved by arithmetic against bible B0246's envelopes, which are the same
 # numbers plateau's own ENVELOPE carries: set 28 reaches 20 left, 44 right, 56 up and 8 down, and the
 # Trunks sets 8, 24, 24 and 8. A view is 240 x 160 from its TOP LEFT (bible B0959, B0766).
 #   Cell at (244,504)   -> x 224..288, y 448..512
 #   Trunks at (248,568) -> x 240..272, y 544..576
 #   the view (136,432)  -> x 136..376, y 432..592, which holds both whole, with 16 px over Cell's head
-# ending_fight's own VIEW, (136,456,2), would cut 8 px off the top of Cell's tallest frames.
+# ending_fight's own VIEW, (136,456,40), would cut 8 px off the top of Cell's tallest frames.
 #
-# THE SPEEDS ARE NOT THE SAME, and the reason is measured. `ext 31` BLOCKS until the move reports
-# done, in distance/speed + 1 frames (bible B0766). Round 1 ends with the FOLLOW camera on the
-# player, who may stand anywhere inside map 6,100's clamp (273, 553), so the pan to (136,432) can be
-# about 180 px. At speed 2 that is roughly 90 frames of solid white, because the screen holds white
-# between `ext 42` and `ext 43`. Speed 40 makes it about 5 frames, which the flash hides. celljr's
-# record N parks vanilla seq 11's camera at speed 40 for the same reason.
-# ARRIVE_VIEW keeps speed 2: the load has just centred the camera at (248 - 112, 568 - 76), which is
-# (136, 492), so its pan is a known 60 px, about 31 frames, and it runs under a fade and not a flash.
-SPLIT_VIEW, ARRIVE_VIEW = (136, 432, 40), (136, 432, 2)
+# SPEED 40, and the reason is measured. `ext 31` BLOCKS until the move reports done, in
+# distance/speed + 1 frames (bible B0766). Round 1 ends with the FOLLOW camera on the player, who may
+# stand anywhere inside map 6,100's clamp (273, 553), so the pan to (136,432) can be about 180 px. At
+# speed 2 that is roughly 90 frames of solid white, because the screen holds white between `ext 42`
+# and `ext 43`. Speed 40 makes it about 5 frames, which the flash hides. celljr's record N parks
+# vanilla seq 11's camera at speed 40 for the same reason. PLATEAU_VIEW keeps speed 40 too, for the
+# other reason: its pan is a known 240 px and every frame of it is black, so it is dead time.
+SPLIT_VIEW = (136, 432, 40)
 TRUNKS_UP, TRUNKS_DOWN = 24, 8               # bible B0246: sets 132 and 133 reach 24 up, 8 down
 TRUNKS_ENVELOPE = (8, 24, TRUNKS_UP, TRUNKS_DOWN)   # bible B0246, in ENVELOPE's own order
 
-# The only two spots that stand on HIS map: round 2 opens with the pair already placed there.
-# PUNCH_FROM and TRUNKS_START are ARENA spots and are proved against map 6,100's own collision
-# frame, never against his. Checking an arena spot on his map would fail on a wall he meant to draw.
-PLATEAU_SPOTS = ((CELL_SPOT, ENVELOPE, "Cell"), (TRUNKS_SPOT, TRUNKS_ENVELOPE, "Trunks"))
-SPLIT_FADE, LOAD_SETTLE, ARRIVE_HOLD = 30, 120, 60
+# ===== constants: THE PLATEAU ARRIVAL (the owner, 2026-11-08) =====
+# "with cell in a down state, trunks flies in (from the left), cell stands up, placeholder convo,
+# then fight continues", and before that: "they face eahc other (left to right, not north to south)".
+#
+# THE ARENA PAIR DOES NOT MOVE. CELL_SPOT, TRUNKS_SPOT, PUNCH_FROM and SPLIT_VIEW are map 6,100's
+# staging, which he play tested and approved, and `_check` compares them against the battle_arena
+# notes. Round 2 gets its OWN pair on his map instead.
+#
+# A FACING MIRRORS THE ENVELOPE, so a spot has to clear the UNION of both facings. Bible B0246 gives
+# set 28 as 20 left and 44 right of its point for ONE facing, so the union is 44 and 44; the Trunks
+# sets are 8 and 24, so 24 and 24. Up and down do not mirror.
+ENVELOPE_LR = (44, 44, ENVELOPE[2], ENVELOPE[3])            # set 28, either facing
+TRUNKS_ENVELOPE_LR = (24, 24, TRUNKS_UP, TRUNKS_DOWN)       # sets 132 and 133, either facing
+PLATEAU_GAP = 64                                            # the approved arena gap, turned 90 degrees
+PLATEAU_TRUNKS_SPOT = (408, 456)                            # he lands on the LEFT and faces EAST
+PLATEAU_CELL_SPOT = (PLATEAU_TRUNKS_SPOT[0] + PLATEAU_GAP, PLATEAU_TRUNKS_SPOT[1])   # (472, 456)
+PLATEAU_FLY_FROM = (192, 456)                               # off screen to the WEST, on the same row
+PLATEAU_VIEW = (320, 380, 40)                               # parked on the pair, under the black
+# Measured on his map 2026-11-08, every number out of _check_design and proved there before a write:
+#   walkable centre about (444,460); the pair's centre is (440,456), 4 px and 4 px off it.
+#   the fly lane is 216 px of walkable, art-free ground from (192,456) east to the landing spot.
+#   Trunks' right edge at the start is 216 and the parked view's left edge is 320, so he waits
+#   104 px off screen; Cell's right edge is 516 against the view's right edge 560.
+#   the sealed pocket px (488,536)-(616,608) and the two big BG1 patches are all south of y 496,
+#   and Cell's lowest cell is px 464-471, so nothing here touches them.
+PLATEAU_SPOTS = ((PLATEAU_CELL_SPOT, ENVELOPE_LR, "Cell"),
+                 (PLATEAU_TRUNKS_SPOT, TRUNKS_ENVELOPE_LR, "Trunks"),
+                 (PLATEAU_FLY_FROM, TRUNKS_ENVELOPE_LR, "Trunks at the fly-in start"))
 
-BATTLE_START_EXCEPTIONS = {
-    "split": "the round boundary really does open a scene: it loads map 7,100 behind its own fade and "
-             "arms round 2 there, which is the template shape rom:0x3E9384 and rule 6's exception",
-}
+# ROUND 2'S DEATH ALSO RUNS ON HIS MAP, and it is NOT this module's record. Table D2 word 0 is
+# ending_fight's record K, which restores the pair on the ARENA spots and parks DEATH_VIEW. Until
+# the arrival took over, PLATEAU_SPOTS happened to be those same two spots, so his map was proved
+# under them by accident. It is not any more, so they are named and proved here in their own right.
+# Nothing in ending_fight changes: this only checks that where record K puts them is standable.
+DEATH_SPOTS = ((CELL_SPOT, ENVELOPE, "Cell where record K restores him"),
+               (TRUNKS_SPOT, TRUNKS_ENVELOPE, "Trunks where record K restores him"))
+
+# The owner edited map 142 after future_v1 and added an OVERHEAD CLIFF: "I added a overhead clif,
+# trunks is meant to go under, so its moved from b3 to b1, where the rest of the cliff overhangs
+# are". BG1 is priority 1 here, so that art draws OVER whoever stands in it. The repo copy may not
+# carry the edit yet, so the rect is named here and added to the art the checks avoid whether the
+# document holds it or not. World px, inclusive.
+OVERHEAD_CLIFF = (416, 768, 520, 776)
+
+DOWN_STATE, STAND_STATE = 3, 0        # ext 57 (28, 3) is record K's own collapse; B0749 stands with
+                                      # ext 121 state 0, which sets a state and does not wait
+ARRIVE_SPEED = 500                    # ext 136 n: 5 px a frame (bible B0786), celljr's own fly speed
+# THE HAND-OFF RUNS VANILLA'S OWN FASTEST MAP-LOAD TRANSITION AND NO SETTLE WAIT. The owner,
+# 2026-11-08: "why are we reinvintng the wheel, the game has loads of transitions, find out the
+# length of time, etc, and thats what we use", then "what is the normal transition length in
+# vanilla???", and after the next build, twice more, that it is still too long.
+# `vanilla_transition_census.py` answers him. It walks every map-owned scene table and totals the
+# BLOCKING frames between each `fade_out` and its `fade_in`, which is what a player sits through.
+# Over the 17 records that also LOAD A MAP: the black runs 60 to 600 frames, the median is 240,
+# 240 is the commonest value, and only 3 of the 17 spend any wait between the fades.
+# THE FASTEST IS rom:0x3E424A, decoded op for op out of the base ROM:
+#   fade_out(30) ; load_map_at(11,1,1,528,400) ; camera(440,160,20) ; ext78(0,3) ; fade_in(30)
+# 60 frames of black, 1.0 second, and its shape is this record's shape: the cover, the load, the
+# staging, the camera, then the fade in. So this record takes its two numbers. The fade CENSUS of
+# bible B1017 made 120 look like the house value; it counts how long the screen spends FADING, not
+# how long the player waits, which is the number he asked about. `LOAD_SETTLE` stays DELETED:
+# bible B2170, B0748 and B0877 each decode a vanilla map-load transition with no settle wait, and
+# 0x3E424A spends none either.
+# WHAT THE BLACK COSTS NOW, op by op, each number read and not guessed:
+#   fade_out(30)                          30 frames, and the screen is FADING, not black
+#   load_map_at(7,100,...)                its own load time, which is NOT scripted and not measured.
+#                                         It runs with the screen ALREADY fully black, which is how
+#                                         0x3E424A covers its own load, so the cut cannot show it.
+#   ext 52 ; ext 51 ; ext 55              one frame each
+#   ext 57 (28, 3)                        64 frames, and this is now the LARGEST single piece of
+#                                         the black. Read out of the base ROM, not from a label:
+#                                         state 3's tick @0x0800E142 adds 1 to the u16 at +0x12
+#                                         every frame and runs `cmp r1,#0x40 ; bcc` @0x0800E150, so
+#                                         it calls @0x08007688 on the 64th frame. `ext 57` BLOCKS,
+#                                         so Cell really is down before anything else runs. It is
+#                                         STAGING, not a load margin: the load is covered by the
+#                                         fade that already finished in front of it.
+#   ext 55 ; ext 121                      one frame each
+#   ext 31 (PLATEAU_VIEW, speed 40)       about 388 px at speed 40, about 11 frames (bible B0766)
+#   fade_in(30)                           30 frames, and the screen is FADING, not black
+# So about 140 scripted frames, about 2.3 seconds. The same op count on the build before this one,
+# which he played and called too long, gives 120 + 3 + 64 + 2 + 11 + 120 = about 320. The map load's
+# own cost is in neither total, so both are FLOORS and the saving between them is the real number.
+SPLIT_FADE, ARRIVE_BEAT = 30, 30
+FAST_TRANSITION = 0x3E424A                   # the vanilla record SPLIT_FADE is read from
+
+# ===== constants: THE PLATEAU TALK, IN THE OWNER'S OWN WORDS =====
+# docs\design\2026-11-08-finale-dialogue.md section 4. This replaces the two placeholder records the
+# module used to ship. Every character between the quotation marks is his, typos kept. The only byte
+# added is the box break 0x0B, which ends a box and opens the next one on an A press (bible B0650),
+# and it is only ever placed at a mark he wrote himself.
+# His beat order, which is also the table D word order:
+#     Cell gets up                                          <- record S already stands him up
+#     Cell:   "Your energy will be refreshing. ..."          word 1
+#     Trunks: "Enough!"                                      word 2
+#     Trunks transforms to Super Saiyan if he is not already word 3
+#     Trunks: "You're overconfident Cell."                   word 4
+#     Cell:   "There's no reason not to be, ..."             word 5
+#     Trunks: "But count me as the last!"                    word 6
+#     the fight starts, on track 35                          word 7
+# The portrait ids are the Cell talk's own: 38 is Cell (vanilla ending records 18 and 21), 100 is base
+# Trunks and 101 is Super Saiyan Trunks (ending_fight BASE_PORTRAIT and SSJ_PORTRAIT). The portrait
+# follows the body on screen, so it turns Super Saiyan at the transform and not before.
+# Every box below measures under 294 px on the ROM font rom:0x2CC64, and under the 4 line page the
+# dialog box holds (bible B2095).
+BOX = "\x0b"
+CELL_PORTRAIT, TRUNKS_BASE_PORTRAIT, TRUNKS_SSJ_PORTRAIT = 38, 100, 101
+# HIS LOCKED TEXT, 2026-11-08. He took both vocative commas, the "start off", the apostrophes and
+# every terminal full stop in the table below, and he refused nothing here. The widest line of the
+# five is "A nice treat to start off my" at exactly 144 px, which is the line limit: the breaker
+# wraps only PAST 144, so it fits, and it is the tightest line in the finale.
+TALK = ((1, CELL_PORTRAIT, "Your energy will be refreshing." + BOX                  # 156 px, 2 lines
+         + "A nice treat to start off my journey in the time machine."),            # 285 px, 3 lines
+        (2, TRUNKS_BASE_PORTRAIT, "Enough!"),                                       # 41 px, 1 line
+        (4, TRUNKS_SSJ_PORTRAIT, "You're overconfident, Cell."),                    # 133 px, 1 line
+        (5, CELL_PORTRAIT, "There's no reason not to be." + BOX                     # 142 px, 2 lines
+         + "I've come across thousands like you."),                                 # 184 px, 2 lines
+        (6, TRUNKS_SSJ_PORTRAIT, "But count me as the last!"))                      # 131 px, 1 line
+
+# The transform, word 3. The owner put it BETWEEN two Trunks lines, so the form change is part of the
+# exchange and not a pre-roll.
+TRUNKS_PARTY, BASE_TRUNKS, SSJ_TRUNKS = 3, 132, 133   # his party id (ext 73) and his two bodies
+POWER_UP = 9                                          # player state 9: the power up, 160 frames (B0605)
+AURA_SOUND, WHITE = 55, 10                            # vanilla's own aura sound; GOKU_TRANSFORM's flash
+
+# The two music cues the owner picked by ear. He first said 15 for the plateau, then changed it:
+# "track 35 instead of 15". 35 is the one that ships.
+ROUND1_MUSIC, ROUND2_MUSIC = 28, 35
+
+# THE PLATEAU MAP NAMES THE SONG THAT IS ALREADY PLAYING, so its load is silent.
+# He heard the track change twice on the way to round 2 and said "the music transitions to a
+# different track between capsule corp and the arena, that should not be the case", then settled it:
+# "yes it should be 28, no transition until 35 when the round 2 starts."
+# `ext 39` reads the new map's `+0x24` and restarts the music UNLESS the new map names the record
+# that is playing (bible B1191, B2176). There is no "leave it alone" value, and 0 is song 0, not
+# silence. B2028 proves a script `music(n)` and a map `+0x24 = n` compute the SAME record pointer,
+# so naming the playing song makes the compare equal and the track carries unbroken.
+# Record R opens round 1 with `music(28)` and nothing between it and record S's load touches the
+# music, so 28 is what plays at the load. The plateau entry therefore carries 28, NOT the arena's
+# 38, and round 2's own `music(35)` stays the one transition he wants to hear.
+PLATEAU_MUSIC = ROUND1_MUSIC
+
+# No BATTLE_START_EXCEPTIONS any more. Record S used to raise the round 2 bar in the same record as
+# the map load, which is the template shape rom:0x3E9384 and needed the exception. The arrival talk
+# moved the battle start into its own record T, which loads no map and opens no fade, so record T is
+# the plain four-op shape and record S raises no bar at all. Neither breaks a rule, and a declared
+# exception that breaks no rule is what test_battle_start.stale_exceptions fails on.
 
 
 # ===== helpers =====
@@ -282,6 +440,36 @@ def open_cells(doc: dict) -> set:
             if bits[cy * FRAME_STRIDE + (cx >> 3)] >> (cx & 7) & 1}
 
 
+def art_cells(doc: dict) -> set:
+    """Every world cell where BG0 or BG1 draws, plus the owner's overhead cliff.
+
+    Both layers are priority 1 on his map, so what they draw covers the actor (bible B1182, B2113).
+    A layer's cell sits at world_cell = layer_cell - its own scroll offset in cells. A cell counts as
+    drawing when its tile index is not 0, which is the BLANK tile: that over-counts against the
+    document's own 1109 drawing cells and never under-counts, and a spot check may only err on the
+    strict side. OVERHEAD_CLIFF is added whether the document holds it or not; see its own note."""
+    across, _down = map_tiles(doc)
+    out = set()
+    for name in ("bg0", "bg1"):
+        layer = doc["layers"].get(name)
+        if not layer:
+            continue
+        shift = [(layer.get("offset") or [0, 0])[k] >> 10 >> 3 for k in (0, 1)]
+        for index, tile in enumerate(layer.get("cells") or ()):
+            if tile:
+                out.add((index % across - shift[0], index // across - shift[1]))
+    for cy in range(OVERHEAD_CLIFF[1] // 8, OVERHEAD_CLIFF[3] // 8 + 1):
+        for cx in range(OVERHEAD_CLIFF[0] // 8, OVERHEAD_CLIFF[2] // 8 + 1):
+            out.add((cx, cy))
+    return out
+
+
+def fly_lane(doc: dict = None) -> list:
+    """Every 8 px step of Trunks' westward fly-in, from his start to his landing spot."""
+    return [(x, PLATEAU_FLY_FROM[1])
+            for x in range(PLATEAU_FLY_FROM[0], PLATEAU_TRUNKS_SPOT[0] + 1, 8)]
+
+
 def reachable(cells: set, seed: tuple) -> set:
     """The cells a walker reaches from one of them. His map holds one sealed pocket, by design."""
     out, stack = set(), [seed]
@@ -307,15 +495,20 @@ def envelope_cells(spot: tuple, env: tuple = ENVELOPE) -> list:
 
 
 def plateau_entry(arena: bytes, layouts_at: int, items_at: int) -> bytes:
-    """The live map 6,100 entry with three words changed: the zone, the item list and the layout array.
+    """The live map 6,100 entry with FOUR words changed: zone, item list, layout array and music.
 
     The item list must be the plateau's OWN. Sharing battle_arena's would share its enemy item, and an
     item carries its death event at +0x14, so round 2's Cell would die into round 1's death record and
-    split again for ever."""
+    split again for ever.
+
+    The music word is the arrival's whole silence. This function is the LAST writer of it, after
+    `import_map` has laid the entry, so a value set anywhere else would be overwritten here. See
+    PLATEAU_MUSIC."""
     out = bytearray(arena)
     out[F_ZONE] = PLATEAU_ZONE
     out[F_ITEMS:F_ITEMS + 4] = _word(items_at + ROM_BASE)
     out[F_LAYOUTS:F_LAYOUTS + 4] = _word(layouts_at + ROM_BASE)
+    out[F_MUSIC:F_MUSIC + 4] = _word(PLATEAU_MUSIC)
     return bytes(out)
 
 
@@ -329,9 +522,14 @@ def round1(enemy_item: int) -> bytes:
     and camera_follow(0) panning the view onto the player.
 
     The segment is (50, 100). See ROUND1_BAR for why lo and hi mean what they mean and why an even
-    split is legal."""
-    return code(END_INDEX, battle_start(enemy_set=CELL_SET, enemy_item=enemy_item,
-                                        bar=CELL_SET, bar_range=ROUND1_BAR))
+    split is legal.
+
+    `music(28)` opens it, the way ending_fight's record F does. The owner, design section 3: "Track 28
+    plays when the battle starts". Record R replaces record F on every word that named it, so the cue
+    has to be here too, or the trial build would lose it."""
+    return code(END_INDEX, call("music", ROUND1_MUSIC),
+                battle_start(enemy_set=CELL_SET, enemy_item=enemy_item,
+                             bar=CELL_SET, bar_range=ROUND1_BAR))
 
 
 def split(enemy_item: int) -> bytes:
@@ -363,17 +561,41 @@ def split(enemy_item: int) -> bytes:
        drives an NPC. If the throw does not play, `ext 54 fly` is the fallback.
     4. TRUNKS FLIES AFTER HIM: `ext 121 (0, 12)` then `ext 136`, celljr's own "fly to C" pair, to the
        same row. The view is still parked, so both of them really do leave the frame.
-    5. THE HAND-OFF IS B0748's SHAPE: a cover, the `ext 39` load, the settle, the facing, the camera
-       park, the reveal. A death event that loads the next map is vanilla (Cell type 21's death event
-       loads map 14,3, bible B0654). `ext 39`, never `ext 35`: only ext 38 and ext 39 reach
-       `sub_0800C584` and build a player. The 120 frame settle is record A's own: a load does not
-       finish inside its own op. `ext 31` is needed because the load centres the camera on the player
-       at (x - 112, y - 76), which from TRUNKS_SPOT is (136, 492) and would cut Cell's head off.
-    6. ROUND 2 ARMS LAST, with the standard battle start: `ext 104` re-arms Cell from the plateau's own
-       enemy item, the bar shows the BOTTOM HALF, the HUD comes back and camera_follow(0) hands the
-       view over. That re-arm is vanilla's own multi-round wiring (B0832).
+    5. THE HAND-OFF IS B2170's SHAPE: the cover, the `ext 39` load, every staging op back to back,
+       the camera park, the reveal. NO SETTLE WAIT, because vanilla spends none: see SPLIT_FADE for
+       the census, the decoded vanilla record and the frame by frame cost of this one. A death event
+       that loads the next map is vanilla (Cell type 21's death event loads map 14,3, bible B0654).
+       `ext 39`, never `ext 35`: only ext 38 and ext 39 reach `sub_0800C584` and build a player.
+       `ext 31` is needed because the load centres the camera on the player at (x - 112, y - 76),
+       which from PLATEAU_FLY_FROM is (80, 380) and holds neither fighter.
+    5a. THE ARRIVAL IS A SCENE, not a pause (the owner, 2026-11-08: "with cell in a down state,
+       trunks flies in (from the left), cell stands up, placeholder convo, then fight continues").
+       Everything that used to be dead black time now carries the staging:
+         - the load drops the PLAYER at PLATEAU_FLY_FROM, 104 px west of the parked view, already
+           facing east and already in the flying pose, so the reveal shows an empty western sky;
+         - Cell is rebuilt on PLATEAU_CELL_SPOT facing WEST and posed DOWN, with record K's own
+           `ext 52` then `ext 51` then `ext 55` then `ext 57` shape, so the item's stand step cannot
+           put him back on his feet before the scene says so;
+         - `ext 31` parks the view at speed 40, so its known pan costs about 11 black frames
+           instead of about 195;
+         - then the fade in, and only then does anything move.
+       `ext 136` BLOCKS outside a group: its handler `@0x0800A346` ends in `BL actor_queue
+       @0x0800E04C`, the same tail as `ext 53`, and actor_queue runs the frame loop whenever the
+       group flag word is 0. So Trunks really has landed before Cell stands, and the order cannot
+       race. The move ends in state 0 for the PLAYER (bible B0787), so he lands standing, and
+       `ext 136` restores his facing byte (B0786), so he still faces east.
+    5b. CELL STANDS with `ext 121 (28, 0)`, which sets a state and does not wait (B0750). Vanilla's
+       own seq 20 stands both fighters the same way (B0749). `ext 57` is not used here: state 0 is
+       the idle loop, and an op that blocks until an anim reports done has nothing to wait for.
+    6. ROUND 2 ARMS IN ITS OWN RECORD, after the owner's own talk. A type 0 record cannot hold text,
+       so record S hands on to table D word 1 and the chain runs 1, 2, 3, 4, 5, 6, 7 in order: his
+       five lines, the transform between the two Trunks lines, and then word 7, the standard four-op
+       battle start on track 35. `ext 104` re-arms Cell from the plateau's own enemy item, the bar
+       shows the BOTTOM HALF, the HUD comes back and camera_follow(0) hands the view over. That
+       re-arm is vanilla's own multi-round wiring (B0832), and table D already runs vanilla TEXT
+       records from words 24 and 25, so a text record in this table is not a new thing. See TALK.
 
-    Next 26 = END, so the player gets control the moment the record finishes."""
+    Next TALK_WORDS[0] = Cell's first line."""
     head = (ext(88) + call("header_bit1", 0)
             + call("sound", PING)
             + call("palette_fx", SPLIT_FLASH)
@@ -389,14 +611,76 @@ def split(enemy_item: int) -> bytes:
              + ext(136, CELL_SET, *PUNCHED_TO, KNOCK_N)
              + call("block_end") + wait(BEAT))
     follow = ext(121, PLAYER, FLY_STATE) + ext(136, PLAYER, *FLIES_TO, FLY_N) + wait(BEAT)
-    arrive = (fade_out(SPLIT_FADE)
-              + call("load_map_at", PLATEAU_ZONE, PLATEAU_AREA, MAP_VARIATION, *TRUNKS_SPOT)
-              + wait(LOAD_SETTLE)
-              + ext(55, PLAYER, UP)
-              + ext(31, *ARRIVE_VIEW)
-              + fade_in(SPLIT_FADE)
-              + wait(ARRIVE_HOLD))
-    return code(END_INDEX, head, close, punch, follow, arrive,
+    load = (fade_out(SPLIT_FADE)
+            + call("load_map_at", PLATEAU_ZONE, PLATEAU_AREA, MAP_VARIATION, *PLATEAU_FLY_FROM))
+    stage = (ext(52, CELL_SET) + ext(51, CELL_SET, *PLATEAU_CELL_SPOT)
+             + ext(55, CELL_SET, WEST) + ext(57, CELL_SET, DOWN_STATE)
+             + ext(55, PLAYER, EAST) + ext(121, PLAYER, FLY_STATE)
+             + ext(31, *PLATEAU_VIEW))
+    land = (fade_in(SPLIT_FADE) + wait(ARRIVE_BEAT)
+            + ext(136, PLAYER, *PLATEAU_TRUNKS_SPOT, ARRIVE_SPEED)
+            + ext(55, PLAYER, EAST) + wait(ARRIVE_BEAT)
+            + ext(121, CELL_SET, STAND_STATE) + ext(55, CELL_SET, WEST) + wait(ARRIVE_BEAT))
+    return code(TALK_WORDS[0], head, close, punch, follow, load, stage, land)
+
+
+def talk_line(index: int, portrait: int, line: str) -> bytes:
+    """One line of the plateau talk, type 1, the shape of the vanilla Cell talk's own lines.
+
+    The words are the owner's, quoted in TALK. The record hands on to the next index, so the five
+    lines and the transform run in the order he wrote them."""
+    return text(index + 1, portrait, line)
+
+
+def transform() -> bytes:
+    """Word 3: "Trunks transforms to Super Saiyan if he is not already" (the owner, section 4).
+
+    This is future_androids' own word 4, which the owner has already play tested, with ONE op added
+    in front. Its shape:
+
+        ext 73 (3, 132) ; sound(55) ; pose(0, 9) ; palette_fx(10) ; sound_stop(55)
+        ; ext 73 (3, 133) ; flash_wait(10) ; face(0, EAST)
+
+    `ext 57` BLOCKS (future_androids reads the handler and Queue_Append in full), so all 160 frames
+    of player state 9 play before the swap. The white flash is the COVER: `ext 42 (10)` fades to white
+    and `ext 43 (10)` fades back, so the body changes while the screen is white (B1978).
+
+    THE LEADING `ext 73 (3, 132)` IS THE "if he is not already". No scene op reads the player's
+    current form, so the record cannot branch on it. It does not need to: `ext 73` sets the player
+    sprite from the raw set id (B0424), so setting 132 first makes the base body certain whatever the
+    player did in round 1. That matters, because **only the base set carries anim 9**: set 132 has
+    anims 0-9 and set 133 does not (B2179, walked on the base ROM). A power up posed on 133 would ask
+    for an animation that is not there. A player who never transformed sees no change at all, because
+    he is already 132; a player who did sees his aura drop for the frames before the pose starts, and
+    then power up again, which is the beat the owner asked for either way.
+
+    `ext 73` on a live leader is CONFIRMED: `sub_0800A8EC` writes the new set into the character
+    record and then rebuilds the LIVE object when that character leads. Trunks leads here.
+
+    The closing `ext 55` restores the facing by hand. He has faced EAST since he landed, and an op
+    that rebuilds the body is not worth trusting with a facing byte."""
+    return code(TRANSFORM_INDEX + 1,
+                ext(73, TRUNKS_PARTY, BASE_TRUNKS),
+                call("sound", AURA_SOUND),
+                ext(57, PLAYER, POWER_UP),
+                call("palette_fx", WHITE),
+                call("sound_stop", AURA_SOUND),
+                ext(73, TRUNKS_PARTY, SSJ_TRUNKS),
+                call("flash_wait", WHITE),
+                ext(55, PLAYER, EAST))
+
+
+def round2(enemy_item: int) -> bytes:
+    """The record that starts round 2: track 35, then the standard four-op battle start.
+
+    It had to leave record S, because record S now ends in a conversation and a type 0 record cannot
+    carry text. Nothing is left for this record to do: the load, the staging, the camera and the
+    talk all happened before it, which is exactly the state the four-op shape asks for.
+
+    `music(35)` opens it. The owner, section 4: "Track 35 starts as the fight starts", and he changed
+    the number himself: "track 35 instead of 15". A music op breaks none of the six battle-start
+    rules, which read map loads, fades, the camera, the HUD and the sets a record names."""
+    return code(END_INDEX, call("music", ROUND2_MUSIC),
                 battle_start(enemy_set=CELL_SET, enemy_item=enemy_item,
                              bar=CELL_SET, bar_range=ROUND2_BAR))
 
@@ -405,10 +689,13 @@ def plateau_npc_item(arena_npc: bytes, step_at: int) -> bytes:
     """The plateau's NPC Imperfect Cell: battle_arena's own item, moved onto the fight spot.
 
     The arena builds its NPC on CELL_START and the vanilla talk walks him to CELL_SPOT. Nothing walks
-    him here, because round 2 opens mid fight, so the item carries CELL_SPOT itself. Condition and set
-    are battle_arena's, so the map load builds him and `ext 104` has an actor of set 28 to replace."""
+    him here, so the item carries PLATEAU_CELL_SPOT itself, the right hand spot of the left to right
+    pair. Condition and set are battle_arena's, so the map load builds him. Record S then removes
+    this NPC and spawns a plain one on the same spot, because an item carries a step struct and a
+    step struct can argue with a scripted pose; the item still stands him in the right place if the
+    record is ever skipped, and `ext 104` has an actor of set 28 to replace either way."""
     item = bytearray(arena_npc)
-    item[N_AT:N_AT + 4] = struct.pack("<hh", *CELL_SPOT)
+    item[N_AT:N_AT + 4] = struct.pack("<hh", *PLATEAU_CELL_SPOT)
     item[N_STEP_LIST:N_STEP_LIST + 4] = _word(step_at + ROM_BASE)
     return bytes(item)
 
@@ -420,7 +707,7 @@ def plateau_enemy_item(arena_enemy: bytes, event_at: int, tail_at: int) -> bytes
     descriptor. Only the death event differs, and that is the whole point: round 1's death splits the
     fight and round 2's ends it."""
     item = bytearray(arena_enemy)
-    item[ITEM_AT:ITEM_AT + 4] = struct.pack("<hh", *CELL_SPOT)
+    item[ITEM_AT:ITEM_AT + 4] = struct.pack("<hh", *PLATEAU_CELL_SPOT)
     item[ITEM_EVENT:ITEM_EVENT + 4] = _word(event_at + ROM_BASE)
     item[ITEM_TAIL:ITEM_TAIL + 4] = _word(tail_at + ROM_BASE)
     return bytes(item)
@@ -444,16 +731,28 @@ def _check_design(doc: dict) -> dict:
 
     # One walkable REGION, not every open cell: his map seals a pocket inside the rock ring on
     # purpose, and both fighters have to be in the region the player can walk.
-    seed = (CELL_SPOT[0] // 8, CELL_SPOT[1] // 8)
+    seed = (PLATEAU_CELL_SPOT[0] // 8, PLATEAU_CELL_SPOT[1] // 8)
     if seed not in opened:
         raise ValueError(f"Cell's own cell {seed} is closed on {MAP_DOC.name}, so round 2 would open"
                          f" with him standing in a wall")
     reach = reachable(opened, seed)
-    for spot, env, who in PLATEAU_SPOTS:
+    art = art_cells(doc)
+    for spot, env, who in PLATEAU_SPOTS + DEATH_SPOTS:
         for cx, cy in envelope_cells(spot, env):
             if (cx, cy) not in reach:
                 raise ValueError(f"{who} at {spot} draws into ({cx},{cy}), which is closed or sealed"
                                  f" off on {MAP_DOC.name}")
+            if (cx, cy) in art:
+                raise ValueError(f"{who} at {spot} draws into ({cx},{cy}), where BG0 or BG1 art"
+                                 f" stands OVER him on {MAP_DOC.name}: his body would be hidden")
+
+    # The fly-in lane. He flies west to east along one row, so every step of it has to be walkable,
+    # clear of the sealed pocket and clear of the art that draws over him.
+    for spot in fly_lane(doc):
+        for cx, cy in envelope_cells(spot, TRUNKS_ENVELOPE_LR):
+            if (cx, cy) not in reach or (cx, cy) in art:
+                raise ValueError(f"the fly-in lane puts Trunks at {spot}, which draws into"
+                                 f" ({cx},{cy}): closed, sealed off, or under art that covers him")
 
     # The camera stops at the world edge, so walkable ground there would let him walk into nothing.
     edge = [c for c in opened if c[0] == 0 or c[1] == 0
@@ -464,21 +763,43 @@ def _check_design(doc: dict) -> dict:
 
     # Both views the split parks have to be inside HIS camera bound, or the clamp moves them and the
     # pair is not framed where it was drawn. The load centres the view at (x - 112, y - 76).
-    for view, where in ((ARRIVE_VIEW[:2], "the parked plateau view"),
-                        ((TRUNKS_SPOT[0] - 112, TRUNKS_SPOT[1] - 76), "the view the load centres")):
+    for view, where in ((PLATEAU_VIEW[:2], "the parked plateau view"),
+                        ((PLATEAU_FLY_FROM[0] - 112, PLATEAU_FLY_FROM[1] - 76),
+                         "the view the load centres")):
         if not (0 <= view[0] <= clamp[0] and 0 <= view[1] <= clamp[1]):
             raise ValueError(f"{where} {view} is outside his camera bound {clamp}: the clamp would"
                              f" move it, so the pair would not be framed where the record puts them")
+
+    # LEFT TO RIGHT, and Trunks really off screen at the reveal (the owner, 2026-11-08).
+    if PLATEAU_TRUNKS_SPOT[1] != PLATEAU_CELL_SPOT[1]:
+        raise ValueError(f"Trunks {PLATEAU_TRUNKS_SPOT} and Cell {PLATEAU_CELL_SPOT} are not on one"
+                         f" row, so they would not face each other left to right")
+    if not 0 < PLATEAU_CELL_SPOT[0] - PLATEAU_TRUNKS_SPOT[0] == PLATEAU_GAP:
+        raise ValueError(f"Cell must stand {PLATEAU_GAP} px EAST of Trunks, and he stands"
+                         f" {PLATEAU_CELL_SPOT[0] - PLATEAU_TRUNKS_SPOT[0]} px away")
+    if PLATEAU_FLY_FROM[0] >= PLATEAU_TRUNKS_SPOT[0] or PLATEAU_FLY_FROM[1] != PLATEAU_TRUNKS_SPOT[1]:
+        raise ValueError(f"the fly-in starts at {PLATEAU_FLY_FROM}, which is not due WEST of"
+                         f" {PLATEAU_TRUNKS_SPOT}: he would not fly in from the left")
+    if PLATEAU_FLY_FROM[0] + TRUNKS_ENVELOPE_LR[1] >= PLATEAU_VIEW[0]:
+        raise ValueError(f"at {PLATEAU_FLY_FROM} Trunks reaches x"
+                         f" {PLATEAU_FLY_FROM[0] + TRUNKS_ENVELOPE_LR[1]}, which is not left of the"
+                         f" parked view {PLATEAU_VIEW[:2]}: he would already be on screen")
+    for spot, env, who in PLATEAU_SPOTS[:2]:
+        left, right = spot[0] - env[0], spot[0] + env[1]
+        top, bottom = spot[1] - env[2], spot[1] + env[3]
+        if (left < PLATEAU_VIEW[0] or right > PLATEAU_VIEW[0] + VIEW[0]
+                or top < PLATEAU_VIEW[1] or bottom > PLATEAU_VIEW[1] + VIEW[1]):
+            raise ValueError(f"{who} at {spot} draws x {left}..{right} y {top}..{bottom}, outside the"
+                             f" parked plateau view {PLATEAU_VIEW[:2]} plus {VIEW}: his frame is cut")
 
     # The rest is the SPLIT's own px arithmetic on map 6,100 and does not read his map at all.
     for spot, who, up, down in ((CELL_SPOT, "Cell", ENVELOPE[2], ENVELOPE[3]),
                                 (TRUNKS_SPOT, "Trunks", TRUNKS_UP, TRUNKS_DOWN),
                                 (PUNCH_FROM, "Trunks at the punch", TRUNKS_UP, TRUNKS_DOWN)):
         top, bottom = spot[1] - up, spot[1] + down
-        for view, where in ((SPLIT_VIEW, "the arena view"), (ARRIVE_VIEW, "the plateau view")):
-            if top < view[1] or bottom > view[1] + VIEW[1]:
-                raise ValueError(f"{who} at {spot} draws {top}..{bottom}, outside {where} {view[:2]}"
-                                 f" plus {VIEW[1]}: his frame would be cut")
+        if top < SPLIT_VIEW[1] or bottom > SPLIT_VIEW[1] + VIEW[1]:
+            raise ValueError(f"{who} at {spot} draws {top}..{bottom}, outside the arena view"
+                             f" {SPLIT_VIEW[:2]} plus {VIEW[1]}: his frame would be cut")
     if PUNCHED_TO[1] + ENVELOPE[3] >= SPLIT_VIEW[1] or FLIES_TO[1] + TRUNKS_DOWN >= SPLIT_VIEW[1]:
         raise ValueError(f"the punch sends Cell to {PUNCHED_TO} and Trunks to {FLIES_TO}, which are"
                          f" not above the view top {SPLIT_VIEW[1]}: neither leaves the frame")
@@ -498,7 +819,9 @@ def _check_design(doc: dict) -> dict:
             "pocket_cells": len(opened) - len(reach),
             "open_box": (min(xs) * 8, min(ys) * 8, max(xs) * 8 + 7, max(ys) * 8 + 7),
             "priorities": {name: doc["layers"][name]["priority"] for name in sorted(doc["layers"])},
-            "static_tiles": len(doc["tiles"]), "groups": len(doc.get("animated") or [])}
+            "static_tiles": len(doc["tiles"]), "groups": len(doc.get("animated") or []),
+            "art_cells": len(art), "art_over_walkable": len(art & reach),
+            "fly_lane_px": PLATEAU_TRUNKS_SPOT[0] - PLATEAU_FLY_FROM[0]}
 
 
 def _check(rom: bytearray, alloc) -> tuple:
@@ -604,9 +927,11 @@ def _check(rom: bytearray, alloc) -> tuple:
                          f" is type {weak_cell}: round 1 and round 2 would not fight the same enemy")
     # The two spots round 2 opens on are the ones _check_design proves against HIS collision.
     # PUNCH_FROM and TRUNKS_START are ARENA spots and are proved against map 6,100's own frame below.
-    if {CELL_SPOT, TRUNKS_SPOT} != {spot for spot, _env, _who in PLATEAU_SPOTS}:
+    if ({PLATEAU_CELL_SPOT, PLATEAU_TRUNKS_SPOT, PLATEAU_FLY_FROM}
+            != {spot for spot, _env, _who in PLATEAU_SPOTS}):
         raise ValueError(f"PLATEAU_SPOTS is {[s for s, _e, _w in PLATEAU_SPOTS]}, and round 2 opens"
-                         f" with Cell at {CELL_SPOT} and Trunks at {TRUNKS_SPOT}")
+                         f" with Cell at {PLATEAU_CELL_SPOT}, Trunks at {PLATEAU_TRUNKS_SPOT} and"
+                         f" the fly-in starting at {PLATEAU_FLY_FROM}")
     # THE PUNCH HAPPENS ON THE ARENA, so the walk needs open ground on map 6,100 and not on the
     # plateau. _check_design proves his map; this proves the arena, out of its own live frame.
     arena_layout = _u32(rom, _u32(arena, F_LAYOUTS) - ROM_BASE) - ROM_BASE
@@ -628,12 +953,14 @@ def _check(rom: bytearray, alloc) -> tuple:
 def _check_overlaps(notes: dict, sites: list, table_d: int, fight_words: list) -> None:
     """Every write of this module that lands on an earlier module's bytes is a DECLARED hand-off.
 
-    There are three kinds: the map table literals and the count byte, which is how each relocation
+    There are four kinds: the map table literals and the count byte, which is how each relocation
     hands the table on; ending table word 23, which moves from ending_fight's record F to record R;
-    and word 0 of ending_fight's table D, which moves from record K to record S. Record A is NOT
-    here any more, because rung 5 leaves it loading the arena."""
+    word 0 of ending_fight's table D, which moves from record K to record S; and words 1 to 7 of that
+    same table, which were END words and now carry the owner's own plateau talk, the transform and
+    round 2's battle start. Record A is NOT here any more, because rung 5 leaves it loading the arena."""
     expected = {(lit, 4) for lit in BASE_LITERALS} \
         | {(ENTRY3_LITERAL, 4), (MAP_COUNT_BYTE, 1), (table_d, 4)} \
+        | {(table_d + 4 * k, 4) for k in TALK_CHAIN} \
         | {(word, 4) for word in fight_words}
     for start, size, what in sites:
         for name, (lo, n) in _written(notes):
@@ -680,7 +1007,7 @@ def apply(rom: bytearray, alloc) -> None:
                    "the plateau enemy's event struct (table D2, so round 2's death ends the ending)")
     npc = place(plateau_npc_item(bytes(rom[arena_notes["npc_item"]:
                                            arena_notes["npc_item"] + NPC_ITEM_SIZE]), step),
-                f"the plateau NPC Cell (set {CELL_SET}, cond 0, on {CELL_SPOT})")
+                f"the plateau NPC Cell (set {CELL_SET}, cond 0, on {PLATEAU_CELL_SPOT})")
     enemy = place(plateau_enemy_item(bytes(rom[arena_notes["item"]:
                                                arena_notes["item"] + ITEM_SIZE]), event2, tail),
                   "the plateau enemy (Imperfect Cell, cond 1, its OWN death event)")
@@ -690,13 +1017,22 @@ def apply(rom: bytearray, alloc) -> None:
     rnd1 = place(round1(ENEMY_INDEX), "record R (round 1 on the arena, the TOP half of the bar)")
     boundary = place(split(ENEMY_INDEX),
                      "record S (ping, flash, Cell punched off screen, Trunks flies after him, the"
-                     " plateau loads and round 2 arms with the BOTTOM half of the bar)")
+                     " plateau loads, Cell lies down, Trunks flies in from the west and lands, and"
+                     " Cell stands up)")
+    talk = [place(talk_line(index, portrait, line),
+                  f"the owner's line for portrait {portrait} (table D word {index})")
+            for index, portrait, line in TALK]
+    change = place(transform(),
+                   f"record X (Trunks powers up to Super Saiyan, table D word {TRANSFORM_INDEX})")
+    rnd2 = place(round2(ENEMY_INDEX),
+                 f"record T (round 2 starts: the standard battle start with the BOTTOM half of the"
+                 f" bar, table D word {ROUND2_INDEX})")
 
     # THE MAP IS HIS, and import_map lays it: the four BG layer records, one frame per DISTINCT
     # block, the collision and terrain frames, the tile stream, the animated tile groups, the 0x50
     # byte layout with the camera pair COMPUTED from his world, the appended map table and the five
     # table hand-offs. This module writes no tile and no collision bit of its own.
-    rom[:] = import_map.apply(bytes(rom), doc, PLATEAU_ZONE, PLATEAU_AREA, music=ARENA_MUSIC,
+    rom[:] = import_map.apply(bytes(rom), doc, PLATEAU_ZONE, PLATEAU_AREA, music=PLATEAU_MUSIC,
                               banner=ARENA_BANNER, combat=ARENA_COMBAT, alloc=alloc.alloc,
                               sites=sites)
 
@@ -716,11 +1052,12 @@ def apply(rom: bytearray, alloc) -> None:
                          f" {design['clamp']}: a pair that is not his world's is the fault that"
                          f" stopped the camera short of walkable ground")
 
-    # The entry becomes the LIVE arena entry with three words changed, so map 7,100 keeps the arena's
-    # combat, banner, music and 2 item list, and names its OWN items and the layout import_map wrote.
+    # The entry becomes the LIVE arena entry with four words changed, so map 7,100 keeps the arena's
+    # combat, banner and 2 item list, and names its OWN items, the layout import_map wrote and the
+    # song already playing when the split loads it.
     put(entry_at, plateau_entry(arena, layouts, items),
         f"the map {PLATEAU_ZONE},{PLATEAU_AREA} entry (the live {ARENA_ZONE},{ARENA_AREA} entry with"
-        f" the zone, the item list and the layout array changed)")
+        f" the zone, the item list, the layout array and the music word changed)")
 
     for word in fight_words:
         where = ("the ending table" if word == FIGHT_WORD
@@ -728,6 +1065,10 @@ def apply(rom: bytearray, alloc) -> None:
         put(word, _word(rnd1 + ROM_BASE), f"{where} word {FIGHT_INDEX} (record R, round 1)")
     put(table_d, _word(boundary + ROM_BASE),
         "table D word 0 (record S: round 1's death is now the split, not the end of the fight)")
+    for index, at in zip(TALK_WORDS + (TRANSFORM_INDEX, ROUND2_INDEX), talk + [change, rnd2]):
+        put(table_d + 4 * index, _word(at + ROM_BASE),
+            f"table D word {index} (the arrival talk, the transform and round 2's battle start,"
+            f" which were END)")
     _check_overlaps(alloc.notes, sites, table_d, fight_words)
 
     alloc.notes["plateau"] = {
@@ -751,7 +1092,14 @@ def apply(rom: bytearray, alloc) -> None:
         "npc_item_index": NPC_INDEX, "item_index": ENEMY_INDEX,
         "event": event2, "death_table": table_d2, "death_words": TABLE_WORDS,
         "round1": rnd1, "split": boundary, "arena_table": table_d,
+        "talk": talk, "talk_words": TALK_WORDS, "round2": rnd2, "round2_word": ROUND2_INDEX,
+        "transform": change, "transform_word": TRANSFORM_INDEX,
+        "round1_music": ROUND1_MUSIC, "round2_music": ROUND2_MUSIC, "plateau_music": PLATEAU_MUSIC,
         "fight_words": sorted(fight_words),
         "round1_bar": ROUND1_BAR, "round2_bar": ROUND2_BAR,
         "cell_spot": CELL_SPOT, "trunks_spot": TRUNKS_SPOT,
+        "plateau_cell_spot": PLATEAU_CELL_SPOT, "plateau_trunks_spot": PLATEAU_TRUNKS_SPOT,
+        "fly_from": PLATEAU_FLY_FROM, "plateau_view": PLATEAU_VIEW,
+        "art_cells": design["art_cells"], "art_over_walkable": design["art_over_walkable"],
+        "fly_lane_px": design["fly_lane_px"],
         "sites": sorted(sites)}

@@ -119,6 +119,15 @@ R10 = (0x89A71C, bytes.fromhex(                        # cellgames_ssj (r27) cop
     "11"))
 RELAYS = ((VEGETA_TABLE, R8, True), (TRUNKS_TABLE, R9, True), (GOHAN_TABLE, R10, False))   # bar: next fight
 
+# tests\test_battle_start.py rule 6: a record that raises a boss bar loads no map and opens no fade.
+# These three really do open a scene, so they are declared here with the reason. Each key is a path
+# into this module's own alloc.notes, because an allocated record moves when an earlier module does.
+BATTLE_START_EXCEPTIONS = {
+    "seq31": "the Cell Jr relay opens on a fade: Gohan is moved and the leader changes under it",
+    f"relays.0x{VEGETA_TABLE:X}": "the relay to Vegeta fades out, moves Gohan and swaps the leader",
+    f"relays.0x{TRUNKS_TABLE:X}": "the relay to Trunks fades out, moves Gohan and swaps the leader",
+}
+
 SPC_TABLE = 0x3EB704                                   # type 24 Cell's death event: self-destruct to Super Perfect
 SEQ52, SEQ52_PLACE_AT = 0x3EB21C, 33                                # seq 52 and its Gohan placing ops
 SEQ52_PLACE = (SEQ52 + SEQ52_PLACE_AT, bytes.fromhex("1d030086608730023e" "1d0200060237"))   # (432,472), right
