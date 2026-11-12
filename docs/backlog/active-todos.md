@@ -544,3 +544,14 @@ The box itself. Bible B0706: sound 62 is the vanilla "Journal Updated!" chime an
 and keep `test_vanilla_plays_62_right_before_every_journal_box` green. Flag 196 is confirmed set by
 farewell record 87 at its `ext 27 (196)`, before the ending begins, so it is a sound driver for the
 entry's done and active scripts.
+
+## 2026-11-12, open and waiting on the owner
+
+| # | item | waiting on | why it is parked |
+|---|---|---|---|
+| 1 | **Vegeta Z+ unlock design.** Leave the chamber exit `ext 73 (2, 138)` at `rom:0x3DE6BB` alone as the unlock; point the post-chamber base's Z at `set:140` and make `set:139` the Z+ step with portrait 122. | his yes | it redesigns a built module |
+| 2 | **New Vegeta power-up frames.** The borrowed anim 9 is base Vegeta's, so the power up reads as "revert to base, then transform". Owner 2026-11-12: "Ill build that with piccolo later". | his art | cosmetic, and he owns all art |
+| 3 | **Z+ halves his speed**, 1.75/3.00 down to 0.75/1.75. Vanilla's own trade for the ascended grade, measured in his save state 2. He never asked for it. | his call | a gameplay change he did not request |
+| 4 | **`fullpower_ssj` drops Goku out of Super Saiyan at the Vegeta chamber exit.** Record `rom:0x89A9C0`, table `rom:0x3DE6F4` word 32: `appearance(4, 61)` runs BEFORE `leader(2)`, so `appearance_revert` undoes it. Fix is a reorder. | his rebuild timing | `fullpower_ssj` is in `build_list_core.txt`, so it moves both master SHA-1s |
+| 5 | **Piccolo Z+ stats.** He asked it himself and never answered: "+10 with the healing back", "+10 with no healing", or "healing as a separate ability". | his answer | it decides the form object and whether `pool_ref` has to move |
+| 6 | **Piccolo Z+ (phase 2) is not built.** Phase 1 only. The unlock already exists: the Kami fusion's `ext 82 (1)` at `rom:0x3E0D75` is spare now that Z starts open. Needs the anim 9 borrow for `set:104`, portrait id 123 with a `MAX_ID` bump, a placeholder sprite, and item 5 answered. | item 5 | blocked on the stats decision |
