@@ -1,0 +1,1 @@
+{"name": "stamp 47", "w": 2, "h": 6, "cells": {"bg1": [[10, 150, 0], [166, 71, 0], null, null, null, null, null, null, null, null, null, null], "bg2": [null, null, [8, 19, 0], null, [8, 23, 0], [8, 24, 0], [0, 80, 0], [8, 29, 0], [0, 96, 0], [0, 97, 0], [8, 28, 0], [0, 114, 0]]}, "animated": [], "collision": [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}

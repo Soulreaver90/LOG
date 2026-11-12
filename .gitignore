@@ -104,3 +104,7 @@ docs/ledger/
 
 # The superpowers skill workspace: per-plan ledgers, briefs and review packages. Session scratch.
 .superpowers/
+
+# The map editor's crash-recovery snapshots. One file per autosave tick, 30 of them for one map.
+# The owner's real work is in map-editor\maps\ and map-editor\library\, which ARE kept.
+scripts/permanent/map-editor/autosave/
