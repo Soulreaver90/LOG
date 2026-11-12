@@ -1,0 +1,8450 @@
+[
+ {
+  "index": 0,
+  "zone": 1,
+  "area": 1,
+  "entry": 9682572,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 227,
+  "word24": 23,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141221248,
+  "props": 3,
+  "warps": 0,
+  "collision": 141220904,
+  "scene_tables": [
+   3894984,
+   3895900
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 1,
+  "zone": 1,
+  "area": 2,
+  "entry": 9682628,
+  "variations": 1,
+  "regions": 1,
+  "items": 4,
+  "combat": 1,
+  "banner": 229,
+  "word24": 138336060,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141216616,
+  "props": 1,
+  "warps": 1,
+  "collision": 141215676,
+  "scene_tables": [
+   3898076
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 2,
+  "zone": 1,
+  "area": 3,
+  "entry": 9682684,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 221,
+  "word24": 7,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141203148,
+  "props": 0,
+  "warps": 0,
+  "collision": 141200816,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 3,
+  "zone": 1,
+  "area": 4,
+  "entry": 9682740,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 0,
+  "banner": 221,
+  "word24": 138336252,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141200104,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [
+   3900224
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 4,
+  "zone": 1,
+  "area": 5,
+  "entry": 9682796,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 227,
+  "word24": 42,
+  "enter": 138336296,
+  "leave": 0,
+  "layout": 141199900,
+  "props": 4,
+  "warps": 0,
+  "collision": 141198024,
+  "scene_tables": [
+   3897220
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 5,
+  "zone": 1,
+  "area": 6,
+  "entry": 9682852,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 221,
+  "word24": 22,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141192064,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 6,
+  "zone": 1,
+  "area": 7,
+  "entry": 9682908,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 221,
+  "word24": 16,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141191832,
+  "props": 0,
+  "warps": 0,
+  "collision": 141191804,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 7,
+  "zone": 2,
+  "area": 1,
+  "entry": 9682964,
+  "variations": 2,
+  "regions": 13,
+  "items": 19,
+  "combat": 1,
+  "banner": 138336542,
+  "word24": 138336516,
+  "enter": 138336566,
+  "leave": 0,
+  "layout": 141189852,
+  "props": 10,
+  "warps": 2,
+  "collision": 141166576,
+  "scene_tables": [
+   3900508,
+   3901600,
+   3901744,
+   3901828,
+   3902240,
+   3902392,
+   3912376
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 8,
+  "zone": 2,
+  "area": 2,
+  "entry": 9683020,
+  "variations": 2,
+  "regions": 5,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 138337900,
+  "leave": 0,
+  "layout": 141150216,
+  "props": 2,
+  "warps": 3,
+  "collision": 141143044,
+  "scene_tables": [
+   3902568,
+   3902688,
+   3902868
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 9,
+  "zone": 2,
+  "area": 3,
+  "entry": 9683076,
+  "variations": 2,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141137188,
+  "props": 0,
+  "warps": 1,
+  "collision": 141095496,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 10,
+  "zone": 2,
+  "area": 4,
+  "entry": 9683132,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 138338376,
+  "leave": 0,
+  "layout": 141134512,
+  "props": 2,
+  "warps": 2,
+  "collision": 141134264,
+  "scene_tables": [
+   3902996,
+   3903096
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 11,
+  "zone": 2,
+  "area": 5,
+  "entry": 9683188,
+  "variations": 2,
+  "regions": 3,
+  "items": 0,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141131968,
+  "props": 1,
+  "warps": 1,
+  "collision": 141128236,
+  "scene_tables": [
+   3903212,
+   3903380,
+   3903600
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 12,
+  "zone": 2,
+  "area": 6,
+  "entry": 9683244,
+  "variations": 2,
+  "regions": 4,
+  "items": 4,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 141125344,
+  "props": 4,
+  "warps": 3,
+  "collision": 141117432,
+  "scene_tables": [
+   3903212,
+   3904064,
+   3904280
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 13,
+  "zone": 2,
+  "area": 7,
+  "entry": 9683300,
+  "variations": 2,
+  "regions": 1,
+  "items": 8,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 138339332,
+  "leave": 0,
+  "layout": 141111448,
+  "props": 3,
+  "warps": 3,
+  "collision": 141102604,
+  "scene_tables": [
+   3904368
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 14,
+  "zone": 2,
+  "area": 8,
+  "entry": 9683356,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 6,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141095720,
+  "props": 3,
+  "warps": 0,
+  "collision": 141095496,
+  "scene_tables": [
+   3904924,
+   3905628
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 15,
+  "zone": 2,
+  "area": 9,
+  "entry": 9683412,
+  "variations": 2,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 203,
+  "word24": 30,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141093804,
+  "props": 0,
+  "warps": 1,
+  "collision": 141092440,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 16,
+  "zone": 2,
+  "area": 19,
+  "entry": 9683468,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 208,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141091400,
+  "props": 0,
+  "warps": 1,
+  "collision": 141091324,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 17,
+  "zone": 2,
+  "area": 20,
+  "entry": 9683524,
+  "variations": 1,
+  "regions": 7,
+  "items": 5,
+  "combat": 0,
+  "banner": 207,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141090224,
+  "props": 3,
+  "warps": 2,
+  "collision": 141089644,
+  "scene_tables": [
+   3900508,
+   3902080,
+   3906800,
+   3907484,
+   3907624,
+   3908076,
+   3908356,
+   3909788,
+   3911292
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 18,
+  "zone": 2,
+  "area": 21,
+  "entry": 9683580,
+  "variations": 1,
+  "regions": 4,
+  "items": 2,
+  "combat": 0,
+  "banner": 207,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141087208,
+  "props": 1,
+  "warps": 1,
+  "collision": 141086920,
+  "scene_tables": [
+   3911608,
+   3912376,
+   3987020
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 19,
+  "zone": 2,
+  "area": 22,
+  "entry": 9683636,
+  "variations": 2,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 207,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141084628,
+  "props": 1,
+  "warps": 2,
+  "collision": 141082716,
+  "scene_tables": [
+   3913416
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 20,
+  "zone": 2,
+  "area": 23,
+  "entry": 9683692,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 0,
+  "banner": 207,
+  "word24": 10,
+  "enter": 138341596,
+  "leave": 0,
+  "layout": 141081088,
+  "props": 1,
+  "warps": 1,
+  "collision": 141080752,
+  "scene_tables": [
+   3913576,
+   3913716,
+   3913820
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 21,
+  "zone": 2,
+  "area": 25,
+  "entry": 9683748,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 0,
+  "banner": 207,
+  "word24": 30,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141078400,
+  "props": 1,
+  "warps": 0,
+  "collision": 141077168,
+  "scene_tables": [
+   3913944
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 22,
+  "zone": 2,
+  "area": 26,
+  "entry": 9683804,
+  "variations": 1,
+  "regions": 0,
+  "items": 8,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141075496,
+  "props": 4,
+  "warps": 3,
+  "collision": 141074928,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 23,
+  "zone": 2,
+  "area": 27,
+  "entry": 9683860,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141071112,
+  "props": 6,
+  "warps": 2,
+  "collision": 141070532,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 24,
+  "zone": 2,
+  "area": 28,
+  "entry": 9683916,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141064160,
+  "props": 7,
+  "warps": 3,
+  "collision": 141063700,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 25,
+  "zone": 2,
+  "area": 29,
+  "entry": 9683972,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141061352,
+  "props": 4,
+  "warps": 1,
+  "collision": 141058836,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 26,
+  "zone": 2,
+  "area": 30,
+  "entry": 9684028,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141055556,
+  "props": 2,
+  "warps": 5,
+  "collision": 141054732,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 27,
+  "zone": 2,
+  "area": 31,
+  "entry": 9684084,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141050932,
+  "props": 3,
+  "warps": 2,
+  "collision": 141049240,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 28,
+  "zone": 2,
+  "area": 32,
+  "entry": 9684140,
+  "variations": 1,
+  "regions": 5,
+  "items": 6,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138343912,
+  "leave": 0,
+  "layout": 141046812,
+  "props": 5,
+  "warps": 5,
+  "collision": 141045356,
+  "scene_tables": [
+   3914680
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 29,
+  "zone": 2,
+  "area": 33,
+  "entry": 9684196,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141039876,
+  "props": 2,
+  "warps": 2,
+  "collision": 141038884,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 30,
+  "zone": 2,
+  "area": 34,
+  "entry": 9684252,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141033836,
+  "props": 0,
+  "warps": 1,
+  "collision": 141033464,
+  "scene_tables": [
+   3915112
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 31,
+  "zone": 2,
+  "area": 35,
+  "entry": 9684308,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138345092,
+  "leave": 138345099,
+  "layout": 141031588,
+  "props": 0,
+  "warps": 4,
+  "collision": 141031156,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 32,
+  "zone": 2,
+  "area": 36,
+  "entry": 9684364,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138345316,
+  "leave": 138345099,
+  "layout": 141028876,
+  "props": 0,
+  "warps": 5,
+  "collision": 141028412,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 33,
+  "zone": 2,
+  "area": 37,
+  "entry": 9684420,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138345536,
+  "leave": 138345099,
+  "layout": 141026088,
+  "props": 0,
+  "warps": 4,
+  "collision": 141024284,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 34,
+  "zone": 2,
+  "area": 38,
+  "entry": 9684476,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141020048,
+  "props": 8,
+  "warps": 5,
+  "collision": 141019324,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 35,
+  "zone": 2,
+  "area": 39,
+  "entry": 9684532,
+  "variations": 1,
+  "regions": 4,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141015812,
+  "props": 0,
+  "warps": 1,
+  "collision": 141015620,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 36,
+  "zone": 2,
+  "area": 40,
+  "entry": 9684588,
+  "variations": 1,
+  "regions": 4,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141013708,
+  "props": 0,
+  "warps": 3,
+  "collision": 141013436,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 37,
+  "zone": 2,
+  "area": 41,
+  "entry": 9684644,
+  "variations": 1,
+  "regions": 4,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141011412,
+  "props": 0,
+  "warps": 1,
+  "collision": 141011216,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 38,
+  "zone": 2,
+  "area": 42,
+  "entry": 9684700,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138347068,
+  "leave": 138347098,
+  "layout": 141009344,
+  "props": 2,
+  "warps": 1,
+  "collision": 141009104,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 39,
+  "zone": 2,
+  "area": 43,
+  "entry": 9684756,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138348156,
+  "leave": 138348186,
+  "layout": 141008104,
+  "props": 2,
+  "warps": 1,
+  "collision": 141007796,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 40,
+  "zone": 2,
+  "area": 44,
+  "entry": 9684812,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138349288,
+  "leave": 138349318,
+  "layout": 141006816,
+  "props": 2,
+  "warps": 1,
+  "collision": 141006496,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 41,
+  "zone": 2,
+  "area": 45,
+  "entry": 9684868,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141004336,
+  "props": 0,
+  "warps": 2,
+  "collision": 141004132,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 42,
+  "zone": 2,
+  "area": 46,
+  "entry": 9684924,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141003188,
+  "props": 0,
+  "warps": 3,
+  "collision": 141002952,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 43,
+  "zone": 2,
+  "area": 47,
+  "entry": 9684980,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141001468,
+  "props": 0,
+  "warps": 2,
+  "collision": 141001264,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 44,
+  "zone": 2,
+  "area": 48,
+  "entry": 9685036,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 141000252,
+  "props": 0,
+  "warps": 2,
+  "collision": 140999832,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 45,
+  "zone": 2,
+  "area": 49,
+  "entry": 9685092,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140998820,
+  "props": 0,
+  "warps": 3,
+  "collision": 140998592,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 46,
+  "zone": 2,
+  "area": 50,
+  "entry": 9685148,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 1,
+  "banner": 203,
+  "word24": 138351096,
+  "enter": 138351108,
+  "leave": 0,
+  "layout": 140997120,
+  "props": 4,
+  "warps": 1,
+  "collision": 140995348,
+  "scene_tables": [
+   3915628,
+   3921164
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 47,
+  "zone": 2,
+  "area": 51,
+  "entry": 9685204,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138351312,
+  "leave": 0,
+  "layout": 140993092,
+  "props": 2,
+  "warps": 1,
+  "collision": 140991668,
+  "scene_tables": [],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 48,
+  "zone": 2,
+  "area": 52,
+  "entry": 9685260,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 203,
+  "word24": 3,
+  "enter": 138351536,
+  "leave": 0,
+  "layout": 140990268,
+  "props": 1,
+  "warps": 1,
+  "collision": 140990084,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 49,
+  "zone": 3,
+  "area": 1,
+  "entry": 9685316,
+  "variations": 1,
+  "regions": 2,
+  "items": 3,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 138351736,
+  "leave": 138351776,
+  "layout": 140989112,
+  "props": 4,
+  "warps": 1,
+  "collision": 140987504,
+  "scene_tables": [
+   3921636
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 50,
+  "zone": 3,
+  "area": 2,
+  "entry": 9685372,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140982276,
+  "props": 1,
+  "warps": 5,
+  "collision": 140981612,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 51,
+  "zone": 3,
+  "area": 3,
+  "entry": 9685428,
+  "variations": 1,
+  "regions": 2,
+  "items": 4,
+  "combat": 1,
+  "banner": 138353056,
+  "word24": 138353044,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140976036,
+  "props": 2,
+  "warps": 2,
+  "collision": 140975576,
+  "scene_tables": [],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 52,
+  "zone": 3,
+  "area": 4,
+  "entry": 9685484,
+  "variations": 1,
+  "regions": 2,
+  "items": 8,
+  "combat": 1,
+  "banner": 223,
+  "word24": 138353552,
+  "enter": 138353564,
+  "leave": 0,
+  "layout": 140971024,
+  "props": 1,
+  "warps": 1,
+  "collision": 140970856,
+  "scene_tables": [
+   3925912,
+   3933508,
+   3933780,
+   3934256,
+   3934696,
+   3934916,
+   3935388,
+   3936104,
+   3936656
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 53,
+  "zone": 3,
+  "area": 5,
+  "entry": 9685540,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 223,
+  "word24": 6,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140967980,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 54,
+  "zone": 3,
+  "area": 6,
+  "entry": 9685596,
+  "variations": 1,
+  "regions": 1,
+  "items": 10,
+  "combat": 1,
+  "banner": 223,
+  "word24": 6,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140965408,
+  "props": 0,
+  "warps": 0,
+  "collision": 140965120,
+  "scene_tables": [
+   3931612,
+   3932192,
+   3933508,
+   3933780,
+   3934256,
+   3934696,
+   3934916,
+   3935388,
+   3936104,
+   3936656
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 55,
+  "zone": 3,
+  "area": 7,
+  "entry": 9685652,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 138354492,
+  "leave": 0,
+  "layout": 140959364,
+  "props": 1,
+  "warps": 5,
+  "collision": 140958636,
+  "scene_tables": [
+   3932268,
+   3932452
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "talk"
+  ]
+ },
+ {
+  "index": 56,
+  "zone": 3,
+  "area": 8,
+  "entry": 9685708,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 138355064,
+  "leave": 0,
+  "layout": 140952856,
+  "props": 1,
+  "warps": 1,
+  "collision": 140952676,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 57,
+  "zone": 3,
+  "area": 9,
+  "entry": 9685764,
+  "variations": 1,
+  "regions": 3,
+  "items": 8,
+  "combat": 1,
+  "banner": 223,
+  "word24": 138353552,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140949544,
+  "props": 0,
+  "warps": 1,
+  "collision": 140949252,
+  "scene_tables": [
+   3933508,
+   3933780,
+   3934256,
+   3934696,
+   3934916,
+   3935388,
+   3936104,
+   3936656,
+   3936772,
+   3937284
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 58,
+  "zone": 3,
+  "area": 10,
+  "entry": 9685820,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140946216,
+  "props": 0,
+  "warps": 2,
+  "collision": 140946032,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 59,
+  "zone": 3,
+  "area": 11,
+  "entry": 9685876,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 138356292,
+  "leave": 0,
+  "layout": 140942376,
+  "props": 11,
+  "warps": 4,
+  "collision": 140940348,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 60,
+  "zone": 3,
+  "area": 12,
+  "entry": 9685932,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 138356900,
+  "leave": 0,
+  "layout": 140931992,
+  "props": 1,
+  "warps": 1,
+  "collision": 140931724,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 61,
+  "zone": 3,
+  "area": 13,
+  "entry": 9685988,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140928728,
+  "props": 0,
+  "warps": 1,
+  "collision": 140928516,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 62,
+  "zone": 3,
+  "area": 14,
+  "entry": 9686044,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 223,
+  "word24": 0,
+  "enter": 138357176,
+  "leave": 0,
+  "layout": 140926304,
+  "props": 1,
+  "warps": 1,
+  "collision": 140925912,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 63,
+  "zone": 4,
+  "area": 1,
+  "entry": 9686100,
+  "variations": 1,
+  "regions": 6,
+  "items": 7,
+  "combat": 0,
+  "banner": 138357472,
+  "word24": 138357460,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140922536,
+  "props": 6,
+  "warps": 6,
+  "collision": 140921216,
+  "scene_tables": [
+   3937532,
+   3937636,
+   3937828,
+   3939044,
+   3939516,
+   3939776,
+   3940016
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 64,
+  "zone": 4,
+  "area": 2,
+  "entry": 9686156,
+  "variations": 1,
+  "regions": 10,
+  "items": 7,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140907640,
+  "props": 6,
+  "warps": 4,
+  "collision": 140903496,
+  "scene_tables": [
+   3939044,
+   3939280,
+   3940176,
+   3940332,
+   3940440,
+   3940952,
+   3953004
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 65,
+  "zone": 4,
+  "area": 3,
+  "entry": 9686212,
+  "variations": 1,
+  "regions": 8,
+  "items": 13,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 138359812,
+  "leave": 0,
+  "layout": 140891832,
+  "props": 9,
+  "warps": 4,
+  "collision": 140888792,
+  "scene_tables": [
+   3938044,
+   3938292,
+   3938548,
+   3938808,
+   3939044,
+   3940016,
+   3941408,
+   3941972,
+   3942140,
+   3942668,
+   3944496,
+   3944848,
+   3945464,
+   3947648
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 66,
+  "zone": 4,
+  "area": 4,
+  "entry": 9686268,
+  "variations": 1,
+  "regions": 7,
+  "items": 5,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 138360932,
+  "leave": 0,
+  "layout": 140877664,
+  "props": 8,
+  "warps": 7,
+  "collision": 140875976,
+  "scene_tables": [
+   3937828,
+   3938292,
+   3938808,
+   3939044,
+   3939280,
+   3947932,
+   3948000
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 67,
+  "zone": 4,
+  "area": 5,
+  "entry": 9686324,
+  "variations": 1,
+  "regions": 11,
+  "items": 11,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 138361616,
+  "leave": 0,
+  "layout": 140865120,
+  "props": 7,
+  "warps": 2,
+  "collision": 140862220,
+  "scene_tables": [
+   3938044,
+   3938292,
+   3948240,
+   3949252,
+   3949924,
+   3950316,
+   3950408,
+   3952280,
+   3953004
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 68,
+  "zone": 4,
+  "area": 6,
+  "entry": 9686380,
+  "variations": 1,
+  "regions": 11,
+  "items": 4,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140849140,
+  "props": 8,
+  "warps": 3,
+  "collision": 140847968,
+  "scene_tables": [
+   3938044,
+   3938292,
+   3939280,
+   3952788,
+   3952928,
+   3953004
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 69,
+  "zone": 4,
+  "area": 7,
+  "entry": 9686436,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140834552,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 70,
+  "zone": 4,
+  "area": 8,
+  "entry": 9686492,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140834316,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 71,
+  "zone": 4,
+  "area": 9,
+  "entry": 9686548,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140834080,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 72,
+  "zone": 4,
+  "area": 10,
+  "entry": 9686604,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140833844,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 73,
+  "zone": 4,
+  "area": 11,
+  "entry": 9686660,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140833608,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 74,
+  "zone": 4,
+  "area": 12,
+  "entry": 9686716,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140833368,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 75,
+  "zone": 4,
+  "area": 13,
+  "entry": 9686772,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140833132,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 76,
+  "zone": 4,
+  "area": 14,
+  "entry": 9686828,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 253,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140832896,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 77,
+  "zone": 4,
+  "area": 20,
+  "entry": 9686884,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 247,
+  "word24": 26,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140831556,
+  "props": 0,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 78,
+  "zone": 4,
+  "area": 28,
+  "entry": 9686940,
+  "variations": 1,
+  "regions": 3,
+  "items": 1,
+  "combat": 0,
+  "banner": 256,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140828536,
+  "props": 0,
+  "warps": 2,
+  "collision": 140828328,
+  "scene_tables": [
+   3953188,
+   3953376
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 79,
+  "zone": 4,
+  "area": 29,
+  "entry": 9686996,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 256,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140825224,
+  "props": 0,
+  "warps": 1,
+  "collision": 140824240,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 80,
+  "zone": 4,
+  "area": 30,
+  "entry": 9687052,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 230,
+  "word24": 10,
+  "enter": 138363720,
+  "leave": 0,
+  "layout": 140822068,
+  "props": 2,
+  "warps": 1,
+  "collision": 140821644,
+  "scene_tables": [
+   3954164,
+   3954576
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 81,
+  "zone": 4,
+  "area": 31,
+  "entry": 9687108,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 230,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140818724,
+  "props": 2,
+  "warps": 1,
+  "collision": 140818308,
+  "scene_tables": [
+   3955056
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 82,
+  "zone": 4,
+  "area": 32,
+  "entry": 9687164,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 230,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140815436,
+  "props": 0,
+  "warps": 1,
+  "collision": 140815324,
+  "scene_tables": [
+   3937532
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 83,
+  "zone": 4,
+  "area": 33,
+  "entry": 9687220,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 230,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140812548,
+  "props": 1,
+  "warps": 1,
+  "collision": 140812152,
+  "scene_tables": [
+   3956036
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 84,
+  "zone": 4,
+  "area": 34,
+  "entry": 9687276,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 0,
+  "banner": 230,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140809380,
+  "props": 0,
+  "warps": 1,
+  "collision": 140809276,
+  "scene_tables": [
+   3956424,
+   3956788
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 85,
+  "zone": 4,
+  "area": 35,
+  "entry": 9687332,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 230,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140806416,
+  "props": 0,
+  "warps": 1,
+  "collision": 140806312,
+  "scene_tables": [
+   3956924
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 86,
+  "zone": 4,
+  "area": 36,
+  "entry": 9687388,
+  "variations": 1,
+  "regions": 3,
+  "items": 1,
+  "combat": 0,
+  "banner": 257,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140803552,
+  "props": 0,
+  "warps": 2,
+  "collision": 140802880,
+  "scene_tables": [
+   3957112,
+   3957300
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 87,
+  "zone": 4,
+  "area": 37,
+  "entry": 9687444,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 257,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140799936,
+  "props": 0,
+  "warps": 2,
+  "collision": 140799776,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 88,
+  "zone": 4,
+  "area": 38,
+  "entry": 9687500,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 0,
+  "banner": 257,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140796848,
+  "props": 1,
+  "warps": 2,
+  "collision": 140796516,
+  "scene_tables": [
+   3957516
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 89,
+  "zone": 4,
+  "area": 39,
+  "entry": 9687556,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 0,
+  "banner": 257,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140793460,
+  "props": 0,
+  "warps": 1,
+  "collision": 140793336,
+  "scene_tables": [
+   3957712
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 90,
+  "zone": 4,
+  "area": 40,
+  "entry": 9687612,
+  "variations": 1,
+  "regions": 2,
+  "items": 10,
+  "combat": 0,
+  "banner": 197,
+  "word24": 9,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140790260,
+  "props": 12,
+  "warps": 1,
+  "collision": 140787096,
+  "scene_tables": [
+   3938292,
+   3938548,
+   3938808,
+   3939044,
+   3958404,
+   3958860,
+   3960152
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 91,
+  "zone": 4,
+  "area": 41,
+  "entry": 9687668,
+  "variations": 1,
+  "regions": 3,
+  "items": 2,
+  "combat": 0,
+  "banner": 196,
+  "word24": 26,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140780728,
+  "props": 0,
+  "warps": 1,
+  "collision": 140769516,
+  "scene_tables": [
+   3960888,
+   3961548,
+   3962180
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 92,
+  "zone": 4,
+  "area": 42,
+  "entry": 9687724,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 189,
+  "word24": 9,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140766208,
+  "props": 16,
+  "warps": 1,
+  "collision": 140765128,
+  "scene_tables": [
+   3963188,
+   3964204
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 93,
+  "zone": 4,
+  "area": 43,
+  "entry": 9687780,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 255,
+  "word24": 9,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140760124,
+  "props": 0,
+  "warps": 1,
+  "collision": 140760000,
+  "scene_tables": [
+   3965016,
+   3965780
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 94,
+  "zone": 4,
+  "area": 44,
+  "entry": 9687836,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 230,
+  "word24": 10,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140755460,
+  "props": 0,
+  "warps": 1,
+  "collision": 140754800,
+  "scene_tables": [
+   3966068
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 95,
+  "zone": 4,
+  "area": 45,
+  "entry": 9687892,
+  "variations": 1,
+  "regions": 3,
+  "items": 1,
+  "combat": 0,
+  "banner": 200,
+  "word24": 26,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140751856,
+  "props": 0,
+  "warps": 1,
+  "collision": 140751308,
+  "scene_tables": [
+   3966728,
+   3967396
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 96,
+  "zone": 4,
+  "area": 46,
+  "entry": 9687948,
+  "variations": 1,
+  "regions": 3,
+  "items": 1,
+  "combat": 0,
+  "banner": 243,
+  "word24": 11,
+  "enter": 138366128,
+  "leave": 0,
+  "layout": 140747644,
+  "props": 2,
+  "warps": 2,
+  "collision": 140747364,
+  "scene_tables": [
+   3967516,
+   3967888
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 97,
+  "zone": 4,
+  "area": 50,
+  "entry": 9688004,
+  "variations": 1,
+  "regions": 3,
+  "items": 0,
+  "combat": 1,
+  "banner": 248,
+  "word24": 138366316,
+  "enter": 138366329,
+  "leave": 0,
+  "layout": 140740168,
+  "props": 2,
+  "warps": 2,
+  "collision": 140738864,
+  "scene_tables": [
+   3968356,
+   3968452
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 98,
+  "zone": 4,
+  "area": 51,
+  "entry": 9688060,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 248,
+  "word24": 0,
+  "enter": 138366600,
+  "leave": 138345099,
+  "layout": 140730232,
+  "props": 1,
+  "warps": 5,
+  "collision": 140729148,
+  "scene_tables": [
+   3968532
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 99,
+  "zone": 4,
+  "area": 52,
+  "entry": 9688116,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 248,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140719980,
+  "props": 2,
+  "warps": 1,
+  "collision": 140719588,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 100,
+  "zone": 4,
+  "area": 53,
+  "entry": 9688172,
+  "variations": 1,
+  "regions": 3,
+  "items": 7,
+  "combat": 1,
+  "banner": 248,
+  "word24": 0,
+  "enter": 138367844,
+  "leave": 138345099,
+  "layout": 140715228,
+  "props": 0,
+  "warps": 5,
+  "collision": 140710428,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 101,
+  "zone": 4,
+  "area": 54,
+  "entry": 9688228,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 248,
+  "word24": 0,
+  "enter": 138368364,
+  "leave": 138345099,
+  "layout": 140695456,
+  "props": 0,
+  "warps": 5,
+  "collision": 140690940,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 102,
+  "zone": 4,
+  "area": 55,
+  "entry": 9688284,
+  "variations": 1,
+  "regions": 4,
+  "items": 1,
+  "combat": 1,
+  "banner": 248,
+  "word24": 0,
+  "enter": 138368716,
+  "leave": 138345099,
+  "layout": 140685296,
+  "props": 3,
+  "warps": 4,
+  "collision": 140684304,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 103,
+  "zone": 4,
+  "area": 56,
+  "entry": 9688340,
+  "variations": 2,
+  "regions": 7,
+  "items": 12,
+  "combat": 0,
+  "banner": 248,
+  "word24": 138369116,
+  "enter": 138369128,
+  "leave": 0,
+  "layout": 140669620,
+  "props": 3,
+  "warps": 2,
+  "collision": 140668900,
+  "scene_tables": [
+   3937532,
+   3937636,
+   3953004,
+   3969464,
+   3970268,
+   3971028
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "group",
+   "talk"
+  ]
+ },
+ {
+  "index": 104,
+  "zone": 4,
+  "area": 57,
+  "entry": 9688396,
+  "variations": 1,
+  "regions": 0,
+  "items": 12,
+  "combat": 0,
+  "banner": 248,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140641260,
+  "props": 0,
+  "warps": 2,
+  "collision": 140641028,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 105,
+  "zone": 4,
+  "area": 58,
+  "entry": 9688452,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 1,
+  "banner": 248,
+  "word24": 138372016,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140638216,
+  "props": 3,
+  "warps": 0,
+  "collision": 140638056,
+  "scene_tables": [
+   3971640,
+   3972088
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 106,
+  "zone": 4,
+  "area": 59,
+  "entry": 9688508,
+  "variations": 1,
+  "regions": 0,
+  "items": 15,
+  "combat": 0,
+  "banner": 248,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140636392,
+  "props": 0,
+  "warps": 2,
+  "collision": 140636140,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 107,
+  "zone": 4,
+  "area": 60,
+  "entry": 9688564,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 218,
+  "word24": 38,
+  "enter": 138368716,
+  "leave": 138345099,
+  "layout": 140631572,
+  "props": 0,
+  "warps": 2,
+  "collision": 140631376,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 108,
+  "zone": 4,
+  "area": 61,
+  "entry": 9688620,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 218,
+  "word24": 38,
+  "enter": 138373640,
+  "leave": 138345099,
+  "layout": 140627972,
+  "props": 1,
+  "warps": 3,
+  "collision": 140625128,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 109,
+  "zone": 4,
+  "area": 62,
+  "entry": 9688676,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 218,
+  "word24": 38,
+  "enter": 138368716,
+  "leave": 138345099,
+  "layout": 140619332,
+  "props": 0,
+  "warps": 1,
+  "collision": 140619120,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 110,
+  "zone": 4,
+  "area": 63,
+  "entry": 9688732,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 218,
+  "word24": 38,
+  "enter": 138368716,
+  "leave": 138345099,
+  "layout": 140615852,
+  "props": 0,
+  "warps": 1,
+  "collision": 140615304,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 111,
+  "zone": 4,
+  "area": 70,
+  "entry": 9688788,
+  "variations": 1,
+  "regions": 2,
+  "items": 2,
+  "combat": 1,
+  "banner": 251,
+  "word24": 6,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140612072,
+  "props": 2,
+  "warps": 2,
+  "collision": 140610372,
+  "scene_tables": [
+   3972780
+  ],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 112,
+  "zone": 4,
+  "area": 71,
+  "entry": 9688844,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 251,
+  "word24": 29,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140606492,
+  "props": 3,
+  "warps": 2,
+  "collision": 140605780,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 113,
+  "zone": 4,
+  "area": 72,
+  "entry": 9688900,
+  "variations": 1,
+  "regions": 2,
+  "items": 11,
+  "combat": 1,
+  "banner": 251,
+  "word24": 29,
+  "enter": 138375432,
+  "leave": 0,
+  "layout": 140593288,
+  "props": 0,
+  "warps": 4,
+  "collision": 140591532,
+  "scene_tables": [
+   3973240
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 114,
+  "zone": 4,
+  "area": 73,
+  "entry": 9688956,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 251,
+  "word24": 29,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140582168,
+  "props": 1,
+  "warps": 4,
+  "collision": 140581872,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 115,
+  "zone": 4,
+  "area": 74,
+  "entry": 9689012,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 251,
+  "word24": 29,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140579704,
+  "props": 0,
+  "warps": 2,
+  "collision": 140579464,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 116,
+  "zone": 4,
+  "area": 75,
+  "entry": 9689068,
+  "variations": 1,
+  "regions": 0,
+  "items": 6,
+  "combat": 1,
+  "banner": 251,
+  "word24": 29,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140576184,
+  "props": 1,
+  "warps": 3,
+  "collision": 140575776,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 117,
+  "zone": 4,
+  "area": 76,
+  "entry": 9689124,
+  "variations": 1,
+  "regions": 2,
+  "items": 11,
+  "combat": 1,
+  "banner": 138378080,
+  "word24": 138378068,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140572172,
+  "props": 5,
+  "warps": 3,
+  "collision": 140569524,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 118,
+  "zone": 4,
+  "area": 77,
+  "entry": 9689180,
+  "variations": 1,
+  "regions": 2,
+  "items": 3,
+  "combat": 1,
+  "banner": 251,
+  "word24": 29,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140557844,
+  "props": 3,
+  "warps": 4,
+  "collision": 140554472,
+  "scene_tables": [],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 119,
+  "zone": 4,
+  "area": 78,
+  "entry": 9689236,
+  "variations": 1,
+  "regions": 2,
+  "items": 3,
+  "combat": 1,
+  "banner": 251,
+  "word24": 9,
+  "enter": 138379528,
+  "leave": 0,
+  "layout": 140546280,
+  "props": 2,
+  "warps": 1,
+  "collision": 140545808,
+  "scene_tables": [
+   3937636,
+   3973788,
+   3974960
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "talk"
+  ]
+ },
+ {
+  "index": 120,
+  "zone": 4,
+  "area": 79,
+  "entry": 9689292,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 138378080,
+  "word24": 138378068,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140543064,
+  "props": 0,
+  "warps": 1,
+  "collision": 140542720,
+  "scene_tables": [
+   3975804
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 121,
+  "zone": 4,
+  "area": 80,
+  "entry": 9689348,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 251,
+  "word24": 9,
+  "enter": 138380056,
+  "leave": 0,
+  "layout": 140536912,
+  "props": 2,
+  "warps": 1,
+  "collision": 140533684,
+  "scene_tables": [
+   3975896
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 122,
+  "zone": 4,
+  "area": 81,
+  "entry": 9689404,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140530120,
+  "props": 1,
+  "warps": 4,
+  "collision": 140529836,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 123,
+  "zone": 4,
+  "area": 82,
+  "entry": 9689460,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140527760,
+  "props": 0,
+  "warps": 3,
+  "collision": 140527580,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 124,
+  "zone": 4,
+  "area": 83,
+  "entry": 9689516,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140523708,
+  "props": 0,
+  "warps": 3,
+  "collision": 140523496,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 125,
+  "zone": 4,
+  "area": 84,
+  "entry": 9689572,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140520672,
+  "props": 0,
+  "warps": 2,
+  "collision": 140520556,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 126,
+  "zone": 4,
+  "area": 85,
+  "entry": 9689628,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140519324,
+  "props": 0,
+  "warps": 1,
+  "collision": 140519128,
+  "scene_tables": [
+   3976160
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 127,
+  "zone": 4,
+  "area": 86,
+  "entry": 9689684,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140516216,
+  "props": 0,
+  "warps": 2,
+  "collision": 140516096,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 128,
+  "zone": 4,
+  "area": 87,
+  "entry": 9689740,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140512240,
+  "props": 0,
+  "warps": 1,
+  "collision": 140512076,
+  "scene_tables": [
+   3976368
+  ],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 129,
+  "zone": 4,
+  "area": 88,
+  "entry": 9689796,
+  "variations": 1,
+  "regions": 2,
+  "items": 7,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140508836,
+  "props": 1,
+  "warps": 2,
+  "collision": 140508444,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 130,
+  "zone": 4,
+  "area": 89,
+  "entry": 9689852,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140504940,
+  "props": 0,
+  "warps": 0,
+  "collision": 140504824,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 131,
+  "zone": 4,
+  "area": 90,
+  "entry": 9689908,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140503288,
+  "props": 1,
+  "warps": 3,
+  "collision": 140503032,
+  "scene_tables": [
+   3977312
+  ],
+  "region_kinds": [
+   "item",
+   "scene"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 132,
+  "zone": 4,
+  "area": 91,
+  "entry": 9689964,
+  "variations": 1,
+  "regions": 3,
+  "items": 2,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140499864,
+  "props": 0,
+  "warps": 2,
+  "collision": 140499696,
+  "scene_tables": [
+   3904064
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 133,
+  "zone": 4,
+  "area": 92,
+  "entry": 9690020,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140497848,
+  "props": 1,
+  "warps": 3,
+  "collision": 140497592,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 134,
+  "zone": 4,
+  "area": 93,
+  "entry": 9690076,
+  "variations": 1,
+  "regions": 2,
+  "items": 5,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140494648,
+  "props": 1,
+  "warps": 2,
+  "collision": 140494356,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 135,
+  "zone": 4,
+  "area": 94,
+  "entry": 9690132,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140491068,
+  "props": 0,
+  "warps": 2,
+  "collision": 140490856,
+  "scene_tables": [
+   3891432
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "group",
+   "talk"
+  ]
+ },
+ {
+  "index": 136,
+  "zone": 4,
+  "area": 95,
+  "entry": 9690188,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140486528,
+  "props": 1,
+  "warps": 2,
+  "collision": 140486308,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 137,
+  "zone": 4,
+  "area": 96,
+  "entry": 9690244,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140483236,
+  "props": 2,
+  "warps": 3,
+  "collision": 140482920,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 138,
+  "zone": 4,
+  "area": 97,
+  "entry": 9690300,
+  "variations": 1,
+  "regions": 1,
+  "items": 4,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140480200,
+  "props": 1,
+  "warps": 1,
+  "collision": 140479916,
+  "scene_tables": [
+   3977548
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "talk"
+  ]
+ },
+ {
+  "index": 139,
+  "zone": 4,
+  "area": 98,
+  "entry": 9690356,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140477120,
+  "props": 0,
+  "warps": 2,
+  "collision": 140476728,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 140,
+  "zone": 4,
+  "area": 99,
+  "entry": 9690412,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 258,
+  "word24": 0,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140474712,
+  "props": 0,
+  "warps": 1,
+  "collision": 140474524,
+  "scene_tables": [
+   3977768
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 141,
+  "zone": 5,
+  "area": 1,
+  "entry": 9690468,
+  "variations": 1,
+  "regions": 4,
+  "items": 8,
+  "combat": 1,
+  "banner": 187,
+  "word24": 138384248,
+  "enter": 138384260,
+  "leave": 0,
+  "layout": 140471900,
+  "props": 2,
+  "warps": 0,
+  "collision": 140470368,
+  "scene_tables": [
+   3979120,
+   3980444,
+   3980764,
+   3980972,
+   3981180,
+   3981396,
+   3981604,
+   3981952,
+   3982192
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 142,
+  "zone": 5,
+  "area": 2,
+  "entry": 9690524,
+  "variations": 1,
+  "regions": 4,
+  "items": 7,
+  "combat": 1,
+  "banner": 232,
+  "word24": 42,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140467452,
+  "props": 0,
+  "warps": 1,
+  "collision": 140467244,
+  "scene_tables": [
+   3938044,
+   3938292,
+   3938808,
+   3939044,
+   3939280,
+   3939516,
+   3939776,
+   3953004,
+   3982252
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 143,
+  "zone": 5,
+  "area": 3,
+  "entry": 9690580,
+  "variations": 1,
+  "regions": 1,
+  "items": 7,
+  "combat": 1,
+  "banner": 232,
+  "word24": 8,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140461240,
+  "props": 1,
+  "warps": 1,
+  "collision": 140454908,
+  "scene_tables": [
+   3984036
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 144,
+  "zone": 5,
+  "area": 4,
+  "entry": 9690636,
+  "variations": 1,
+  "regions": 0,
+  "items": 6,
+  "combat": 1,
+  "banner": 232,
+  "word24": 8,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140458624,
+  "props": 1,
+  "warps": 1,
+  "collision": 140454908,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 145,
+  "zone": 6,
+  "area": 1,
+  "entry": 9690692,
+  "variations": 1,
+  "regions": 6,
+  "items": 7,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386160,
+  "enter": 138386186,
+  "leave": 138386207,
+  "layout": 140451996,
+  "props": 5,
+  "warps": 3,
+  "collision": 140449356,
+  "scene_tables": [
+   3987020,
+   4005168
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 146,
+  "zone": 6,
+  "area": 2,
+  "entry": 9690748,
+  "variations": 1,
+  "regions": 5,
+  "items": 2,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140444056,
+  "props": 1,
+  "warps": 5,
+  "collision": 140442736,
+  "scene_tables": [
+   3987356,
+   3987948,
+   3988560,
+   3988716,
+   3989408
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 147,
+  "zone": 6,
+  "area": 3,
+  "entry": 9690804,
+  "variations": 1,
+  "regions": 2,
+  "items": 6,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 138387032,
+  "leave": 138345099,
+  "layout": 140440824,
+  "props": 6,
+  "warps": 2,
+  "collision": 140437344,
+  "scene_tables": [
+   -134217728,
+   3991452,
+   3992116,
+   3992260
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 148,
+  "zone": 6,
+  "area": 4,
+  "entry": 9690860,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 138387424,
+  "layout": 140426460,
+  "props": 2,
+  "warps": 3,
+  "collision": 140425972,
+  "scene_tables": [
+   3992868,
+   3993072
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 149,
+  "zone": 6,
+  "area": 5,
+  "entry": 9690916,
+  "variations": 1,
+  "regions": 2,
+  "items": 5,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 138387544,
+  "leave": 0,
+  "layout": 140424836,
+  "props": 8,
+  "warps": 2,
+  "collision": 140421300,
+  "scene_tables": [
+   3985156,
+   3994152,
+   3994512,
+   3995624,
+   3996464
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 150,
+  "zone": 6,
+  "area": 6,
+  "entry": 9690972,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140416420,
+  "props": 1,
+  "warps": 1,
+  "collision": 140413308,
+  "scene_tables": [],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 151,
+  "zone": 6,
+  "area": 7,
+  "entry": 9691028,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140411632,
+  "props": 1,
+  "warps": 1,
+  "collision": 140408904,
+  "scene_tables": [
+   3997320
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 152,
+  "zone": 6,
+  "area": 8,
+  "entry": 9691084,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140408008,
+  "props": 0,
+  "warps": 2,
+  "collision": 140407912,
+  "scene_tables": [
+   3985156
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 153,
+  "zone": 6,
+  "area": 9,
+  "entry": 9691140,
+  "variations": 1,
+  "regions": 5,
+  "items": 0,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 138388580,
+  "layout": 140407068,
+  "props": 5,
+  "warps": 3,
+  "collision": 140406424,
+  "scene_tables": [
+   3997516
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 154,
+  "zone": 6,
+  "area": 10,
+  "entry": 9691196,
+  "variations": 1,
+  "regions": 6,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 138388772,
+  "leave": 138388783,
+  "layout": 140403924,
+  "props": 4,
+  "warps": 1,
+  "collision": 140402004,
+  "scene_tables": [
+   3985156,
+   3997592,
+   3997760
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 155,
+  "zone": 6,
+  "area": 11,
+  "entry": 9691252,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140398924,
+  "props": 0,
+  "warps": 1,
+  "collision": 140398420,
+  "scene_tables": [
+   3997996,
+   3998864
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 156,
+  "zone": 6,
+  "area": 12,
+  "entry": 9691308,
+  "variations": 1,
+  "regions": 3,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 138389380,
+  "leave": 0,
+  "layout": 140393584,
+  "props": 2,
+  "warps": 1,
+  "collision": 140392188,
+  "scene_tables": [
+   3985156
+  ],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 157,
+  "zone": 6,
+  "area": 13,
+  "entry": 9691364,
+  "variations": 1,
+  "regions": 2,
+  "items": 2,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140387196,
+  "props": 0,
+  "warps": 2,
+  "collision": 140387104,
+  "scene_tables": [
+   3985156
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 158,
+  "zone": 6,
+  "area": 14,
+  "entry": 9691420,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140386184,
+  "props": 1,
+  "warps": 2,
+  "collision": 140385740,
+  "scene_tables": [
+   3999532,
+   4000212
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 159,
+  "zone": 6,
+  "area": 15,
+  "entry": 9691476,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140383452,
+  "props": 0,
+  "warps": 3,
+  "collision": 140383324,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 160,
+  "zone": 6,
+  "area": 16,
+  "entry": 9691532,
+  "variations": 1,
+  "regions": 2,
+  "items": 6,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140382252,
+  "props": 2,
+  "warps": 2,
+  "collision": 140322212,
+  "scene_tables": [
+   4001292,
+   4001488,
+   4001704,
+   4001996,
+   4002228,
+   4003124
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 161,
+  "zone": 6,
+  "area": 17,
+  "entry": 9691588,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140319732,
+  "props": 0,
+  "warps": 1,
+  "collision": 140319664,
+  "scene_tables": [
+   3999532
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 162,
+  "zone": 6,
+  "area": 18,
+  "entry": 9691644,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140318608,
+  "props": 0,
+  "warps": 1,
+  "collision": 140318532,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 163,
+  "zone": 6,
+  "area": 19,
+  "entry": 9691700,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138386728,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140317264,
+  "props": 0,
+  "warps": 1,
+  "collision": 140317180,
+  "scene_tables": [
+   4004144
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 164,
+  "zone": 6,
+  "area": 20,
+  "entry": 9691756,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 0,
+  "banner": 190,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140314664,
+  "props": 0,
+  "warps": 1,
+  "collision": 140314600,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 165,
+  "zone": 6,
+  "area": 21,
+  "entry": 9691812,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 0,
+  "banner": 190,
+  "word24": 41,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140311196,
+  "props": 0,
+  "warps": 2,
+  "collision": 140311076,
+  "scene_tables": [
+   4001704,
+   4002228,
+   4004196
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 166,
+  "zone": 6,
+  "area": 22,
+  "entry": 9691868,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 138391152,
+  "enter": 138391164,
+  "leave": 0,
+  "layout": 140307684,
+  "props": 1,
+  "warps": 2,
+  "collision": 140307544,
+  "scene_tables": [
+   4004364,
+   4005168
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 167,
+  "zone": 6,
+  "area": 23,
+  "entry": 9691924,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 0,
+  "banner": 190,
+  "word24": 42,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140303640,
+  "props": 0,
+  "warps": 2,
+  "collision": 140303444,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 168,
+  "zone": 6,
+  "area": 50,
+  "entry": 9691980,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 221,
+  "word24": 40,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140299000,
+  "props": 1,
+  "warps": 0,
+  "collision": 140296212,
+  "scene_tables": [
+   4006384
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 169,
+  "zone": 6,
+  "area": 58,
+  "entry": 9692036,
+  "variations": 1,
+  "regions": 1,
+  "items": 7,
+  "combat": 0,
+  "banner": 192,
+  "word24": 12,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140290408,
+  "props": 0,
+  "warps": 1,
+  "collision": 140287100,
+  "scene_tables": [
+   4006460
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 170,
+  "zone": 6,
+  "area": 59,
+  "entry": 9692092,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 0,
+  "banner": 192,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140287376,
+  "props": 0,
+  "warps": 1,
+  "collision": 140287100,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 171,
+  "zone": 6,
+  "area": 60,
+  "entry": 9692148,
+  "variations": 1,
+  "regions": 1,
+  "items": 6,
+  "combat": 1,
+  "banner": 220,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140284128,
+  "props": 12,
+  "warps": 2,
+  "collision": 140280532,
+  "scene_tables": [
+   4006744,
+   4007484,
+   4007808
+  ],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 172,
+  "zone": 6,
+  "area": 61,
+  "entry": 9692204,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 1,
+  "banner": 220,
+  "word24": 138392424,
+  "enter": 138392437,
+  "leave": 0,
+  "layout": 140265016,
+  "props": 1,
+  "warps": 2,
+  "collision": 140264760,
+  "scene_tables": [
+   4008620
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 173,
+  "zone": 6,
+  "area": 62,
+  "entry": 9692260,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 220,
+  "word24": 11,
+  "enter": 138393044,
+  "leave": 0,
+  "layout": 140259164,
+  "props": 1,
+  "warps": 2,
+  "collision": 140258560,
+  "scene_tables": [
+   4007900
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 174,
+  "zone": 6,
+  "area": 63,
+  "entry": 9692316,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 220,
+  "word24": 11,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140256484,
+  "props": 0,
+  "warps": 1,
+  "collision": 140256356,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 175,
+  "zone": 6,
+  "area": 70,
+  "entry": 9692372,
+  "variations": 1,
+  "regions": 5,
+  "items": 8,
+  "combat": 1,
+  "banner": 237,
+  "word24": 29,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140252616,
+  "props": 3,
+  "warps": 1,
+  "collision": 140252052,
+  "scene_tables": [
+   4009276,
+   4009444,
+   4009528,
+   4009708,
+   4009796,
+   4009980,
+   9474320,
+   9474496
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 176,
+  "zone": 6,
+  "area": 99,
+  "entry": 9692428,
+  "variations": 1,
+  "regions": 27,
+  "items": 0,
+  "combat": 1,
+  "banner": 246,
+  "word24": 43,
+  "enter": 138393704,
+  "leave": 0,
+  "layout": 140249108,
+  "props": 13,
+  "warps": 0,
+  "collision": 139412548,
+  "scene_tables": [
+   9675100
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 177,
+  "zone": 7,
+  "area": 1,
+  "entry": 9692484,
+  "variations": 1,
+  "regions": 2,
+  "items": 5,
+  "combat": 1,
+  "banner": 234,
+  "word24": 138395344,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140172812,
+  "props": 1,
+  "warps": 3,
+  "collision": 140171832,
+  "scene_tables": [
+   4011964
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 178,
+  "zone": 7,
+  "area": 2,
+  "entry": 9692540,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140166620,
+  "props": 0,
+  "warps": 1,
+  "collision": 140166444,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 179,
+  "zone": 7,
+  "area": 3,
+  "entry": 9692596,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140163628,
+  "props": 2,
+  "warps": 2,
+  "collision": 140163352,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 180,
+  "zone": 7,
+  "area": 4,
+  "entry": 9692652,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140160860,
+  "props": 0,
+  "warps": 2,
+  "collision": 140160632,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 181,
+  "zone": 7,
+  "area": 5,
+  "entry": 9692708,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140157908,
+  "props": 0,
+  "warps": 3,
+  "collision": 140157620,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 182,
+  "zone": 7,
+  "area": 6,
+  "entry": 9692764,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140154772,
+  "props": 0,
+  "warps": 3,
+  "collision": 140154540,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 183,
+  "zone": 7,
+  "area": 7,
+  "entry": 9692820,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140152076,
+  "props": 2,
+  "warps": 4,
+  "collision": 140151732,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 184,
+  "zone": 7,
+  "area": 8,
+  "entry": 9692876,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138397328,
+  "leave": 0,
+  "layout": 140149492,
+  "props": 1,
+  "warps": 2,
+  "collision": 140149276,
+  "scene_tables": [
+   4010264
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 185,
+  "zone": 7,
+  "area": 9,
+  "entry": 9692932,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140146992,
+  "props": 2,
+  "warps": 1,
+  "collision": 140146544,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 186,
+  "zone": 7,
+  "area": 10,
+  "entry": 9692988,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138397752,
+  "leave": 138351776,
+  "layout": 140143812,
+  "props": 2,
+  "warps": 3,
+  "collision": 140142168,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 187,
+  "zone": 7,
+  "area": 11,
+  "entry": 9693044,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140137908,
+  "props": 2,
+  "warps": 3,
+  "collision": 140137460,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 188,
+  "zone": 7,
+  "area": 12,
+  "entry": 9693100,
+  "variations": 1,
+  "regions": 2,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140133108,
+  "props": 0,
+  "warps": 3,
+  "collision": 140132800,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 189,
+  "zone": 7,
+  "area": 13,
+  "entry": 9693156,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140129424,
+  "props": 1,
+  "warps": 2,
+  "collision": 140128872,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 190,
+  "zone": 7,
+  "area": 14,
+  "entry": 9693212,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140126520,
+  "props": 1,
+  "warps": 1,
+  "collision": 140125808,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 191,
+  "zone": 7,
+  "area": 15,
+  "entry": 9693268,
+  "variations": 1,
+  "regions": 1,
+  "items": 10,
+  "combat": 1,
+  "banner": 234,
+  "word24": 25,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140120868,
+  "props": 6,
+  "warps": 0,
+  "collision": 140120072,
+  "scene_tables": [
+   4014280,
+   4016180
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 192,
+  "zone": 7,
+  "area": 16,
+  "entry": 9693324,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 234,
+  "word24": 138401144,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140105456,
+  "props": 7,
+  "warps": 2,
+  "collision": 140103740,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 193,
+  "zone": 7,
+  "area": 17,
+  "entry": 9693380,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 234,
+  "word24": 138401472,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140088536,
+  "props": 3,
+  "warps": 2,
+  "collision": 140088232,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 194,
+  "zone": 7,
+  "area": 18,
+  "entry": 9693436,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 234,
+  "word24": 138401472,
+  "enter": 138401572,
+  "leave": 0,
+  "layout": 140085052,
+  "props": 1,
+  "warps": 1,
+  "collision": 140084668,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 195,
+  "zone": 7,
+  "area": 19,
+  "entry": 9693492,
+  "variations": 1,
+  "regions": 2,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 35,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140077028,
+  "props": 5,
+  "warps": 0,
+  "collision": 140075700,
+  "scene_tables": [
+   4019492
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 196,
+  "zone": 7,
+  "area": 20,
+  "entry": 9693548,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140069648,
+  "props": 1,
+  "warps": 2,
+  "collision": 140068996,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 197,
+  "zone": 7,
+  "area": 21,
+  "entry": 9693604,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140062932,
+  "props": 0,
+  "warps": 2,
+  "collision": 140062572,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 198,
+  "zone": 7,
+  "area": 22,
+  "entry": 9693660,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140059464,
+  "props": 2,
+  "warps": 3,
+  "collision": 140058900,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 199,
+  "zone": 7,
+  "area": 23,
+  "entry": 9693716,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140055384,
+  "props": 0,
+  "warps": 2,
+  "collision": 140055144,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 200,
+  "zone": 7,
+  "area": 24,
+  "entry": 9693772,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140052144,
+  "props": 0,
+  "warps": 4,
+  "collision": 140051824,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 201,
+  "zone": 7,
+  "area": 25,
+  "entry": 9693828,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140048532,
+  "props": 2,
+  "warps": 2,
+  "collision": 140048220,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 202,
+  "zone": 7,
+  "area": 26,
+  "entry": 9693884,
+  "variations": 1,
+  "regions": 0,
+  "items": 8,
+  "combat": 1,
+  "banner": 234,
+  "word24": 1,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140044188,
+  "props": 4,
+  "warps": 2,
+  "collision": 140043580,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 203,
+  "zone": 8,
+  "area": 1,
+  "entry": 9693940,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140036912,
+  "props": 4,
+  "warps": 3,
+  "collision": 140034276,
+  "scene_tables": [],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 204,
+  "zone": 8,
+  "area": 2,
+  "entry": 9693996,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140032172,
+  "props": 0,
+  "warps": 1,
+  "collision": 140031972,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 205,
+  "zone": 8,
+  "area": 3,
+  "entry": 9694052,
+  "variations": 1,
+  "regions": 1,
+  "items": 4,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138405644,
+  "leave": 0,
+  "layout": 140030072,
+  "props": 1,
+  "warps": 2,
+  "collision": 140029764,
+  "scene_tables": [
+   4020948
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 206,
+  "zone": 8,
+  "area": 4,
+  "entry": 9694108,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140025928,
+  "props": 0,
+  "warps": 2,
+  "collision": 140025688,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 207,
+  "zone": 8,
+  "area": 5,
+  "entry": 9694164,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140023280,
+  "props": 0,
+  "warps": 2,
+  "collision": 140023088,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 208,
+  "zone": 8,
+  "area": 6,
+  "entry": 9694220,
+  "variations": 1,
+  "regions": 0,
+  "items": 6,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140019896,
+  "props": 4,
+  "warps": 1,
+  "collision": 140018664,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 209,
+  "zone": 8,
+  "area": 7,
+  "entry": 9694276,
+  "variations": 1,
+  "regions": 0,
+  "items": 10,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140014860,
+  "props": 0,
+  "warps": 2,
+  "collision": 140014564,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 210,
+  "zone": 8,
+  "area": 8,
+  "entry": 9694332,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 140010244,
+  "props": 0,
+  "warps": 2,
+  "collision": 140010052,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 211,
+  "zone": 8,
+  "area": 9,
+  "entry": 9694388,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138408700,
+  "leave": 0,
+  "layout": 140007936,
+  "props": 7,
+  "warps": 3,
+  "collision": 140006300,
+  "scene_tables": [
+   4021488
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 212,
+  "zone": 8,
+  "area": 10,
+  "entry": 9694444,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140002612,
+  "props": 0,
+  "warps": 2,
+  "collision": 140002416,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 213,
+  "zone": 8,
+  "area": 11,
+  "entry": 9694500,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 140000420,
+  "props": 8,
+  "warps": 1,
+  "collision": 139999972,
+  "scene_tables": [
+   4021684
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 214,
+  "zone": 8,
+  "area": 12,
+  "entry": 9694556,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139995784,
+  "props": 0,
+  "warps": 2,
+  "collision": 139994584,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 215,
+  "zone": 8,
+  "area": 13,
+  "entry": 9694612,
+  "variations": 1,
+  "regions": 1,
+  "items": 12,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138410240,
+  "leave": 0,
+  "layout": 139988796,
+  "props": 0,
+  "warps": 2,
+  "collision": 139988528,
+  "scene_tables": [
+   4021864
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 216,
+  "zone": 8,
+  "area": 14,
+  "entry": 9694668,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139983580,
+  "props": 4,
+  "warps": 3,
+  "collision": 139981432,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 217,
+  "zone": 8,
+  "area": 15,
+  "entry": 9694724,
+  "variations": 1,
+  "regions": 1,
+  "items": 8,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138411488,
+  "leave": 138411532,
+  "layout": 139977232,
+  "props": 1,
+  "warps": 2,
+  "collision": 139976808,
+  "scene_tables": [
+   4022216
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 218,
+  "zone": 8,
+  "area": 16,
+  "entry": 9694780,
+  "variations": 1,
+  "regions": 3,
+  "items": 5,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138412176,
+  "leave": 138351776,
+  "layout": 139970444,
+  "props": 9,
+  "warps": 3,
+  "collision": 139969744,
+  "scene_tables": [
+   4022440
+  ],
+  "region_kinds": [
+   "scene",
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 219,
+  "zone": 8,
+  "area": 17,
+  "entry": 9694836,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138412888,
+  "leave": 138351776,
+  "layout": 139964276,
+  "props": 3,
+  "warps": 2,
+  "collision": 139963760,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 220,
+  "zone": 8,
+  "area": 18,
+  "entry": 9694892,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139959824,
+  "props": 0,
+  "warps": 2,
+  "collision": 139959472,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 221,
+  "zone": 8,
+  "area": 19,
+  "entry": 9694948,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139955348,
+  "props": 0,
+  "warps": 3,
+  "collision": 139954912,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 222,
+  "zone": 8,
+  "area": 20,
+  "entry": 9695004,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138336296,
+  "leave": 138411532,
+  "layout": 139948888,
+  "props": 2,
+  "warps": 1,
+  "collision": 139948644,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 223,
+  "zone": 8,
+  "area": 21,
+  "entry": 9695060,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139944768,
+  "props": 0,
+  "warps": 3,
+  "collision": 139944484,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 224,
+  "zone": 8,
+  "area": 22,
+  "entry": 9695116,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139942504,
+  "props": 5,
+  "warps": 1,
+  "collision": 139941548,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 225,
+  "zone": 8,
+  "area": 23,
+  "entry": 9695172,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139938920,
+  "props": 0,
+  "warps": 3,
+  "collision": 139938552,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 226,
+  "zone": 8,
+  "area": 24,
+  "entry": 9695228,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139934496,
+  "props": 4,
+  "warps": 1,
+  "collision": 139934060,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 227,
+  "zone": 8,
+  "area": 25,
+  "entry": 9695284,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139929404,
+  "props": 3,
+  "warps": 2,
+  "collision": 139928580,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 228,
+  "zone": 8,
+  "area": 26,
+  "entry": 9695340,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138413576,
+  "leave": 138411532,
+  "layout": 139919688,
+  "props": 2,
+  "warps": 1,
+  "collision": 139919180,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 229,
+  "zone": 8,
+  "area": 27,
+  "entry": 9695396,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138415168,
+  "leave": 138345099,
+  "layout": 139916564,
+  "props": 4,
+  "warps": 2,
+  "collision": 139914420,
+  "scene_tables": [
+   4023176,
+   4023424
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 230,
+  "zone": 8,
+  "area": 28,
+  "entry": 9695452,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138415648,
+  "leave": 0,
+  "layout": 139907136,
+  "props": 1,
+  "warps": 4,
+  "collision": 139906540,
+  "scene_tables": [
+   4023708
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 231,
+  "zone": 8,
+  "area": 29,
+  "entry": 9695508,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139904316,
+  "props": 2,
+  "warps": 1,
+  "collision": 139903108,
+  "scene_tables": [
+   3891432
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "group",
+   "talk"
+  ]
+ },
+ {
+  "index": 232,
+  "zone": 8,
+  "area": 30,
+  "entry": 9695564,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 222,
+  "word24": 40,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139895412,
+  "props": 0,
+  "warps": 1,
+  "collision": 139894952,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 233,
+  "zone": 8,
+  "area": 31,
+  "entry": 9695620,
+  "variations": 1,
+  "regions": 1,
+  "items": 7,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138416892,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139889972,
+  "props": 0,
+  "warps": 5,
+  "collision": 139889576,
+  "scene_tables": [
+   4024356
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 234,
+  "zone": 8,
+  "area": 32,
+  "entry": 9695676,
+  "variations": 1,
+  "regions": 4,
+  "items": 6,
+  "combat": 1,
+  "banner": 138417321,
+  "word24": 138417300,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139886884,
+  "props": 4,
+  "warps": 2,
+  "collision": 139883812,
+  "scene_tables": [
+   3953004,
+   4025320,
+   4026116,
+   4026868
+  ],
+  "region_kinds": [
+   "item",
+   "scene"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 235,
+  "zone": 8,
+  "area": 33,
+  "entry": 9695732,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138416892,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139874404,
+  "props": 6,
+  "warps": 4,
+  "collision": 139872044,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 236,
+  "zone": 8,
+  "area": 34,
+  "entry": 9695788,
+  "variations": 1,
+  "regions": 0,
+  "items": 10,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138416892,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139865692,
+  "props": 4,
+  "warps": 2,
+  "collision": 139865088,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 237,
+  "zone": 8,
+  "area": 35,
+  "entry": 9695844,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138416892,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139858528,
+  "props": 3,
+  "warps": 1,
+  "collision": 139857708,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 238,
+  "zone": 8,
+  "area": 36,
+  "entry": 9695900,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138416892,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139851188,
+  "props": 0,
+  "warps": 2,
+  "collision": 139850988,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 239,
+  "zone": 8,
+  "area": 37,
+  "entry": 9695956,
+  "variations": 1,
+  "regions": 6,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138416892,
+  "enter": 138419232,
+  "leave": 0,
+  "layout": 139847940,
+  "props": 6,
+  "warps": 2,
+  "collision": 139847036,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 240,
+  "zone": 8,
+  "area": 38,
+  "entry": 9696012,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 0,
+  "banner": 250,
+  "word24": 138420308,
+  "enter": 138420320,
+  "leave": 0,
+  "layout": 139843004,
+  "props": 1,
+  "warps": 2,
+  "collision": 139835064,
+  "scene_tables": [
+   4028048
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 241,
+  "zone": 8,
+  "area": 39,
+  "entry": 9696068,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 250,
+  "word24": 138420308,
+  "enter": 138420428,
+  "leave": 138351776,
+  "layout": 139830976,
+  "props": 3,
+  "warps": 1,
+  "collision": 139830428,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 242,
+  "zone": 8,
+  "area": 40,
+  "entry": 9696124,
+  "variations": 1,
+  "regions": 1,
+  "items": 8,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138420988,
+  "leave": 138345099,
+  "layout": 139828252,
+  "props": 0,
+  "warps": 2,
+  "collision": 139824328,
+  "scene_tables": [
+   4028404,
+   4028652
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 243,
+  "zone": 8,
+  "area": 41,
+  "entry": 9696180,
+  "variations": 1,
+  "regions": 2,
+  "items": 8,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139819288,
+  "props": 3,
+  "warps": 3,
+  "collision": 139818516,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 244,
+  "zone": 8,
+  "area": 42,
+  "entry": 9696236,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139808400,
+  "props": 3,
+  "warps": 2,
+  "collision": 139808004,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 245,
+  "zone": 8,
+  "area": 43,
+  "entry": 9696292,
+  "variations": 1,
+  "regions": 0,
+  "items": 8,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139804112,
+  "props": 2,
+  "warps": 2,
+  "collision": 139803264,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 246,
+  "zone": 8,
+  "area": 44,
+  "entry": 9696348,
+  "variations": 1,
+  "regions": 4,
+  "items": 6,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138422916,
+  "leave": 0,
+  "layout": 139797700,
+  "props": 0,
+  "warps": 0,
+  "collision": 139797064,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 247,
+  "zone": 8,
+  "area": 45,
+  "entry": 9696404,
+  "variations": 1,
+  "regions": 3,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138423600,
+  "leave": 138351776,
+  "layout": 139792852,
+  "props": 4,
+  "warps": 1,
+  "collision": 139789560,
+  "scene_tables": [
+   4031784
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 248,
+  "zone": 8,
+  "area": 46,
+  "entry": 9696460,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138423772,
+  "leave": 0,
+  "layout": 139785360,
+  "props": 1,
+  "warps": 1,
+  "collision": 139784392,
+  "scene_tables": [
+   4038492
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 249,
+  "zone": 8,
+  "area": 47,
+  "entry": 9696516,
+  "variations": 1,
+  "regions": 0,
+  "items": 11,
+  "combat": 1,
+  "banner": 138417321,
+  "word24": 138423836,
+  "enter": 138423857,
+  "leave": 0,
+  "layout": 139780472,
+  "props": 3,
+  "warps": 2,
+  "collision": 139779044,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 250,
+  "zone": 8,
+  "area": 48,
+  "entry": 9696572,
+  "variations": 1,
+  "regions": 5,
+  "items": 8,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138424340,
+  "enter": 138424352,
+  "leave": 0,
+  "layout": 139770960,
+  "props": 12,
+  "warps": 3,
+  "collision": 139766356,
+  "scene_tables": [
+   4032004,
+   4032084,
+   4032428
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 251,
+  "zone": 8,
+  "area": 49,
+  "entry": 9696628,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 14,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139757256,
+  "props": 9,
+  "warps": 0,
+  "collision": 139754048,
+  "scene_tables": [
+   4033376,
+   4036780
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 252,
+  "zone": 8,
+  "area": 50,
+  "entry": 9696684,
+  "variations": 1,
+  "regions": 5,
+  "items": 0,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138425396,
+  "leave": 138351776,
+  "layout": 139749616,
+  "props": 10,
+  "warps": 1,
+  "collision": 139745544,
+  "scene_tables": [
+   4037040
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 253,
+  "zone": 8,
+  "area": 51,
+  "entry": 9696740,
+  "variations": 1,
+  "regions": 2,
+  "items": 8,
+  "combat": 1,
+  "banner": 222,
+  "word24": 2,
+  "enter": 138426344,
+  "leave": 0,
+  "layout": 139741944,
+  "props": 5,
+  "warps": 2,
+  "collision": 139738572,
+  "scene_tables": [
+   4031784
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 254,
+  "zone": 8,
+  "area": 60,
+  "entry": 9696796,
+  "variations": 1,
+  "regions": 1,
+  "items": 9,
+  "combat": 1,
+  "banner": 202,
+  "word24": 7,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139732136,
+  "props": 6,
+  "warps": 0,
+  "collision": 139731288,
+  "scene_tables": [
+   4038492
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 255,
+  "zone": 8,
+  "area": 61,
+  "entry": 9696852,
+  "variations": 1,
+  "regions": 6,
+  "items": 1,
+  "combat": 1,
+  "banner": 202,
+  "word24": 138427276,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139726432,
+  "props": 1,
+  "warps": 1,
+  "collision": 139726216,
+  "scene_tables": [
+   4042696,
+   4042740,
+   4042832
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 256,
+  "zone": 8,
+  "area": 62,
+  "entry": 9696908,
+  "variations": 1,
+  "regions": 4,
+  "items": 0,
+  "combat": 1,
+  "banner": 202,
+  "word24": 138427508,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139722372,
+  "props": 1,
+  "warps": 1,
+  "collision": 139720548,
+  "scene_tables": [
+   4043296
+  ],
+  "region_kinds": [
+   "scene",
+   "script",
+   "warp"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 257,
+  "zone": 8,
+  "area": 63,
+  "entry": 9696964,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 202,
+  "word24": 14,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139717680,
+  "props": 0,
+  "warps": 1,
+  "collision": 139714272,
+  "scene_tables": [
+   4043836,
+   4043944
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 258,
+  "zone": 8,
+  "area": 64,
+  "entry": 9697020,
+  "variations": 1,
+  "regions": 3,
+  "items": 1,
+  "combat": 1,
+  "banner": 202,
+  "word24": 138427276,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139711144,
+  "props": 1,
+  "warps": 1,
+  "collision": 139710732,
+  "scene_tables": [
+   4042832
+  ],
+  "region_kinds": [
+   "script",
+   "warp"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 259,
+  "zone": 8,
+  "area": 65,
+  "entry": 9697076,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 202,
+  "word24": 14,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139707044,
+  "props": 0,
+  "warps": 1,
+  "collision": 139706316,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 260,
+  "zone": 8,
+  "area": 66,
+  "entry": 9697132,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 222,
+  "word24": 138424340,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139702772,
+  "props": 0,
+  "warps": 1,
+  "collision": 139702292,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 261,
+  "zone": 9,
+  "area": 1,
+  "entry": 9697188,
+  "variations": 1,
+  "regions": 4,
+  "items": 5,
+  "combat": 0,
+  "banner": 138427968,
+  "word24": 138427956,
+  "enter": 138427980,
+  "leave": 0,
+  "layout": 139699284,
+  "props": 13,
+  "warps": 1,
+  "collision": 139696524,
+  "scene_tables": [
+   4046632,
+   4051012,
+   4051840,
+   4052388,
+   4052468
+  ],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 262,
+  "zone": 9,
+  "area": 2,
+  "entry": 9697244,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 0,
+  "banner": 138427968,
+  "word24": 31,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139677092,
+  "props": 1,
+  "warps": 4,
+  "collision": 139676832,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 263,
+  "zone": 9,
+  "area": 3,
+  "entry": 9697300,
+  "variations": 1,
+  "regions": 3,
+  "items": 9,
+  "combat": 0,
+  "banner": 138427968,
+  "word24": 31,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139673276,
+  "props": 1,
+  "warps": 1,
+  "collision": 139672876,
+  "scene_tables": [
+   4052388,
+   4052536,
+   4052672,
+   4052972,
+   4054540,
+   4056820
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 264,
+  "zone": 9,
+  "area": 4,
+  "entry": 9697356,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 0,
+  "banner": 138427968,
+  "word24": 31,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139669352,
+  "props": 8,
+  "warps": 1,
+  "collision": 139668800,
+  "scene_tables": [
+   4056980,
+   4057008
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 265,
+  "zone": 9,
+  "area": 5,
+  "entry": 9697412,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 214,
+  "word24": 31,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139666748,
+  "props": 17,
+  "warps": 0,
+  "collision": 139665252,
+  "scene_tables": [
+   4058200
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 266,
+  "zone": 9,
+  "area": 6,
+  "entry": 9697468,
+  "variations": 1,
+  "regions": 2,
+  "items": 1,
+  "combat": 0,
+  "banner": 138427968,
+  "word24": 31,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139660288,
+  "props": 0,
+  "warps": 1,
+  "collision": 139660196,
+  "scene_tables": [
+   4060960
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 267,
+  "zone": 9,
+  "area": 7,
+  "entry": 9697524,
+  "variations": 1,
+  "regions": 0,
+  "items": 9,
+  "combat": 0,
+  "banner": 138427968,
+  "word24": 31,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139658844,
+  "props": 3,
+  "warps": 0,
+  "collision": 139658004,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 268,
+  "zone": 10,
+  "area": 1,
+  "entry": 9697580,
+  "variations": 1,
+  "regions": 4,
+  "items": 7,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138429928,
+  "leave": 0,
+  "layout": 139656316,
+  "props": 5,
+  "warps": 3,
+  "collision": 139654792,
+  "scene_tables": [
+   3953004,
+   4061192
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 269,
+  "zone": 10,
+  "area": 2,
+  "entry": 9697636,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139647024,
+  "props": 1,
+  "warps": 2,
+  "collision": 139645572,
+  "scene_tables": [
+   4061472
+  ],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 270,
+  "zone": 10,
+  "area": 3,
+  "entry": 9697692,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139643092,
+  "props": 2,
+  "warps": 3,
+  "collision": 139641912,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 271,
+  "zone": 10,
+  "area": 4,
+  "entry": 9697748,
+  "variations": 1,
+  "regions": 2,
+  "items": 3,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139636080,
+  "props": 0,
+  "warps": 1,
+  "collision": 139635856,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 272,
+  "zone": 10,
+  "area": 5,
+  "entry": 9697804,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138431480,
+  "leave": 0,
+  "layout": 139633120,
+  "props": 1,
+  "warps": 2,
+  "collision": 139632912,
+  "scene_tables": [
+   4061556
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 273,
+  "zone": 10,
+  "area": 6,
+  "entry": 9697860,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139628864,
+  "props": 2,
+  "warps": 2,
+  "collision": 139628496,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 274,
+  "zone": 10,
+  "area": 7,
+  "entry": 9697916,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139623224,
+  "props": 0,
+  "warps": 2,
+  "collision": 139622936,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 275,
+  "zone": 10,
+  "area": 8,
+  "entry": 9697972,
+  "variations": 1,
+  "regions": 2,
+  "items": 7,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139619276,
+  "props": 9,
+  "warps": 2,
+  "collision": 139616232,
+  "scene_tables": [
+   4062896,
+   4063088
+  ],
+  "region_kinds": [
+   "item",
+   "scene"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 276,
+  "zone": 10,
+  "area": 9,
+  "entry": 9698028,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139608784,
+  "props": 0,
+  "warps": 3,
+  "collision": 139608572,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 277,
+  "zone": 10,
+  "area": 10,
+  "entry": 9698084,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139607452,
+  "props": 0,
+  "warps": 3,
+  "collision": 139607108,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 278,
+  "zone": 10,
+  "area": 11,
+  "entry": 9698140,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139604476,
+  "props": 0,
+  "warps": 2,
+  "collision": 139604188,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 279,
+  "zone": 10,
+  "area": 12,
+  "entry": 9698196,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 26,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139601308,
+  "props": 0,
+  "warps": 1,
+  "collision": 139600748,
+  "scene_tables": [
+   4063540
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 280,
+  "zone": 10,
+  "area": 13,
+  "entry": 9698252,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139597696,
+  "props": 0,
+  "warps": 2,
+  "collision": 139597508,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 281,
+  "zone": 10,
+  "area": 14,
+  "entry": 9698308,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139596164,
+  "props": 0,
+  "warps": 3,
+  "collision": 139595940,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 282,
+  "zone": 10,
+  "area": 15,
+  "entry": 9698364,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139594528,
+  "props": 3,
+  "warps": 3,
+  "collision": 139594180,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 283,
+  "zone": 10,
+  "area": 16,
+  "entry": 9698420,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139592920,
+  "props": 0,
+  "warps": 1,
+  "collision": 139592720,
+  "scene_tables": [
+   4066748
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 284,
+  "zone": 10,
+  "area": 17,
+  "entry": 9698476,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 206,
+  "word24": 14,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139591388,
+  "props": 0,
+  "warps": 1,
+  "collision": 139591064,
+  "scene_tables": [
+   4067812
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 285,
+  "zone": 10,
+  "area": 18,
+  "entry": 9698532,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 206,
+  "word24": 138434592,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139587748,
+  "props": 0,
+  "warps": 3,
+  "collision": 139587496,
+  "scene_tables": [],
+  "region_kinds": [
+   "warp"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 286,
+  "zone": 10,
+  "area": 19,
+  "entry": 9698588,
+  "variations": 1,
+  "regions": 0,
+  "items": 0,
+  "combat": 1,
+  "banner": 206,
+  "word24": 138434592,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139583548,
+  "props": 0,
+  "warps": 2,
+  "collision": 139583180,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": []
+ },
+ {
+  "index": 287,
+  "zone": 10,
+  "area": 20,
+  "entry": 9698644,
+  "variations": 1,
+  "regions": 0,
+  "items": 1,
+  "combat": 1,
+  "banner": 206,
+  "word24": 138434592,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139578852,
+  "props": 6,
+  "warps": 1,
+  "collision": 139578392,
+  "scene_tables": [
+   4072608
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 288,
+  "zone": 10,
+  "area": 22,
+  "entry": 9698700,
+  "variations": 1,
+  "regions": 1,
+  "items": 1,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138431480,
+  "leave": 0,
+  "layout": 139574260,
+  "props": 1,
+  "warps": 2,
+  "collision": 139573424,
+  "scene_tables": [
+   4061556
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 289,
+  "zone": 10,
+  "area": 30,
+  "entry": 9698756,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139569116,
+  "props": 0,
+  "warps": 2,
+  "collision": 139568604,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 290,
+  "zone": 10,
+  "area": 31,
+  "entry": 9698812,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139563496,
+  "props": 0,
+  "warps": 2,
+  "collision": 139562644,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 291,
+  "zone": 10,
+  "area": 32,
+  "entry": 9698868,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139560532,
+  "props": 0,
+  "warps": 2,
+  "collision": 139560112,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 292,
+  "zone": 10,
+  "area": 33,
+  "entry": 9698924,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 225,
+  "word24": 5,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139556392,
+  "props": 0,
+  "warps": 1,
+  "collision": 139555632,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 293,
+  "zone": 11,
+  "area": 1,
+  "entry": 9698980,
+  "variations": 1,
+  "regions": 6,
+  "items": 10,
+  "combat": 1,
+  "banner": 138435714,
+  "word24": 138435688,
+  "enter": 138435726,
+  "leave": 0,
+  "layout": 139551904,
+  "props": 7,
+  "warps": 1,
+  "collision": 139548268,
+  "scene_tables": [
+   4074368,
+   4074700,
+   4074984,
+   4075184,
+   4075644,
+   4076344,
+   4078220,
+   4081252
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 294,
+  "zone": 11,
+  "area": 2,
+  "entry": 9699036,
+  "variations": 1,
+  "regions": 1,
+  "items": 8,
+  "combat": 0,
+  "banner": 216,
+  "word24": 138436756,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139534248,
+  "props": 1,
+  "warps": 2,
+  "collision": 139533252,
+  "scene_tables": [
+   4075644,
+   4076344,
+   4078220,
+   4081252
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 295,
+  "zone": 11,
+  "area": 3,
+  "entry": 9699092,
+  "variations": 1,
+  "regions": 1,
+  "items": 6,
+  "combat": 0,
+  "banner": 216,
+  "word24": 138436756,
+  "enter": 138437384,
+  "leave": 0,
+  "layout": 139531208,
+  "props": 1,
+  "warps": 1,
+  "collision": 139530848,
+  "scene_tables": [
+   4078220,
+   4080372,
+   4081252
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 296,
+  "zone": 11,
+  "area": 4,
+  "entry": 9699148,
+  "variations": 1,
+  "regions": 1,
+  "items": 4,
+  "combat": 1,
+  "banner": 217,
+  "word24": 19,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139529468,
+  "props": 4,
+  "warps": 0,
+  "collision": 139528088,
+  "scene_tables": [
+   4081656,
+   4082160
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 297,
+  "zone": 11,
+  "area": 5,
+  "entry": 9699204,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 217,
+  "word24": 19,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139520748,
+  "props": 1,
+  "warps": 0,
+  "collision": 139520580,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 298,
+  "zone": 11,
+  "area": 6,
+  "entry": 9699260,
+  "variations": 1,
+  "regions": 0,
+  "items": 6,
+  "combat": 1,
+  "banner": 217,
+  "word24": 19,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139514164,
+  "props": 5,
+  "warps": 0,
+  "collision": 139512968,
+  "scene_tables": [
+   4082512,
+   4087928
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 299,
+  "zone": 12,
+  "area": 1,
+  "entry": 9699316,
+  "variations": 1,
+  "regions": 4,
+  "items": 0,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139505736,
+  "props": 3,
+  "warps": 0,
+  "collision": 139503012,
+  "scene_tables": [
+   4088384
+  ],
+  "region_kinds": [
+   "item",
+   "scene",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 300,
+  "zone": 12,
+  "area": 2,
+  "entry": 9699372,
+  "variations": 1,
+  "regions": 2,
+  "items": 12,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139497000,
+  "props": 4,
+  "warps": 0,
+  "collision": 139495384,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 301,
+  "zone": 12,
+  "area": 3,
+  "entry": 9699428,
+  "variations": 1,
+  "regions": 2,
+  "items": 8,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139486828,
+  "props": 2,
+  "warps": 0,
+  "collision": 139486428,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 302,
+  "zone": 12,
+  "area": 4,
+  "entry": 9699484,
+  "variations": 1,
+  "regions": 1,
+  "items": 2,
+  "combat": 1,
+  "banner": 249,
+  "word24": 39,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139480356,
+  "props": 6,
+  "warps": 0,
+  "collision": 139479064,
+  "scene_tables": [
+   4089376,
+   4091696
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 303,
+  "zone": 12,
+  "area": 5,
+  "entry": 9699540,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 249,
+  "word24": 39,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139472188,
+  "props": 0,
+  "warps": 0,
+  "collision": 139471996,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 304,
+  "zone": 12,
+  "area": 6,
+  "entry": 9699596,
+  "variations": 1,
+  "regions": 1,
+  "items": 5,
+  "combat": 1,
+  "banner": 249,
+  "word24": 33,
+  "enter": 138440508,
+  "leave": 0,
+  "layout": 139469012,
+  "props": 7,
+  "warps": 0,
+  "collision": 139465896,
+  "scene_tables": [
+   4092164,
+   4093872,
+   4094284,
+   4094536
+  ],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group",
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 305,
+  "zone": 12,
+  "area": 10,
+  "entry": 9699652,
+  "variations": 1,
+  "regions": 1,
+  "items": 11,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139460700,
+  "props": 1,
+  "warps": 3,
+  "collision": 139459996,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 306,
+  "zone": 12,
+  "area": 11,
+  "entry": 9699708,
+  "variations": 1,
+  "regions": 0,
+  "items": 7,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139456144,
+  "props": 0,
+  "warps": 2,
+  "collision": 139455552,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 307,
+  "zone": 12,
+  "area": 12,
+  "entry": 9699764,
+  "variations": 1,
+  "regions": 0,
+  "items": 13,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139451784,
+  "props": 0,
+  "warps": 4,
+  "collision": 139451220,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 308,
+  "zone": 12,
+  "area": 13,
+  "entry": 9699820,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139445428,
+  "props": 0,
+  "warps": 2,
+  "collision": 139444964,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 309,
+  "zone": 12,
+  "area": 14,
+  "entry": 9699876,
+  "variations": 1,
+  "regions": 1,
+  "items": 10,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139439084,
+  "props": 1,
+  "warps": 2,
+  "collision": 139437932,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 310,
+  "zone": 12,
+  "area": 15,
+  "entry": 9699932,
+  "variations": 1,
+  "regions": 2,
+  "items": 8,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 138443924,
+  "leave": 0,
+  "layout": 139428616,
+  "props": 2,
+  "warps": 2,
+  "collision": 139424320,
+  "scene_tables": [
+   4094772
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 311,
+  "zone": 12,
+  "area": 16,
+  "entry": 9699988,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 0,
+  "banner": 249,
+  "word24": 4,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139412780,
+  "props": 0,
+  "warps": 1,
+  "collision": 139412436,
+  "scene_tables": [
+   4095352,
+   4095564
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "item",
+   "talk"
+  ]
+ },
+ {
+  "index": 312,
+  "zone": 12,
+  "area": 17,
+  "entry": 9700044,
+  "variations": 1,
+  "regions": 2,
+  "items": 0,
+  "combat": 1,
+  "banner": 249,
+  "word24": 4,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139409124,
+  "props": 3,
+  "warps": 0,
+  "collision": 139406900,
+  "scene_tables": [],
+  "region_kinds": [
+   "item",
+   "script"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 313,
+  "zone": 13,
+  "area": 1,
+  "entry": 9700100,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139403592,
+  "props": 2,
+  "warps": 2,
+  "collision": 139402524,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 314,
+  "zone": 13,
+  "area": 2,
+  "entry": 9700156,
+  "variations": 1,
+  "regions": 0,
+  "items": 4,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139400160,
+  "props": 1,
+  "warps": 2,
+  "collision": 139399416,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 315,
+  "zone": 13,
+  "area": 3,
+  "entry": 9700212,
+  "variations": 1,
+  "regions": 2,
+  "items": 9,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139397388,
+  "props": 3,
+  "warps": 5,
+  "collision": 139395908,
+  "scene_tables": [],
+  "region_kinds": [
+   "script"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 316,
+  "zone": 13,
+  "area": 4,
+  "entry": 9700268,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139390732,
+  "props": 7,
+  "warps": 3,
+  "collision": 139389388,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 317,
+  "zone": 13,
+  "area": 5,
+  "entry": 9700324,
+  "variations": 1,
+  "regions": 1,
+  "items": 4,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 138446340,
+  "leave": 0,
+  "layout": 139386360,
+  "props": 3,
+  "warps": 2,
+  "collision": 139384968,
+  "scene_tables": [
+   4095648
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 318,
+  "zone": 13,
+  "area": 6,
+  "entry": 9700380,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139381580,
+  "props": 0,
+  "warps": 4,
+  "collision": 139381260,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 319,
+  "zone": 13,
+  "area": 7,
+  "entry": 9700436,
+  "variations": 1,
+  "regions": 1,
+  "items": 0,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139379244,
+  "props": 4,
+  "warps": 1,
+  "collision": 139377984,
+  "scene_tables": [],
+  "region_kinds": [
+   "item"
+  ],
+  "item_kinds": []
+ },
+ {
+  "index": 320,
+  "zone": 13,
+  "area": 8,
+  "entry": 9700492,
+  "variations": 1,
+  "regions": 0,
+  "items": 5,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 138338556,
+  "leave": 0,
+  "layout": 139376204,
+  "props": 0,
+  "warps": 1,
+  "collision": 139375960,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 321,
+  "zone": 13,
+  "area": 9,
+  "entry": 9700548,
+  "variations": 1,
+  "regions": 0,
+  "items": 3,
+  "combat": 1,
+  "banner": 233,
+  "word24": 5,
+  "enter": 138447288,
+  "leave": 0,
+  "layout": 139373160,
+  "props": 6,
+  "warps": 2,
+  "collision": 139370756,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 322,
+  "zone": 13,
+  "area": 10,
+  "entry": 9700604,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 233,
+  "word24": 138447592,
+  "enter": 138447604,
+  "leave": 0,
+  "layout": 139368868,
+  "props": 0,
+  "warps": 1,
+  "collision": 139367820,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "group"
+  ]
+ },
+ {
+  "index": 323,
+  "zone": 14,
+  "area": 1,
+  "entry": 9700660,
+  "variations": 1,
+  "regions": 2,
+  "items": 10,
+  "combat": 1,
+  "banner": 240,
+  "word24": 6,
+  "enter": 138447772,
+  "leave": 0,
+  "layout": 139365392,
+  "props": 3,
+  "warps": 1,
+  "collision": 139362724,
+  "scene_tables": [
+   4096132,
+   4096332,
+   4096468,
+   4096700,
+   4096784,
+   4097004,
+   4097100,
+   4097188,
+   4097280,
+   4097328,
+   4097532
+  ],
+  "region_kinds": [
+   "scene",
+   "script"
+  ],
+  "item_kinds": [
+   "talk"
+  ]
+ },
+ {
+  "index": 324,
+  "zone": 14,
+  "area": 2,
+  "entry": 9700716,
+  "variations": 1,
+  "regions": 1,
+  "items": 3,
+  "combat": 1,
+  "banner": 240,
+  "word24": 13,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139359476,
+  "props": 4,
+  "warps": 0,
+  "collision": 139358168,
+  "scene_tables": [
+   4099480,
+   4099920
+  ],
+  "region_kinds": [
+   "scene"
+  ],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 325,
+  "zone": 14,
+  "area": 3,
+  "entry": 9700772,
+  "variations": 1,
+  "regions": 0,
+  "items": 18,
+  "combat": 1,
+  "banner": 240,
+  "word24": 33,
+  "enter": 0,
+  "leave": 0,
+  "layout": 139350180,
+  "props": 10,
+  "warps": 0,
+  "collision": 139337328,
+  "scene_tables": [
+   4101096,
+   4103500,
+   4103716,
+   4103812,
+   4105216,
+   4110084,
+   4114264,
+   9678452,
+   9678760
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ },
+ {
+  "index": 326,
+  "zone": 14,
+  "area": 4,
+  "entry": 9700828,
+  "variations": 1,
+  "regions": 0,
+  "items": 6,
+  "combat": 1,
+  "banner": 240,
+  "word24": 33,
+  "enter": 0,
+  "leave": 0,
+  "layout": 143696876,
+  "props": 10,
+  "warps": 0,
+  "collision": 139337328,
+  "scene_tables": [],
+  "region_kinds": [],
+  "item_kinds": [
+   "item"
+  ]
+ },
+ {
+  "index": 327,
+  "zone": 6,
+  "area": 100,
+  "entry": 9700884,
+  "variations": 1,
+  "regions": 0,
+  "items": 2,
+  "combat": 1,
+  "banner": 221,
+  "word24": 38,
+  "enter": 0,
+  "leave": 0,
+  "layout": 143900092,
+  "props": 3,
+  "warps": 0,
+  "collision": 143898192,
+  "scene_tables": [
+   9701188
+  ],
+  "region_kinds": [],
+  "item_kinds": [
+   "group",
+   "item"
+  ]
+ }
+]

@@ -1,0 +1,502 @@
+[
+ {
+  "id": 0,
+  "at": 7003684,
+  "name": "Senzu Bean",
+  "desc": "Restores Health and Energy",
+  "name_index": 90,
+  "desc_index": 91,
+  "handler": 134280937,
+  "shared": 134280177
+ },
+ {
+  "id": 1,
+  "at": 7003740,
+  "name": "Golden Cap.",
+  "desc": "Use to enter the World Map",
+  "name_index": 148,
+  "desc_index": 149,
+  "handler": 134281021,
+  "shared": 134280177
+ },
+ {
+  "id": 2,
+  "at": 7003796,
+  "name": "STR Cap. +1",
+  "desc": "Raises Strength by 1",
+  "name_index": 60,
+  "desc_index": 61,
+  "handler": 134280283,
+  "shared": 134280177
+ },
+ {
+  "id": 3,
+  "at": 7003852,
+  "name": "STR Cap. +3",
+  "desc": "Raises Strength by 3",
+  "name_index": 62,
+  "desc_index": 63,
+  "handler": 134280283,
+  "shared": 134280177
+ },
+ {
+  "id": 4,
+  "at": 7003908,
+  "name": "STR Cap. +5",
+  "desc": "Raises Strength by 5",
+  "name_index": 64,
+  "desc_index": 65,
+  "handler": 134280283,
+  "shared": 134280177
+ },
+ {
+  "id": 5,
+  "at": 7003964,
+  "name": "PWR Cap. +1",
+  "desc": "Raises Power by 1",
+  "name_index": 66,
+  "desc_index": 67,
+  "handler": 134280387,
+  "shared": 134280177
+ },
+ {
+  "id": 6,
+  "at": 7004020,
+  "name": "PWR Cap. +3",
+  "desc": "Raises Power by 3",
+  "name_index": 68,
+  "desc_index": 69,
+  "handler": 134280387,
+  "shared": 134280177
+ },
+ {
+  "id": 7,
+  "at": 7004076,
+  "name": "PWR Cap. +5",
+  "desc": "Raises Power by 5",
+  "name_index": 70,
+  "desc_index": 71,
+  "handler": 134280387,
+  "shared": 134280177
+ },
+ {
+  "id": 8,
+  "at": 7004132,
+  "name": "END Cap. +1",
+  "desc": "Raises Endurance by 1",
+  "name_index": 72,
+  "desc_index": 73,
+  "handler": 134280491,
+  "shared": 134280177
+ },
+ {
+  "id": 9,
+  "at": 7004188,
+  "name": "END Cap. +3",
+  "desc": "Raises Endurance by 3",
+  "name_index": 74,
+  "desc_index": 75,
+  "handler": 134280491,
+  "shared": 134280177
+ },
+ {
+  "id": 10,
+  "at": 7004244,
+  "name": "END Cap. +5",
+  "desc": "Raises Endurance by 5",
+  "name_index": 76,
+  "desc_index": 77,
+  "handler": 134280491,
+  "shared": 134280177
+ },
+ {
+  "id": 11,
+  "at": 7004300,
+  "name": "HealthBonusSmall",
+  "desc": "HealthBonusSmall Description",
+  "name_index": 78,
+  "desc_index": 79,
+  "handler": 134280595,
+  "shared": 134280177
+ },
+ {
+  "id": 12,
+  "at": 7004356,
+  "name": "HealthBonusMedium",
+  "desc": "HealthBonusMedium Description",
+  "name_index": 80,
+  "desc_index": 81,
+  "handler": 134280595,
+  "shared": 134280177
+ },
+ {
+  "id": 13,
+  "at": 7004412,
+  "name": "HealthBonusLarge",
+  "desc": "HealthBonusLarge Description",
+  "name_index": 82,
+  "desc_index": 83,
+  "handler": 134280595,
+  "shared": 134280177
+ },
+ {
+  "id": 14,
+  "at": 7004468,
+  "name": "EnergyBonusSmall",
+  "desc": "EnergyBonusSmall Description",
+  "name_index": 84,
+  "desc_index": 85,
+  "handler": 134280761,
+  "shared": 134280177
+ },
+ {
+  "id": 15,
+  "at": 7004524,
+  "name": "EnergyBonusMedium",
+  "desc": "EnergyBonusMedium Description",
+  "name_index": 86,
+  "desc_index": 87,
+  "handler": 134280761,
+  "shared": 134280177
+ },
+ {
+  "id": 16,
+  "at": 7004580,
+  "name": "EnergyBonusLarge",
+  "desc": "EnergyBonusLarge Description",
+  "name_index": 88,
+  "desc_index": 89,
+  "handler": 134280761,
+  "shared": 134280177
+ },
+ {
+  "id": 17,
+  "at": 7004636,
+  "name": "Golden Cap.",
+  "desc": "A mysterious Capsule",
+  "name_index": 92,
+  "desc_index": 93,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 18,
+  "at": 7004692,
+  "name": "Album",
+  "desc": "Eyes of the Lion",
+  "name_index": 94,
+  "desc_index": 95,
+  "handler": 134281005,
+  "shared": 134280177
+ },
+ {
+  "id": 19,
+  "at": 7004748,
+  "name": "Club Sand.",
+  "desc": "Hercule's favorite sandwich",
+  "name_index": 96,
+  "desc_index": 97,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 20,
+  "at": 7004804,
+  "name": "Newspaper",
+  "desc": "Today's paper",
+  "name_index": 98,
+  "desc_index": 99,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 21,
+  "at": 7004860,
+  "name": "Cookie",
+  "desc": "Cookie from Mrs. Briefs",
+  "name_index": 100,
+  "desc_index": 101,
+  "handler": 134280595,
+  "shared": 134280177
+ },
+ {
+  "id": 22,
+  "at": 7004916,
+  "name": "Scouter",
+  "desc": "Information device",
+  "name_index": 102,
+  "desc_index": 103,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 23,
+  "at": 7004972,
+  "name": "Scouter Note",
+  "desc": "Take this to Circuit Shack for Bulma",
+  "name_index": 104,
+  "desc_index": 105,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 24,
+  "at": 7005028,
+  "name": "Scouter Part",
+  "desc": "Bulma needs this part for the scouter",
+  "name_index": 106,
+  "desc_index": 107,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 25,
+  "at": 7005084,
+  "name": "Scouter Part",
+  "desc": "Bulma needs this part for the scouter",
+  "name_index": 108,
+  "desc_index": 109,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 26,
+  "at": 7005140,
+  "name": "Apt. A Card",
+  "desc": "WC Apartments A Access",
+  "name_index": 110,
+  "desc_index": 111,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 27,
+  "at": 7005196,
+  "name": "Apt. B Card",
+  "desc": "WC Apartments B Access",
+  "name_index": 112,
+  "desc_index": 113,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 28,
+  "at": 7005252,
+  "name": "Missing Nameks",
+  "desc": "Find all 7 missing Nameks",
+  "name_index": 114,
+  "desc_index": 115,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 29,
+  "at": 7005308,
+  "name": "Dragon Ball 1",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 116,
+  "desc_index": 117,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 30,
+  "at": 7005364,
+  "name": "Dragon Ball 2",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 118,
+  "desc_index": 119,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 31,
+  "at": 7005420,
+  "name": "Dragon Ball 3",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 120,
+  "desc_index": 121,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 32,
+  "at": 7005476,
+  "name": "Dragon Ball 4",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 122,
+  "desc_index": 123,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 33,
+  "at": 7005532,
+  "name": "Dragon Ball 5",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 124,
+  "desc_index": 125,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 34,
+  "at": 7005588,
+  "name": "Dragon Ball 6",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 126,
+  "desc_index": 127,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 35,
+  "at": 7005644,
+  "name": "Dragon Ball 7",
+  "desc": "Find the seven Dragon Balls",
+  "name_index": 128,
+  "desc_index": 129,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 36,
+  "at": 7005700,
+  "name": "Grandpa's Key",
+  "desc": "The key to Grandpa Gohan's house",
+  "name_index": 130,
+  "desc_index": 131,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 37,
+  "at": 7005756,
+  "name": "Mathbook",
+  "desc": "Gohan's mathbook",
+  "name_index": 132,
+  "desc_index": 133,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 38,
+  "at": 7005812,
+  "name": "Rune",
+  "desc": "Ancient stone rune of the dinosaurs",
+  "name_index": 134,
+  "desc_index": 135,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 39,
+  "at": 7005868,
+  "name": "City Key",
+  "desc": "Return this to the Mayor",
+  "name_index": 136,
+  "desc_index": 137,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 40,
+  "at": 7005924,
+  "name": "Blue Card",
+  "desc": "Capsule Corp. Access",
+  "name_index": 138,
+  "desc_index": 139,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 41,
+  "at": 7005980,
+  "name": "Red Card",
+  "desc": "Capsule Corp. Access",
+  "name_index": 140,
+  "desc_index": 141,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 42,
+  "at": 7006036,
+  "name": "Autograph",
+  "desc": "'Your Hero, Hercule'",
+  "name_index": 142,
+  "desc_index": 143,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 43,
+  "at": 7006092,
+  "name": "Fish",
+  "desc": "Korin's favorite snack",
+  "name_index": 144,
+  "desc_index": 145,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 44,
+  "at": 7006148,
+  "name": "Bait",
+  "desc": "Quality fishing bait",
+  "name_index": 146,
+  "desc_index": 147,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 45,
+  "at": 7006204,
+  "name": "Dragon Radar",
+  "desc": "Reveals the Dragon Ball locations",
+  "name_index": 150,
+  "desc_index": 151,
+  "handler": 0,
+  "shared": 134280177
+ },
+ {
+  "id": 46,
+  "at": 7006260,
+  "name": "***",
+  "desc": "***",
+  "name_index": 0,
+  "desc_index": 0,
+  "handler": 0,
+  "shared": 134280257
+ },
+ {
+  "id": 47,
+  "at": 7006316,
+  "name": "***",
+  "desc": "***",
+  "name_index": 0,
+  "desc_index": 0,
+  "handler": 0,
+  "shared": 134280257
+ },
+ {
+  "id": 48,
+  "at": 7006372,
+  "name": "***",
+  "desc": "***",
+  "name_index": 0,
+  "desc_index": 0,
+  "handler": 0,
+  "shared": 134280257
+ },
+ {
+  "id": 49,
+  "at": 7006428,
+  "name": "***",
+  "desc": "***",
+  "name_index": 0,
+  "desc_index": 0,
+  "handler": 0,
+  "shared": 134280257
+ }
+]

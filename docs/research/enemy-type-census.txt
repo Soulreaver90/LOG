@@ -1,0 +1,365 @@
+== scouter entries with a type (+0x10 != 0)
+entry   0 rom:0x6f8e40 name 'Alligator' set 7 portrait 0 type 1
+entry   1 rom:0x6f8e54 name 'Android 16' set 8 portrait 26 type 2
+entry   2 rom:0x6f8e68 name 'Android 17' set 9 portrait 28 type 3
+entry   3 rom:0x6f8e7c name 'Android 18' set 11 portrait 29 type 4
+entry   4 rom:0x6f8e90 name 'Android 19' set 12 portrait 30 type 5
+entry   5 rom:0x6f8ea4 name 'Android 20' set 13 portrait 31 type 6
+entry   6 rom:0x6f8eb8 name 'Android 20' set 14 portrait 32 type 7
+entry   7 rom:0x6f8ecc name 'Bulma' set 23 portrait 36 type 18
+entry   8 rom:0x6f8ee0 name 'Bulma' set 24 portrait 36 type 18
+entry   9 rom:0x6f8ef4 name 'Butterfly' set 25 portrait 0 type 19
+entry  10 rom:0x6f8f08 name 'Cat' set 26 portrait 37 type 20
+entry  11 rom:0x6f8f1c name 'Cell' set 28 portrait 38 type 60
+entry  12 rom:0x6f8f30 name 'Cell, "Nonperfect"' set 29 portrait 39 type 76
+entry  13 rom:0x6f8f44 name 'Cell, "Perfect"' set 30 portrait 40 type 78
+entry  14 rom:0x6f8f58 name 'Cell, "Perfect"' set 30 portrait 40 type 79
+entry  15 rom:0x6f8f6c name 'Cell, "Perfect"' set 30 portrait 40 type 21
+entry  16 rom:0x6f8f80 name 'Cell, "Perfect"' set 30 portrait 40 type 22
+entry  17 rom:0x6f8f94 name 'Cell, "Perfect"' set 30 portrait 40 type 23
+entry  18 rom:0x6f8fa8 name 'Cell, "Perfect"' set 30 portrait 40 type 24
+entry  19 rom:0x6f8fbc name 'Cell, "Perfect"' set 30 portrait 40 type 25
+entry  20 rom:0x6f8fd0 name 'Cell Junior' set 31 portrait 0 type 26
+entry  21 rom:0x6f8fe4 name 'Chiaotzu' set 32 portrait 42 type 27
+entry  22 rom:0x6f8ff8 name 'Chi-Chi' set 33 portrait 43 type 28
+entry  23 rom:0x6f900c name 'Cooler' set 34 portrait 44 type 29
+entry  24 rom:0x6f9020 name 'Dende' set 36 portrait 46 type 30
+entry  25 rom:0x6f9034 name 'Destroyer' set 37 portrait 0 type 31
+entry  26 rom:0x6f9048 name 'Destroyer' set 38 portrait 0 type 32
+entry  27 rom:0x6f905c name 'Destroyer' set 39 portrait 0 type 33
+entry  28 rom:0x6f9070 name 'Dog' set 40 portrait 47 type 34
+entry  29 rom:0x6f9084 name 'Dr. Briefs' set 41 portrait 48 type 35
+entry  30 rom:0x6f9098 name 'Eggbot' set 44 portrait 0 type 37
+entry  31 rom:0x6f90ac name 'Eggbot' set 45 portrait 0 type 38
+entry  32 rom:0x6f90c0 name 'Eggbot' set 46 portrait 0 type 39
+entry  33 rom:0x6f90d4 name 'Eggbot' set 47 portrait 0 type 40
+entry  34 rom:0x6f90e8 name 'Frieza' set 48 portrait 49 type 42
+entry  35 rom:0x6f90fc name 'General Tao' set 50 portrait 53 type 44
+entry  38 rom:0x6f9138 name 'Hawk' set 63 portrait 0 type 58
+entry  39 rom:0x6f914c name 'Hawk' set 64 portrait 0 type 107
+entry  40 rom:0x6f9160 name 'Hawk' set 65 portrait 0 type 84
+entry  42 rom:0x6f9188 name 'Human' set 80 portrait 74 type 59
+entry  43 rom:0x6f919c name 'Human' set 81 portrait 41 type 59
+entry  44 rom:0x6f91b0 name 'Human' set 82 portrait 75 type 59
+entry  45 rom:0x6f91c4 name 'Human' set 83 portrait 76 type 59
+entry  46 rom:0x6f91d8 name 'Human' set 84 portrait 77 type 59
+entry  47 rom:0x6f91ec name 'Human' set 85 portrait 78 type 59
+entry  48 rom:0x6f9200 name 'Human' set 86 portrait 78 type 59
+entry  49 rom:0x6f9214 name 'Human' set 21 portrait 33 type 59
+entry  50 rom:0x6f9228 name 'Human' set 22 portrait 34 type 59
+entry  51 rom:0x6f923c name 'Human' set 51 portrait 54 type 59
+entry  52 rom:0x6f9250 name 'Human' set 52 portrait 55 type 59
+entry  53 rom:0x6f9264 name 'Human' set 150 portrait 108 type 59
+entry  54 rom:0x6f9278 name 'Human' set 151 portrait 109 type 59
+entry  55 rom:0x6f928c name 'Human' set 152 portrait 110 type 59
+entry  56 rom:0x6f92a0 name 'Human' set 153 portrait 111 type 59
+entry  57 rom:0x6f92b4 name 'Human' set 154 portrait 112 type 59
+entry  58 rom:0x6f92c8 name 'Human' set 35 portrait 45 type 59
+entry  59 rom:0x6f92dc name 'Human' set 111 portrait 92 type 59
+entry  60 rom:0x6f92f0 name 'Human' set 99 portrait 87 type 59
+entry  61 rom:0x6f9304 name 'Human' set 100 portrait 68 type 59
+entry  62 rom:0x6f9318 name 'Human' set 101 portrait 88 type 59
+entry  63 rom:0x6f932c name 'Kami' set 73 portrait 69 type 61
+entry  64 rom:0x6f9340 name 'King Cold' set 74 portrait 70 type 62
+entry  65 rom:0x6f9354 name 'Korin' set 75 portrait 72 type 63
+entry  66 rom:0x6f9368 name 'Krillin' set 76 portrait 73 type 64
+entry  67 rom:0x6f937c name 'Kuma Mercenary' set 90 portrait 0 type 69
+entry  68 rom:0x6f9390 name 'Kuma Mercenary' set 91 portrait 0 type 70
+entry  69 rom:0x6f93a4 name 'Kuma Mercenary' set 92 portrait 0 type 71
+entry  70 rom:0x6f93b8 name 'Ladybug' set 77 portrait 0 type 65
+entry  71 rom:0x6f93cc name 'Ladybug' set 78 portrait 0 type 66
+entry  72 rom:0x6f93e0 name 'Ladybug' set 79 portrait 0 type 67
+entry  73 rom:0x6f93f4 name 'Maron' set 87 portrait 79 type 59
+entry  74 rom:0x6f9408 name 'Master Roshi' set 88 portrait 80 type 68
+entry  75 rom:0x6f941c name 'Mayor' set 89 portrait 81 type 59
+entry  76 rom:0x6f9430 name 'Mr. Popo' set 93 portrait 82 type 72
+entry  77 rom:0x6f9444 name 'Mrs. Briefs' set 94 portrait 83 type 59
+entry  78 rom:0x6f9458 name 'Namek' set 95 portrait 85 type 73
+entry  79 rom:0x6f946c name 'Ninja' set 96 portrait 0 type 75
+entry  80 rom:0x6f9480 name 'Ninja' set 98 portrait 0 type 86
+entry  81 rom:0x6f9494 name 'Ninja' set 97 portrait 0 type 45
+entry  82 rom:0x6f94a8 name 'Oolong' set 102 portrait 89 type 77
+entry  84 rom:0x6f94d0 name 'Pterodactyl' set 105 portrait 0 type 80
+entry  85 rom:0x6f94e4 name 'Pterodactyl' set 106 portrait 0 type 88
+entry  86 rom:0x6f94f8 name 'Puar' set 107 portrait 91 type 81
+entry  87 rom:0x6f950c name 'Saber-Toothed Tiger' set 108 portrait 0 type 92
+entry  88 rom:0x6f9520 name 'Saber-Toothed Tiger' set 109 portrait 0 type 55
+entry  89 rom:0x6f9534 name 'Saber-Toothed Tiger' set 110 portrait 0 type 89
+entry  90 rom:0x6f9548 name 'Scorpion' set 112 portrait 0 type 108
+entry  91 rom:0x6f955c name 'Scorpion' set 114 portrait 0 type 103
+entry  92 rom:0x6f9570 name 'Scorpion' set 113 portrait 0 type 90
+entry  93 rom:0x6f9584 name 'Scorpion' set 112 portrait 0 type 47
+entry  94 rom:0x6f9598 name 'Snake' set 118 portrait 0 type 53
+entry  95 rom:0x6f95ac name 'Snake' set 119 portrait 0 type 91
+entry  96 rom:0x6f95c0 name 'Snake' set 115 portrait 0 type 83
+entry  97 rom:0x6f95d4 name 'Snake' set 116 portrait 0 type 14
+entry  98 rom:0x6f95e8 name 'Snake' set 117 portrait 0 type 48
+entry  99 rom:0x6f95fc name 'Squirrel' set 120 portrait 0 type 19
+entry 100 rom:0x6f9610 name 'Tien' set 121 portrait 95 type 98
+entry 101 rom:0x6f9624 name 'Tiger Bandit' set 17 portrait 0 type 8
+entry 102 rom:0x6f9638 name 'Tiger Bandit' set 18 portrait 0 type 9
+entry 103 rom:0x6f964c name 'Tiger Bandit' set 19 portrait 0 type 10
+entry 104 rom:0x6f9660 name 'T-Rex' set 122 portrait 0 type 99
+entry 105 rom:0x6f9674 name 'T-Rex' set 123 portrait 0 type 11
+entry 106 rom:0x6f9688 name 'T-Rex' set 124 portrait 0 type 16
+entry 107 rom:0x6f969c name 'T-Rex' set 122 portrait 0 type 96
+entry 108 rom:0x6f96b0 name 'Triceratops' set 125 portrait 0 type 100
+entry 109 rom:0x6f96c4 name 'Triceratops' set 125 portrait 0 type 94
+entry 110 rom:0x6f96d8 name 'Triceratops' set 125 portrait 0 type 54
+entry 111 rom:0x6f96ec name 'Triceratops' set 125 portrait 0 type 97
+entry 112 rom:0x6f9700 name 'Triceratops King' set 127 portrait 96 type 101
+entry 114 rom:0x6f9728 name 'Turtle' set 136 portrait 104 type 59
+entry 116 rom:0x6f9750 name 'Warlord's Henchman' set 141 portrait 0 type 85
+entry 117 rom:0x6f9764 name 'Warlord's Henchman' set 143 portrait 0 type 51
+entry 118 rom:0x6f9778 name 'Warlord's Henchman' set 142 portrait 0 type 12
+entry 119 rom:0x6f978c name 'Warthog' set 144 portrait 0 type 102
+entry 120 rom:0x6f97a0 name 'Warthog' set 145 portrait 0 type 56
+entry 121 rom:0x6f97b4 name 'Wolf' set 146 portrait 0 type 17
+entry 122 rom:0x6f97c8 name 'Wolf' set 148 portrait 0 type 57
+entry 123 rom:0x6f97dc name 'Wolf' set 149 portrait 0 type 104
+entry 124 rom:0x6f97f0 name 'Wolf' set 147 portrait 0 type 50
+entry 125 rom:0x6f9804 name 'Wolf' set 146 portrait 0 type 74
+entry 126 rom:0x6f9818 name 'Yajirobe' set 155 portrait 113 type 105
+entry 127 rom:0x6f982c name 'Yamcha' set 156 portrait 114 type 106
+
+== type table rom:0x6D56AC
+type   0 (0x00) rom:0x6d56ac EXP    100 HP   100 AI   0   1/  1/  1 f 0x80/0x80 norm | scouter [] | spawns 0: 
+      bytes 64000000640000000000000001010180800000006c2b6d08
+type   1 (0x01) rom:0x6d56c4 EXP   5400 HP   600 AI 149  29/  1/ 20 f 0x80/0x80 norm | scouter [0:'Alligator'] | spawns 38: maps 12,2 x12, 12,3 x6, 12,10 x7, 12,11 x3, 12,12 x5, 12,14 x5
+      bytes 1815000058020000950000001d011480800000006c2b6d08
+type   2 (0x02) rom:0x6d56dc EXP      0 HP  4480 AI   8  42/ 50/ 39 f 0x80/0x80 norm | scouter [1:'Android 16'] | spawns 0: 
+      bytes 0000000080110000080000002a322780800000006c2b6d08
+type   3 (0x03) rom:0x6d56f4 EXP      0 HP  3550 AI  21  32/ 39/ 34 f 0x80/0x80 boss | scouter [2:'Android 17'] | spawns 4: map 11,4 item 1 cond 1 set 9 @rom:0x406494 evtab 0x083e49f0; map 11,5 item 0 cond 0 set 9 @rom:0x40657c evtab 0x00110000; map 11,6 item 0 cond 1 set 9 @rom:0x406654 evtab 0x083e4b50; map 11,6 item 4 cond 1 set 9 @rom:0x4066e4 evtab 0x083e6078
+      bytes 00000000de0d0000150000002027228080000000c4f36f08
+type   4 (0x04) rom:0x6d570c EXP      0 HP  2910 AI  21  29/ 34/ 27 f 0x80/0x80 boss | scouter [3:'Android 18'] | spawns 1: map 8,49 item 0 cond 1 set 11 @rom:0x4033a4 evtab 0x083d98ac
+      bytes 000000005e0b0000150000001d221b8080000000c4f36f08
+type   5 (0x05) rom:0x6d5724 EXP      0 HP  2970 AI  29  21/ 14/ 11 f 0x80/0x80 boss | scouter [4:'Android 19'] | spawns 1: map 7,15 item 2 cond 1 set 12 @rom:0x3fd3bc evtab 0x083d4834
+      bytes 000000009a0b00001d000000150e0b8080000000c4f36f08
+type   6 (0x06) rom:0x6d573c EXP      0 HP  2810 AI  29  24/ 19/ 14 f 0x80/0x80 boss | scouter [5:'Android 20'] | spawns 1: map 7,19 item 1 cond 1 set 14 @rom:0x3fd7a8 evtab 0x083d5524
+      bytes 00000000fa0a00001d00000018130e8080000000c4f36f08
+type   7 (0x07) rom:0x6d5754 EXP      0 HP  1900 AI  29  25/ 21/ 17 f 0x80/0x80 boss | scouter [6:'Android 20'] | spawns 3: map 8,13 item 1 cond 1 set 14 @rom:0x3ff970 evtab 0x083ff938; map 8,27 item 3 cond 1 set 14 @rom:0x400d28 evtab 0x083d6480; map 8,40 item 1 cond 1 set 14 @rom:0x402338 evtab 0x083d78ec
+      bytes 000000006c0700001d0000001915118080000000c4f36f08
+type   8 (0x08) rom:0x6d576c EXP     14 HP    38 AI   8   6/  3/  4 f 0x80/0x80 norm | scouter [101:'Tiger Bandit'] | spawns 23: maps 3,2 x4, 3,3 x2, 3,7 x4, 4,72 x2, 4,76 x3, 4,83 x2, 4,95 x2, 8,44 x4
+      bytes 0e000000260000000800000006030480800000006c2b6d08
+type   9 (0x09) rom:0x6d5784 EXP    650 HP   325 AI  45  10/ 12/  8 f 0x80/0x80 norm | scouter [102:'Tiger Bandit'] | spawns 49: maps 4,55 x1, 7,1 x5, 7,2 x1, 7,3 x2, 7,4 x1, 7,6 x2, 7,7 x1, 7,8 x1, 7,11 x2, 7,14 x2, 7,26 x4, 8,5 x3, 8,6 x3, 8,13 x7, 8,15 x3, 8,28 x5, 8,29 x6
+      bytes 8a020000450100002d0000000a0c0880800000006c2b6d08
+type  10 (0x0A) rom:0x6d579c EXP  25250 HP  1120 AI  45  34/ 42/ 25 f 0x80/0x80 norm | scouter [103:'Tiger Bandit'] | spawns 8: maps 3,10 x1, 13,3 x4, 13,4 x3
+      bytes a2620000600400002d000000222a1980800000006c2b6d08
+type  11 (0x0B) rom:0x6d57b4 EXP  42350 HP  6700 AI  59  55/  1/ 60 f 0x80/0x80 norm | scouter [105:'T-Rex'] | spawns 1: map 13,10 item 0 cond 131262 set 123 @rom:0x408b28 evtab 0x08408b10
+      bytes 6ea500002c1a00003b00000037013c80800000006c2b6d08
+type  12 (0x0C) rom:0x6d57cc EXP   3200 HP   900 AI  11  10/ 30/ 26 f 0x80/0x80 norm | scouter [118:'Warlord's Henchman'] | spawns 13: maps 2,26 x2, 2,31 x1, 2,32 x6, 10,11 x4
+      bytes 800c0000840300000b0000000a1e1a80800000006c2b6d08
+type  13 (0x0D) rom:0x6d57e4 EXP   1200 HP   400 AI   0   1/ 14/  9 f 0x80/0x60 norm | scouter [] | spawns 0: 
+      bytes b00400009001000000000000010e0980600000006c2b6d08
+type  14 (0x0E) rom:0x6d57fc EXP   3290 HP   530 AI   8  32/  1/ 28 f 0x80/0x80 norm | scouter [97:'Snake'] | spawns 3: map 8,7 item 7 cond 65672 set 116 @rom:0x3feff4 evtab 0x083ee120; map 8,7 item 8 cond 65672 set 116 @rom:0x3ff04c evtab 0x083ee120; map 8,7 item 9 cond 65672 set 116 @rom:0x3ff0ac evtab 0x083ee120
+      bytes da0c0000120200000800000020011c80800000006c2b6d08
+type  15 (0x0F) rom:0x6d5814 EXP   2830 HP   525 AI   8  35/  1/ 15 f 0x26/0x80 norm | scouter [] | spawns 0: 
+      bytes 0e0b00000d0200000800000023010f26800000006c2b6d08
+type  16 (0x10) rom:0x6d582c EXP  36900 HP  5120 AI  59  49/  1/ 55 f 0x80/0x80 norm | scouter [106:'T-Rex'] | spawns 4: map 8,22 item 0 cond 0 set 124 @rom:0x400828 evtab 0x083ee120; map 8,24 item 0 cond 0 set 124 @rom:0x40098c evtab 0x083ee120; map 8,25 item 0 cond 0 set 124 @rom:0x400a5c evtab 0x083ee120; map 13,10 item 1 cond 65726 set 124 @rom:0x408b58 evtab 0x083ee120
+      bytes 24900000001400003b00000031013780800000006c2b6d08
+type  17 (0x11) rom:0x6d5844 EXP     45 HP    65 AI  74   8/  1/  4 f 0x80/0x80 norm | scouter [121:'Wolf'] | spawns 21: maps 2,6 x2, 2,7 x3, 4,88 x2, 4,91 x2, 4,92 x2, 4,93 x2, 4,96 x4, 4,97 x3, 4,98 x1
+      bytes 2d000000410000004a00000008010480800000006c2b6d08
+type  18 (0x12) rom:0x6d585c EXP      0 HP    22 AI   8   2/  1/  2 f 0x80/0x80 norm | scouter [7:'Bulma',8:'Bulma'] | spawns 0: 
+      bytes 00000000160000000800000002010280800000006c2b6d08
+type  19 (0x13) rom:0x6d5874 EXP      0 HP     1 AI   8   1/  1/  1 f 0x80/0x80 norm | scouter [9:'Butterfly',99:'Squirrel'] | spawns 0: 
+      bytes 00000000010000000800000001010180800000006c2b6d08
+type  20 (0x14) rom:0x6d588c EXP      0 HP     6 AI   8   1/  1/  1 f 0x80/0x80 norm | scouter [10:'Cat'] | spawns 0: 
+      bytes 00000000060000000800000001010180800000006c2b6d08
+type  21 (0x15) rom:0x6d58a4 EXP      0 HP  6500 AI 138  50/ 55/ 60 f 0x80/0x80 boss | scouter [15:'Cell, "Perfect"'] | spawns 1: map 14,2 item 1 cond 1 set 30 @rom:0x408e4c evtab 0x083e8f50
+      bytes 00000000641900008a00000032373c8080000000c4f36f08
+type  22 (0x16) rom:0x6d58bc EXP      0 HP  6500 AI 138  50/ 55/ 60 f 0x80/0x80 boss | scouter [16:'Cell, "Perfect"'] | spawns 1: map 14,3 item 0 cond 0 set 30 @rom:0x408f18 evtab 0x083e93e8
+      bytes 00000000641900008a00000032373c8080000000c4f36f08
+type  23 (0x17) rom:0x6d58d4 EXP      0 HP  6500 AI 138  50/ 55/ 60 f 0x80/0x80 boss | scouter [17:'Cell, "Perfect"'] | spawns 1: map 14,3 item 5 cond 1 set 30 @rom:0x408fc8 evtab 0x083e9d4c
+      bytes 00000000641900008a00000032373c8080000000c4f36f08
+type  24 (0x18) rom:0x6d58ec EXP      0 HP  6500 AI 138  50/ 55/ 60 f 0x80/0x80 boss | scouter [18:'Cell, "Perfect"'] | spawns 1: map 14,3 item 11 cond 1 set 30 @rom:0x4090c8 evtab 0x083eb704
+      bytes 00000000641900008a00000032373c8080000000c4f36f08
+type  25 (0x19) rom:0x6d5904 EXP      0 HP  8230 AI 138  60/ 59/ 65 f 0x80/0x80 boss | scouter [19:'Cell, "Perfect"'] | spawns 1: map 14,3 item 12 cond 1 set 30 @rom:0x4090f8 evtab 0x083ec758
+      bytes 00000000262000008a0000003c3b418080000000c4f36f08
+type  26 (0x1A) rom:0x6d591c EXP      0 HP  4990 AI  21  46/ 50/ 46 f 0x80/0x80 0x086d5654 | scouter [20:'Cell Junior'] | spawns 3: map 14,3 item 8 cond 1 set 31 @rom:0x409038 evtab 0x083e9e24; map 14,3 item 9 cond 1 set 31 @rom:0x409068 evtab 0x083e9e84; map 14,3 item 10 cond 1 set 31 @rom:0x409098 evtab 0x083ea400
+      bytes 000000007e130000150000002e322e808000000054566d08
+type  27 (0x1B) rom:0x6d5934 EXP      0 HP   142 AI   8   9/  9/  7 f 0x80/0x80 norm | scouter [21:'Chiaotzu'] | spawns 0: 
+      bytes 000000008e0000000800000009090780800000006c2b6d08
+type  28 (0x1C) rom:0x6d594c EXP      0 HP    29 AI   8   5/  1/  4 f 0x80/0x80 norm | scouter [22:'Chi-Chi'] | spawns 0: 
+      bytes 000000001d0000000800000005010480800000006c2b6d08
+type  29 (0x1D) rom:0x6d5964 EXP      0 HP 10200 AI  21  75/ 85/ 79 f 0x80/0x80 boss | scouter [23:'Cooler'] | spawns 1: map 6,61 item 1 cond 1 set 34 @rom:0x3fb574 evtab 0x083fb3c8
+      bytes 00000000d8270000150000004b554f8080000000c4f36f08
+type  30 (0x1E) rom:0x6d597c EXP      0 HP   172 AI   8  22/ 32/ 11 f 0x80/0x80 norm | scouter [24:'Dende'] | spawns 0: 
+      bytes 00000000ac0000000800000016200b80800000006c2b6d08
+type  31 (0x1F) rom:0x6d5994 EXP   4170 HP  1463 AI  91  32/ 39/ 29 f 0x80/0x80 norm | scouter [25:'Destroyer'] | spawns 4: map 8,10 item 0 cond 0 set 37 @rom:0x3ff5c8 evtab 0x083ee120; map 8,47 item 9 cond 65672 set 37 @rom:0x402f98 evtab 0x083ee120; map 8,47 item 10 cond 65672 set 37 @rom:0x402fc8 evtab 0x083ee120; map 10,14 item 0 cond 0 set 37 @rom:0x405660 evtab 0x083ee120
+      bytes 4a100000b70500005b00000020271d80800000006c2b6d08
+type  32 (0x20) rom:0x6d59ac EXP  58900 HP  4200 AI  91  49/ 44/ 43 f 0x80/0x80 norm | scouter [26:'Destroyer'] | spawns 4: map 4,62 item 0 cond 131376 set 38 @rom:0x3f6a68 evtab 0x083f6a38; map 8,30 item 0 cond 0 set 38 @rom:0x401270 evtab 0x083ee120; map 8,30 item 1 cond 0 set 38 @rom:0x4012b4 evtab 0x083ee120; map 10,33 item 2 cond 0 set 38 @rom:0x405c20 evtab 0x083eede4
+      bytes 14e60000681000005b000000312c2b80800000006c2b6d08
+type  33 (0x21) rom:0x6d59c4 EXP  43180 HP  3120 AI  91  46/ 42/ 39 f 0x80/0x80 norm | scouter [27:'Destroyer'] | spawns 2: map 2,47 item 0 cond 0 set 39 @rom:0x3f1130 evtab 0x083eede4; map 2,48 item 0 cond 0 set 39 @rom:0x3f1168 evtab 0x083eede4
+      bytes aca80000300c00005b0000002e2a2780800000006c2b6d08
+type  34 (0x22) rom:0x6d59dc EXP      0 HP     9 AI   8   2/  1/  2 f 0x80/0x80 norm | scouter [28:'Dog'] | spawns 0: 
+      bytes 00000000090000000800000002010280800000006c2b6d08
+type  35 (0x23) rom:0x6d59f4 EXP      0 HP    36 AI   8   3/  1/  2 f 0x80/0x80 norm | scouter [29:'Dr. Briefs'] | spawns 0: 
+      bytes 00000000240000000800000003010280800000006c2b6d08
+type  36 (0x24) rom:0x6d5a0c EXP      1 HP     1 AI  30   1/  1/  1 f 0x80/0x80 0x086d5664 | scouter [] | spawns 1: map 4,78 item 2 cond 0 set 42 @rom:0x3f8260 evtab 0x00110000
+      bytes 01000000010000001e000000010101808000000064566d08
+type  37 (0x25) rom:0x6d5a24 EXP    875 HP   250 AI   8  19/ 25/ 18 f 0x80/0x80 0x086d5694 | scouter [30:'Eggbot'] | spawns 47: maps 8,16 x5, 8,18 x3, 8,31 x7, 8,35 x5, 8,41 x8, 8,42 x7, 8,43 x5, 8,44 x2, 8,51 x5
+      bytes 6b030000fa00000008000000131912808000000094566d08
+type  38 (0x26) rom:0x6d5a3c EXP   2670 HP   525 AI   8  35/ 41/ 22 f 0x80/0x80 0x086d5694 | scouter [31:'Eggbot'] | spawns 9: maps 10,5 x1, 10,6 x4, 10,10 x3, 10,13 x1
+      bytes 6e0a00000d02000008000000232916808000000094566d08
+type  39 (0x27) rom:0x6d5a54 EXP  46200 HP  1349 AI   8  47/ 53/ 52 f 0x80/0x80 0x086d5694 | scouter [32:'Eggbot'] | spawns 6: map 4,60 item 0 cond 0 set 46 @rom:0x3f697c evtab 0x083ee120; map 4,60 item 1 cond 0 set 46 @rom:0x3f69ac evtab 0x083ee120; map 4,60 item 2 cond 0 set 46 @rom:0x3f69dc evtab 0x083ee120; map 4,63 item 0 cond 0 set 46 @rom:0x3f6aa0 evtab 0x083ee120; map 4,63 item 1 cond 0 set 46 @rom:0x3f6ad0 evtab 0x083ee120; map 4,63 item 2 cond 0 set 46 @rom:0x3f6b00 evtab 0x083ee120
+      bytes 78b4000045050000080000002f3534808000000094566d08
+type  40 (0x28) rom:0x6d5a6c EXP  33170 HP  1130 AI   8  38/ 44/ 34 f 0x80/0x80 0x086d5694 | scouter [33:'Eggbot'] | spawns 8: maps 2,45 x3, 2,46 x3, 2,49 x2
+      bytes 928100006a04000008000000262c22808000000094566d08
+type  41 (0x29) rom:0x6d5a84 EXP     20 HP   130 AI  21   3/  2/  3 f 0x80/0x80 boss | scouter [] | spawns 1: map 2,8 item 1 cond 1 set 48 @rom:0x3ee770 evtab 0x083b985c
+      bytes 1400000082000000150000000302038080000000c4f36f08
+type  42 (0x2A) rom:0x6d5a9c EXP      0 HP  1974 AI   8  30/ 37/ 20 f 0x80/0x80 norm | scouter [34:'Frieza'] | spawns 0: 
+      bytes 00000000b6070000080000001e251480800000006c2b6d08
+type  43 (0x2B) rom:0x6d5ab4 EXP      0 HP  1321 AI   8  19/ 28/ 21 f 0x80/0x80 norm | scouter [] | spawns 0: 
+      bytes 000000002905000008000000131c1580800000006c2b6d08
+type  44 (0x2C) rom:0x6d5acc EXP      0 HP  6400 AI 129  50/ 55/ 60 f 0x80/0x80 boss | scouter [35:'General Tao'] | spawns 1: map 2,50 item 1 cond 1 set 50 @rom:0x3f1250 evtab 0x083bbf6c
+      bytes 00000000001900008100000032373c8080000000c4f36f08
+type  45 (0x2D) rom:0x6d5ae4 EXP  53000 HP  1600 AI  52  47/ 64/ 52 f 0x80/0x80 norm | scouter [81:'Ninja'] | spawns 0: 
+      bytes 08cf000040060000340000002f403480800000006c2b6d08
+type  46 (0x2E) rom:0x6d5afc EXP  21800 HP  3400 AI   0   1/ 60/ 49 f 0x80/0x60 norm | scouter [] | spawns 0: 
+      bytes 28550000480d000000000000013c3180600000006c2b6d08
+type  47 (0x2F) rom:0x6d5b14 EXP  50000 HP  2000 AI   8  70/  1/ 56 f 0x80/0x80 norm | scouter [93:'Scorpion'] | spawns 3: map 10,30 item 0 cond 0 set 112 @rom:0x405a2c evtab 0x083ee120; map 10,30 item 1 cond 0 set 112 @rom:0x405a5c evtab 0x083ee120; map 10,30 item 2 cond 0 set 112 @rom:0x405a8c evtab 0x083ee120
+      bytes 50c30000d00700000800000046013880800000006c2b6d08
+type  48 (0x30) rom:0x6d5b2c EXP  50000 HP  3530 AI   8  49/  1/ 41 f 0x80/0x80 norm | scouter [98:'Snake'] | spawns 0: 
+      bytes 50c30000ca0d00000800000031012980800000006c2b6d08
+type  49 (0x31) rom:0x6d5b44 EXP  58900 HP  4290 AI  59  60/  1/ 64 f 0x80/0x80 norm | scouter [] | spawns 0: 
+      bytes 14e60000c21000003b0000003c014080800000006c2b6d08
+type  50 (0x32) rom:0x6d5b5c EXP  60000 HP  3980 AI  74  54/  1/ 30 f 0x80/0x80 norm | scouter [124:'Wolf'] | spawns 0: 
+      bytes 60ea00008c0f00004a00000036011e80800000006c2b6d08
+type  51 (0x33) rom:0x6d5b74 EXP  16200 HP  1100 AI  11  15/ 42/ 36 f 0x80/0x80 norm | scouter [117:'Warlord's Henchman'] | spawns 8: maps 3,11 x3, 3,12 x2, 3,14 x3
+      bytes 483f00004c0400000b0000000f2a2480800000006c2b6d08
+type  52 (0x34) rom:0x6d5b8c EXP   7000 HP   650 AI   0   1/ 25/ 25 f 0x80/0x60 norm | scouter [] | spawns 0: 
+      bytes 581b00008a0200000000000001191980600000006c2b6d08
+type  53 (0x35) rom:0x6d5ba4 EXP     13 HP    35 AI   8   7/  1/  3 f 0x80/0x80 norm | scouter [94:'Snake'] | spawns 17: maps 2,6 x2, 2,7 x5, 4,86 x3, 4,88 x5, 4,93 x2
+      bytes 0d000000230000000800000007010380800000006c2b6d08
+type  54 (0x36) rom:0x6d5bbc EXP  35000 HP   870 AI  66  40/  1/ 40 f 0x80/0x40 norm | scouter [110:'Triceratops'] | spawns 13: maps 8,15 x5, 8,19 x4, 8,21 x1, 8,25 x3
+      bytes b8880000660300004200000028012880400000006c2b6d08
+type  55 (0x37) rom:0x6d5bd4 EXP  20000 HP  1500 AI  74  25/  1/ 21 f 0x80/0x80 norm | scouter [88:'Saber-Toothed Tiger'] | spawns 2: map 13,8 item 1 cond 0 set 109 @rom:0x4088d8 evtab 0x083ee120; map 13,8 item 3 cond 0 set 109 @rom:0x408938 evtab 0x083ee120
+      bytes 204e0000dc0500004a00000019011580800000006c2b6d08
+type  56 (0x38) rom:0x6d5bec EXP  25000 HP   900 AI  66  55/  1/ 30 f 0x80/0x80 norm | scouter [120:'Warthog'] | spawns 0: 
+      bytes a8610000840300004200000037011e80800000006c2b6d08
+type  57 (0x39) rom:0x6d5c04 EXP   1680 HP   675 AI  74  29/  1/ 24 f 0x80/0x80 norm | scouter [122:'Wolf'] | spawns 6: map 8,4 item 0 cond 0 set 148 @rom:0x3fe93c evtab 0x083ee120; map 8,4 item 1 cond 0 set 148 @rom:0x3fe980 evtab 0x083ee120; map 8,4 item 2 cond 0 set 148 @rom:0x3fe9c4 evtab 0x083ee120; map 8,6 item 0 cond 0 set 148 @rom:0x3feb6c evtab 0x083feb28; map 8,6 item 1 cond 0 set 148 @rom:0x3febc0 evtab 0x083feb28; map 8,6 item 2 cond 0 set 148 @rom:0x3fec14 evtab 0x083feb28
+      bytes 90060000a30200004a0000001d011880800000006c2b6d08
+type  58 (0x3A) rom:0x6d5c1c EXP    300 HP   110 AI  32  10/  1/  5 f 0x80/0x80 norm | scouter [38:'Hawk'] | spawns 6: map 8,8 item 0 cond 0 set 63 @rom:0x3ff16c evtab 0x083ee120; map 8,8 item 1 cond 0 set 63 @rom:0x3ff210 evtab 0x083ee120; map 8,8 item 2 cond 0 set 63 @rom:0x3ff2b4 evtab 0x083ee120; map 8,12 item 0 cond 0 set 63 @rom:0x3ff77c evtab 0x083f4ee8; map 8,12 item 1 cond 0 set 63 @rom:0x3ff800 evtab 0x083f4ee8; map 8,12 item 2 cond 0 set 63 @rom:0x3ff89c evtab 0x083f4ee8
+      bytes 2c0100006e000000200000000a010580800000006c2b6d08
+type  59 (0x3B) rom:0x6d5c34 EXP      0 HP    32 AI   8   2/  1/  2 f 0x80/0x80 norm | scouter [42:'Human',43:'Human',44:'Human',45:'Human',46:'Human',47:'Human',48:'Human',49:'Human',50:'Human',51:'Human',52:'Human',53:'Human',54:'Human',55:'Human',56:'Human',57:'Human',58:'Human',59:'Human',60:'Human',61:'Human',62:'Human',73:'Maron',75:'Mayor',77:'Mrs. Briefs',114:'Turtle'] | spawns 0: 
+      bytes 00000000200000000800000002010280800000006c2b6d08
+type  60 (0x3C) rom:0x6d5c4c EXP      0 HP  5210 AI  80  32/ 32/ 37 f 0x80/0x80 boss | scouter [11:'Cell'] | spawns 1: map 10,20 item 0 cond 131208 set 28 @rom:0x4058a4 evtab 0x083e24a0
+      bytes 000000005a140000500000002020258080000000c4f36f08
+type  61 (0x3D) rom:0x6d5c64 EXP      0 HP   230 AI   8  23/ 30/ 13 f 0x80/0x80 norm | scouter [63:'Kami'] | spawns 0: 
+      bytes 00000000e600000008000000171e0d80800000006c2b6d08
+type  62 (0x3E) rom:0x6d5c7c EXP      0 HP  1180 AI   8  24/ 28/ 10 f 0x80/0x80 norm | scouter [64:'King Cold'] | spawns 0: 
+      bytes 000000009c04000008000000181c0a80800000006c2b6d08
+type  63 (0x3F) rom:0x6d5c94 EXP      0 HP  3470 AI   8  25/ 59/ 43 f 0x80/0x80 norm | scouter [65:'Korin'] | spawns 0: 
+      bytes 000000008e0d000008000000193b2b80800000006c2b6d08
+type  64 (0x40) rom:0x6d5cac EXP   1200 HP  1800 AI  98  23/ 24/ 17 f 0x80/0x80 boss | scouter [66:'Krillin'] | spawns 1: map 6,70 item 4 cond 1 set 76 @rom:0x3fb754 evtab 0x083d2eec
+      bytes b004000008070000620000001718118080000000c4f36f08
+type  65 (0x41) rom:0x6d5cc4 EXP     16 HP    29 AI 106   1/  7/  4 f 0x80/0x80 norm | scouter [70:'Ladybug'] | spawns 24: maps 3,1 x3, 3,3 x2, 4,54 x2, 4,71 x2, 4,72 x3, 4,76 x1, 4,82 x2, 4,94 x2, 7,10 x7
+      bytes 100000001d0000006a00000001070480800000006c2b6d08
+type  66 (0x42) rom:0x6d5cdc EXP    520 HP   175 AI 106   1/ 16/ 11 f 0x80/0x80 norm | scouter [71:'Ladybug'] | spawns 21: maps 2,39 x1, 2,40 x1, 2,41 x1, 7,4 x2, 7,5 x2, 7,11 x1, 8,43 x3, 8,48 x5, 8,51 x3, 10,3 x2
+      bytes 08020000af0000006a00000001100b80800000006c2b6d08
+type  67 (0x43) rom:0x6d5cf4 EXP  11200 HP   700 AI 106   1/ 32/ 29 f 0x80/0x80 norm | scouter [72:'Ladybug'] | spawns 14: maps 2,30 x3, 2,33 x3, 12,3 x2, 12,12 x3, 13,6 x3
+      bytes c02b0000bc0200006a00000001201d80800000006c2b6d08
+type  68 (0x44) rom:0x6d5d0c EXP      0 HP    87 AI   8   9/ 15/  4 f 0x80/0x80 norm | scouter [74:'Master Roshi'] | spawns 0: 
+      bytes 000000005700000008000000090f0480800000006c2b6d08
+type  69 (0x45) rom:0x6d5d24 EXP    250 HP   125 AI   8  17/  1/ 15 f 0x80/0x80 norm | scouter [67:'Kuma Mercenary'] | spawns 17: maps 4,51 x5, 4,52 x3, 4,53 x7, 4,54 x2
+      bytes fa0000007d0000000800000011010f80800000006c2b6d08
+type  70 (0x46) rom:0x6d5d3c EXP   9800 HP   940 AI   8  35/  1/ 32 f 0x80/0x80 norm | scouter [68:'Kuma Mercenary'] | spawns 16: maps 13,2 x4, 13,3 x5, 13,5 x4, 13,9 x3
+      bytes 48260000ac0300000800000023012080800000006c2b6d08
+type  71 (0x47) rom:0x6d5d54 EXP   3610 HP   596 AI   8  25/  1/ 20 f 0x80/0x80 norm | scouter [69:'Kuma Mercenary'] | spawns 16: maps 10,3 x5, 10,4 x3, 10,7 x5, 10,9 x2, 10,15 x1
+      bytes 1a0e0000540200000800000019011480800000006c2b6d08
+type  72 (0x48) rom:0x6d5d6c EXP      0 HP   830 AI   8  14/ 40/ 25 f 0x80/0x80 norm | scouter [76:'Mr. Popo'] | spawns 0: 
+      bytes 000000003e030000080000000e281980800000006c2b6d08
+type  73 (0x49) rom:0x6d5d84 EXP      0 HP   390 AI   8  12/ 20/ 26 f 0x80/0x80 norm | scouter [78:'Namek'] | spawns 0: 
+      bytes 0000000086010000080000000c141a80800000006c2b6d08
+type  74 (0x4A) rom:0x6d5d9c EXP    500 HP   400 AI  74  11/  1/  5 f 0x80/0x80 norm | scouter [125:'Wolf'] | spawns 1: map 6,11 item 1 cond 1 set 146 @rom:0x3fa71c evtab 0x083d0490
+      bytes f4010000900100004a0000000b010580800000006c2b6d08
+type  75 (0x4B) rom:0x6d5db4 EXP   5200 HP   900 AI  52  34/ 25/ 27 f 0x80/0x80 norm | scouter [79:'Ninja'] | spawns 16: maps 2,26 x6, 2,27 x5, 2,28 x5
+      bytes 50140000840300003400000022191b80800000006c2b6d08
+type  76 (0x4C) rom:0x6d5dcc EXP      0 HP  4890 AI 116  39/ 41/ 46 f 0x80/0x80 boss | scouter [12:'Cell, "Nonperfect"'] | spawns 1: map 12,4 item 1 cond 1 set 29 @rom:0x406e10 evtab 0x083e6f30
+      bytes 000000001a1300007400000027292e8080000000c4f36f08
+type  77 (0x4D) rom:0x6d5de4 EXP      0 HP    56 AI   8   3/  2/  5 f 0x80/0x80 norm | scouter [82:'Oolong'] | spawns 0: 
+      bytes 00000000380000000800000003020580800000006c2b6d08
+type  78 (0x4E) rom:0x6d5dfc EXP      0 HP  5160 AI 148  44/ 46/ 50 f 0x80/0x80 boss | scouter [13:'Cell, "Perfect"'] | spawns 1: map 12,6 item 4 cond 1 set 30 @rom:0x406ff0 evtab 0x083e7104
+      bytes 0000000028140000940000002c2e328080000000c4f36f08
+type  79 (0x4F) rom:0x6d5e14 EXP      0 HP  5500 AI 148  44/ 46/ 50 f 0x80/0x80 boss | scouter [14:'Cell, "Perfect"'] | spawns 1: map 12,6 item 1 cond 1 set 30 @rom:0x406f78 evtab 0x083e77b0
+      bytes 000000007c150000940000002c2e328080000000c4f36f08
+type  80 (0x50) rom:0x6d5e2c EXP   9578 HP   900 AI  38  28/  1/ 16 f 0x80/0x80 norm | scouter [84:'Pterodactyl'] | spawns 4: map 12,11 item 0 cond 0 set 105 @rom:0x4073e4 evtab 0x083f4ee8; map 12,13 item 0 cond 0 set 105 @rom:0x4078dc evtab 0x083f4ee8; map 12,13 item 1 cond 0 set 105 @rom:0x407920 evtab 0x083f4ee8; map 12,13 item 2 cond 0 set 105 @rom:0x407964 evtab 0x083f4ee8
+      bytes 6a25000084030000260000001c011080800000006c2b6d08
+type  81 (0x51) rom:0x6d5e44 EXP      0 HP    24 AI   8   2/  1/  1 f 0x80/0x80 norm | scouter [86:'Puar'] | spawns 0: 
+      bytes 00000000180000000800000002010180800000006c2b6d08
+type  82 (0x52) rom:0x6d5e5c EXP  14700 HP   900 AI   0   1/ 43/ 36 f 0x80/0x60 norm | scouter [] | spawns 0: 
+      bytes 6c3900008403000000000000012b2480600000006c2b6d08
+type  83 (0x53) rom:0x6d5e74 EXP    600 HP   275 AI   8  15/  1/ 14 f 0x80/0x80 norm | scouter [96:'Snake'] | spawns 17: maps 7,22 x3, 7,24 x4, 7,25 x1, 8,7 x3, 8,13 x3, 8,34 x3
+      bytes 5802000013010000080000000f010e80800000006c2b6d08
+type  84 (0x54) rom:0x6d5e8c EXP  21000 HP  1000 AI  32  35/  1/ 30 f 0x80/0x80 norm | scouter [40:'Hawk'] | spawns 0: 
+      bytes 08520000e80300002000000023011e80800000006c2b6d08
+type  85 (0x55) rom:0x6d5ea4 EXP    325 HP    90 AI  11   2/  8/  6 f 0x80/0x60 norm | scouter [116:'Warlord's Henchman'] | spawns 41: maps 4,71 x5, 4,72 x6, 4,73 x3, 4,74 x2, 4,75 x6, 4,76 x7, 7,12 x2, 7,13 x1, 8,27 x3, 8,40 x6
+      bytes 450100005a0000000b00000002080680600000006c2b6d08
+type  86 (0x56) rom:0x6d5ebc EXP  36800 HP  1400 AI  52  37/ 31/ 31 f 0x80/0x80 norm | scouter [80:'Ninja'] | spawns 38: maps 2,35 x4, 2,36 x4, 2,37 x4, 2,38 x4, 2,39 x1, 2,40 x1, 2,41 x1, 2,42 x5, 2,43 x5, 2,44 x5, 3,11 x4
+      bytes c08f00007805000034000000251f1f80800000006c2b6d08
+type  87 (0x57) rom:0x6d5ed4 EXP    250 HP   110 AI   0   1/  6/  6 f 0x80/0x60 norm | scouter [] | spawns 0: 
+      bytes fa0000006e0000000000000001060680600000006c2b6d08
+type  88 (0x58) rom:0x6d5eec EXP  25000 HP  1200 AI  38  40/  1/ 30 f 0x80/0x80 norm | scouter [85:'Pterodactyl'] | spawns 3: map 8,23 item 0 cond 0 set 106 @rom:0x4008e4 evtab 0x083ee120; map 8,23 item 1 cond 0 set 106 @rom:0x400938 evtab 0x083ee120; map 8,26 item 0 cond 0 set 106 @rom:0x400bec evtab 0x083ee120
+      bytes a8610000b00400002600000028011e80800000006c2b6d08
+type  89 (0x59) rom:0x6d5f04 EXP  30000 HP  1750 AI  74  30/  1/ 24 f 0x80/0x80 norm | scouter [89:'Saber-Toothed Tiger'] | spawns 0: 
+      bytes 30750000d60600004a0000001e011880800000006c2b6d08
+type  90 (0x5A) rom:0x6d5f1c EXP    750 HP   400 AI   8  18/  1/ 11 f 0x80/0x80 norm | scouter [92:'Scorpion'] | spawns 6: map 7,20 item 3 cond 0 set 113 @rom:0x3fd9c8 evtab 0x083ee120; map 7,24 item 0 cond 0 set 113 @rom:0x3fdd5c evtab 0x083ee120; map 7,25 item 1 cond 0 set 113 @rom:0x3fdf6c evtab 0x083ee120; map 7,26 item 3 cond 0 set 113 @rom:0x3fe1dc evtab 0x083ee120; map 7,26 item 4 cond 0 set 113 @rom:0x3fe2a0 evtab 0x083ee120; map 7,26 item 5 cond 0 set 113 @rom:0x3fe34c evtab 0x083ee120
+      bytes ee020000900100000800000012010b80800000006c2b6d08
+type  91 (0x5B) rom:0x6d5f34 EXP    350 HP   125 AI   8  10/  1/  5 f 0x80/0x80 norm | scouter [95:'Snake'] | spawns 6: map 10,31 item 0 cond 0 set 119 @rom:0x405acc evtab 0x083eede4; map 10,31 item 1 cond 0 set 119 @rom:0x405afc evtab 0x083eede4; map 10,32 item 0 cond 0 set 119 @rom:0x405b38 evtab 0x083eede4; map 10,32 item 1 cond 0 set 119 @rom:0x405b68 evtab 0x083eede4; map 10,33 item 0 cond 0 set 119 @rom:0x405bc0 evtab 0x083eede4; map 10,33 item 1 cond 0 set 119 @rom:0x405bf0 evtab 0x083eede4
+      bytes 5e0100007d000000080000000a010580800000006c2b6d08
+type  92 (0x5C) rom:0x6d5f4c EXP   6160 HP   750 AI  74  32/  1/ 14 f 0x80/0x80 norm | scouter [87:'Saber-Toothed Tiger'] | spawns 25: maps 12,10 x4, 12,11 x3, 12,12 x5, 12,14 x5, 12,15 x8
+      bytes 10180000ee0200004a00000020010e80800000006c2b6d08
+type  93 (0x5D) rom:0x6d5f64 EXP    225 HP    70 AI   8   9/  1/ 15 f 0x26/0x80 norm | scouter [] | spawns 0: 
+      bytes e1000000460000000800000009010f26800000006c2b6d08
+type  94 (0x5E) rom:0x6d5f7c EXP    225 HP   275 AI  15  20/  1/ 20 f 0x40/0x40 norm | scouter [109:'Triceratops'] | spawns 34: maps 4,56 x7, 4,57 x12, 4,59 x15
+      bytes e1000000130100000f00000014011440400000006c2b6d08
+type  95 (0x5F) rom:0x6d5f94 EXP      0 HP     5 AI   8   1/  1/  1 f 0x80/0x80 boss | scouter [] | spawns 0: 
+      bytes 0000000005000000080000000101018080000000c4f36f08
+type  96 (0x60) rom:0x6d5fac EXP      0 HP     5 AI   8   1/  1/  1 f 0x80/0x80 boss | scouter [107:'T-Rex'] | spawns 0: 
+      bytes 0000000005000000080000000101018080000000c4f36f08
+type  97 (0x61) rom:0x6d5fc4 EXP      0 HP     5 AI   8   1/  1/  1 f 0x80/0x80 boss | scouter [111:'Triceratops'] | spawns 0: 
+      bytes 0000000005000000080000000101018080000000c4f36f08
+type  98 (0x62) rom:0x6d5fdc EXP   2500 HP  2110 AI  98  35/ 29/ 27 f 0x80/0x80 boss | scouter [100:'Tien'] | spawns 1: map 6,70 item 5 cond 1 set 121 @rom:0x3fb784 evtab 0x083d2ffc
+      bytes c40900003e08000062000000231d1b8080000000c4f36f08
+type  99 (0x63) rom:0x6d5ff4 EXP   3750 HP  1750 AI  59  40/  1/ 30 f 0x80/0x80 norm | scouter [104:'T-Rex'] | spawns 2: map 7,26 item 7 cond 0 set 122 @rom:0x3fe3ec evtab 0x083ee120; map 10,22 item 0 cond 0 set 37 @rom:0x405974 evtab 0x083ee120
+      bytes a60e0000d60600003b00000028011e80800000006c2b6d08
+type 100 (0x64) rom:0x6d600c EXP    175 HP    80 AI  66  15/  1/ 14 f 0x80/0x40 norm | scouter [108:'Triceratops'] | spawns 0: 
+      bytes af00000050000000420000000f010e80400000006c2b6d08
+type 101 (0x65) rom:0x6d6024 EXP   1500 HP   850 AI  59  21/  1/ 25 f 0x40/0x40 boss | scouter [112:'Triceratops King'] | spawns 1: map 4,58 item 0 cond 131132 set 127 @rom:0x3f63d0 evtab 0x083c9bf8
+      bytes dc050000520300003b0000001501194040000000c4f36f08
+type 102 (0x66) rom:0x6d603c EXP    800 HP   300 AI  66  20/  1/ 14 f 0x80/0x80 norm | scouter [119:'Warthog'] | spawns 27: maps 8,2 x7, 8,3 x4, 8,7 x4, 8,9 x5, 8,34 x7
+      bytes 200300002c0100004200000014010e80800000006c2b6d08
+type 103 (0x67) rom:0x6d6054 EXP    375 HP   110 AI   8  11/  1/  5 f 0x80/0x80 norm | scouter [91:'Scorpion'] | spawns 10: maps 7,20 x3, 7,21 x2, 7,23 x3, 7,25 x2
+      bytes 770100006e000000080000000b010580800000006c2b6d08
+type 104 (0x68) rom:0x6d606c EXP   1300 HP  1000 AI  74  65/  1/ 35 f 0x80/0x80 norm | scouter [123:'Wolf'] | spawns 3: map 13,8 item 0 cond 0 set 149 @rom:0x4088a8 evtab 0x083ee120; map 13,8 item 2 cond 0 set 149 @rom:0x408908 evtab 0x083ee120; map 13,8 item 4 cond 0 set 149 @rom:0x408968 evtab 0x083ee120
+      bytes 14050000e80300004a00000041012380800000006c2b6d08
+type 105 (0x69) rom:0x6d6084 EXP      0 HP   110 AI   8  12/  1/ 15 f 0x80/0x80 norm | scouter [126:'Yajirobe'] | spawns 0: 
+      bytes 000000006e000000080000000c010f80800000006c2b6d08
+type 106 (0x6A) rom:0x6d609c EXP    600 HP   800 AI  21  18/ 12/ 14 f 0x80/0x80 boss | scouter [127:'Yamcha'] | spawns 1: map 6,70 item 3 cond 1 set 156 @rom:0x3fb724 evtab 0x083d2de4
+      bytes 580200002003000015000000120c0e8080000000c4f36f08
+type 107 (0x6B) rom:0x6d60b4 EXP   3000 HP   700 AI  32  25/  1/ 30 f 0x80/0x80 norm | scouter [39:'Hawk'] | spawns 0: 
+      bytes b80b0000bc0200002000000019011e80800000006c2b6d08
+type 108 (0x6C) rom:0x6d60cc EXP     10 HP    30 AI   8   6/  1/  2 f 0x80/0x80 norm | scouter [90:'Scorpion'] | spawns 0: 
+      bytes 0a0000001e0000000800000006010280800000006c2b6d08
+type 109 (0x6D) rom:0x6d60e4 EXP 50336032 HP 50335888 AI 50335376  32/ 17/  0 f 0x03/0x1a 0x0000001a | scouter [] | spawns 0: 
+      bytes 2011000390100003900e0003201100031a0000001a000000
+type 110 (0x6E) rom:0x6d60fc EXP     34 HP    34 AI  19  27/  0/  0 f 0x00/0x23 0x0000002b | scouter [] | spawns 0: 
+      bytes 2200000022000000130000001b000000230000002b000000
+type 111 (0x6F) rom:0x6d6114 EXP     20 HP    28 AI  36  44/  0/  0 f 0x00/0x15 0x0000001d | scouter [] | spawns 0: 
+      bytes 140000001c000000240000002c000000150000001d000000
+type 112 (0x70) rom:0x6d612c EXP     37 HP    45 AI  22  30/  0/  0 f 0x00/0x26 0x0000002e | scouter [] | spawns 0: 
+      bytes 250000002d000000160000001e000000260000002e000000
+type 113 (0x71) rom:0x6d6144 EXP     23 HP    31 AI  39  47/  0/  0 f 0x00/0x50 0x00000058 | scouter [] | spawns 0: 
+      bytes 170000001f000000270000002f0000005000000058000000
+type 114 (0x72) rom:0x6d615c EXP     96 HP   104 AI  81  89/  0/  0 f 0x00/0x61 0x00000069 | scouter [] | spawns 0: 
+      bytes 600000006800000051000000590000006100000069000000
+type 115 (0x73) rom:0x6d6174 EXP     82 HP    90 AI  98 106/  0/  0 f 0x00/0x53 0x0000005b | scouter [] | spawns 0: 
+      bytes 520000005a000000620000006a000000530000005b000000
+type 116 (0x74) rom:0x6d618c EXP     99 HP   107 AI  84  92/  0/  0 f 0x00/0x64 0x0000006c | scouter [] | spawns 0: 
+      bytes 630000006b000000540000005c000000640000006c000000
+type 117 (0x75) rom:0x6d61a4 EXP     85 HP    93 AI 101 109/  0/  0 f 0x00/0x56 0x0000005e | scouter [] | spawns 0: 
+      bytes 550000005d000000650000006d000000560000005e000000
+type 118 (0x76) rom:0x6d61bc EXP    102 HP   110 AI  87  95/  0/  0 f 0x00/0x67 0x0000006f | scouter [] | spawns 0: 
+      bytes 660000006e000000570000005f000000670000006f000000
+type 119 (0x77) rom:0x6d61d4 EXP    144 HP   152 AI 160 168/  0/  0 f 0x00/0x91 0x00000099 | scouter [] | spawns 0: 
+      bytes 9000000098000000a0000000a80000009100000099000000

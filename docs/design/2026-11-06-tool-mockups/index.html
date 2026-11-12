@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOG Tools: first look</title>
+<!--
+  A MOCKUP, not a working tool. Open it with file:// and click around.
+  It makes no network call, loads no font and needs no server, so it works from the repo on any machine.
+  The sprite frames and the map image under sample\ are REAL renders from this project, so the sizes,
+  palette and coordinates you see are the real ones. Everything else is drawn to show layout and features.
+-->
+<style>
+  :root {
+    --bg: #15151a;  --panel: #1d1d24;  --panel2: #23232c;  --line: #32323d;
+    --ink: #e9e9ee;  --mute: #a0a0ad;  --gold: #f0a860;  --blue: #6aa9e0;  --good: #7fc08a;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--ui); }
+  h1, h2, h3 { margin: 0; font-weight: 600; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+  .banner { background: #2a2118; border-bottom: 1px solid #4a3a26; padding: 10px 18px; font-size: 13px; }
+  .banner b { color: var(--gold); }
+
+  header { display: flex; align-items: center; gap: 18px; padding: 12px 18px;
+           border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 15px; letter-spacing: .2px; }
+  header .rom { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--mute); }
+  header .rom select { background: var(--panel2); color: var(--ink); border: 1px solid var(--line);
+                       border-radius: 5px; padding: 4px 8px; font: inherit; }
+
+  .tabs { display: flex; gap: 4px; padding: 0 18px; background: var(--panel);
+          border-bottom: 1px solid var(--line); }
+  .tabs button { padding: 9px 16px; border-bottom: 2px solid transparent; color: var(--mute); font-size: 13px; }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--gold); }
+
+  .app { display: grid; grid-template-columns: 236px minmax(0, 1fr) 280px; min-height: 620px; }
+  @media (max-width: 1000px) { .app { grid-template-columns: 1fr; } }
+  .side, .insp { background: var(--panel); border-right: 1px solid var(--line); padding: 14px; }
+  .insp { border-right: 0; border-left: 1px solid var(--line); }
+  .stage { padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+  .grouphead { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--mute);
+               margin: 14px 0 6px; }
+  .grouphead:first-child { margin-top: 0; }
+  .tree button { display: flex; width: 100%; gap: 8px; padding: 5px 8px; border-radius: 5px;
+                 text-align: left; color: var(--mute); font-size: 13px; }
+  .tree button:hover { background: var(--panel2); color: var(--ink); }
+  .tree button[aria-current="true"] { background: #30302c; color: var(--ink); }
+  .tree .id { margin-left: auto; font-family: var(--mono); font-size: 11px; opacity: .75; }
+  .wip { color: var(--gold); font-size: 10px; border: 1px solid #5a4327; border-radius: 3px;
+         padding: 0 4px; align-self: center; }
+
+  .viewer { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
+            min-height: 300px; display: grid; place-items: center; padding: 20px;
+            background-image: linear-gradient(45deg, #1a1a21 25%, transparent 25%),
+                              linear-gradient(-45deg, #1a1a21 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #1a1a21 75%),
+                              linear-gradient(-45deg, transparent 75%, #1a1a21 75%);
+            background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
+  .viewer img { image-rendering: pixelated; display: block; }
+
+  .bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bar .seg { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .bar .seg button { padding: 5px 11px; font-size: 12px; color: var(--mute); }
+  .bar .seg button[aria-pressed="true"] { background: var(--gold); color: #1a1208; font-weight: 600; }
+  .bar label { font-size: 12px; color: var(--mute); display: flex; align-items: center; gap: 6px; }
+  .count { font-family: var(--mono); font-size: 12px; color: var(--mute); margin-left: auto; }
+
+  .strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .strip button { border: 1px solid var(--line); border-radius: 5px; padding: 5px; background: #16161c; }
+  .strip button[aria-current="true"] { border-color: var(--gold); }
+  .strip img { image-rendering: pixelated; display: block; height: 64px; }
+  .strip .n { font-family: var(--mono); font-size: 10px; color: var(--mute); text-align: center; }
+
+  dl.facts { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 12px; }
+  dl.facts dt { color: var(--mute); }
+  dl.facts dd { margin: 0; font-family: var(--mono); overflow-wrap: anywhere; }
+  dl.facts dd.gold { color: var(--gold); }
+
+  .pal { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+  .pal button { aspect-ratio: 1; border-radius: 3px; border: 1px solid #00000055; position: relative; }
+  .pal button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .palnote { font-family: var(--mono); font-size: 11px; color: var(--mute); margin-top: 7px; }
+
+  .field { display: block; margin-bottom: 9px; font-size: 12px; color: var(--mute); }
+  .field select, .field input { width: 100%; margin-top: 4px; background: var(--panel2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; font: inherit; }
+  .go { width: 100%; background: var(--gold); color: #1a1208; font-weight: 600; border-radius: 6px;
+        padding: 9px; margin-top: 4px; }
+  .go.ghost { background: none; border: 1px solid var(--line); color: var(--ink); font-weight: 500; }
+
+  .maprow { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .mapwrap { position: relative; border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+             background: #0e0e12; line-height: 0; }
+  .mapwrap img { display: block; width: 384px; height: auto; image-rendering: pixelated; }
+  .hot { position: absolute; border: 2px solid var(--blue); background: #6aa9e022; border-radius: 2px; }
+  .hot:hover, .hot[aria-pressed="true"] { background: #f0a86044; border-color: var(--gold); }
+  .legend { font-size: 12px; color: var(--mute); display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; }
+
+  .note { font-size: 12px; color: var(--mute); border-left: 2px solid var(--line); padding-left: 10px; }
+  .ask { background: #1b2430; border: 1px solid #2d3f52; border-radius: 8px; padding: 14px 16px;
+         margin: 18px; font-size: 13px; }
+  .ask h3 { color: var(--blue); font-size: 13px; margin-bottom: 7px; }
+  .ask ol { margin: 0; padding-left: 18px; }
+  .ask li { margin: 4px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<p class="banner"><b>Mockup, not a working tool.</b> Click anything. The sprite frames and the map are real
+renders from this project; the rest shows layout and features. No network, no server, no install.</p>
+
+<header>
+  <h1>LOG Tools</h1>
+  <div class="rom">
+    <label for="romsel">ROM</label>
+    <select id="romsel">
+      <option>log2_poc_r41_arena_v4.gba</option>
+      <option>Legacy of Goku II (USA).gba &mdash; base</option>
+      <option>log2_poc_r41.gba &mdash; golden master</option>
+    </select>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Tool">
+  <button role="tab" id="t-spr" aria-controls="p-spr" aria-selected="true">Sprite viewer</button>
+  <button role="tab" id="t-map" aria-controls="p-map" aria-selected="false">Map viewer</button>
+</nav>
+
+<!-- ===== SPRITE VIEWER ===== -->
+<section id="p-spr" role="tabpanel" aria-labelledby="t-spr">
+<div class="app">
+
+  <div class="side">
+    <div class="grouphead">Characters</div>
+    <div class="tree">
+      <button aria-current="true">Trunks, base <span class="id">128</span></button>
+      <button>Trunks, Super Saiyan <span class="id">132</span></button>
+      <button>Gohan, gi <span class="id">158</span></button>
+      <button>Gohan, SSJ2 <span class="id">159</span></button>
+      <button>Vegeta <span class="id">103</span></button>
+      <button>Piccolo <span class="id">104</span></button>
+    </div>
+    <div class="grouphead">Enemies</div>
+    <div class="tree">
+      <button>Cell, imperfect <span class="id">28</span></button>
+      <button>Cell, perfect <span class="id">30</span></button>
+      <button>Cell Jr <span class="id">34</span></button>
+    </div>
+    <div class="grouphead">Other</div>
+    <div class="tree">
+      <button>Items and pickups <span class="id">&mdash;</span></button>
+      <button>Aura and effects <span class="id">&mdash;</span></button>
+      <button>HUD <span class="id">&mdash;</span></button>
+      <button>Portraits <span class="id">&mdash;</span></button>
+    </div>
+    <div class="grouphead">Work in progress</div>
+    <div class="tree">
+      <button>trunks_tank <span class="wip">WIP</span></button>
+      <button>gi_base <span class="wip">WIP</span></button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Zoom">
+        <button data-zoom="1">1x</button>
+        <button data-zoom="2">2x</button>
+        <button data-zoom="4" aria-pressed="true">4x</button>
+        <button data-zoom="8">8x</button>
+        <button data-zoom="12">12x</button>
+      </div>
+      <button class="go ghost" id="playbtn" style="width:auto;padding:5px 14px;margin:0">Pause</button>
+      <label>fps <input id="fps" type="range" min="1" max="24" value="8" style="width:90px"></label>
+      <span class="count" id="fpsout">8 fps</span>
+    </div>
+
+    <div class="viewer"><img id="sprite" src="sample/EDIT_side_walk_0_1x.png" alt="Trunks walking, side view"></div>
+
+    <div>
+      <div class="grouphead">Frames, side walk</div>
+      <div class="strip" id="strip"></div>
+    </div>
+
+    <p class="note">Animation runs here, so no GIF needs making. The checkerboard is transparency.
+      Frames are the real 16x32 Trunks art from <span style="font-family:var(--mono)">art\trunks_tank</span>.</p>
+  </div>
+
+  <div class="insp">
+    <div class="grouphead">Where it is</div>
+    <dl class="facts">
+      <dt>set</dt><dd class="gold">128</dd>
+      <dt>animation</dt><dd>1, side walk</dd>
+      <dt>direction</dt><dd>0 of 4</dd>
+      <dt>frame size</dt><dd>16 x 32</dd>
+      <dt>frames</dt><dd>4</dd>
+      <dt>set table</dt><dd>rom:0x959C</dd>
+      <dt>frame data</dt><dd>0x0812A4C0</dd>
+      <dt>codec</dt><dd>Webfoot, type 1</dd>
+      <dt>VRAM slot</dt><dd>0x400 bytes</dd>
+    </dl>
+
+    <div class="grouphead">Palette</div>
+    <div class="pal" id="pal" role="group" aria-label="Palette entries"></div>
+    <p class="palnote" id="palout">Click a swatch to read its index and colour.</p>
+
+    <div class="grouphead">Export</div>
+    <label class="field">Size
+      <select>
+        <option>Native, 16 x 32</option>
+        <option>2x, 32 x 64</option>
+        <option>4x, 64 x 128</option>
+        <option selected>8x, 128 x 256</option>
+        <option>12x, 192 x 384</option>
+      </select>
+    </label>
+    <label class="field">Format
+      <select>
+        <option>PNG, one file per frame</option>
+        <option>PNG, one strip</option>
+        <option>Animated PNG</option>
+        <option>Indexed PNG, palette kept</option>
+      </select>
+    </label>
+    <label class="field">Save to
+      <input type="text" value="C:\Users\josephgonzalez\Desktop" spellcheck="false">
+    </label>
+    <button class="go">Export 4 frames</button>
+    <button class="go ghost">Copy frame to clipboard</button>
+  </div>
+</div>
+</section>
+
+<!-- ===== MAP VIEWER ===== -->
+<section id="p-map" role="tabpanel" aria-labelledby="t-map" hidden>
+<div class="app">
+
+  <div class="side">
+    <div class="grouphead">Maps in the ROM</div>
+    <div class="tree">
+      <button>West City <span class="id">4,6</span></button>
+      <button aria-current="true">Capsule Corp <span class="id">6,1</span></button>
+      <button>Capsule Corp, inside <span class="id">6,2</span></button>
+      <button>Cell Games arena <span class="id">14,3</span></button>
+      <button>Cell Games ring <span class="id">14,4</span></button>
+    </div>
+    <div class="grouphead">Ours</div>
+    <div class="tree">
+      <button>Ending arena <span class="wip">WIP</span></button>
+    </div>
+    <div class="grouphead">Show</div>
+    <div class="tree" id="layers">
+      <button aria-pressed="true">BG0</button>
+      <button aria-pressed="true">BG1</button>
+      <button aria-pressed="true">BG2</button>
+      <button aria-pressed="true">BG3</button>
+      <button aria-pressed="true">Collision</button>
+      <button aria-pressed="true">Warps and regions</button>
+      <button aria-pressed="true">Items and actors</button>
+      <button>Grid, 32 px</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="maprow">
+      <div class="mapwrap" id="mapwrap">
+        <img src="sample/map_arena.png" alt="Capsule Corp, map 6,1, with collision and markers">
+        <!-- Hotspots are placed in map pixels and scaled by script, so the numbers stay honest. -->
+        <button class="hot" data-x="224" data-y="88" data-w="50" data-h="18"
+          data-title="Glass door, the way in to Capsule Corp"
+          data-facts="carrier|layout +0x44, warp 3 of 3;destination|map 6,2 at (144,276);record|0x085F2044;trigger rect|(224,88) to (273,105);collision|21 cells of 21 OPEN;note|the warp is what gated it, never the geometry"></button>
+        <button class="hot" data-x="240" data-y="496" data-w="16" data-h="16"
+          data-title="Cell, fight spot"
+          data-facts="source|entry +0x14, item 1 of 1;factory|0x0800E77F, enemy;type|0x3C, Imperfect Cell;condition|0, builds on map load;spot|(244,504);head room|56 px, clear"></button>
+        <button class="hot" data-x="244" data-y="560" data-w="16" data-h="16"
+          data-title="Trunks, fight spot"
+          data-facts="source|ext 39 load_map_at;spot|(248,568);facing|up, toward Cell;collision|36 cells tested, 0 closed"></button>
+        <button class="hot" data-x="408" data-y="568" data-w="50" data-h="50"
+          data-title="Map post"
+          data-facts="drawn in|BG2 ground layer;collision|49 cells of 49 OPEN;shadow|10 tiles, removed in v4;note|the post object still spawns, carrier not yet found"></button>
+        <button class="hot" data-x="0" data-y="512" data-w="12" data-h="178"
+          data-title="West strip warp"
+          data-facts="carrier|layout +0x44, warp 1 of 3;destination|map 4,6, West City;trigger rect|(0,512) to (9,689);note|map 4,6 warps back to 6,1, never 6,100"></button>
+      </div>
+
+      <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:12px">
+        <p class="legend">
+          <span><i style="background:#6aa9e0"></i>clickable object</span>
+          <span><i style="background:#f0a860"></i>selected</span>
+        </p>
+        <p class="note">Click a box to pull what the ROM holds for it. Every number in the panel is read from
+          the ROM, so it is copy-ready for a patch module. Nothing here writes to the ROM.</p>
+        <dl class="facts">
+          <dt>map</dt><dd class="gold">6,1 Capsule Corp</dd>
+          <dt>size</dt><dd>1024 x 1024</dd>
+          <dt>entry</dt><dd>rom:0x40B320</dd>
+          <dt>layout</dt><dd>0x085F209C</dd>
+          <dt>collision</dt><dd>0x085F164C</dd>
+          <dt>open cells</dt><dd>4422 of 16384</dd>
+          <dt>regions</dt><dd>6</dd>
+          <dt>warps</dt><dd>3, at 0x085F2090</dd>
+          <dt>items</dt><dd>7</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="insp">
+    <div class="grouphead" id="itit">Nothing selected</div>
+    <dl class="facts" id="ifacts">
+      <dt>&mdash;</dt><dd>click an object on the map</dd>
+    </dl>
+    <div class="grouphead">Actions</div>
+    <button class="go ghost">Copy these values</button>
+    <button class="go ghost">Open the handler</button>
+    <button class="go ghost">Export this view as PNG</button>
+    <p class="note" style="margin-top:12px">Writes stay in the patch modules. This reads, measures and hands
+      you numbers; the build is still the only thing that changes a ROM.</p>
+  </div>
+</div>
+</section>
+
+<div class="ask">
+  <h3>What I still need from you</h3>
+  <ol>
+    <li>Is this roughly the shape, or is the layout wrong?</li>
+    <li>Anything missing that you would reach for in the first week?</li>
+    <li>Which of the two do you want first?</li>
+  </ol>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ===== tabs =====
+  var tabs = document.querySelectorAll('[role="tab"]');
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      tabs.forEach(function (o) {
+        var sel = o === t;
+        o.setAttribute("aria-selected", String(sel));
+        document.getElementById(o.getAttribute("aria-controls")).hidden = !sel;
+      });
+    });
+  });
+
+  // ===== sprite animation =====
+  var FRAMES = ["sample/EDIT_side_walk_0_1x.png", "sample/EDIT_side_idle_1x.png",
+                "sample/EDIT_side_walk_1_1x.png", "sample/EDIT_base_front_1x.png"];
+  var img = document.getElementById("sprite"), strip = document.getElementById("strip");
+  var at = 0, zoom = 4, fps = 8, playing = true, timer = null;
+
+  FRAMES.forEach(function (src, n) {
+    var b = document.createElement("button");
+    b.innerHTML = '<img src="' + src + '" alt=""><div class="n">' + n + "</div>";
+    b.setAttribute("aria-label", "Frame " + n);
+    b.addEventListener("click", function () { stop(); at = n; draw(); });
+    strip.appendChild(b);
+  });
+
+  function draw() {
+    img.src = FRAMES[at];
+    img.style.width = 16 * zoom + "px";
+    img.style.height = 32 * zoom + "px";
+    strip.querySelectorAll("button").forEach(function (b, n) {
+      b.setAttribute("aria-current", String(n === at));
+    });
+  }
+  function tick() { at = (at + 1) % FRAMES.length; draw(); }
+  function start() {
+    stop(); playing = true;
+    document.getElementById("playbtn").textContent = "Pause";
+    timer = setInterval(tick, 1000 / fps);
+  }
+  function stop() {
+    playing = false;
+    document.getElementById("playbtn").textContent = "Play";
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+  document.getElementById("playbtn").addEventListener("click", function () {
+    if (playing) { stop(); } else { start(); }
+  });
+  document.querySelectorAll("[data-zoom]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("[data-zoom]").forEach(function (o) {
+        o.setAttribute("aria-pressed", String(o === b));
+      });
+      zoom = Number(b.dataset.zoom); draw();
+    });
+  });
+  document.getElementById("fps").addEventListener("input", function (e) {
+    fps = Number(e.target.value);
+    document.getElementById("fpsout").textContent = fps + " fps";
+    if (playing) { start(); }
+  });
+
+  // ===== palette, the real Capsule Corp floor colours plus a sprite ramp =====
+  var PAL = [[0,0,0],[248,248,248],[208,232,248],[144,200,248],[96,160,232],[56,112,200],[32,64,144],[16,32,88],
+             [240,232,224],[216,216,216],[184,184,184],[136,136,136],[120,120,120],[88,88,88],[56,56,56],[24,24,28]];
+  var pal = document.getElementById("pal"), palout = document.getElementById("palout");
+  PAL.forEach(function (c, n) {
+    var b = document.createElement("button");
+    b.style.background = "rgb(" + c.join(",") + ")";
+    b.setAttribute("aria-label", "Palette index " + n);
+    b.addEventListener("click", function () {
+      pal.querySelectorAll("button").forEach(function (o) {
+        o.setAttribute("aria-pressed", String(o === b));
+      });
+      palout.textContent = "index " + n + "   rgb(" + c.join(", ") + ")" +
+        (n === 0 ? "   transparent" : "");
+    });
+    pal.appendChild(b);
+  });
+
+  // ===== map hotspots =====
+  var wrap = document.getElementById("mapwrap");
+  var MAP_W = 512, MAP_H = 800;
+  function place() {
+    var shown = wrap.querySelector("img").clientWidth || 384;
+    var k = shown / MAP_W;
+    wrap.querySelectorAll(".hot").forEach(function (h) {
+      h.style.left = h.dataset.x * k + "px";
+      h.style.top = h.dataset.y * k + "px";
+      h.style.width = Math.max(10, h.dataset.w * k) + "px";
+      h.style.height = Math.max(10, h.dataset.h * k) + "px";
+    });
+  }
+  wrap.querySelectorAll(".hot").forEach(function (h) {
+    h.setAttribute("aria-label", h.dataset.title);
+    h.addEventListener("click", function () {
+      wrap.querySelectorAll(".hot").forEach(function (o) {
+        o.setAttribute("aria-pressed", String(o === h));
+      });
+      document.getElementById("itit").textContent = h.dataset.title;
+      var dl = document.getElementById("ifacts");
+      dl.textContent = "";
+      h.dataset.facts.split(";").forEach(function (row) {
+        var bits = row.split("|");
+        var dt = document.createElement("dt"); dt.textContent = bits[0];
+        var dd = document.createElement("dd"); dd.textContent = bits[1];
+        dl.appendChild(dt); dl.appendChild(dd);
+      });
+    });
+  });
+  window.addEventListener("resize", place);
+  if (wrap.querySelector("img").complete) { place(); }
+  else { wrap.querySelector("img").addEventListener("load", place); }
+
+  // ===== layer and list toggles, so the mockup feels live =====
+  document.querySelectorAll("#layers button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    });
+  });
+  document.querySelectorAll(".tree").forEach(function (group) {
+    if (group.id === "layers") { return; }
+    group.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        group.querySelectorAll("button").forEach(function (o) {
+          o.removeAttribute("aria-current");
+        });
+        b.setAttribute("aria-current", "true");
+      });
+    });
+  });
+
+  draw(); start();
+})();
+</script>
+</body>
+</html>

@@ -65,6 +65,15 @@ The notes use the game's own vocabulary. These are the words that come up first 
 - `docs\RE-BIBLE.md` is the most useful file here. It is one long searchable list of everything I have
   worked out about how the games store things: where the sprites are, how a cutscene is encoded, what each
   byte in a record means. Search it before digging into the ROM, because the answer is often already there.
+- `docs\CHANGELOG.md` lists every difference between this hack and a clean ROM, with the patch that makes
+  it. Read it to see what the hack actually does.
+- `docs\STATUS.md` says how far along each piece is: what is finished, what is still being drawn, and what
+  is waiting on a decision.
+- `docs\sprite-guide.md` is the standing reference for sprite work: how the game stores a frame, the
+  rules we draw by, and the traps that have cost us time. Read it before drawing or reviewing art.
+- `docs\tool-index.md` lists every reusable script and what it does. Search it BEFORE writing
+  a script. On 2026-11-02 two scripts named `derive.py` were written for the same job because
+  nothing listed the first one. Regenerate it with `scripts\permanent\make_tool_index.py`.
 - `docs\build-log.md` lists every ROM ever built with its fingerprint.
 - `docs\design\` holds the plan for how the two games get joined.
 - `docs\research\re-overview.md` explains how the game engine is put together.
@@ -90,3 +99,15 @@ The notes use the game's own vocabulary. These are the words that come up first 
 
 Only `art\`, `docs\`, `scripts\` and the files at the top level are in this repository. The rest is either
 game data, which cannot be shared, or scratch, which is not worth sharing.
+
+Two parts of that are narrower than they sound, and both bite.
+
+- Inside `art\` only FINISHED work is tracked. `.gitignore` ignores the whole folder and then names the
+  finished pieces back in one by one, so a working folder such as `art\trunks_tank\` is not in the
+  repository.
+- `scripts\one-time\` is not tracked either (`.gitignore` line 42), even though `scripts\` as a whole is.
+
+So a frame drawn in a one-time folder and not yet promoted into `art\` exists in exactly ONE place on
+disk. Run `git check-ignore -v <file>` before rewriting any frame, and copy the originals to
+`archive\backups\YYYY-MM-DD_<desc>\` first. Approved art belongs in `art\` and in `manifest.json`,
+because the patch reads the manifest and nothing else.

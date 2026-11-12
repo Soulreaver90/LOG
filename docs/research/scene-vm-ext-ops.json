@@ -1,0 +1,2074 @@
+[
+ {
+  "ext": 0,
+  "handler": 134255506,
+  "name": "sub_08009392",
+  "file": "code_08009392.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 1,
+  "handler": 134255524,
+  "name": "sub_080093a4",
+  "file": "code_080093a4.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 2,
+  "handler": 134255542,
+  "name": "sub_080093b6",
+  "file": "code_080093b6.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 3,
+  "handler": 134255560,
+  "name": "sub_080093c8",
+  "file": "code_080093c8.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 4,
+  "handler": 134255578,
+  "name": "Opcode_PushOperandOne",
+  "file": "Opcode_PushOperandOne.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 5,
+  "handler": 134255598,
+  "name": "Opcode_PushOperandTwo",
+  "file": "Opcode_PushOperandTwo.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 6,
+  "handler": 134255618,
+  "name": "Opcode_PushOperandThree",
+  "file": "Opcode_PushOperandThree.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 7,
+  "handler": 134255638,
+  "name": "Opcode_PushOperandFour",
+  "file": "Opcode_PushOperandFour.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 8,
+  "handler": 134255658,
+  "name": "sub_0800942a",
+  "file": "code_0800942a.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 9,
+  "handler": 134255678,
+  "name": "sub_0800943e",
+  "file": "code_0800943e.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 10,
+  "handler": 134255698,
+  "name": "sub_08009452",
+  "file": "code_08009452.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 11,
+  "handler": 134255772,
+  "name": "sub_0800949c",
+  "file": "code_0800949c.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 12,
+  "handler": 134255792,
+  "name": "sub_080094b0",
+  "file": "code_080094b0.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 13,
+  "handler": 134255848,
+  "name": "sub_080094e8",
+  "file": "code_080094e8.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 14,
+  "handler": 134255880,
+  "name": "sub_08009508",
+  "file": "code_08009508.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 15,
+  "handler": 134255912,
+  "name": "sub_08009528",
+  "file": "code_08009528.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 16,
+  "handler": 134255944,
+  "name": "sub_08009548",
+  "file": "code_08009548.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 17,
+  "handler": 134255976,
+  "name": "sub_08009568",
+  "file": "code_08009568.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [
+   "Random_Scale"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 18,
+  "handler": 134255994,
+  "name": "sub_0800957a",
+  "file": "code_0800957a.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [
+   "Random_Below"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 19,
+  "handler": 134256052,
+  "name": "Bitmap_LoadCell",
+  "file": "Bitmap_LoadCell.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [
+   "Bitmap_TestCell"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 20,
+  "handler": 134256074,
+  "name": "Bitmap_LoadCellInverted",
+  "file": "Bitmap_LoadCellInverted.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [
+   "Bitmap_TestCell"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 21,
+  "handler": 134256100,
+  "name": "sub_080095e4",
+  "file": "code_080095e4.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [
+   "sub_08006e64"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 22,
+  "handler": 134256136,
+  "name": "sub_08009608",
+  "file": "code_08009608.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [
+   "Character_GetLevel"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 23,
+  "handler": 134256168,
+  "name": "sub_08009628",
+  "file": "code_08009628.s",
+  "arity": 2,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_080041a6"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 24,
+  "handler": 134256216,
+  "name": "sub_08009658",
+  "file": "code_08009658.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Display_ClearControlBit"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 25,
+  "handler": 134256240,
+  "name": "sub_08009670",
+  "file": "code_08009670.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Display_SetControlBit"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 26,
+  "handler": 134256298,
+  "name": "sub_080096aa",
+  "file": "code_080096aa.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Thunk_BranchR1"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 27,
+  "handler": 134256400,
+  "name": "sub_08009710",
+  "file": "code_08009710.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08003e5e"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 28,
+  "handler": 134256424,
+  "name": "sub_08009728",
+  "file": "code_08009728.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08003e74"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 29,
+  "handler": 134256448,
+  "name": "sub_08009740",
+  "file": "code_08009740.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "List_FirstMatch"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 30,
+  "handler": 134256478,
+  "name": "sub_0800975e",
+  "file": "code_0800975e.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "List_FirstMatch"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 31,
+  "handler": 134256506,
+  "name": "sub_0800977a",
+  "file": "code_0800977a.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Scene_Publish",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 32,
+  "handler": 134256564,
+  "name": "sub_080097b4",
+  "file": "code_080097b4.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Rect_FromFields",
+   "Scene_Publish",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 33,
+  "handler": 134256660,
+  "name": "sub_08009814",
+  "file": "code_08009814.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 34,
+  "handler": 134256714,
+  "name": "sub_0800984a",
+  "file": "code_0800984a.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 35,
+  "handler": 134256722,
+  "name": "Map_LoadFromQueue",
+  "file": "Map_LoadFromQueue.s",
+  "arity": 5,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Palette_New",
+   "Handler_RunScoped",
+   "Scene_Install",
+   "Map_Load",
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 36,
+  "handler": 134256882,
+  "name": "sub_080098f2",
+  "file": "code_080098f2.s",
+  "arity": 5,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Palette_New",
+   "Handler_RunScoped",
+   "Scene_Install",
+   "Map_Load",
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 37,
+  "handler": 134257042,
+  "name": "sub_08009992",
+  "file": "code_08009992.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Palette_New",
+   "Handler_RunScoped",
+   "sub_0800c7c6",
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 38,
+  "handler": 134257106,
+  "name": "sub_080099d2",
+  "file": "code_080099d2.s",
+  "arity": 5,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Thunk_BranchR2",
+   "Palette_New",
+   "Handler_RunScoped",
+   "sub_0800c584",
+   "Thunk_BranchR2",
+   "Heap_Alloc",
+   "Handler_RunScoped",
+   "Thunk_BranchR2"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 39,
+  "handler": 134257288,
+  "name": "sub_08009a88",
+  "file": "code_08009a88.s",
+  "arity": 5,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Thunk_BranchR2",
+   "sub_0800c584"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 40,
+  "handler": 134257436,
+  "name": "sub_08009b1c",
+  "file": "code_08009b1c.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Palette_New",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 41,
+  "handler": 134257462,
+  "name": "sub_08009b36",
+  "file": "code_08009b36.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 42,
+  "handler": 134257502,
+  "name": "sub_08009b5e",
+  "file": "code_08009b5e.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Palette_Save",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 43,
+  "handler": 134257556,
+  "name": "sub_08009b94",
+  "file": "code_08009b94.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 44,
+  "handler": 134257596,
+  "name": "sub_08009bbc",
+  "file": "code_08009bbc.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 45,
+  "handler": 134257636,
+  "name": "Palette_LoadObject",
+  "file": "Palette_LoadObject.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 46,
+  "handler": 134257656,
+  "name": "sub_08009bf8",
+  "file": "code_08009bf8.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Slot_Claim"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 47,
+  "handler": 134257748,
+  "name": "sub_08009c54",
+  "file": "code_08009c54.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 48,
+  "handler": 134257786,
+  "name": "sub_08009c7a",
+  "file": "code_08009c7a.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0801fc0c"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 49,
+  "handler": 134257802,
+  "name": "sub_08009c8a",
+  "file": "code_08009c8a.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Table_InitRing"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 50,
+  "handler": 134257850,
+  "name": "sub_08009cba",
+  "file": "code_08009cba.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 51,
+  "handler": 134257860,
+  "name": "sub_08009cc4",
+  "file": "code_08009cc4.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0800d6de",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 52,
+  "handler": 134257920,
+  "name": "Sprite_QueueObject",
+  "file": "Sprite_QueueObject.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 53,
+  "handler": 134257994,
+  "name": "sub_08009d4a",
+  "file": "code_08009d4a.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Record_NewFromWords",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 54,
+  "handler": 134258224,
+  "name": "sub_08009e30",
+  "file": "code_08009e30.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 55,
+  "handler": 134258428,
+  "name": "sub_08009efc",
+  "file": "code_08009efc.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 56,
+  "handler": 134258556,
+  "name": "sub_08009f7c",
+  "file": "code_08009f7c.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 57,
+  "handler": 134258628,
+  "name": "sub_08009fc4",
+  "file": "code_08009fc4.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 58,
+  "handler": 134258756,
+  "name": "sub_0800a044",
+  "file": "code_0800a044.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 59,
+  "handler": 134258820,
+  "name": "sub_0800a084",
+  "file": "code_0800a084.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0801f878"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 60,
+  "handler": 134258842,
+  "name": "sub_0800a09a",
+  "file": "code_0800a09a.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 61,
+  "handler": 134259768,
+  "name": "sub_0800a438",
+  "file": "code_0800a438.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0801f878"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 62,
+  "handler": 134259790,
+  "name": "sub_0800a44e",
+  "file": "code_0800a44e.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 63,
+  "handler": 134260134,
+  "name": "sub_0800a5a6",
+  "file": "code_0800a5a6.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0800e032"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 64,
+  "handler": 134260146,
+  "name": "sub_0800a5b2",
+  "file": "code_0800a5b2.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0800e038"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 65,
+  "handler": 134260158,
+  "name": "sub_0800a5be",
+  "file": "code_0800a5be.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Slot_Claim",
+   "sub_0800ded0",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 66,
+  "handler": 134260236,
+  "name": "sub_0800a60c",
+  "file": "code_0800a60c.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0801f878"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 67,
+  "handler": 134260258,
+  "name": "sub_0800a622",
+  "file": "code_0800a622.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 68,
+  "handler": 134260280,
+  "name": "sub_0800a638",
+  "file": "code_0800a638.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 69,
+  "handler": 134260316,
+  "name": "sub_0800a65c",
+  "file": "code_0800a65c.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "Handler_RunScoped"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 70,
+  "handler": 134260612,
+  "name": "sub_0800a784",
+  "file": "code_0800a784.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": "0x0800A680",
+  "calls": [
+   "Character_SetActiveIndex",
+   "sub_08003ed4"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 71,
+  "handler": 134260640,
+  "name": "sub_0800a7a0",
+  "file": "code_0800a7a0.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Bitmap_FillCells",
+   "Bitmap_FillCells"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 72,
+  "handler": 134260728,
+  "name": "sub_0800a7f8",
+  "file": "code_0800a7f8.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Bitmap_FillCells",
+   "Bitmap_FillCells"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 73,
+  "handler": 134260972,
+  "name": "sub_0800a8ec",
+  "file": "code_0800a8ec.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Thunk_BranchR1",
+   "sub_080042bc",
+   "Sprite_Directory_Lookup",
+   "Thunk_BranchR2",
+   "sub_080086a2",
+   "Thunk_BranchR1"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 74,
+  "handler": 134261144,
+  "name": "sub_0800a998",
+  "file": "code_0800a998.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0800c2f8"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 75,
+  "handler": 134255820,
+  "name": "sub_080094cc",
+  "file": "code_080094cc.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 76,
+  "handler": 134256330,
+  "name": "sub_080096ca",
+  "file": "code_080096ca.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 77,
+  "handler": 134256360,
+  "name": "sub_080096e8",
+  "file": "code_080096e8.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 78,
+  "handler": 134256264,
+  "name": "sub_08009688",
+  "file": "code_08009688.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_080062c0"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 79,
+  "handler": 134261174,
+  "name": "sub_0800a9b6",
+  "file": "code_0800a9b6.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 80,
+  "handler": 134261264,
+  "name": "sub_0800aa10",
+  "file": "code_0800aa10.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 81,
+  "handler": 134261300,
+  "name": "sub_0800aa34",
+  "file": "code_0800aa34.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 82,
+  "handler": 134261336,
+  "name": "sub_0800aa58",
+  "file": "code_0800aa58.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 83,
+  "handler": 134261372,
+  "name": "sub_0800aa7c",
+  "file": "code_0800aa7c.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 84,
+  "handler": 134261422,
+  "name": "sub_0800aaae",
+  "file": "code_0800aaae.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0800c73a"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 85,
+  "handler": 134261530,
+  "name": "sub_0800ab1a",
+  "file": "code_0800ab1a.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_NewSpan",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 86,
+  "handler": 134261634,
+  "name": "Object_SetActiveFromQueue",
+  "file": "Object_SetActiveFromQueue.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Object_SetActive"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 87,
+  "handler": 134261668,
+  "name": "sub_0800aba4",
+  "file": "code_0800aba4.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "List_MaxScaled",
+   "Sprite_NewLayer",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 88,
+  "handler": 134261760,
+  "name": "sub_0800ac00",
+  "file": "code_0800ac00.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 89,
+  "handler": 134258068,
+  "name": "sub_08009d94",
+  "file": "code_08009d94.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_Select",
+   "sub_0801094c",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 90,
+  "handler": 134261572,
+  "name": "sub_0800ab44",
+  "file": "code_0800ab44.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_NewSpan",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 91,
+  "handler": 134261210,
+  "name": "sub_0800a9da",
+  "file": "code_0800a9da.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 92,
+  "handler": 134261668,
+  "name": "sub_0800aba4",
+  "file": "code_0800aba4.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "List_MaxScaled",
+   "Sprite_NewLayer",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 93,
+  "handler": 134259866,
+  "name": "sub_0800a49a",
+  "file": "code_0800a49a.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 94,
+  "handler": 134260006,
+  "name": "sub_0800a526",
+  "file": "code_0800a526.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 95,
+  "handler": 134260082,
+  "name": "sub_0800a572",
+  "file": "code_0800a572.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 96,
+  "handler": 134259032,
+  "name": "sub_0800a158",
+  "file": "code_0800a158.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 97,
+  "handler": 134259688,
+  "name": "sub_0800a3e8",
+  "file": "code_0800a3e8.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08006c24",
+   "Queue_Clear",
+   "sub_0801f346",
+   "Scene_NewMaster",
+   "Handler_Restore"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 98,
+  "handler": 134261776,
+  "name": "Character_SetLevel",
+  "file": "Character_SetLevel.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Character_GetLevel",
+   "Character_ApplyLevelUp",
+   "Character_SetXpForLevel"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 99,
+  "handler": 134259216,
+  "name": "sub_0800a210",
+  "file": "code_0800a210.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 100,
+  "handler": 134259930,
+  "name": "sub_0800a4da",
+  "file": "code_0800a4da.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 101,
+  "handler": 134261852,
+  "name": "sub_0800ac5c",
+  "file": "code_0800ac5c.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08012a68",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 102,
+  "handler": 134261932,
+  "name": "sub_0800acac",
+  "file": "code_0800acac.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08012a68",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 103,
+  "handler": 134261994,
+  "name": "sub_0800acea",
+  "file": "code_0800acea.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08012b38",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 104,
+  "handler": 134261446,
+  "name": "Sprite_ReplaceWithEntry",
+  "file": "Sprite_ReplaceWithEntry.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Point_LoadScaled",
+   "List_RemoveValue",
+   "Object_SpawnFromEntry"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 105,
+  "handler": 134262138,
+  "name": "sub_0800ad7a",
+  "file": "code_0800ad7a.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 106,
+  "handler": 134262168,
+  "name": "sub_0800ad98",
+  "file": "code_0800ad98.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 107,
+  "handler": 134262198,
+  "name": "sub_0800adb6",
+  "file": "code_0800adb6.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 108,
+  "handler": 134262228,
+  "name": "sub_0800add4",
+  "file": "code_0800add4.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": true,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 109,
+  "handler": 134262258,
+  "name": "sub_0800adf2",
+  "file": "code_0800adf2.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 110,
+  "handler": 134262322,
+  "name": "sub_0800ae32",
+  "file": "code_0800ae32.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 111,
+  "handler": 134257698,
+  "name": "sub_08009c22",
+  "file": "code_08009c22.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Slot_Claim"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 112,
+  "handler": 134262390,
+  "name": "sub_0800ae76",
+  "file": "code_0800ae76.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 113,
+  "handler": 134262456,
+  "name": "sub_0800aeb8",
+  "file": "code_0800aeb8.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 114,
+  "handler": 134262472,
+  "name": "sub_0800aec8",
+  "file": "code_0800aec8.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 115,
+  "handler": 134260352,
+  "name": "Character_SetActiveIndex",
+  "file": "Character_SetActiveIndex.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Thunk_BranchR1",
+   "Sprite_ObjectDirectory",
+   "Thunk_BranchR2",
+   "sub_080086a2",
+   "Thunk_BranchR1"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 116,
+  "handler": 134260628,
+  "name": "sub_0800a794",
+  "file": "code_0800a794.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08003ed4"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 117,
+  "handler": 134260816,
+  "name": "sub_0800a850",
+  "file": "code_0800a850.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Bitmap_FillCells"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 118,
+  "handler": 134260894,
+  "name": "sub_0800a89e",
+  "file": "code_0800a89e.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Bitmap_FillCells"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 119,
+  "handler": 134256704,
+  "name": "sub_08009840",
+  "file": "code_08009840.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 120,
+  "handler": 134262078,
+  "name": "sub_0800ad3e",
+  "file": "code_0800ad3e.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_08016ab4",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 121,
+  "handler": 134258692,
+  "name": "sub_0800a004",
+  "file": "code_0800a004.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 122,
+  "handler": 134262488,
+  "name": "sub_0800aed8",
+  "file": "code_0800aed8.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 123,
+  "handler": 134262500,
+  "name": "sub_0800aee4",
+  "file": "code_0800aee4.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 124,
+  "handler": 134262512,
+  "name": "sub_0800aef0",
+  "file": "code_0800aef0.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Directory_Lookup",
+   "sub_08019f5c",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 125,
+  "handler": 134262596,
+  "name": "sub_0800af44",
+  "file": "code_0800af44.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Heap_Alloc",
+   "sub_08001f04",
+   "Handler_RunScoped",
+   "Dma3_WordFill"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 126,
+  "handler": 134262642,
+  "name": "sub_0800af72",
+  "file": "code_0800af72.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 127,
+  "handler": 134261718,
+  "name": "sub_0800abd6",
+  "file": "code_0800abd6.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "List_MaxScaled",
+   "sub_0800c718"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 128,
+  "handler": 134262688,
+  "name": "sub_0800afa0",
+  "file": "code_0800afa0.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_080040ee"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 129,
+  "handler": 134262722,
+  "name": "sub_0800afc2",
+  "file": "code_0800afc2.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 130,
+  "handler": 134262740,
+  "name": "sub_0800afd4",
+  "file": "code_0800afd4.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "sub_0801c4b0",
+   "List_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 131,
+  "handler": 134255718,
+  "name": "sub_08009466",
+  "file": "code_08009466.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 132,
+  "handler": 134255736,
+  "name": "sub_08009478",
+  "file": "code_08009478.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 133,
+  "handler": 134255754,
+  "name": "sub_0800948a",
+  "file": "code_0800948a.s",
+  "arity": 0,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [],
+  "ram": []
+ },
+ {
+  "ext": 134,
+  "handler": 134259318,
+  "name": "sub_0800a276",
+  "file": "code_0800a276.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 135,
+  "handler": 134259394,
+  "name": "sub_0800a2c2",
+  "file": "code_0800a2c2.s",
+  "arity": 5,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "__16__rt_sdiv",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 136,
+  "handler": 134259526,
+  "name": "sub_0800a346",
+  "file": "code_0800a346.s",
+  "arity": 4,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 137,
+  "handler": 134259618,
+  "name": "sub_0800a3a2",
+  "file": "code_0800a3a2.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 138,
+  "handler": 134262760,
+  "name": "sub_0800afe8",
+  "file": "code_0800afe8.s",
+  "arity": 0,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": "0x08021388",
+  "calls": [
+   "Boot_StopUntilKey"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 139,
+  "handler": 134262768,
+  "name": "Character_AwardXpToActive",
+  "file": "Character_AwardXpToActive.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Character_AwardXp"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 140,
+  "handler": 134258492,
+  "name": "sub_08009f3c",
+  "file": "code_08009f3c.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 141,
+  "handler": 134262796,
+  "name": "sub_0800b00c",
+  "file": "code_0800b00c.s",
+  "arity": 1,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Directory_Lookup",
+   "Table_FindByDirectory"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 142,
+  "handler": 134259124,
+  "name": "sub_0800a1b4",
+  "file": "code_0800a1b4.s",
+  "arity": 3,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Sprite_Select",
+   "Heap_Alloc",
+   "Queue_Append"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 143,
+  "handler": 134258304,
+  "name": "sub_08009e80",
+  "file": "code_08009e80.s",
+  "arity": 1,
+  "pushes": 1,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Point_LoadScaled"
+  ],
+  "ram": []
+ },
+ {
+  "ext": 144,
+  "handler": 134258362,
+  "name": "sub_08009eba",
+  "file": "code_08009eba.s",
+  "arity": 2,
+  "pushes": 0,
+  "predicate": false,
+  "delegated_to": null,
+  "calls": [
+   "Sprite_Select",
+   "Record_NewFromWords",
+   "Queue_Append"
+  ],
+  "ram": []
+ }
+]
