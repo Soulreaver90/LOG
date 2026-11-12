@@ -1,0 +1,14 @@
+# Bible rows: how a portrait background is actually built. Tag PBG, ID column EMPTY.
+
+## Section 4
+
+| fact | tags | confidence | tag | id |
+|---|---|---|---|---|
+| **A portrait background is two or three NEARLY IDENTICAL palette shades in an ordered dither whose mix changes with the radius.** It is not a flat field, not a smooth ramp and not a diagonal. Measured exactly on the red background shared by ids 30, 53, 84 and 86: the only two colours all four show in the open are index 25 `(208,16,40)` and index 252 `(200,32,64)`. On id 86 the mix by ring from the centre is 100 percent 252 at r24 to r26, 24 of 29 at r27, 43 of 88 at r29, 15 of 71 at r30, and 100 percent 25 from r38 out. The eye reads that as a soft radial glow. **Painting each ring with its commonest colour alone destroys it** and produces flat discs, which the owner rejected on sight | #sprite #palette #portrait | C (ring histogram of the four portraits, renders checked against the real ones by eye) | PBG | |
+| **Correction to the earlier PBK row: portraits do NOT group by their corner colour, and most have a background of their own.** Grouping 89 portraits by the colour just inside the top left corner gives 18 groups, but measured on the top corners, where a head almost never reaches, only 43 of 394 same-colour pairs actually match. Clustering on that 95 percent match instead gives **11 groups of two or more and 54 portraits alone**. Only 5 groups hold the three or more independent characters a background needs, so 5 backgrounds are recoverable, not 6 or 18 | #sprite #portrait | C (pairwise compare of every same-colour pair, then union find) | PBG | |
+
+## Section 11
+
+| fact | tags | confidence | tag | id |
+|---|---|---|---|---|
+| **Six ways to separate a portrait's background from its character were tried and five failed, each for its own reason.** 1. Flood fill from inside the frame: the shoulders touch the bottom edge, so it starts INSIDE the character. 2. Flood fill seeded from the top corners: an outline is a chain of small colour steps, so it walks around the head and calls the hair background. 3. The palette of the top corners: on a portrait whose face fills the frame, such as the cat and the pig, that window IS the character, and those scored highest of all 89. 4. The palette of the border ring: wide hair spans the border too, and the hole fill then spreads hair colour through the middle. 5. Requiring a colour to appear in 6 of 8 octants: a group can only agree where NO member has a character, which is the top band, and a top band spans three or four octants, so it cut almost every colour. **What works:** take the colours that are the bulk of what a GROUP agrees on, gather every pixel any member shows in that palette, then paint each ring with its measured mix. `scripts\permanent\art\portrait_blanks.py` | #tool #sprite #portrait | C (each failure rendered and read by eye) | PBG | |
