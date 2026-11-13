@@ -17,7 +17,7 @@ test_celljr_fight.py - Tests for patches.celljr_fight (trial 2026-10-24): 7 Cell
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_celljr_fight.py -v
 Builds build_list_trial.txt in memory (from r41 an alias of build_list_dev.txt): "before" = the list up to
-celljr_fight (r40 + chapter_cards + vegeta_19_reveal), "rom" = with it (= the r41 dev master); both pinned.
+celljr_fight (checked by module list), "rom" = with it, which is the dev master (pinned, tests\masters.py).
 Scripts are decoded with test_cellgames_ssj's decoder (ops) and run in a small stack model here. Expected values
 are restated from docs\tasks\2026-10-24-celljr-trial\celljr-trial*.md (final decisions v1-v5),
 docs\tasks\2026-10-30-celljr-rework\celljr-rework.md (v6), the plan docs\tasks\2026-10-30-celljr-rework-plan\
@@ -33,6 +33,7 @@ import log_paths
 from patches import celljr_fight
 from tests.test_cellgames_ssj import diff, ops, u32, words_naming
 from rom.webfoot_decompress import ROM_BASE
+from tests import masters                                    # one home, so a re-pin is one edit
 
 # ===== constants (brief, study, r39 and r40 reads) =====
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial.txt"
@@ -142,9 +143,7 @@ ARITY = {1: 0, 24: 1, 29: 1, 30: 1, 31: 3, 33: 1, 39: 5, 40: 1, 41: 1, 42: 1, 43
          90: 3, 94: 3, 95: 1, 96: 3, 110: 2, 112: 2, 119: 0, 121: 2, 136: 4, 139: 1}
 GETTERS = {0, 1, 2, 3}
 
-# The r41 chain: the r41 dev master is BEFORE_SHA1 + celljr_fight. BEFORE_SHA1 is built here (2026-11-02).
-BEFORE_SHA1 = "644e4fcaed2dfd10192a332c9503a7ccb4242ddd"     # r40 + chapter_cards + vegeta_19_reveal
-DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"        # build_list_dev.txt, the dev master (r41, 2026-10-31)
+# The r41 chain: the dev master is "before" plus celljr_fight, so "rom" carries the dev master pin.
 PRIOR_MODULES = ("relay_cooldown", "fullpower_hud", "beam_struggle", "vegeta_ssj_scene",   # r40
                  "chapter_cards", "vegeta_19_reveal")                                      # r41
 _CACHE = {}
@@ -155,7 +154,7 @@ def built() -> dict:
         names = log2_build.read_build_list(TRIAL_LIST)
         i = names.index("celljr_fight")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), names=names)
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), names=names, before_names=names[:i])
         log2_build.apply_patches(rom, alloc, ["celljr_fight"])
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["celljr_fight"])
     return _CACHE
@@ -370,9 +369,13 @@ class ListTests(unittest.TestCase):
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["celljr_fight"])
 
     def test_before_and_the_dev_master_are_pinned(self):
+        """`before` is the master up to this module. `rom` is the dev master only while this line is last."""
         b = built()
-        self.assertEqual(hashlib.sha1(b["before"]).hexdigest(), BEFORE_SHA1)
-        self.assertEqual(hashlib.sha1(b["rom"]).hexdigest(), DEV_SHA1)
+        dev = log2_build.read_build_list(log2_build.DEV_LIST)
+        self.assertEqual(b["before_names"][-1], "vegeta_19_reveal")      # the r41 line ahead of this one
+        self.assertEqual(sorted(b["alloc_before"].notes), sorted(b["before_names"]))
+        self.assertEqual(dev[-1], "celljr_fight")
+        self.assertEqual(hashlib.sha1(b["rom"]).hexdigest(), masters.DEV)
 
     def test_no_write_inside_an_earlier_module_site(self):
         """celljr_fight checks no other module's sites, and it runs after vegeta_19_reveal."""

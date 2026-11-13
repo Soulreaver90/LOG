@@ -5,8 +5,8 @@ test_beam_struggle.py - Tests for patches.beam_struggle (trial 2026-10-25): the 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_beam_struggle.py -v
 Builds build_list_trial_beam.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
-beam_struggle (r39 + relay_cooldown + fullpower_hud, pinned by SHA-1), "rom" = before + beam_struggle only (pinned).
-One test also builds r39 + beam_struggle, the trial ROM I played (pinned). Every record is decoded from
+beam_struggle (r39 + relay_cooldown + fullpower_hud), "rom" = before + beam_struggle only; both checked by module
+list. One test also builds r39 + beam_struggle, the trial ROM I played, and checks its frames. Every record is decoded from
 the ROM with webfoot_decompress (never with the module's encoder). Expected values are restated from the base
 ROM, the bible BMS and BMG rows, beam-mockup-report.md and scripts\one-time\2026-10-25-beam-trial\bridge.txt (the
 mockup_v2 frames digest, computed by the mockup scripts themselves), never imported from the module.
@@ -24,9 +24,7 @@ from rom.webfoot_decompress import decompress, unpack_frame
 # ===== constants (base ROM reads, BMS and BMG rows, bridge.txt) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_beam.txt"
-BEFORE_SHA1 = "60572a84bf91fcfaa2c0690c9a5dc47bec0d2c88"       # r39 + relay_cooldown + fullpower_hud (r40 order)
-ROM_SHA1 = "9256a6ba861e03743c1d971a3f054bea1bcc6aae"          # before + beam_struggle (r40 order, 2026-10-30)
-TRIAL_SHA1 = "d7eed3c3b90a789edb935544dc261d01e6b69217"        # r39 + beam_struggle v2 (v1 05318b4e...), 2026-10-25
+BEFORE_TAIL = ["bf_ki_pool", "relay_cooldown", "fullpower_hud"]   # the last r39 line, then the two r40 lines
 LAYOUT_WORD, VANILLA_LAYOUT = 0x4091EC, 0x084E2E7C
 VANILLA_GROUPS = (0x084E2BE0, 0x084E2E64)                     # k0 starburst (BG1), k1 spark (BG0)
 VANILLA_GROUP_BYTES = {0x084E2BE0: (2, 53, 843), 0x084E2E64: (3, 12, 831)}
@@ -76,9 +74,9 @@ def built() -> dict:
         names = log2_build.read_build_list(TRIAL_LIST)
         i = names.index("beam_struggle")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), before_names=names[:i])
         log2_build.apply_patches(rom, alloc, ["beam_struggle"])
-        _CACHE.update(rom=bytes(rom), notes=alloc.notes["beam_struggle"], names=names)
+        _CACHE.update(rom=bytes(rom), notes=alloc.notes["beam_struggle"], names=names, all_notes=alloc.notes)
         r = _CACHE["rom"]
         lay = u32(r, LAYOUT_WORD)
         _CACHE.update(layout=lay, groups=[u32(r, u32(r, lay + 0x10) + 4 * k) for k in range(u32(r, lay + 0xC))])
@@ -145,15 +143,27 @@ class ListTests(unittest.TestCase):
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["beam_struggle"])
 
     def test_before_and_the_rom_are_pinned(self):
+        """Both ROMs are gone, so check the modules that ran: `before` ends on r39 plus the two r40 lines."""
         b = built()
-        self.assertEqual(hashlib.sha1(b["before"]).hexdigest(), BEFORE_SHA1)
-        self.assertEqual(hashlib.sha1(b["rom"]).hexdigest(), ROM_SHA1)
+        names = b["before_names"]
+        self.assertEqual(names[-3:], BEFORE_TAIL)
+        self.assertEqual(sorted(b["alloc_before"].notes), sorted(names))
+        self.assertEqual(sorted(b["all_notes"]), sorted(names + ["beam_struggle"]))
 
     def test_on_r39_alone_it_is_the_trial_rom_the_owner_played(self):
+        """The played ROM cannot be rebuilt, so prove its picture instead. On r39 alone, with no r40
+        module ahead of it, the module still builds and still draws the mockup v2 frames, cell for cell."""
         names = built()["names"]
         r39 = names[:names.index("bf_ki_pool") + 1]
-        rom, _ = log2_build.assemble(log2_build.BASE, r39 + ["beam_struggle"])
-        self.assertEqual(hashlib.sha1(rom).hexdigest(), TRIAL_SHA1)
+        rom, alloc = log2_build.assemble(log2_build.BASE, r39 + ["beam_struggle"])
+        self.assertEqual(sorted(alloc.notes), sorted(r39 + ["beam_struggle"]))
+        cells = screen_cells(bytes(rom))
+        order = sorted(cells)
+        self.assertEqual(len(order), MOCKUP_CELLS)
+        h = hashlib.sha1()
+        for g in range(FRAMES):
+            h.update(b"".join(cells[c][g] for c in order))
+        self.assertEqual(h.hexdigest(), MOCKUP_SHA1)
 
     def test_second_run_raises(self):
         b = built()

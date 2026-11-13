@@ -20,12 +20,11 @@ from patches import gohan_gi, gohan_gi_vanilla
 from rom.log2_sprites import set_records
 from rom.rom_space import Allocator
 from rom.webfoot_decompress import SET_TABLE, rom_ptr, unpack_frame
+from tests import masters                                    # one home, so a re-pin is one edit
 
 # ===== constants =====
 ROM_BASE = 0x08000000
 SET_TABLE_LITERAL, FIRST_ID = 0x959C, 7
-GOLDEN_SHA1 = "acf1b15f46628255bdf00d025464b807ce7410a9"      # build_list.txt, the golden master (r41, 2026-10-31)
-DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"         # build_list_dev.txt, the dev master (r41, 2026-10-31)
 NOTE_KEYS = ["appearance_copy", "set_157", "set_158", "set_159", "set_160", "set_table"]
 LAYOUTS = {157: 56, 158: 59, 159: 59, 160: 58}               # new set id: the vanilla set it is laid out from
 IDLE = {157: 2, 158: 2, 159: 6, 160: 6}                      # anim 0 records per dir each set publishes
@@ -95,11 +94,11 @@ class ListTests(unittest.TestCase):
 
 class BuildTests(unittest.TestCase):
     def test_golden_builds_to_its_pinned_sha1(self):
-        self.assertEqual(hashlib.sha1(built()["golden"]).hexdigest(), GOLDEN_SHA1)
+        self.assertEqual(hashlib.sha1(built()["golden"]).hexdigest(), masters.GOLDEN)
 
     def test_dev_builds_to_its_pinned_sha1(self):
         """The arbiter of the split: dev carries the gi art over the same tail, so every trial keeps its SHA-1."""
-        self.assertEqual(hashlib.sha1(built()["dev"]).hexdigest(), DEV_SHA1)
+        self.assertEqual(hashlib.sha1(built()["dev"]).hexdigest(), masters.DEV)
 
     def test_both_masters_publish_the_same_six_note_keys(self):
         b = built()

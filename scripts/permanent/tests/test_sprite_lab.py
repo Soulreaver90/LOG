@@ -19,12 +19,12 @@ import log_paths
 from scene import scene_lib
 from patches import sprite_lab
 from rom.thumb_dis import listing
+from tests import masters                                       # one home, so a re-pin is one edit
 
 # ===== constants (brief, the task probes, the base and dev master bytes) =====
 ROM_BASE = 0x08000000
 DEV_LIST = log2_build.DEV_LIST                                  # the trial list includes this, not golden
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_spritelab.txt"
-DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"       # the dev master (r41, 2026-10-31)
 # The hook: vt_player (symbols.py) slot +8, whose only reference the codemap names "vt_player+0x8".
 VT_PLAYER, HOOK, VANILLA_PLAYER_UPDATE = 0x08025604, 0x2560C, 0x08008767
 # The lab map: zone 8 area 36, entry rom:0x40C778 (s7_spots.txt). Its name index +0xC is 222.
@@ -66,7 +66,7 @@ class Built(unittest.TestCase):
 class ListTests(Built):
     def test_the_dev_list_still_rebuilds_to_the_dev_master(self):
         """The one test the brief names: sprite_lab must not change the shipped build."""
-        self.assertEqual(hashlib.sha1(bytes(self.dev)).hexdigest(), DEV_SHA1)
+        self.assertEqual(hashlib.sha1(bytes(self.dev)).hexdigest(), masters.DEV)
 
     def test_the_trial_list_is_dev_plus_sprite_lab(self):
         dev = log2_build.read_build_list(DEV_LIST)

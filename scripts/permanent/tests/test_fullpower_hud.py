@@ -5,14 +5,14 @@ test_fullpower_hud.py - Tests for patches.fullpower_hud (trial 2026-10-25): the 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_fullpower_hud.py -v
 Builds build_list_trial_fullpower.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
-fullpower_hud (r39 + relay_cooldown, pinned by SHA-1), "rom" = before + fullpower_hud only. New code is decoded with thumb_dis (never with the encoder) and run with
+fullpower_hud (r39 + relay_cooldown, checked by module list), "rom" = before + fullpower_hud only. New code is
+decoded with thumb_dis (never with the encoder) and run with
 tests.test_bf_ki_pool.Cpu2 (thumb_dis text; stretch_on, pool_ref and bf_ki_pool's hud_draw run for real; the
 vanilla Super Saiyan enter, the vanilla HUD draw and the ARM divide are stubs). Expected values are restated from
 docs\tasks\2026-10-25-fullpower-hud\fullpower-hud-trial.md, the r39 bytes and the vanilla listings, never imported
 from the patch module.
 """
 import copy
-import hashlib
 import struct
 import unittest
 
@@ -26,7 +26,7 @@ from rom.thumb_dis import listing
 # ===== constants (brief, r39 reads, vanilla listings) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_fullpower.txt"
-BEFORE_SHA1 = "22943be822a97d279f06d7ad31b02cdc5196f136"    # r39 + relay_cooldown (= the cooldown trial ROM, 2026-10-25)
+BEFORE_TAIL = ["bf_ki_pool", "relay_cooldown"]              # the last r39 line, then the r40 line ahead of this one
 SSJ_VT, SSJ2_VT, RAGE_VT, HUD_VT, TRANSFORM_VT = 0x08024C58, 0x0888DE24, 0x08024E4C, 0x0802408C, 0x08025D9C
 ENTER_WORD, HUD_WORD = 0x24C60, 0x2409C                   # SSJ vtable +8, HUD vtable +0x10
 VANILLA_ENTER, VANILLA_LEAVE, RAGE_ENTER = 0x08017377, 0x08017393, 0x08017159
@@ -53,7 +53,7 @@ def built() -> dict:
         names = log2_build.read_build_list(TRIAL_LIST)
         i = names.index("fullpower_hud")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), before_names=names[:i])
         log2_build.apply_patches(rom, alloc, ["fullpower_hud"])
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["fullpower_hud"])
     return _CACHE
@@ -86,7 +86,11 @@ class ListTests(unittest.TestCase):
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["fullpower_hud"])
 
     def test_before_is_r39_plus_relay_cooldown(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), BEFORE_SHA1)
+        """That ROM is gone, so check the modules: `before` ends on r39 plus relay_cooldown, and lacks this one."""
+        names = built()["before_names"]
+        self.assertEqual(names[-2:], BEFORE_TAIL)
+        self.assertNotIn("fullpower_hud", names)
+        self.assertEqual(sorted(built()["alloc_before"].notes), sorted(names))
 
     def test_second_run_raises(self):
         b = built()

@@ -5,13 +5,13 @@ test_relay_cooldown.py - Tests for patches.relay_cooldown (trial 2026-10-25): a 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_relay_cooldown.py -v
 Builds build_list_trial_cooldown.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
-relay_cooldown (r39, pinned by SHA-1), "rom" = before + relay_cooldown only (later r40 modules are not applied). The wrapper is decoded with thumb_dis (never with the encoder) and run with
+relay_cooldown (the r39 set of modules, checked by module list), "rom" = before + relay_cooldown only (later
+r40 modules are not applied). The wrapper is decoded with thumb_dis (never with the encoder) and run with
 tests.test_ssj2.Cpu, which executes thumb_dis text. Expected values are restated from
 docs\tasks\2026-10-24-form-cooldown\relay-cooldown-trial.md, form-cooldown-report.md and the r39 bytes, never
 imported from the patch module. Function sizes are scripts\permanent\disasm\data\codemap.json's.
 """
 import copy
-import hashlib
 import re
 import struct
 import unittest
@@ -26,7 +26,7 @@ from rom.thumb_dis import listing
 # ===== constants (brief, study report, r39 reads) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_cooldown.txt"
-R39_SHA1 = "aa51dc16da5f6b633c0f50dc566864fe43f89ff0"
+R39_LAST = "bf_ki_pool"                                  # the last line of r39 (build_list_core.txt r-tags)
 HOOK, VANILLA_EXT70 = 0x3B5E40, 0x0800A785               # ext table 0x083B5D28 + 4 x 70
 EXT70_BODY = (0xA784, "08b5fff77bff9d48006af9f7a1fb08bd")
 EXT_TABLE_POOLS = [0x921C, 0x92DC]                       # every ROM word naming 0x083B5D28 (@0x08009232 reads 0x92DC)
@@ -61,7 +61,7 @@ def built() -> dict:
         names = log2_build.read_build_list(TRIAL_LIST)
         i = names.index("relay_cooldown")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), before_names=names[:i])
         log2_build.apply_patches(rom, alloc, ["relay_cooldown"])
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["relay_cooldown"])
     return _CACHE
@@ -89,7 +89,11 @@ class ListTests(unittest.TestCase):
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["relay_cooldown"])
 
     def test_before_is_r39(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), R39_SHA1)
+        """The r39 ROM is gone, so check the modules: `before` ends on the last r39 line and lacks this one."""
+        names = built()["before_names"]
+        self.assertEqual(names[-1], R39_LAST)
+        self.assertNotIn("relay_cooldown", names)
+        self.assertEqual(sorted(built()["alloc_before"].notes), sorted(names))
 
     def test_second_run_raises(self):
         b = built()

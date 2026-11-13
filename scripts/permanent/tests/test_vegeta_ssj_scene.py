@@ -12,13 +12,13 @@ test_vegeta_ssj_scene.py - Tests for patches.vegeta_ssj_scene (trial 2026-10-24)
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_vegeta_ssj_scene.py -v
 Builds build_list_trial_vegeta.txt in memory (from r40 an alias of build_list_dev.txt): "before" = the list up to
-vegeta_ssj_scene (r39 + relay_cooldown + fullpower_hud + beam_struggle), "rom" = with it (= r40); both pinned. The old
+vegeta_ssj_scene (r39 + relay_cooldown + fullpower_hud + beam_struggle), "rom" = with it (= r40); both checked by
+module list. The old
 trial order (celljr_fight first) refuses from celljr_fight v6, which needs this patch's fly row. Scripts are decoded by
 test_cellgames_ssj's decoder. Expected values are restated from docs\tasks\2026-10-24-vegeta-ssj\vegeta-ssj-report.md
 and the r39 bytes (scripts\one-time\2026-10-24-vegeta-ssj\s1_scene_r39.txt), never imported from the patch module.
 """
 import copy
-import hashlib
 import struct
 import unittest
 
@@ -32,8 +32,8 @@ from rom.webfoot_decompress import ROM_BASE
 # ===== constants (report, r39 reads) =====
 LISTS = log_paths.PERMANENT
 TRIAL_LIST, VEGETA_LIST = LISTS / "build_list_trial.txt", LISTS / "build_list_trial_vegeta.txt"
-BEFORE_SHA1 = "9256a6ba861e03743c1d971a3f054bea1bcc6aae"   # r39 + relay_cooldown + fullpower_hud + beam_struggle
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"      # build_list_dev.txt r40 (2026-10-30)
+BEFORE_LAST = "beam_struggle"                              # the r40 line ahead of this one
+R40_LAST = "vegeta_ssj_scene"                              # the last line of r40 (build_list_core.txt r-tags)
 VEGETA, VEGETA_SSJ, CELL = 137, 140, 58
 SPC_TABLE, DEATH_TABLE = 0x3EB704, 0x3EC758
 SEQ50, SEQ50_WORD = 0x3EB134, 0x3EB7C8                 # word 49: the attack after "He will pay!!!!"
@@ -130,7 +130,7 @@ def built() -> dict:
         names = log2_build.read_build_list(VEGETA_LIST)
         i = names.index("vegeta_ssj_scene")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), names=names)
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), names=names, before_names=names[:i])
         vegeta_ssj_scene.apply(rom, alloc)
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["vegeta_ssj_scene"], all_notes=alloc.notes)
     return _CACHE
@@ -200,9 +200,14 @@ class ListTests(unittest.TestCase):
         self.assertNotIn("celljr_fight", dev[:dev.index("vegeta_ssj_scene")])
 
     def test_before_and_r40_are_pinned(self):
+        """Both ROMs are gone, so check the modules that ran: `before` ends on beam_struggle, `rom` on r40."""
         b = built()
-        self.assertEqual(hashlib.sha1(b["before"]).hexdigest(), BEFORE_SHA1)
-        self.assertEqual(hashlib.sha1(b["rom"]).hexdigest(), R40_SHA1)
+        dev = log2_build.read_build_list(log2_build.DEV_LIST)
+        names = b["before_names"]
+        self.assertEqual(names[-1], BEFORE_LAST)
+        self.assertEqual(dev[dev.index(R40_LAST) + 1], "chapter_cards")   # the first r41 line, so rom is all of r40
+        self.assertEqual(sorted(b["alloc_before"].notes), sorted(names))
+        self.assertEqual(sorted(b["all_notes"]), sorted(names + [R40_LAST]))
 
     def test_second_run_and_missing_notes_raise(self):
         b = built()

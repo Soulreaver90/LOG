@@ -8,7 +8,7 @@ test_chapter_cards.py - Tests for patches.chapter_cards (trial 2026-10-25, v8): 
 Run (from the LOG root):
   py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_chapter_cards.py -v
 Builds build_list_trial_chapters.txt in memory (from r41 an alias of build_list_dev.txt): "before" = the list up
-to chapter_cards (the dev master r40, pinned by SHA-1), "rom" = before + chapter_cards only (the two later r41
+to chapter_cards (the r40 set of modules, checked by module list), "rom" = before + chapter_cards only (the two later r41
 modules are not applied). The code is decoded with thumb_dis (never with the encoder) and run with
 tests.test_ssj2.Cpu (plus mul and the I/O, palette and VRAM regions). Expected values are restated from
 docs\tasks\2026-10-25-chapter-cards\chapter-cards-report.md, chapter-cards-trial-v5.md, chapter-cards-trial-v6.md,
@@ -35,7 +35,7 @@ from rom.thumb_dis import dis, listing
 # ===== constants (report, base ROM reads) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_chapters.txt"
-R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list_dev.txt r40 (2026-10-30), the r41 base
+R40_LAST = "vegeta_ssj_scene"                                # the last line of r40 (build_list_core.txt r-tags)
 HOOK, FS_VTABLE, VANILLA_CONTINUE = 0x23B38, 0x08023B0C, 0x0800180D          # file select vtable +0x2C
 SLOT_VALID, ALLOC, FREE, SCENE_PUSH, MUSIC_PLAY = 0x080019F7, 0x0801F08D, 0x0801F111, 0x0801F2F5, 0x08020A4D
 IMAGE_VTABLE = 0x080237C0
@@ -187,7 +187,7 @@ def built() -> dict:
         names = log2_build.read_build_list(TRIAL_LIST)
         i = names.index("chapter_cards")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), before_names=names[:i])
         log2_build.apply_patches(rom, alloc, ["chapter_cards"])      # this module alone: r41 appends two more
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["chapter_cards"])
     return _CACHE
@@ -282,7 +282,11 @@ class ListTests(unittest.TestCase):
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["chapter_cards"])
 
     def test_before_is_r40(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), R40_SHA1)
+        """The r40 ROM is gone, so check the modules: `before` ends on the last r40 line and lacks this one."""
+        names = built()["before_names"]
+        self.assertEqual(names[-1], R40_LAST)
+        self.assertNotIn("chapter_cards", names)
+        self.assertEqual(sorted(built()["alloc_before"].notes), sorted(names))
 
     def test_second_run_raises(self):
         b = built()

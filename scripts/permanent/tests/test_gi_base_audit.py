@@ -25,11 +25,11 @@ import log_paths
 from rom.log2_sprites import image_to_tiles, set_records
 from patches import gi_base_audit
 from rom.webfoot_decompress import unpack_frame
+from tests import masters                                    # one home, so a re-pin is one edit
 
 # ===== constants (brief, s1_map.txt) =====
 ROM_BASE = 0x08000000
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_gi_base.txt"
-DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"        # build_list_dev.txt, the dev master (r41, 2026-10-31)
 APPROVED = log_paths.BASE_AUDIT_APPROVED
 GI_BASE = log_paths.GI_BASE
 SET_TABLE_LITERAL, FIRST_ID = 0x959C, 7
@@ -45,7 +45,7 @@ def built() -> dict:
         names = log2_build.read_build_list(TRIAL_LIST)
         i = names.index("gi_base_audit")
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i])
-        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc))
+        _CACHE.update(before=bytes(rom), alloc_before=copy.deepcopy(alloc), before_names=names[:i])
         log2_build.apply_patches(rom, alloc, names[i:])
         _CACHE.update(rom=bytes(rom), notes=alloc.notes["gi_base_audit"])
     return _CACHE
@@ -89,7 +89,9 @@ class ListTests(unittest.TestCase):
         self.assertEqual(log2_build.read_build_list(TRIAL_LIST), dev + ["gi_base_audit"])
 
     def test_before_is_the_dev_master(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), DEV_SHA1)
+        """The hash below is the dev master, so `before` must be the whole dev list and nothing else."""
+        self.assertEqual(built()["before_names"], log2_build.read_build_list(log2_build.DEV_LIST))
+        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), masters.DEV)
 
 
 # ===== tests: the frames land, nothing else changes =====
