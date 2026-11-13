@@ -1,0 +1,7 @@
+# Trial list: the dev master plus the power-up animation the owner drew for set 104, Super Namek.
+# piccolo_powerup_art is NOT approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# It is art only: no appearance entry, no form object, no portrait and no unlock, so nothing in the
+# game reaches the new row yet. It fills the null anim 9 row that Piccolo Z+ needs before a power-up
+# on set 104 can play. Order does not matter: it reads the live set table and writes one row of its own.
+include build_list_dev.txt
+piccolo_powerup_art  # trial 2026-11-12: set 104 anim 9, his four post-cape charge frames

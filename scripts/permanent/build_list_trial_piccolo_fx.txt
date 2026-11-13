@@ -1,0 +1,19 @@
+# Trial list: Piccolo Z+ with the Buu's Fury power-up aura and the ground dust.
+# No module here is approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# Order matters at every step:
+#   piccolo_z_start checks bf_ki_pool's blob byte for byte, so it runs before anything that edits a
+#     literal inside that blob.
+#   piccolo_powerup_art fills set 104's null anim 9 row with his four frames.
+#   vegeta_zplus takes appearance entry 23 and dialog portrait 122; piccolo_zplus stacks on it and
+#     takes entry 24, so the two trials can merge later instead of claiming the same entry.
+#   piccolo_zplus wraps the Namek form apply and tick, which piccolo_z_start must have set first.
+#   powerup_fx runs after them, for the same reasons as in the Vegeta list.
+#   ki_ramp runs LAST: it chains the state 35 tick powerup_fx left, the Namek state 0x25 tick, and
+#     the HUD draw, and it reads piccolo_zplus's entry for his own Z+ bar colour.
+include build_list_dev.txt
+piccolo_z_start      # slot 2 open on the default record, the Namek tick moves to the ki pool tick (no HP heal)
+piccolo_powerup_art  # set 104 anim 9: his four post-cape charge frames
+vegeta_zplus         # entry 23, Vegeta Z+ (it comes along, so the entry ids never collide)
+piccolo_zplus        # trial 2026-11-12: entry 24, Piccolo Z+ from Super Namek (+10 and the HP heal)
+powerup_fx           # trial 2026-11-12: the white aura on set 104, the gold on 140, and the dust
+ki_ramp             # trial 2026-11-13: the ramp, on state 35 and on Piccolo's state 0x25

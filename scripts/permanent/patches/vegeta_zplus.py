@@ -5,7 +5,8 @@ Usage:   py -3.14 -P scripts\permanent\log2_build.py --list scripts\permanent\bu
          --out builds\mockups\2026-11-12-vegeta-zplus\log2_zplus_v1.gba
 Input:   the ROM after the dev master. Reads alloc.notes["ssj2_form"] (its relocated table, gate, HUD hook and
          step_ok), alloc.notes["npc_gi"] (the live dialog portrait block) and alloc.notes["art_inject"].
-         Art: art\hud_zplus_usable.bin, hud_zplus_dim.bin, art\tables\portraits\122_vegeta_grade2.png.
+         Art: art\hud_zplus_usable.bin, hud_zplus_dim.bin, art\tables\portraits\122_vegeta_grade2.png,
+         and the owner's four power-up frames in art\kits\2026-11-12-vegeta-powerup (read, never written).
 API:     apply(rom, alloc) -> None; file offsets in alloc.notes["vegeta_zplus"].
 Method:  1. Appearance table: copy the live 23 entry table to a 24 entry one and append entry 23, the Z+ form
             (flag 0x01, set 139, dialog portrait 122, +4 = 23, +5 = 8, form object 0x030021E8, the ascended
@@ -16,13 +17,14 @@ Method:  1. Appearance table: copy the live 23 entry table to a 24 entry one and
          2. Dialog portrait: the block grows by one word for the new id 122, which points at the fixed art
             slot art_inject would use. Id 121 is NOT free: npc_gi gave it the armor frame and points the two
             chamber exit lines at it (see the report), so the owner's portrait takes the next id instead.
-         3. Sets 140 (Super Vegeta, the set the step comes FROM) and 139 (Z+ itself) each borrow set
-            137's anim 9 row. The record lookup indexes the animation table by number with no existence
-            test (bible B0041), and every vanilla SUPER set except Gohan's 59 has a NULL anim 9, so
-            without this a power-up follows a null record list and the game crashes. 140 is what the
-            step out of Super Vegeta plays, and 139 is what any power-up in Z+ itself would play.
-            borrow_anim_row is reusable: Trunks 133 from 132, Goku 61 from 60 and Piccolo 104 from 103
-            have the same hole. Only Vegeta is wired here.
+         3. Sets 140 (Super Vegeta, the set the step comes FROM) and 139 (Z+ itself) both have a NULL
+            anim 9. The record lookup indexes the animation table by number with no existence test
+            (bible B0041), and every vanilla SUPER set except Gohan's 59 has a null anim 9, so without
+            a row a power-up follows a null record list and the game crashes. 140 is what the step out
+            of Super Vegeta plays, so it gets the owner's OWN four gold frames through write_anim_row.
+            139 is what a power-up inside Z+ would play, which no input reaches today, so it keeps the
+            borrow of 137's row that stops the crash. Both helpers are reusable: Trunks 133, Goku 61
+            and Piccolo 104 have the same hole, and patches\piccolo_powerup_art.py fills 104.
          4. Gate on the ability 12 action: entry 23 goes straight to the vanilla action (message 0x24, revert);
             entry 11 with EP >= 10 sends message 0x23 (transform); anything else tail-calls ssj2_form's gate.
             Z+ has NO story gate yet: it is available whenever Super Vegeta is. Ability 12 is the transform
@@ -40,11 +42,15 @@ Rules:   Every site is checked against its live bytes before any write, and the 
 """
 import struct
 
-import log_paths
+from PIL import Image
+
 from art import art_tables as at
+from art.to_indexed import flat_palette, frame_indices, index_of
+import log_paths
 from patches.art_inject import FRAME, RAW_HEADER, slot
 from patches.ssj2_form import TABLE_LITERALS, assemble
-from rom.webfoot_decompress import ROM_BASE, SET_DIRS, read_record, read_set, rom_ptr
+from rom.log2_sprites import image_to_tiles
+from rom.webfoot_decompress import ROM_BASE, SET_DIRS, frames_of, read_record, read_set, rom_ptr
 
 # ===== constants =====
 ART = log_paths.ART
@@ -62,11 +68,17 @@ STEP_EP = 10                                        # the ssj2_form step cost, m
 ICONS = ("hud_zplus_usable.bin", "hud_zplus_dim.bin")
 ICON_LEN, ABILITY_12 = 0x200, 12
 PICTURE, SOURCE_DX = (3, 2, 18, 9), 10   # bf_hud puts the LoG II picture, columns 13-28, at columns 3-18
-PORTRAIT_PNG = log_paths.ART_TABLES / "portraits" / "122_vegeta_grade2.png"
+PORTRAIT_PNG = log_paths.TABLE_PORTRAITS / "122_vegeta_grade2.png"
 SET_TABLE_LITERAL, FIRST_SET = 0x959C, 7
 POWER_UP, REVERT = 9, 21             # animation rows: 9 powers up, 21 reverts
 VEG_SSJ_SET, VEG_BASE_SET = 140, 137  # the step comes FROM 140, which has no anim 9 of its own
-BORROWERS = (VEG_SSJ_SET, ZPLUS_SET)  # both Vegeta super sets need one, and 137 lends to both
+BORROWERS = (ZPLUS_SET,)             # 139 only: 140 gets the owner's own frames, not a borrow
+RECORD, PISKEL_KEY = 12, (0xF8, 0x00, 0xF8)   # frame record bytes; the key Piskel writes for clear (B2390)
+KIT = log_paths.VEGETA_POWERUP_KIT
+POWER_UP_PNGS = (KIT / "Frame_1.png",                                   # the owner's four gold frames, in the
+                 KIT / "Frame_2.png",                                   # order of his approved full_powerup.gif:
+                 log_paths.VEGETA_BUILD_READY / "vegeta_pu_sway_left.png",    # charge, charge,
+                 log_paths.VEGETA_BUILD_READY / "vegeta_pu_sway_right.png")   # then the sway pair
 
 # ===== new code (ARMv4T Thumb). Symbols in caps are filled in at assembly =====
 CODE = """
@@ -267,6 +279,103 @@ def borrow_anim_row(rom: bytearray, into_set: int, from_set: int, anim: int = PO
     return plan
 
 
+# ===== animation row from hand drawn frames (reusable: any set whose row is null) =====
+
+def shared_list(rom: bytes, set_id: int, anim: int) -> tuple:
+    """(file offset of the ONE record list all four directions name, its records).
+
+    Anim 9 names one list in all four directions in every set measured (bible B2388), so one front
+    view covers up, down, left and right. A set that named a list per direction raises here rather
+    than taking direction 0 and drawing the other three wrong.
+    """
+    head = read_set(rom, set_at(rom, set_id))
+    _, ptrs = anim_row(rom, set_id, anim)
+    if not all(ptrs):
+        raise ValueError(f"set {set_id} animation {anim} is {ptrs}, so it has nothing to lend")
+    if len(set(ptrs)) != 1:
+        raise ValueError(f"set {set_id} animation {anim} names a record list per direction, "
+                         f"so one drawing cannot cover all four")
+    start = ptrs[0] - ROM_BASE
+    starts = {p for p in head["ptrs"] if p is not None}
+    return start, [r for _, r in frames_of(rom, start, starts - {start})]
+
+
+def hand_frames(rom: bytes, paths) -> list:
+    """The owner's drawings as ROM tile bytes, read through to_indexed's rules.
+
+    An unknown colour, a part transparent pixel, a reserved index, or an index whose colour in the
+    frame disagrees with this ROM, stops the build and is named. Nothing is ever snapped to a near
+    colour, because a snapped pixel is his art changed without him seeing it.
+    """
+    want, pal = index_of(rom), flat_palette(rom)
+    out = []
+    for path in paths:
+        (w, h), data = frame_indices(path, want, pal, PISKEL_KEY)
+        img = Image.new("P", (w, h))
+        img.putdata(list(data))
+        out.append(image_to_tiles(img))
+    return out
+
+
+def plan_anim_frames(rom: bytes, into_set: int, like_set: int, frames: list, anim: int = POWER_UP) -> dict:
+    """Check a hand drawn animation row and return it as {row, like, anim, records, frames}. Writes
+    nothing, so apply can run it with the other checks, before the first write.
+
+    Keeps every guard borrow_anim_row has, because they are what stop a silent mismatch: the target
+    row must be empty, `like_set`'s row must be whole in all four directions, the two sets must
+    share one OBJ slot, and the records must match the geometry the target already draws. `like_set`
+    also fixes the record COUNT and each record's dx, dy, w, h and OBJ attributes, which are copied
+    rather than typed, because the count lives in code and not in the row.
+    """
+    into_head, like_head = read_set(rom, set_at(rom, into_set)), read_set(rom, set_at(rom, like_set))
+    row, old = anim_row(rom, into_set, anim)
+    if any(old):
+        raise ValueError(f"set {into_set} animation {anim} is already {old[0]:#010x}: nothing to fill")
+    if into_head["slot"] != like_head["slot"]:
+        raise ValueError(f"set {into_set} slot 0x{into_head['slot']:X} differs from set {like_set} "
+                         f"slot 0x{like_head['slot']:X}: the OBJ buffer would not fit")
+    _, like = shared_list(rom, like_set, anim)
+    if len(like) != len(frames):
+        raise ValueError(f"set {like_set} animation {anim} is {len(like)} records, but {len(frames)} frames "
+                         f"were drawn: the frame count is in code, not in the row")
+    want = {_geometry(rom, w) for _, w in zip(range(SET_DIRS), anim_row(rom, into_set, REVERT)[1])}
+    got = {(r["w"], r["h"], r["dx"], r["dy"]) for r in like}
+    if want != got:
+        raise ValueError(f"set {like_set} animation {anim} records are {sorted(got)}, but set {into_set} "
+                         f"draws {sorted(want)}: the new frames would not line up")
+    for r, data in zip(like, frames):
+        if len(data) != r["w"] * r["h"]:
+            raise ValueError(f"a frame is {len(data)} bytes, and the record needs {r['w'] * r['h']}")
+        if len(data) > into_head["slot"]:
+            raise ValueError(f"a frame is {len(data)} bytes, past set {into_set}'s {into_head['slot']}-byte slot")
+    return {"row": row, "like": like_set, "anim": anim, "records": like, "frames": frames}
+
+
+def write_anim_row(rom: bytearray, into_set: int, like_set: int, frames: list, alloc,
+                   anim: int = POWER_UP) -> dict:
+    """Give `into_set` an animation row of its own, drawn by hand, where it has none.
+
+    The frames are raw type 0 ({u32 0, u32 len, data}, dispatcher @0x0801F394), as clone_set writes
+    them. All four directions name one record list, which is what every anim 9 measured does. A
+    12 byte 0xFF stop follows the list, because our own readers walk records until one stops looking
+    valid and the next allocation would otherwise read as a fifth record. The game does not need it:
+    its frame count is in code.
+    """
+    plan = plan_anim_frames(rom, into_set, like_set, frames, anim)
+    headers = []
+    for data in plan["frames"]:
+        f = alloc.alloc(8 + len(data))
+        rom[f:f + 8 + len(data)] = struct.pack("<II", 0, len(data)) + data
+        headers.append(f + ROM_BASE)
+    body = b"".join(struct.pack("<bbBBHHI", r["dx"], r["dy"], r["w"], r["h"], r["attr0"], r["attr1"], h)
+                    for r, h in zip(plan["records"], headers))
+    start = alloc.alloc(len(body) + RECORD)
+    rom[start:start + len(body) + RECORD] = body + b"\xFF" * RECORD
+    rom[plan["row"]:plan["row"] + 4 * SET_DIRS] = _word(start + ROM_BASE) * SET_DIRS
+    return {"row": plan["row"], "like": like_set, "anim": anim, "list": start,
+            "ptrs": [start + ROM_BASE] * SET_DIRS, "headers": headers}
+
+
 # ===== patch =====
 
 def apply(rom: bytearray, alloc) -> None:
@@ -294,6 +403,8 @@ def apply(rom: bytearray, alloc) -> None:
     if alloc.notes["npc_gi"]["pre_id"] != BLOCK_IDS - 1:
         raise ValueError(f"the block holds ids 0-{alloc.notes['npc_gi']['pre_id']}, expected 0-{BLOCK_IDS - 1}")
     px = _portrait(rom, old_block)
+    power_up = hand_frames(rom, POWER_UP_PNGS)
+    plan_anim_frames(rom, VEG_SSJ_SET, VEG_BASE_SET, power_up, POWER_UP)
     for step_set in BORROWERS:
         plan_anim_borrow(rom, step_set, VEG_BASE_SET, POWER_UP)
     frame = slot(ZPLUS_PORTRAIT)
@@ -345,7 +456,8 @@ def apply(rom: bytearray, alloc) -> None:
     for off in block_namers:
         rom[off:off + 4] = _word(block + ROM_BASE)
 
-    # 4. the power-up animation: on the set the step comes FROM, and on Z+ itself
+    # 4. the power-up animation: the owner's own gold frames on the set the step comes FROM, a borrow on Z+ itself
+    drawn = write_anim_row(rom, VEG_SSJ_SET, VEG_BASE_SET, power_up, alloc, POWER_UP)
     borrowed = [borrow_anim_row(rom, s, VEG_BASE_SET, POWER_UP) for s in BORROWERS]
 
     # 5. code, icons and the two hooks
@@ -355,7 +467,7 @@ def apply(rom: bytearray, alloc) -> None:
     rom[HUD_LITERAL:HUD_LITERAL + 4] = _word(labels["hud"] | 1)
 
     alloc.notes["vegeta_zplus"] = {"table": table, "block": block, "frame": frame, "zplus": usable,
-                                   "anim_rows": borrowed,
+                                   "anim_rows": borrowed, "anim_frames": drawn,
                                    "zplus_dim": dim, "code": code, "entry": ZPLUS,
                                    "table_namers": table_namers, "block_namers": block_namers,
                                    **{k: v - ROM_BASE for k, v in labels.items()

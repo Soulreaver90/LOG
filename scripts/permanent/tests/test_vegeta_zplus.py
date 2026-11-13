@@ -15,18 +15,22 @@ import struct
 import unittest
 from pathlib import Path
 
+from PIL import Image
+
 import log2_build
-import log_paths
 from art import art_tables as at
+from art.to_indexed import RUNTIME
+import log_paths
 from patches import vegeta_zplus
+from rom.log2_sprites import PALETTE_LEN, PALETTE_OFF as OBJ_PAL, tiles_to_image
 from rom.rom_space import Allocator
 from rom.thumb_dis import listing
-from rom.webfoot_decompress import ROM_BASE, read_record, read_set
+from rom.webfoot_decompress import ROM_BASE, read_record, read_set, unpack_frame
 from tests.test_ssj2 import (ABILITY_12_ACTION, ENTRY, HUD_LITERAL, VANILLA_ACTION, entry_of, read_form,
                              run_gate, run_hud, table_of, u32, vanilla_icon)
 
 # ===== constants (brief, live table bytes) =====
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_vegeta_zplus.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_vegeta_zplus.txt"
 ENTRIES = 24                                   # 23 live entries plus the new one
 VEG_BASE, VEG_SSJ, ZPLUS = 8, 11, 23
 GOHAN_SSJ, GOHAN_SSJ2 = 5, 22
@@ -42,7 +46,7 @@ MODULE_LITERALS = (0x88E3B4, 0x894978, 0x89A9B4, 0x90A250, 0x90A3E0)   # ssj2_fo
 EXPANSION = (0x800000, 0xF00000)                                       # bf_ki_pool, fullpower_hud
 ART_REGION = (0xF00000, 0x1000000)
 ICONS = ("hud_zplus_usable.bin", "hud_zplus_dim.bin")
-PNG = log_paths.ART_TABLES / "portraits" / "122_vegeta_grade2.png"
+PNG = log_paths.TABLE_PORTRAITS / "122_vegeta_grade2.png"
 
 EXPECTED = {
     "zplus_ok": """ldrb r2,[r0,#0x8]|cmp r2,#0xb|bne +0x12|mov r3,#0x4|ldsh r2,[r0,r3]|cmp r2,#0xa|blt +0x12
@@ -62,10 +66,50 @@ POWER_UP, REVERT = 9, 21
 VEG_SSJ_SET, VEG_BASE_SET = 140, 137
 TRUNKS_SSJ_SET, TRUNKS_BASE_SET = 133, 132     # the next pair in the family, and a legal borrow today
 NULL_ANIM9_SETS = (133, 61, 104)               # Trunks, Goku, Piccolo: this module must NOT touch them
+PISKEL_KEY = (0xF8, 0x00, 0xF8)                # the clear colour Piskel writes instead of alpha (B2390)
+KIT = log_paths.VEGETA_POWERUP_KIT
+POWER_UP_PNGS = ("Frame_1.png", "Frame_2.png", "vegeta_pu_sway_left.png", "vegeta_pu_sway_right.png")
+HIS_POWER_UP_PNGS = (KIT / "Frame_1.png",                        # the files he saved, not our converted
+                     KIT / "Frame_2.png",                        # copies: a conversion bug has to show
+                     log_paths.VEGETA_HIS_EDIT_V2 / "vegeta_pu_sway_left_rgba.png",
+                     log_paths.VEGETA_HIS_EDIT_V2 / "vegeta_pu_sway_right_rgba.png")
 
 
 def _px(x: int, y: int) -> int:
     return (y // 8) * 256 + (x // 8) * 64 + (y % 8) * 8 + (x % 8)
+
+
+def his_colours(path: Path) -> list:
+    """One RGB tuple per pixel of a frame he drew, with clear as None. Alpha 0 and the Piskel key
+    both read as clear, because he has saved frames both ways."""
+    with Image.open(path) as img:
+        px = img.convert("RGBA").load()
+        w, h = img.size
+    return [None if (a == 0 or (r, g, b) == PISKEL_KEY) else (r, g, b)
+            for y in range(h) for x in range(w) for r, g, b, a in [px[x, y]]]
+
+
+def rom_colours(rom: bytes, hdr: int, w: int, h: int) -> list:
+    """One RGB tuple per pixel of a frame in the ROM, with index 0 as None. Decoded through the
+    ROM's own palette and tiles_to_image, so nothing the patch wrote is trusted to read it back."""
+    data = unpack_frame(rom, hdr)[2]
+    img = tiles_to_image(data, w, h, bytes(rom[OBJ_PAL:OBJ_PAL + PALETTE_LEN]))
+    rgb = img.convert("RGB").load()
+    flat = img.tobytes()
+    return [None if flat[y * w + x] == 0 else rgb[x, y] for y in range(h) for x in range(w)]
+
+
+def assert_row_is_his_art(case, rom: bytes, set_id: int, pngs, anim: int = POWER_UP) -> None:
+    """Every record of a hand drawn row, in every direction, decodes back to the file he saved."""
+    _, ptrs = vegeta_zplus.anim_row(rom, set_id, anim)
+    case.assertEqual(len(set(ptrs)), 1, set_id)
+    for d, word in enumerate(ptrs):
+        start = word - ROM_BASE
+        for n, png in enumerate(pngs):
+            r = read_record(rom, start + 12 * n)
+            case.assertEqual((r["w"], r["h"]), (32, 32), (set_id, d, png.name))
+            case.assertEqual(rom_colours(rom, r["hdr"], r["w"], r["h"]), his_colours(png),
+                             f"set {set_id} dir {d} frame {n} is not {png.name}")
 
 
 def assert_step_set_can_power_up(case, rom, from_set, anim=POWER_UP):
@@ -257,16 +301,58 @@ class VegetaZplusTests(unittest.TestCase):
         assert_step_set_can_power_up(self, self.rom, ZPLUS_SET)
         self.assertEqual(vegeta_zplus.anim_row(self.before, ZPLUS_SET, POWER_UP)[1], (0, 0, 0, 0))
 
-    def test_both_borrowed_rows_are_base_vegetas_own_list(self):
+    def test_only_the_zplus_set_borrows_base_vegetas_list(self):
+        """Set 139 is the one borrow left. Set 140 is where the step is SEEN, so it gets his own gold
+        frames instead; a borrow there would flash black hair and read as a revert."""
         donor = vegeta_zplus.anim_row(self.rom, VEG_BASE_SET, POWER_UP)[1]
-        self.assertEqual(len(self.notes["anim_rows"]), 2)
-        for note, sid in zip(self.notes["anim_rows"], (VEG_SSJ_SET, ZPLUS_SET)):
+        self.assertEqual(len(self.notes["anim_rows"]), 1)
+        for note, sid in zip(self.notes["anim_rows"], (ZPLUS_SET,)):
             at, after = vegeta_zplus.anim_row(self.rom, sid, POWER_UP)
             self.assertEqual(after, donor, sid)
             self.assertEqual(note, {"row": at, "from": VEG_BASE_SET, "anim": POWER_UP,
                                     "ptrs": list(donor)}, sid)
+        self.assertNotEqual(vegeta_zplus.anim_row(self.rom, VEG_SSJ_SET, POWER_UP)[1], donor)
         self.assertEqual(vegeta_zplus.anim_row(self.rom, VEG_BASE_SET, POWER_UP),
                          vegeta_zplus.anim_row(self.before, VEG_BASE_SET, POWER_UP))   # the donor is untouched
+
+    def test_set_140_names_one_new_record_list_in_all_four_directions(self):
+        """The step out of Super Vegeta plays set 140 anim 9. All four directions name ONE list of four
+        records, which is what every anim 9 measured does (bible B2388), so his front view covers them."""
+        note = self.notes["anim_frames"]
+        at, ptrs = vegeta_zplus.anim_row(self.rom, VEG_SSJ_SET, POWER_UP)
+        self.assertEqual(at, note["row"])
+        self.assertEqual(ptrs, (note["list"] + ROM_BASE,) * 4)
+        self.assertEqual(len(set(ptrs)), 1)
+        self.assertGreaterEqual(note["list"], log2_build.BASE_SIZE)          # appended, nothing moved
+        start, recs = vegeta_zplus.shared_list(self.rom, VEG_SSJ_SET, POWER_UP)
+        self.assertEqual(len(recs), len(POWER_UP_PNGS))
+        self.assertEqual([r["hdr"] + ROM_BASE for r in recs], note["headers"])
+
+    def test_set_140_anim_9_decodes_back_to_his_own_pixels(self):
+        """His drawings are the point. Each frame is decoded from the built ROM and compared against the
+        file he saved, through the ROM palette, so a conversion that changed one pixel fails here."""
+        assert_row_is_his_art(self, self.rom, VEG_SSJ_SET, HIS_POWER_UP_PNGS)
+
+    def test_base_vegetas_power_up_is_byte_for_byte_unchanged(self):
+        """Set 137 anim 9 is the BASE Z transformation, black hair and a gold flash. It must not change."""
+        at, ptrs = vegeta_zplus.anim_row(self.rom, VEG_BASE_SET, POWER_UP)
+        self.assertEqual(self.rom[at:at + 16], self.before[at:at + 16])
+        start = ptrs[0] - ROM_BASE
+        self.assertEqual(self.rom[start:start + 4 * 12], self.before[start:start + 4 * 12])
+        for word in ptrs:
+            hdr = read_record(self.rom, word - ROM_BASE)["hdr"]
+            _, _, _, packed = unpack_frame(self.rom, hdr)
+            self.assertEqual(self.rom[hdr:hdr + 8 + packed], self.before[hdr:hdr + 8 + packed], hex(hdr))
+
+    def test_the_new_frames_use_existing_obj_palette_indices_only(self):
+        """The shared OBJ palette is not changed by this module, so every index his art uses must
+        already name the colour he drew (global constraint, 2026-10-16)."""
+        self.assertEqual(self.rom[OBJ_PAL:OBJ_PAL + 0x200], self.before[OBJ_PAL:OBJ_PAL + 0x200])
+        for word in vegeta_zplus.anim_row(self.rom, VEG_SSJ_SET, POWER_UP)[1]:
+            hdr = read_record(self.rom, word - ROM_BASE)["hdr"]
+            used = set(unpack_frame(self.rom, hdr)[2])
+            self.assertFalse(used & (RUNTIME - {0}), hex(hdr))
+            self.assertTrue(max(used) < 256)
 
     def test_the_borrowed_frames_match_the_geometry_the_set_already_draws(self):
         """Same OBJ slot and the same record shape as set 140's own revert row, or the frames tear."""
@@ -313,7 +399,7 @@ class VegetaZplusTests(unittest.TestCase):
             vegeta_zplus.plan_anim_borrow(rom, TRUNKS_SSJ_SET, TRUNKS_BASE_SET, POWER_UP)
 
     def test_the_animation_rows_are_the_only_extra_base_rom_sites(self):
-        for note in self.notes["anim_rows"]:
+        for note in self.notes["anim_rows"] + [self.notes["anim_frames"]]:
             row = note["row"]
             self.assertTrue(row < log2_build.BASE_SIZE)
             self.assertEqual(self.before[row:row + 16], bytes(16))
@@ -402,7 +488,7 @@ class VegetaZplusTests(unittest.TestCase):
     def test_the_base_8mb_differs_only_at_the_known_sites(self):
         sites = ({off: 4 for off in TABLE_LITERALS}
                  | {ABILITY_12_ACTION: 4, HUD_LITERAL: 4, BLOCK_LITERAL: 4}
-                 | {note["row"]: 16 for note in self.notes["anim_rows"]})
+                 | {note["row"]: 16 for note in self.notes["anim_rows"] + [self.notes["anim_frames"]]})
         inside = {o for off, n in sites.items() for o in range(off, off + n)}
         diff = [i for i in range(log2_build.BASE_SIZE) if self.before[i] != self.rom[i]]
         self.assertTrue(diff)

@@ -1,0 +1,11 @@
+# Trial list: Vegeta Z+ with the Buu's Fury power-up aura and the ground dust.
+# No module here is approved into build_list.txt, build_list_dev.txt or build_list_core.txt.
+# vegeta_zplus runs first: it relocates the appearance table and the dialog portrait block, and it
+# writes set 140's anim 9 row from the owner's own four frames.
+# powerup_fx runs after vegeta_zplus: it reads the LIVE state 35 tick word, which must still hold
+# bf_ki_pool's tick_xform, and it rewrites the four frames vegeta_zplus just wrote, through its own
+# notes. ki_ramp runs LAST, because it chains whatever that tick word holds by then.
+include build_list_dev.txt
+vegeta_zplus        # trial 2026-11-12: entry 23, Vegeta Z+ from Super Vegeta (ascended grade stats, Z+ icon)
+powerup_fx          # trial 2026-11-12: the gold aura on set 140, and the dust in his four frames
+ki_ramp             # trial 2026-11-13: the yellow or orange bar ramps up over the green bar in the transform
