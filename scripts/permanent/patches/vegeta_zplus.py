@@ -1,41 +1,61 @@
 r"""
-vegeta_zplus.py - Patch: Vegeta gains a second Super Saiyan grade, "Z+", reached FROM Super Saiyan.
+vegeta_zplus.py - Patch: Vegeta's Z+ grade, gated on the Time Chamber exit the game already has.
 
 Usage:   py -3.14 -P scripts\permanent\log2_build.py --list scripts\permanent\build_list_trial_vegeta_zplus.txt
-         --out builds\mockups\2026-11-12-vegeta-zplus\log2_zplus_v1.gba
+         --out builds\mockups\2026-11-12-zplus-unlock\log2_zplus_v2.gba
 Input:   the ROM after the dev master. Reads alloc.notes["ssj2_form"] (its relocated table, gate, HUD hook and
          step_ok), alloc.notes["npc_gi"] (the live dialog portrait block) and alloc.notes["art_inject"].
          Art: art\hud_zplus_usable.bin, hud_zplus_dim.bin, art\tables\portraits\122_vegeta_grade2.png.
 API:     apply(rom, alloc) -> None; file offsets in alloc.notes["vegeta_zplus"].
-Method:  1. Appearance table: copy the live 23 entry table to a 24 entry one and append entry 23, the Z+ form
-            (flag 0x01, set 139, dialog portrait 122, +4 = 23, +5 = 8, form object 0x030021E8, the ascended
-            grade: +15 STR, +10 POW, +15 END). Entry 11 (Super Vegeta, post-Cell) gets +4 = 23, so B steps up.
-            Every aligned ROM word that names the old table is repointed, which is 17 base literals plus one
-            literal pool word in each later module that reads the table (ssj2_form, status_bonus,
-            fullpower_ssj, bf_ki_pool, fullpower_hud).
+
+The unlock is the game's own chamber exit, and it is DATA, not a flag:
+
+    before the chamber   base entry 8   Z = entry 11 (set 140, +10)   Z+ unreachable
+    after the chamber    base entry 9   Z = entry 23 (set 140, +10)   Z+ = entry 10 (set 139, +15)
+
+    Vanilla `ext 73 (2, 138)` at rom:0x3DE6BB moves Vegeta from entry 8 to entry 9 in the chamber exit
+    scene, and nothing in the ROM moves him back: the only `ext 73 (2, 137)` is at rom:0x3E778B, which
+    is Android 16 at Capsule Corp, BEFORE the chamber. So entry 9 is the post-chamber state, and which
+    grade a base entry can reach is decided by its +4 chain alone. This module writes no flag, sets no
+    ability bit and adds no unlock code.
+
+Method:  1. Appearance table: copy the live 23 entry table to a 24 entry one and append entry 23, the
+            POST-CHAMBER Super Saiyan: entry 11 copied, with +4 = 10 (B steps up to Z+) and +5 = 9 (it
+            reverts to post-chamber base). It keeps entry 11's set 140, portrait 107 and ordinary Super
+            Saiyan form object 0x030021EC, so it is the same Z, only one that can go further.
+            Entry 9 (post-chamber base) gets +4 = 23, so his Z after the chamber is the new entry.
+            Entry 10, which vanilla already reached from entry 9, BECOMES Z+: its portrait becomes 122,
+            the owner's drawing, and its ascended form object 0x030021E8 (+15 STR, +10 POW, +15 END) is
+            left alone, because that grade is the point of it.
+            Entry 11 is not touched: its +4 stays 8, so pre-chamber Vegeta reaches Z and stops. THAT IS
+            THE GATE. Every aligned ROM word that names the old table is repointed, which is 17 base
+            literals plus one literal pool word in each later module that reads the table (ssj2_form,
+            status_bonus, fullpower_ssj, bf_ki_pool, fullpower_hud).
          2. Dialog portrait: the block grows by one word for the new id 122, which points at the fixed art
             slot art_inject would use. Id 121 is NOT free: npc_gi gave it the armor frame and points the two
             chamber exit lines at it (see the report), so the owner's portrait takes the next id instead.
-         3. Sets 140 (Super Vegeta, the set the step comes FROM) and 139 (Z+ itself) each borrow set
+         3. Sets 140 (the set the step comes FROM) and 139 (Z+ itself, now stepped INTO) each borrow set
             137's anim 9 row. The record lookup indexes the animation table by number with no existence
             test (bible B0041), and every vanilla SUPER set except Gohan's 59 has a NULL anim 9, so
-            without this a power-up follows a null record list and the game crashes. 140 is what the
-            step out of Super Vegeta plays, and 139 is what any power-up in Z+ itself would play.
+            without this a power-up follows a null record list and the game crashes. Sets 137 and 138,
+            the two base sets of the chain, carry a live anim 9 of their own.
             borrow_anim_row is reusable: Trunks 133 from 132, Goku 61 from 60 and Piccolo 104 from 103
             have the same hole. Only Vegeta is wired here.
-         4. Gate on the ability 12 action: entry 23 goes straight to the vanilla action (message 0x24, revert);
-            entry 11 with EP >= 10 sends message 0x23 (transform); anything else tail-calls ssj2_form's gate.
-            Z+ has NO story gate yet: it is available whenever Super Vegeta is. Ability 12 is the transform
-            for every playable character, so the appearance entry is what tells Vegeta's step from Gohan's.
+         4. Gate on the ability 12 action: entry 10 goes straight to the vanilla action (message 0x24,
+            revert); entry 23 with EP >= 10 sends message 0x23 (step up to Z+); anything else tail-calls
+            ssj2_form's gate. This gate is the Super Saiyan to Super Saiyan STEP, not the unlock. A step
+            cannot be data alone, because the vanilla action reverts out of every super entry, and
+            ssj2_form's own step_ok reads story flag 195, which must not gate Vegeta.
          5. The Z+ icon pair is the live ability 12 icon with the Z+ picture pasted in, which keeps whatever
             HUD look the build has. bf_hud (r39) moves every icon picture to the Buu's Fury layout, and it
             runs before this module, so the art files cannot be written in raw.
-         6. HUD hook: ability 12 shows the Z+ icon pair in entry 23 and in entry 11 while B steps up, else it
+         6. HUD hook: ability 12 shows the Z+ icon pair in entry 10 and in entry 23 while B steps up, else it
             tail-calls ssj2_form's HUD hook. The gate and the HUD share zplus_ok, so the icon cannot disagree
             with B, which is the ssj2_form rule (bible B0454).
-Rules:   Every site is checked against its live bytes before any write, and the two hooks must still hold
-         ssj2_form's own routines, so this module cannot run out of order or twice. No module file of the two
-         masters is edited and art\tables\portraits.json is untouched, so both master SHA-1s are unchanged.
+Rules:   Every site is checked against its live bytes before any write, the two chamber exit `ext 73` ops are
+         checked and never written, and the two hooks must still hold ssj2_form's own routines, so this module
+         cannot run out of order or twice. No module file of the two masters is edited and
+         art\tables\portraits.json is untouched, so both master SHA-1s are unchanged.
          Hand-assembled Thumb with the ssj2_form assembler; tests\test_vegeta_zplus.py decodes and runs it.
 """
 import struct
@@ -45,15 +65,25 @@ from art import art_tables as at
 from patches.art_inject import FRAME, RAW_HEADER, slot
 from patches.ssj2_form import TABLE_LITERALS, assemble
 from rom.webfoot_decompress import ROM_BASE, SET_DIRS, read_record, read_set, rom_ptr
+from scene import scene_lib as sl
 
 # ===== constants =====
 ART = log_paths.ART
 ENTRY, ENTRIES = 20, 23                             # the live table ssj2_form built: entries 0-22
-VEG_BASE, VEG_SSJ, ZPLUS = 8, 11, 23                # post-Cell base Vegeta, Super Vegeta, the new grade
+PRE_BASE, POST_BASE = 8, 9                          # Vegeta before and after the Time Chamber exit
+PRE_Z, ZPLUS, POST_Z = 11, 10, 23                   # Z before the chamber; Z+; the new Z after the chamber
 ZPLUS_SET, ZPLUS_PORTRAIT = 139, 122                # set 139 is the ascended grade art; 122 is the new dialog id
-ASCENDED_OBJ = 0x030021E8                           # Super Vegeta / Super Trunks form object (bible B0427)
-VEG_BASE_HEAD = bytes([0x00, 137, 106, 24, VEG_SSJ, VEG_SSJ])
-VEG_SSJ_HEAD = bytes([0x01, 140, 107, 25, VEG_BASE, VEG_BASE])
+ASCENDED_OBJ, ORDINARY_OBJ = 0x030021E8, 0x030021EC  # ascended (+15/+10/+15) and plain Super Saiyan (B0427)
+PRE_BASE_HEAD = bytes([0x00, 137, 106, 24, PRE_Z, PRE_Z])
+POST_BASE_HEAD = bytes([0x00, 138, 106, 24, ZPLUS, ZPLUS])
+ZPLUS_HEAD = bytes([0x01, ZPLUS_SET, 107, 25, POST_BASE, POST_BASE])
+PRE_Z_HEAD = bytes([0x01, 140, 107, 25, PRE_BASE, PRE_BASE])
+# The chamber exit ops that do the unlocking. Checked, never written: `ext 73 (2, 138)` is the one op in the
+# base ROM that moves Vegeta to entry 9, and `ext 73 (3, 129)` is Trunks' mirror, 7 bytes earlier. They are
+# read through the scene TABLE WORD, never at rom:0x3DE620: fullpower_ssj relocates that record and repoints
+# the word, so the vanilla address holds a dead copy in every build of the two masters.
+EXIT_TABLE_WORD = 0x3DE774                          # scene table word of chamber exit seq 33 (next index 33)
+EXIT_OPS = (sl.ext(73, 2, 138), sl.ext(73, 3, 129))
 TABLE_LITERAL = 0x1954                              # the first of the 17 base literals; the live table address
 ABILITY_12_ACTION, VANILLA_ACTION = 0x1D99CC, 0x0801353D
 HUD_LITERAL, ABILITY_TABLE = 0x8E8C, 0x081D9900
@@ -65,15 +95,17 @@ PICTURE, SOURCE_DX = (3, 2, 18, 9), 10   # bf_hud puts the LoG II picture, colum
 PORTRAIT_PNG = log_paths.ART_TABLES / "portraits" / "122_vegeta_grade2.png"
 SET_TABLE_LITERAL, FIRST_SET = 0x959C, 7
 POWER_UP, REVERT = 9, 21             # animation rows: 9 powers up, 21 reverts
-VEG_SSJ_SET, VEG_BASE_SET = 140, 137  # the step comes FROM 140, which has no anim 9 of its own
-BORROWERS = (VEG_SSJ_SET, ZPLUS_SET)  # both Vegeta super sets need one, and 137 lends to both
+VEG_Z_SET, VEG_BASE_SET = 140, 137   # the step comes FROM 140, which has no anim 9 of its own
+BORROWERS = (VEG_Z_SET, ZPLUS_SET)   # both Vegeta super sets need one, and 137 lends to both
+CHAIN_SETS = (137, 138, 140, 139)    # every set the entry chain walks through; each needs a live anim 9
+BASE_CHAIN_SETS = (137, 138)         # the two of them that carry one in vanilla: checked, never written
 
 # ===== new code (ARMv4T Thumb). Symbols in caps are filled in at assembly =====
 CODE = """
 zplus_ok:                   ; r0 = record. r2 = 1 when B steps up to Z+. Leaf: keeps r0, r1; uses r2, r3
     ldrb r2,[r0,#0x8]
-    cmp r2,#VEG_SSJ
-    bne zp_no               ; not Super Vegeta
+    cmp r2,#POST_Z
+    bne zp_no               ; not the post-chamber Super Saiyan, so no step: pre-chamber Z ends here
     mov r3,#0x4
     ldsh r2,[r0,r3]
     cmp r2,#STEP_EP
@@ -171,6 +203,19 @@ def namers(rom: bytes, address: int, allowed: list) -> list:
         raise ValueError(f"word 0x{address:08X} is named at " + ", ".join(f"rom:0x{o:X}" for o in stray)
                          + ", which no patch allocated and no known literal covers")
     return hits
+
+
+def exit_record(rom: bytes) -> tuple:
+    """(offset, bytes) of the LIVE chamber exit record, read through its scene table word.
+
+    The record holds the `ext 73 (2, 138)` that moves Vegeta to entry 9, which is the whole Z+ unlock.
+    fullpower_ssj relocates the record and repoints rom:0x3DE774, so the vanilla address rom:0x3DE620
+    holds a dead copy. Reading the word instead of the address follows whatever the game runs.
+    """
+    at = _u32(rom, EXIT_TABLE_WORD) - ROM_BASE
+    if not 0 <= at < len(rom):
+        raise ValueError(f"rom:0x{EXIT_TABLE_WORD:X} does not name a record: 0x{_u32(rom, EXIT_TABLE_WORD):08X}")
+    return at, bytes(rom[at:sl.record_end(rom, at)])
 
 
 def _icon_px(x: int, y: int) -> int:
@@ -282,9 +327,22 @@ def apply(rom: bytearray, alloc) -> None:
     if old_table != ssj2["table"]:
         raise ValueError(f"rom:0x{TABLE_LITERAL:X} names table rom:0x{old_table:X}, "
                          f"not ssj2_form's rom:0x{ssj2['table']:X}")
-    _expect(rom, old_table + ENTRY * VEG_BASE, VEG_BASE_HEAD)
-    _expect(rom, old_table + ENTRY * VEG_SSJ, VEG_SSJ_HEAD)
-    _expect(rom, old_table + ENTRY * VEG_SSJ + 0x10, _word(0x030021EC))
+    _expect(rom, old_table + ENTRY * PRE_BASE, PRE_BASE_HEAD)
+    _expect(rom, old_table + ENTRY * POST_BASE, POST_BASE_HEAD)
+    _expect(rom, old_table + ENTRY * ZPLUS, ZPLUS_HEAD)
+    _expect(rom, old_table + ENTRY * ZPLUS + 0x10, _word(ASCENDED_OBJ))
+    _expect(rom, old_table + ENTRY * PRE_Z, PRE_Z_HEAD)
+    _expect(rom, old_table + ENTRY * PRE_Z + 0x10, _word(ORDINARY_OBJ))
+    at, body = exit_record(rom)              # the unlock is the vanilla ops in this record, so check it lives
+    for want in EXIT_OPS:
+        if body.count(want) != 1:
+            raise ValueError(f"the live chamber exit record rom:0x{at:X} holds {body.count(want)} copies of "
+                             f"{want.hex()}, expected 1: that op IS the Z+ unlock")
+    for set_id in BASE_CHAIN_SETS:           # a chain set with a null anim 9 crashes the power-up (B0041).
+        row, ptrs = anim_row(rom, set_id, POWER_UP)   # The two super sets are checked by plan_anim_borrow.
+        if not all(ptrs):
+            raise ValueError(f"set {set_id} animation {POWER_UP} at rom:0x{row:X} is {ptrs}: the transform "
+                             f"out of it would follow a null record list")
     _expect(rom, ABILITY_12_ACTION, _word(ssj2["gate"] + ROM_BASE + 1))
     _expect(rom, HUD_LITERAL, _word(ssj2["hud"] + ROM_BASE + 1))
     old_block = _u32(rom, BLOCK_LITERAL) - ROM_BASE
@@ -318,11 +376,9 @@ def apply(rom: bytearray, alloc) -> None:
     table = alloc.alloc(ENTRY * (ENTRIES + 1))
     block = alloc.alloc(4 + 4 * (BLOCK_IDS + 1))
     usable, dim = alloc.alloc(ICON_LEN), alloc.alloc(ICON_LEN)
-    entry = bytearray(rom[old_table + ENTRY * VEG_SSJ:old_table + ENTRY * (VEG_SSJ + 1)])
-    entry[0], entry[1], entry[2] = 0x01, ZPLUS_SET, ZPLUS_PORTRAIT
-    entry[4], entry[5] = ZPLUS, VEG_BASE          # +4 is its own index: Z+ does not transform further
-    entry[0x10:0x14] = _word(ASCENDED_OBJ)
-    syms = {"VEG_SSJ": VEG_SSJ, "ZPLUS_ENTRY": ZPLUS, "STEP_EP": STEP_EP, "VANILLA_ACTION": VANILLA_ACTION,
+    entry = bytearray(rom[old_table + ENTRY * PRE_Z:old_table + ENTRY * (PRE_Z + 1)])
+    entry[4], entry[5] = ZPLUS, POST_BASE   # the post-chamber Z: B steps up to Z+, and it reverts to entry 9
+    syms = {"POST_Z": POST_Z, "ZPLUS_ENTRY": ZPLUS, "STEP_EP": STEP_EP, "VANILLA_ACTION": VANILLA_ACTION,
             "ICON_OK": usable + ROM_BASE, "ICON_DIM": dim + ROM_BASE,
             "SSJ2_GATE": _u32(rom, ABILITY_12_ACTION), "SSJ2_HUD": _u32(rom, HUD_LITERAL)}
     size = len(assemble(CODE, ROM_BASE, syms)[0])
@@ -331,10 +387,12 @@ def apply(rom: bytearray, alloc) -> None:
     if len(blob) != size:                    # a size change would shift every later ROM byte
         raise ValueError(f"code assembled to 0x{len(blob):X} bytes, allocated 0x{size:X}")
 
-    # 2. appearance table with entry 23, and entry 11 stepping into it
+    # 2. appearance table: the new post-chamber Z, entry 9 stepping into it, and entry 10 turned into Z+.
+    #    Entry 11 is deliberately untouched. Its +4 stays 8, and that is the whole pre-chamber gate.
     rom[table:table + ENTRY * ENTRIES] = rom[old_table:old_table + ENTRY * ENTRIES]
     rom[table + ENTRY * ENTRIES:table + ENTRY * (ENTRIES + 1)] = entry
-    rom[table + ENTRY * VEG_SSJ + 4] = ZPLUS
+    rom[table + ENTRY * POST_BASE + 4] = POST_Z
+    rom[table + ENTRY * ZPLUS + 2] = ZPLUS_PORTRAIT
     for off in table_namers:
         rom[off:off + 4] = _word(table + ROM_BASE)
 
@@ -356,7 +414,8 @@ def apply(rom: bytearray, alloc) -> None:
 
     alloc.notes["vegeta_zplus"] = {"table": table, "block": block, "frame": frame, "zplus": usable,
                                    "anim_rows": borrowed,
-                                   "zplus_dim": dim, "code": code, "entry": ZPLUS,
+                                   "zplus_dim": dim, "code": code,
+                                   "zplus_entry": ZPLUS, "post_z_entry": POST_Z,
                                    "table_namers": table_namers, "block_namers": block_namers,
                                    **{k: v - ROM_BASE for k, v in labels.items()
                                       if not k.startswith(("zp_", "gate_", "hud_"))}}

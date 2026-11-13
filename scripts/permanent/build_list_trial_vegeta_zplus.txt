@@ -4,4 +4,5 @@
 # time, and it reads the LIVE ability 12 action and HUD literal, which must still hold ssj2_form's own
 # gate and HUD hook. Every module that keeps its own copy of either address runs before it.
 include build_list_dev.txt
-vegeta_zplus        # trial 2026-11-12: entry 23, Vegeta Z+ from Super Saiyan (ascended grade stats, Z+ icon)
+vegeta_zplus        # trial 2026-11-12: Z+ gated on the chamber exit. Entry 9 steps to a new entry 23 (the
+                    # post-chamber Z), which steps to entry 10 (Z+, +15/+10/+15). Entry 11 is untouched.

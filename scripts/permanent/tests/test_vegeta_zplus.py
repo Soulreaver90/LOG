@@ -1,14 +1,19 @@
 r"""
-test_vegeta_zplus.py - Tests for patches.vegeta_zplus (trial 2026-11-12): Vegeta's second Super Saiyan grade,
-                       "Z+", reached FROM Super Saiyan with the ascended grade stats and its own HUD icon.
+test_vegeta_zplus.py - Tests for patches.vegeta_zplus (trial 2026-11-12): Vegeta's Z+ grade, gated on the
+                       Time Chamber exit the game already has, with no flag and no unlock code.
 
 Run (from the LOG root):
   py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_vegeta_zplus.py -v
 Builds the dev master in memory once, keeps it as "before", then applies vegeta_zplus to the same ROM, so
 every test sees both sides and the notes. The gate and the HUD hook are run as thumb_dis text in
 test_ssj2's Thumb interpreter over a scripted record, so the icon tests check behavior, not code text.
-Expected values are restated from docs\tasks\2026-11-12-vegeta-zplus\brief.md and the live table bytes, never
+Expected values are restated from docs\tasks\2026-11-12-zplus-unlock\brief.md and the live table bytes, never
 imported from the patch module.
+
+The design under test:
+
+    before the chamber   base entry 8   Z = entry 11 (set 140, +10)   Z+ unreachable
+    after the chamber    base entry 9   Z = entry 23 (set 140, +10)   Z+ = entry 10 (set 139, +15)
 """
 import re
 import struct
@@ -22,20 +27,27 @@ from patches import vegeta_zplus
 from rom.rom_space import Allocator
 from rom.thumb_dis import listing
 from rom.webfoot_decompress import ROM_BASE, read_record, read_set
-from tests.test_ssj2 import (ABILITY_12_ACTION, ENTRY, HUD_LITERAL, VANILLA_ACTION, entry_of, read_form,
-                             run_gate, run_hud, table_of, u32, vanilla_icon)
+from scene import scene_lib as sl
+from tests.test_ssj2 import (ABILITY_12_ACTION, ENTRY, HUD_LITERAL, entry_of, read_form, run_gate, run_hud,
+                             table_of, u32, vanilla_icon)
 
 # ===== constants (brief, live table bytes) =====
 TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_vegeta_zplus.txt"
 ENTRIES = 24                                   # 23 live entries plus the new one
-VEG_BASE, VEG_SSJ, ZPLUS = 8, 11, 23
+PRE_BASE, POST_BASE, ZPLUS, PRE_Z, POST_Z = 8, 9, 10, 11, 23
+VEGETA_ENTRIES = (PRE_BASE, POST_BASE, ZPLUS, PRE_Z, POST_Z)
 GOHAN_SSJ, GOHAN_SSJ2 = 5, 22
-ASCENDED, ORDINARY, ASCENDED_ENTRY = 0x030021E8, 0x030021EC, 10
-ZPLUS_SET, ZPLUS_PORTRAIT, REF_ID = 139, 122, 121
+ASCENDED, ORDINARY = 0x030021E8, 0x030021EC
+ZPLUS_SET, Z_SET, ZPLUS_PORTRAIT, Z_PORTRAIT, REF_ID = 139, 140, 122, 107, 121
 Z_ICONS = (0x6DAE7C, 0x6DB07C)                 # ability 12's icon pair, usable and dim
 STEP_EP = 10
 BLOCK_LITERAL, BLOCK_IDS = 0xBE10, 122
 PRE_CONTROL_RECORDS = (0x3DB930, 0x3DBABC)     # npc_gi's two chamber exit lines, which own portrait id 121
+FLAG_195_WORD = 0x03000F5C                     # ssj2_form's story flag byte: this module must not read it
+EXIT_TABLE_WORD = 0x3DE774                     # scene table word of the chamber exit record (seq 33)
+EXIT_VEGETA = bytes.fromhex("1d02048214" "0249")   # ext 73 (2, 138): Vegeta to entry 9. THE unlock
+EXIT_TRUNKS = bytes.fromhex("1d02068202" "0249")   # ext 73 (3, 129): Trunks' mirror, 7 bytes earlier
+EXIT_UNDO = bytes.fromhex("1d02048212" "0249")     # ext 73 (2, 137): the only one, and it is BEFORE the chamber
 TABLE_LITERALS = (0x1954, 0x1B3C, 0x3B30, 0x414C, 0x854C, 0x886C, 0x8B04, 0xA77C, 0xAA04, 0xB050,
                   0xC804, 0x10F18, 0x112BC, 0x13574, 0x14FF4, 0x26458, 0x26474)
 MODULE_LITERALS = (0x88E3B4, 0x894978, 0x89A9B4, 0x90A250, 0x90A3E0)   # ssj2_form, status_bonus, fullpower_ssj,
@@ -45,13 +57,13 @@ ICONS = ("hud_zplus_usable.bin", "hud_zplus_dim.bin")
 PNG = log_paths.ART_TABLES / "portraits" / "122_vegeta_grade2.png"
 
 EXPECTED = {
-    "zplus_ok": """ldrb r2,[r0,#0x8]|cmp r2,#0xb|bne +0x12|mov r3,#0x4|ldsh r2,[r0,r3]|cmp r2,#0xa|blt +0x12
+    "zplus_ok": """ldrb r2,[r0,#0x8]|cmp r2,#0x17|bne +0x12|mov r3,#0x4|ldsh r2,[r0,r3]|cmp r2,#0xa|blt +0x12
         |mov r2,#0x1|bx lr|mov r2,#0x0|bx lr""",
-    "gate": """push {lr}|ldrb r2,[r0,#0x8]|cmp r2,#0x17|beq +0x20|bl ZPLUS_OK|pop {r3}|mov lr,r3|cmp r2,#0x0
+    "gate": """push {lr}|ldrb r2,[r0,#0x8]|cmp r2,#0xa|beq +0x20|bl ZPLUS_OK|pop {r3}|mov lr,r3|cmp r2,#0x0
         |beq +0x28|ldr r2,[r1,#0x0]|ldr r3,[r2,#0x28]|add r3,r3,r2|add r0,r1,#0|mov r1,#0x23|bx r3|pop {r3}
         |mov lr,r3|ldr r2,=0x0801353d|bx r2|ldr r2,=SSJ2_GATE|bx r2""",
     "hud": """push {r4,r5,r6,lr}|add r4,r0,#0|ldrb r0,[r4,#0x9]|add r0,r0,r4|ldrb r5,[r0,#0x18]|cmp r5,#0xc
-        |bne +0x36|ldrb r0,[r4,#0x8]|cmp r0,#0x17|beq +0x1e|add r0,r4,#0|bl ZPLUS_OK|cmp r2,#0x0|beq +0x36
+        |bne +0x36|ldrb r0,[r4,#0x8]|cmp r0,#0xa|beq +0x1e|add r0,r4,#0|bl ZPLUS_OK|cmp r2,#0x0|beq +0x36
         |lsl r0,r5,#4|ldr r1,=0x081d9900|add r6,r0,r1|ldr r1,[r6,#0x8]|add r0,r4,#0|bl STUB_R1|ldr r1,=ICON_OK
         |cmp r0,#0x0|bne +0x40|ldr r1,=ICON_DIM|b +0x40|add r0,r4,#0|ldr r1,=SSJ2_HUD|bl STUB_R1
         |pop {r4,r5,r6,pc}|add r0,r1,#0|pop {r4,r5,r6,pc}""",
@@ -59,7 +71,10 @@ EXPECTED = {
 }
 
 POWER_UP, REVERT = 9, 21
-VEG_SSJ_SET, VEG_BASE_SET = 140, 137
+CHAIN_SETS = (137, 138, 140, 139)              # base pre, base post, Z, Z+: every set the chain walks
+BORROWED_SETS = (140, 139)                     # the two that have no anim 9 of their own
+OWN_ANIM9_SETS = (137, 138)                    # the two that carry one in vanilla
+VEG_BASE_SET = 137
 TRUNKS_SSJ_SET, TRUNKS_BASE_SET = 133, 132     # the next pair in the family, and a legal borrow today
 NULL_ANIM9_SETS = (133, 61, 104)               # Trunks, Goku, Piccolo: this module must NOT touch them
 
@@ -68,20 +83,48 @@ def _px(x: int, y: int) -> int:
     return (y // 8) * 256 + (x // 8) * 64 + (y % 8) * 8 + (x % 8)
 
 
-def assert_step_set_can_power_up(case, rom, from_set, anim=POWER_UP):
-    """The prerequisite a Super Saiyan to Super Saiyan step needs on the set it steps FROM.
+def assert_step_set_can_power_up(case, rom, set_id, anim=POWER_UP):
+    """The prerequisite a transform INTO or OUT OF a set needs on that set.
 
     Reusable for the rest of the family: Trunks steps from 133, Goku from 61, Piccolo from 104. The
     record lookup indexes the row by animation number with no existence test (bible B0041), so a row
     of zeros is followed as a record list and the game crashes.
     """
-    at, ptrs = vegeta_zplus.anim_row(rom, from_set, anim)
-    case.assertEqual(len(ptrs), 4, from_set)
-    case.assertTrue(all(ptrs), f"set {from_set} animation {anim} row at rom:0x{at:X} is {ptrs}")
+    row, ptrs = vegeta_zplus.anim_row(rom, set_id, anim)
+    case.assertEqual(len(ptrs), 4, set_id)
+    case.assertTrue(all(ptrs), f"set {set_id} animation {anim} row at rom:0x{row:X} is {ptrs}")
     for d, word in enumerate(ptrs):
         rec = read_record(rom, word - ROM_BASE)
-        case.assertTrue(rec["w"] and rec["h"], (from_set, d))
-        case.assertIsNotNone(rec["hdr"], (from_set, d))
+        case.assertTrue(rec["w"] and rec["h"], (set_id, d))
+        case.assertIsNotNone(rec["hdr"], (set_id, d))
+
+
+def reachable(rom: bytes, start: int, flag: bool, ep: int) -> set:
+    """Every appearance entry B can reach from `start`, walked the way the game walks it.
+
+    A base entry (flag bit 0 clear) transforms to its +4, which is what the vanilla action does. A
+    transformed entry steps to its +4 only when the ability 12 action sends message 0x23; otherwise B
+    reverts, which reaches nothing the walk has not already seen.
+    """
+    seen, queue = {start}, [start]
+    while queue:
+        here = queue.pop()
+        entry = entry_of(rom, here)
+        steps = not entry[0] & 1 or run_gate(rom, here, flag, ep)[0] == "message"
+        if steps and entry[4] not in seen:
+            seen.add(entry[4])
+            queue.append(entry[4])
+    return seen
+
+
+def live_exit_record(rom: bytes) -> tuple:
+    """(offset, bytes) of the chamber exit record the game runs, through its scene table word.
+
+    Never read rom:0x3DE620 directly: fullpower_ssj relocates that record and repoints this word, so
+    the vanilla address holds a dead copy in every build of the two masters.
+    """
+    at_ = u32(rom, EXIT_TABLE_WORD) - ROM_BASE
+    return at_, bytes(rom[at_:sl.record_end(rom, at_)])
 
 
 _CACHE = {}
@@ -130,25 +173,94 @@ class VegetaZplusTests(unittest.TestCase):
         b = built()
         cls.before, cls.rom, cls.notes, cls.ssj2 = b["before"], b["rom"], b["notes"], b["ssj2"]
 
-    # ===== the brief's four minimums =====
+    # ===== the gate is the chamber, and it is data (brief "Done means" 1) =====
 
-    def test_entry_11_transforms_into_the_new_entry(self):
-        e11 = entry_of(self.rom, VEG_SSJ)
-        self.assertEqual((e11[4], e11[5]), (ZPLUS, VEG_BASE))
-        self.assertEqual(run_gate(self.rom, VEG_SSJ, True, STEP_EP)[0], "message")
+    def test_before_the_chamber_he_reaches_z_and_stops(self):
+        """Entry 11's +4 is still 8, so B out of pre-chamber Z reverts. Z+ is not in that chain at all."""
+        for flag in (True, False):
+            self.assertEqual(reachable(self.rom, PRE_BASE, flag, 0x7FFF), {PRE_BASE, PRE_Z}, flag)
+        self.assertEqual(entry_of(self.rom, PRE_BASE)[4], PRE_Z)
+        self.assertEqual(entry_of(self.rom, PRE_Z)[4], PRE_BASE)
 
-    def test_the_new_entry_reverts_to_entry_8(self):
-        e23 = entry_of(self.rom, ZPLUS)
-        self.assertEqual((e23[0], e23[1], e23[2], e23[5]), (1, ZPLUS_SET, ZPLUS_PORTRAIT, VEG_BASE))
-        self.assertEqual(entry_of(self.rom, VEG_BASE)[0], 0)          # the revert target is a base form
+    def test_after_the_chamber_he_reaches_z_then_zplus(self):
+        for flag in (True, False):
+            self.assertEqual(reachable(self.rom, POST_BASE, flag, 0x7FFF), {POST_BASE, POST_Z, ZPLUS}, flag)
+        self.assertEqual(entry_of(self.rom, POST_BASE)[4], POST_Z)
+        self.assertEqual(entry_of(self.rom, POST_Z)[4], ZPLUS)
 
-    def test_the_new_entry_carries_the_ascended_form_object(self):
-        self.assertEqual(u32(entry_of(self.rom, ZPLUS), 0x10), ASCENDED)
-        self.assertEqual(u32(entry_of(self.rom, ASCENDED_ENTRY), 0x10), ASCENDED)
-        self.assertEqual(u32(entry_of(self.rom, VEG_SSJ), 0x10), ORDINARY)
-        zplus, ascended = read_form(self.rom, ZPLUS), read_form(self.rom, ASCENDED_ENTRY)
-        self.assertEqual((zplus.str_bonus, zplus.pow_bonus, zplus.end_bonus, zplus.flat), (15, 10, 15, False))
-        self.assertEqual(zplus.methods, ascended.methods)
+    def test_the_two_chains_share_nothing(self):
+        pre = reachable(self.rom, PRE_BASE, True, 0x7FFF)
+        post = reachable(self.rom, POST_BASE, True, 0x7FFF)
+        self.assertEqual(pre & post, set())
+
+    def test_entry_11_is_byte_identical_to_the_dev_master(self):
+        """Pre-chamber Z is the gate, and the gate is one entry this module does not write."""
+        self.assertEqual(entry_of(self.rom, PRE_Z), entry_of(self.before, PRE_Z))
+        self.assertEqual((entry_of(self.rom, PRE_Z)[4], entry_of(self.rom, PRE_Z)[5]), (PRE_BASE, PRE_BASE))
+
+    # ===== no flag, no ability bit, no unlock code (brief "Done means" 2) =====
+
+    def test_the_live_chamber_exit_record_still_holds_the_vanilla_unlock(self):
+        at_, body = live_exit_record(self.rom)
+        self.assertEqual(body.count(EXIT_VEGETA), 1, f"rom:0x{at_:X}")
+        self.assertEqual(body.count(EXIT_TRUNKS), 1, f"rom:0x{at_:X}")
+        self.assertLess(body.index(EXIT_TRUNKS), body.index(EXIT_VEGETA))   # Trunks first, 7 bytes earlier
+
+    def test_this_module_writes_nothing_in_the_chamber_exit_record(self):
+        self.assertEqual(live_exit_record(self.rom), live_exit_record(self.before))
+
+    def test_the_vanilla_ops_are_where_the_brief_measured_them(self):
+        """The base ROM addresses the brief names, and the count that makes the unlock one way only.
+        In a BUILD these are a dead copy, because fullpower_ssj relocates the record, so the test
+        above is the one that proves what the game runs."""
+        base = log2_build.BASE.read_bytes()
+        self.assertEqual(base[0x3DE6BB:0x3DE6BB + len(EXIT_VEGETA)], EXIT_VEGETA)
+        self.assertEqual(base[0x3DE6B4:0x3DE6B4 + len(EXIT_TRUNKS)], EXIT_TRUNKS)
+        self.assertEqual(base.count(EXIT_VEGETA), 1)
+        self.assertEqual(base.count(EXIT_TRUNKS), 1)
+        self.assertEqual(base[0x3E778B:0x3E778B + len(EXIT_UNDO)], EXIT_UNDO)
+        self.assertEqual(base.count(EXIT_UNDO), 1)          # Android 16, BEFORE the chamber: nothing undoes it
+
+    def test_the_module_reads_no_story_flag(self):
+        """ssj2_form's step_ok reads flag 195. Nothing this module adds may name that byte."""
+        self.assertEqual(words_naming(self.rom, FLAG_195_WORD), words_naming(self.before, FLAG_195_WORD))
+
+    def test_the_step_gives_the_same_answer_with_the_flag_set_and_clear(self):
+        for entry in VEGETA_ENTRIES:
+            for ep in (-1, 0, 9, 10, 100, 0x7FFF):
+                self.assertEqual(run_gate(self.rom, entry, True, ep)[0],
+                                 run_gate(self.rom, entry, False, ep)[0], (entry, ep))
+
+    # ===== the three entries the design writes (brief "Done means" 3) =====
+
+    def test_entry_10_is_zplus(self):
+        e10 = entry_of(self.rom, ZPLUS)
+        self.assertEqual((e10[0], e10[1], e10[2], e10[5]), (1, ZPLUS_SET, ZPLUS_PORTRAIT, POST_BASE))
+        self.assertEqual(u32(e10, 0x10), ASCENDED)
+        form = read_form(self.rom, ZPLUS)
+        self.assertEqual((form.str_bonus, form.pow_bonus, form.end_bonus, form.flat), (15, 10, 15, False))
+
+    def test_entry_10_changed_only_its_portrait(self):
+        before, after = bytearray(entry_of(self.before, ZPLUS)), entry_of(self.rom, ZPLUS)
+        self.assertEqual(before[2], Z_PORTRAIT)          # the vanilla Super Vegeta portrait
+        before[2] = ZPLUS_PORTRAIT
+        self.assertEqual(bytes(before), after)
+
+    def test_the_new_entry_is_the_post_chamber_z(self):
+        e23, e11 = entry_of(self.rom, POST_Z), entry_of(self.rom, PRE_Z)
+        self.assertEqual((e23[0], e23[1], e23[2]), (1, Z_SET, Z_PORTRAIT))
+        self.assertEqual((e23[4], e23[5]), (ZPLUS, POST_BASE))
+        self.assertEqual(u32(e23, 0x10), ORDINARY)       # the plain Super Saiyan form: +10, and the ki pool
+        self.assertEqual(read_form(self.rom, POST_Z).methods, read_form(self.rom, PRE_Z).methods)
+        copied = bytearray(e23)
+        copied[4], copied[5] = e11[4], e11[5]
+        self.assertEqual(bytes(copied), e11)             # entry 11 in every byte but its chain
+
+    def test_entry_9_steps_into_the_new_entry(self):
+        before, after = bytearray(entry_of(self.before, POST_BASE)), entry_of(self.rom, POST_BASE)
+        self.assertEqual(before[4], ZPLUS)               # vanilla sent entry 9 straight to the +15 grade
+        before[4] = POST_Z
+        self.assertEqual(bytes(before), after)
 
     def test_portrait_122_decodes_to_the_owners_pixels(self):
         palette = at.load_palette()
@@ -157,19 +269,21 @@ class VegetaZplusTests(unittest.TestCase):
         header, pixels = at.live_frame(self.rom, block, ZPLUS_PORTRAIT)
         self.assertEqual(header, self.notes["frame"])
         self.assertEqual(pixels, want)
-        self.assertEqual(u32(entry_of(self.rom, ZPLUS), 0) >> 16 & 0xFF, ZPLUS_PORTRAIT)
+        self.assertEqual(entry_of(self.rom, ZPLUS)[2], ZPLUS_PORTRAIT)
         self.assertLessEqual(len(set(want)), at.MAX_COLORS)
 
-    # ===== no gate: Z+ is available whenever Z is =====
-
-    def test_the_step_needs_no_story_flag(self):
-        for flag in (True, False):
-            self.assertEqual(run_gate(self.rom, VEG_SSJ, flag, STEP_EP)[0], "message", flag)
-            self.assertEqual(run_gate(self.rom, VEG_SSJ, flag, 0x7FFF)[0], "message", flag)
+    # ===== the step itself =====
 
     def test_the_step_costs_the_same_ep_as_gohans(self):
         for ep in (STEP_EP - 1, 0, -1):
-            self.assertEqual(run_gate(self.rom, VEG_SSJ, True, ep)[0], "vanilla", ep)
+            self.assertEqual(run_gate(self.rom, POST_Z, True, ep)[0], "vanilla", ep)
+        for ep in (STEP_EP, 100, 0x7FFF):
+            self.assertEqual(run_gate(self.rom, POST_Z, True, ep)[0], "message", ep)
+
+    def test_pre_chamber_z_never_steps(self):
+        for flag in (True, False):
+            for ep in (-1, 0, 9, 10, 100, 0x7FFF):
+                self.assertEqual(run_gate(self.rom, PRE_Z, flag, ep)[0], "vanilla", (flag, ep))
 
     def test_zplus_always_reverts(self):
         for flag in (True, False):
@@ -184,8 +298,9 @@ class VegetaZplusTests(unittest.TestCase):
         self.assertEqual(entry_of(self.rom, GOHAN_SSJ2), entry_of(self.before, GOHAN_SSJ2))
 
     def test_the_gate_keeps_lr_sp_and_r4_to_r7(self):
-        for args, want in (((VEG_SSJ, False, 10), "message"), ((ZPLUS, True, 100), "vanilla"),
-                           ((GOHAN_SSJ, True, 10), "message"), ((VEG_BASE, True, 100), "vanilla")):
+        for args, want in (((POST_Z, False, 10), "message"), ((ZPLUS, True, 100), "vanilla"),
+                           ((PRE_Z, True, 100), "vanilla"), ((GOHAN_SSJ, True, 10), "message"),
+                           ((PRE_BASE, True, 100), "vanilla"), ((POST_BASE, True, 100), "vanilla")):
             exit_, cpu = run_gate(self.rom, *args)
             self.assertEqual(exit_, want, args)
             self.assertEqual(cpu.r[13], 0x03007F00, args)
@@ -194,22 +309,29 @@ class VegetaZplusTests(unittest.TestCase):
     # ===== the HUD icon =====
 
     def test_hud_shows_zplus_in_zplus_and_when_b_steps_up(self):
-        for entry in (ZPLUS, VEG_SSJ):
+        for entry in (ZPLUS, POST_Z):
             for flag in (True, False):
                 for test, key in ((1, "zplus"), (0, "zplus_dim")):
                     self.assertEqual(run_hud(self.rom, entry, flag, 100, test=test)[0],
                                      self.notes[key] + ROM_BASE, (entry, flag, test))
 
-    def test_hud_shows_the_vanilla_icon_in_super_vegeta_with_no_ki(self):
+    def test_hud_shows_the_vanilla_icon_in_pre_chamber_z(self):
+        """B reverts there at any ki, so the icon must never promise a step."""
+        for ep in (0x7FFF, 100, 10, 0, -1):
+            for test in (1, 0):
+                self.assertEqual(run_hud(self.rom, PRE_Z, True, ep, test=test)[0],
+                                 vanilla_icon(self.rom, 12, test), (ep, test))
+
+    def test_hud_shows_the_vanilla_icon_in_post_chamber_z_with_no_ki(self):
         for ep in (9, 0, -1):
             for test in (1, 0):
-                self.assertEqual(run_hud(self.rom, VEG_SSJ, True, ep, test=test)[0],
+                self.assertEqual(run_hud(self.rom, POST_Z, True, ep, test=test)[0],
                                  vanilla_icon(self.rom, 12, test), (ep, test))
 
     def test_hud_never_shows_the_z2_icon_for_vegeta(self):
-        for entry in (8, 9, 10, 11, ZPLUS):
+        for entry in VEGETA_ENTRIES:
             for flag in (True, False):
-                for ep in (-1, 10, 100):
+                for ep in (-1, 10, 100, 0x7FFF):
                     icon = run_hud(self.rom, entry, flag, ep)[0]
                     self.assertNotIn(icon, (self.ssj2["z2"] + ROM_BASE, self.ssj2["z2_dim"] + ROM_BASE),
                                      (entry, flag, ep))
@@ -223,7 +345,7 @@ class VegetaZplusTests(unittest.TestCase):
 
     def test_hud_vanilla_for_other_abilities(self):
         for ability in (a for a in range(14) if a != 12):
-            for entry in (VEG_SSJ, ZPLUS, GOHAN_SSJ2):
+            for entry in (POST_Z, ZPLUS, GOHAN_SSJ2):
                 for test in (1, 0):
                     self.assertEqual(run_hud(self.rom, entry, True, 100, ability, test)[0],
                                      vanilla_icon(self.rom, ability, test), (ability, entry, test))
@@ -235,51 +357,55 @@ class VegetaZplusTests(unittest.TestCase):
                 for ep in (-1, 0, 9, 10, 100):
                     steps = run_gate(self.rom, entry, flag, ep)[0] == "message"
                     mine = run_hud(self.rom, entry, flag, ep)[0] == self.notes["zplus"] + ROM_BASE
-                    self.assertEqual(mine, (steps and entry == VEG_SSJ) or entry == ZPLUS, (entry, flag, ep))
+                    self.assertEqual(mine, (steps and entry == POST_Z) or entry == ZPLUS, (entry, flag, ep))
 
     def test_hud_keeps_r4_to_r7_and_sp(self):
-        for entry in (VEG_SSJ, ZPLUS, GOHAN_SSJ, VEG_BASE):
+        for entry in VEGETA_ENTRIES + (GOHAN_SSJ,):
             _, cpu = run_hud(self.rom, entry, True, 100)
             self.assertEqual(cpu.r[4:8], [0x44444444, 0x55555555, 0x66666666, 0x77777777], entry)
             self.assertEqual(cpu.r[13], 0x03007F00, entry)
 
-    # ===== the power-up animation the step needs (the v1 crash) =====
+    # ===== the power-up animation every set in the chain needs (brief "Done means" 4) =====
 
-    def test_the_set_the_step_comes_from_can_power_up(self):
-        """v1 crashed here: set 140's anim 9 row was four null pointers, and the record lookup
-        @0x0800775A indexes the row by number with no existence test (bible B0041)."""
-        assert_step_set_can_power_up(self, self.rom, VEG_SSJ_SET)
-        self.assertEqual(vegeta_zplus.anim_row(self.before, VEG_SSJ_SET, POWER_UP)[1], (0, 0, 0, 0))
+    def test_every_set_in_the_chain_can_power_up(self):
+        """The chain walks sets 137, 138, 140 and 139. A transform plays animation 9 and the record
+        lookup @0x0800775A indexes the row by number with no existence test (bible B0041), so one null
+        row anywhere in the chain crashes the game. 137 and 138 carry one; 140 and 139 borrow."""
+        for set_id in CHAIN_SETS:
+            assert_step_set_can_power_up(self, self.rom, set_id)
+        for set_id in BORROWED_SETS:
+            self.assertEqual(vegeta_zplus.anim_row(self.before, set_id, POWER_UP)[1], (0, 0, 0, 0), set_id)
+        for set_id in OWN_ANIM9_SETS:
+            self.assertEqual(vegeta_zplus.anim_row(self.before, set_id, POWER_UP),
+                             vegeta_zplus.anim_row(self.rom, set_id, POWER_UP), set_id)
 
-    def test_the_zplus_set_itself_can_power_up(self):
-        """Set 139 is where Vegeta STANDS in Z+. A power-up played there reads its OWN anim 9 row, so a
-        null row crashes exactly as set 140's did, whatever sends the power-up."""
+    def test_the_zplus_set_is_the_one_stepped_into(self):
+        """v1 only stepped OUT of set 140. The design steps INTO set 139, so its row is load bearing."""
+        self.assertEqual(entry_of(self.rom, ZPLUS)[1], ZPLUS_SET)
+        self.assertEqual(entry_of(self.rom, POST_Z)[1], Z_SET)
         assert_step_set_can_power_up(self, self.rom, ZPLUS_SET)
-        self.assertEqual(vegeta_zplus.anim_row(self.before, ZPLUS_SET, POWER_UP)[1], (0, 0, 0, 0))
 
     def test_both_borrowed_rows_are_base_vegetas_own_list(self):
         donor = vegeta_zplus.anim_row(self.rom, VEG_BASE_SET, POWER_UP)[1]
         self.assertEqual(len(self.notes["anim_rows"]), 2)
-        for note, sid in zip(self.notes["anim_rows"], (VEG_SSJ_SET, ZPLUS_SET)):
-            at, after = vegeta_zplus.anim_row(self.rom, sid, POWER_UP)
+        for note, sid in zip(self.notes["anim_rows"], BORROWED_SETS):
+            row, after = vegeta_zplus.anim_row(self.rom, sid, POWER_UP)
             self.assertEqual(after, donor, sid)
-            self.assertEqual(note, {"row": at, "from": VEG_BASE_SET, "anim": POWER_UP,
+            self.assertEqual(note, {"row": row, "from": VEG_BASE_SET, "anim": POWER_UP,
                                     "ptrs": list(donor)}, sid)
         self.assertEqual(vegeta_zplus.anim_row(self.rom, VEG_BASE_SET, POWER_UP),
                          vegeta_zplus.anim_row(self.before, VEG_BASE_SET, POWER_UP))   # the donor is untouched
 
     def test_the_borrowed_frames_match_the_geometry_the_set_already_draws(self):
-        """Same OBJ slot and the same record shape as set 140's own revert row, or the frames tear."""
-        for sid in (VEG_SSJ_SET, ZPLUS_SET, VEG_BASE_SET):
+        """Same OBJ slot and the same record shape as the set's own revert row, or the frames tear."""
+        for sid in CHAIN_SETS:
             self.assertEqual(read_set(self.rom, vegeta_zplus.set_at(self.rom, sid))["slot"], 0x400, sid)
         shapes = set()
-        for row in (vegeta_zplus.anim_row(self.rom, VEG_SSJ_SET, POWER_UP)[1],
-                    vegeta_zplus.anim_row(self.rom, VEG_SSJ_SET, REVERT)[1],
-                    vegeta_zplus.anim_row(self.rom, ZPLUS_SET, POWER_UP)[1],
-                    vegeta_zplus.anim_row(self.rom, ZPLUS_SET, REVERT)[1]):
-            for word in row:
-                r = read_record(self.rom, word - ROM_BASE)
-                shapes.add((r["w"], r["h"], r["dx"], r["dy"]))
+        for sid in BORROWED_SETS:
+            for anim in (POWER_UP, REVERT):
+                for word in vegeta_zplus.anim_row(self.rom, sid, anim)[1]:
+                    r = read_record(self.rom, word - ROM_BASE)
+                    shapes.add((r["w"], r["h"], r["dx"], r["dy"]))
         self.assertEqual(shapes, {(32, 32, -8, -24)})
 
     def test_only_vegetas_set_is_given_a_power_up(self):
@@ -296,7 +422,7 @@ class VegetaZplusTests(unittest.TestCase):
         rom = bytearray(self.rom)
         self.assertEqual(vegeta_zplus.plan_anim_borrow(rom, TRUNKS_SSJ_SET, TRUNKS_BASE_SET,
                                                        POWER_UP)["from"], TRUNKS_BASE_SET)  # legal today
-        for sid in (VEG_SSJ_SET, ZPLUS_SET):                               # both were given their row
+        for sid in BORROWED_SETS:                                          # both were given their row
             with self.assertRaisesRegex(ValueError, "nothing to borrow"):
                 vegeta_zplus.plan_anim_borrow(rom, sid, VEG_BASE_SET, POWER_UP)
         with self.assertRaisesRegex(ValueError, "nothing to lend"):        # Goku's super set is null too
@@ -307,8 +433,8 @@ class VegetaZplusTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "the OBJ buffer would not fit"):
             vegeta_zplus.plan_anim_borrow(rom, TRUNKS_SSJ_SET, TRUNKS_BASE_SET, POWER_UP)
         rom = bytearray(self.rom)
-        at = vegeta_zplus.anim_row(rom, TRUNKS_SSJ_SET, REVERT)[1][0] - ROM_BASE
-        rom[at + 2] = 16                                                   # the record's width
+        row = vegeta_zplus.anim_row(rom, TRUNKS_SSJ_SET, REVERT)[1][0] - ROM_BASE
+        rom[row + 2] = 16                                                  # the record's width
         with self.assertRaisesRegex(ValueError, "would not line up"):
             vegeta_zplus.plan_anim_borrow(rom, TRUNKS_SSJ_SET, TRUNKS_BASE_SET, POWER_UP)
 
@@ -330,19 +456,15 @@ class VegetaZplusTests(unittest.TestCase):
         self.assertEqual(sorted(words_naming(self.rom, new + ROM_BASE)),
                          sorted(TABLE_LITERALS + MODULE_LITERALS))
 
-    def test_the_new_table_copies_the_live_one(self):
+    def test_the_new_table_copies_the_live_one_apart_from_the_two_edits(self):
         old, new = table_of(self.before), table_of(self.rom)
         copied = bytearray(self.rom[new:new + ENTRY * (ENTRIES - 1)])
-        self.assertEqual(copied[ENTRY * VEG_SSJ + 4], ZPLUS)
-        copied[ENTRY * VEG_SSJ + 4] = VEG_BASE
+        self.assertEqual(copied[ENTRY * POST_BASE + 4], POST_Z)
+        self.assertEqual(copied[ENTRY * ZPLUS + 2], ZPLUS_PORTRAIT)
+        copied[ENTRY * POST_BASE + 4], copied[ENTRY * ZPLUS + 2] = ZPLUS, Z_PORTRAIT
         self.assertEqual(bytes(copied), self.before[old:old + ENTRY * (ENTRIES - 1)])
         self.assertEqual(self.rom[old:old + ENTRY * (ENTRIES - 1)],
                          self.before[old:old + ENTRY * (ENTRIES - 1)])   # the old table is left as it is
-
-    def test_the_new_entry_copies_entry_11_apart_from_its_own_fields(self):
-        e11, e23 = entry_of(self.rom, VEG_SSJ), entry_of(self.rom, ZPLUS)
-        self.assertEqual(e23[3], e11[3])            # the status twin id, which status_portrait does not read
-        self.assertEqual(e23[6:0x10], e11[6:0x10])
 
     def test_the_portrait_block_grew_by_one_id(self):
         old, new = block_of(self.before), block_of(self.rom)
@@ -424,8 +546,12 @@ class VegetaZplusTests(unittest.TestCase):
 
     def test_apply_fails_closed(self):
         notes = built()["all_notes"]
+        exit_at, exit_body = live_exit_record(self.before)
+        unlock = exit_at + exit_body.index(EXIT_VEGETA)               # the live ext 73 (2, 138)
         for off, junk in ((TABLE_LITERALS[5], b"\0\0\0\0"), (ABILITY_12_ACTION, b"\1\0\0\0"),
-                          (HUD_LITERAL, b"\0\0\0\0"), (BLOCK_LITERAL, b"\0\0\0\0")):
+                          (HUD_LITERAL, b"\0\0\0\0"), (BLOCK_LITERAL, b"\0\0\0\0"),
+                          (unlock + 4, b"\x7F"),                      # one byte of the pushed set id
+                          (EXIT_TABLE_WORD, b"\0\0\0\0")):            # the word that names the record
             rom = bytearray(self.before)
             rom[off:off + len(junk)] = junk
             before = bytes(rom)
