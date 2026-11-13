@@ -95,7 +95,7 @@ This is the biggest single line of work and it is close to done.
 | XFM-6 | **PLAY** | **Piccolo Z+**, a grade above Super Namek, with his own icon and your Kami portrait. Z+ gives +10 and healing; plain Z gives +6 and none. |
 | XFM-7 | **PLAY** | The power-up plays the **Buu's Fury aura**, gold for Vegeta and white for Piccolo, with ground dust. It starts on the charge loop so the wind-up stays clean, and an interrupt takes it away. |
 | XFM-8 | **PLAY** | The ki bar **ramps up** while the transformation plays instead of appearing full at the end. |
-| XFM-9 | **OPEN** | Does Piccolo's base form deserve a yellow bar at all, since it is only him dropping the turban? You were leaning to plain green for base, yellow for the power-up. |
+| XFM-9 | **DESIGNED** | Piccolo's bar: plain green for base AND for Super Namek, with no ki pool. Only Z+ gets a pool, and it ramps to yellow and stays yellow. Decided 2026-11-13. Today Super Namek has a yellow pool and Z+ ramps orange then snaps to yellow, which is the bug you saw. |
 | XFM-10 | **OPEN** | Two versions of Vegeta Z+ exist. One unlocks it through the Time Chamber exit using the game's own data. The other gives his power-up your drawn frames. Both are saved. Which wins, or do they combine? |
 
 ---
@@ -171,8 +171,7 @@ compares every frame PNG under `art\` against the art the build actually reads, 
 2. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
 3. **Play the future line (FUT-1 to FUT-9)** and the Z+ pair (XFM-5 to XFM-8), and say what is wrong.
 4. **The builds delete list**: 455 files, 2.13 GB.
-5. **XFM-9**, Piccolo's base bar: green or yellow.
-6. **XFM-10**, which Vegeta Z+ wins.
+5. **XFM-10**, which Vegeta Z+ wins.
 7. **Rename the Trunks tank art folder?** It is your live folder, so nobody touches it.
 
 ---

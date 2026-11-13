@@ -13,7 +13,7 @@ What the PLAYER sees is in [game-status.md](game-status.md). This page is the ma
 | Master | List | Modules | Last recorded SHA-1 |
 |---|---|---:|---|
 | Golden | `build_list.txt` | 26 | `3fe0c024` |
-| Dev | `build_list_dev.txt` | 26 | `f30c2f85` |
+| Dev | `build_list_dev.txt` | 26 | `168ba282` |
 
 Both include `build_list_core.txt`, which is 25 modules.
 
@@ -25,8 +25,8 @@ One row per build list. **Extra modules** are what it adds on top of the core li
 
 | Build list | Extra modules | Newest ROM | SHA-1 | Built |
 |---|---|---|---|---|
-| `build_list.txt` | `gohan_gi_vanilla` | `golden.gba` | `3fe0c024` | 2026-11-13 13:26 |
-| `build_list_dev.txt` | `gohan_gi` | `dev.gba` | `f30c2f85` | 2026-11-13 13:26 |
+| `build_list.txt` | `gohan_gi_vanilla` | `g7.gba` | `3fe0c024` | 2026-11-13 14:46 |
+| `build_list_dev.txt` | `gohan_gi` | `log2_poc_r42_goku_chamber.gba` | `168ba282` | 2026-11-13 16:41 |
 | `build_list_trial.txt` | `gohan_gi` | `SPENT: same modules as the dev master` | `` |  |
 | `build_list_trial_beam.txt` | `gohan_gi` | `SPENT: same modules as the dev master` | `` |  |
 | `build_list_trial_chapters.txt` | `gohan_gi` | `SPENT: same modules as the dev master` | `` |  |
