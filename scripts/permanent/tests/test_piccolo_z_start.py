@@ -44,7 +44,8 @@ VANILLA_NAMEK_TICK_BODY = 0x08017400
 FLAG_132 = (STRUCT + 0xB4 + 132 // 8, 1 << (132 % 8))    # the Kami fusion flag (bible B0816)
 HEAL_STEP = 0x290                                        # max HP x 0x290 >> 16, about 1 % (bible B0543)
 DRAIN_STEP = 0x0CCD                                      # 1 every 20 frames
-EXPECTED_RUNS = (0x024AC0, 0x025CF4, 0x1D9578, 0x909FFC)
+BASE_RUNS = (0x024AC0, 0x025CF4, 0x1D9578)   # base ROM: Namek vtable +4, state 0x25 vtable +0x14, record +0x14
+ACCEPT_AT = 0x18                             # the fourth run, measured from bf_ki_pool's allocated code start
 MOCKUP = log_paths.PICCOLO_Z_MOCKUPS
 WEST_CITY, WEST_CITY_POS = (4, 6, 1), (656, 368)     # the 6,1 warp landing, bible B1186
 
@@ -69,7 +70,37 @@ def built() -> dict:
         log2_build.apply_patches(rom, alloc, names[len(dev):])
         _CACHE["rom"] = bytes(rom)
         _CACHE["notes"] = copy.deepcopy(alloc.notes["piccolo_z_start"])
+        _CACHE["ki_pool"] = copy.deepcopy(alloc.notes["bf_ki_pool"])
     return _CACHE
+
+
+def changed_runs(before: bytes, after: bytes) -> tuple:
+    """(start, length) of every run of bytes where the two ROMs differ."""
+    hits, step = [], 0x10000
+    for base in range(0, len(before), step):             # block compare first: almost every block is equal
+        a, b = before[base:base + step], after[base:base + step]
+        if a != b:
+            hits += [base + k for k in range(len(a)) if a[k] != b[k]]
+    runs = []
+    for off in hits:
+        if runs and runs[-1][0] + runs[-1][1] == off:
+            runs[-1][1] += 1
+        else:
+            runs.append([off, 1])
+    return tuple((at, n) for at, n in runs)
+
+
+def run_problems(before: bytes, after: bytes, pool_code: int) -> list:
+    """Why the diff between the two ROMs is not the four writes this module is allowed to make.
+
+    The fourth write lands in bf_ki_pool's allocated code, so its address moves with every earlier
+    module. Typing it froze this test against one build."""
+    want = BASE_RUNS + (pool_code + ACCEPT_AT,)
+    got = tuple(at for at, _ in changed_runs(before, after))
+    problems = [] if got == want else [f"runs {[hex(a) for a in got]}, expected {[hex(a) for a in want]}"]
+    problems += [f"save code changed at rom:0x{at:X}: {name}"
+                 for at, size, name in SAVE_PATHS if after[at:at + size] != before[at:at + size]]
+    return problems
 
 
 def target(rom: bytes, vtable: int, slot: int) -> int:
@@ -315,8 +346,13 @@ class PoolRefAccept(unittest.TestCase):
         self.assertEqual(self.ref(22, leader=0), RAM)     # Gohan Super Saiyan 2
         self.assertEqual(self.ref(11, leader=2), RAM)     # Vegeta Super Saiyan
 
+    def test_the_ascended_grade_gets_the_pool(self):
+        """Entry 10 is Super Vegeta: vanilla set 139, flags bit 0 set, form object 0x030021E8.
+        bf_ki_pool accepts the ascended grade on purpose and paints it orange (owner, 2026-11-13)."""
+        self.assertEqual(self.ref(10, leader=2), RAM)
+
     def test_the_base_and_non_pool_forms_still_get_nothing(self):
-        for entry, leader in ((PICCOLO_ENTRY, PICCOLO), (3, 0), (4, 0), (10, 2), (8, 2)):
+        for entry, leader in ((PICCOLO_ENTRY, PICCOLO), (3, 0), (4, 0), (8, 2)):
             with self.subTest(entry=entry):
                 self.assertEqual(self.ref(entry, leader=leader), 0)
 
@@ -325,21 +361,8 @@ class PoolRefAccept(unittest.TestCase):
 
 class Saves(unittest.TestCase):
     def test_the_patch_writes_four_runs_and_none_of_them_is_save_code(self):
-        dev, rom = built()["dev"], built()["rom"]
-        runs, i = [], 0
-        while i < len(dev):
-            if dev[i] != rom[i]:
-                j = i
-                while j < len(dev) and dev[j] != rom[j]:
-                    j += 1
-                runs.append((i, j - i))
-                i = j
-            else:
-                i += 1
-        self.assertEqual(tuple(at for at, _ in runs), EXPECTED_RUNS)
-        for at, size, name in SAVE_PATHS:
-            with self.subTest(name=name):
-                self.assertEqual(rom[at:at + size], dev[at:at + size])
+        b = built()
+        self.assertEqual([], run_problems(b["dev"], b["rom"], b["ki_pool"]["code"]))
 
     def test_the_save_image_layout_is_untouched(self):
         """No new save field: the slot is still 0x164 data bytes of six 28-byte records plus the flags."""
@@ -405,6 +428,45 @@ class DemoSaves(unittest.TestCase):
                         if c == PICCOLO:
                             continue
                         self.assertEqual(slot[at:at + ls.CHAR_SIZE], was[at:at + ls.CHAR_SIZE])
+
+
+class ControlTests(unittest.TestCase):
+    """`run_problems` reads the fourth run address from the allocator, so it must be shown to go red.
+
+    A check that reads its expectation from the build can decay into "the build agrees with itself".
+    Every case here works on copies in memory: no file and no cache is changed."""
+
+    def accept_run(self) -> tuple:
+        """(start, length) of the one write this module makes in allocated space."""
+        at = built()["ki_pool"]["code"] + ACCEPT_AT
+        return next((s, n) for s, n in changed_runs(built()["dev"], built()["rom"]) if s == at)
+
+    def test_the_live_build_reports_nothing(self):
+        b = built()
+        self.assertEqual([], run_problems(b["dev"], b["rom"], b["ki_pool"]["code"]))
+
+    def test_a_moved_fourth_run_is_reported(self):
+        b = built()
+        at, size = self.accept_run()
+        rom = bytearray(b["rom"])
+        rom[at:at + size] = b["dev"][at:at + size]                 # undo the real write
+        for k in range(size):                                      # and put one 0x40 bytes further on
+            rom[at + 0x40 + k] ^= 0xFF
+        self.assertTrue(run_problems(b["dev"], bytes(rom), b["ki_pool"]["code"]))
+
+    def test_a_missing_fourth_run_is_reported(self):
+        b = built()
+        at, size = self.accept_run()
+        rom = bytearray(b["rom"])
+        rom[at:at + size] = b["dev"][at:at + size]
+        self.assertTrue(run_problems(b["dev"], bytes(rom), b["ki_pool"]["code"]))
+
+    def test_a_write_into_save_code_is_reported(self):
+        b = built()
+        rom = bytearray(b["rom"])
+        rom[SAVE_PATHS[0][0]] ^= 0x01
+        problems = run_problems(b["dev"], bytes(rom), b["ki_pool"]["code"])
+        self.assertTrue(any("save code" in p for p in problems), problems)
 
 
 if __name__ == "__main__":

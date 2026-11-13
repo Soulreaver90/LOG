@@ -11,6 +11,11 @@ tests.test_bf_ki_pool.Cpu2 (thumb_dis text; stretch_on, pool_ref and bf_ki_pool'
 vanilla Super Saiyan enter, the vanilla HUD draw and the ARM divide are stubs). Expected values are restated from
 docs\tasks\2026-10-25-fullpower-hud\fullpower-hud-trial.md, the r39 bytes and the vanilla listings, never imported
 from the patch module.
+
+ADDRESSES IN THE FREE REGION ARE ASKED FOR, NOT TYPED. bf_ki_pool's hud_draw and hud_key, its code block and
+ssj2_form's appearance table all move when an earlier module grows, so each one is read from that module's own
+allocator notes. Vanilla addresses below 0x800000 never move and stay as literals. ControlTests proves the
+entry check still goes red when the entry moves.
 """
 import copy
 import struct
@@ -30,7 +35,6 @@ BEFORE_TAIL = ["bf_ki_pool", "relay_cooldown"]              # the last r39 line,
 SSJ_VT, SSJ2_VT, RAGE_VT, HUD_VT, TRANSFORM_VT = 0x08024C58, 0x0888DE24, 0x08024E4C, 0x0802408C, 0x08025D9C
 ENTER_WORD, HUD_WORD = 0x24C60, 0x2409C                   # SSJ vtable +8, HUD vtable +0x10
 VANILLA_ENTER, VANILLA_LEAVE, RAGE_ENTER = 0x08017377, 0x08017393, 0x08017159
-R39_HUD_DRAW, R39_HUD_KEY = 0x0890A0EF, 0x0890A11D         # bf_ki_pool hud_draw | 1, hud_key | 1 in r39
 STRETCH_ON = 0x0889A8B1
 SOUND_TABLE, AURA = 0x080E15B0, 55
 HUD_VANILLA, DIV = 0x08008BEE, 0x08021F30
@@ -46,6 +50,36 @@ def u32(rom: bytes, off: int) -> int:
 
 def slot(rom: bytes, vt: int, k: int) -> int:
     return (vt + u32(rom, vt - ROM_BASE + k)) & 0xFFFFFFFF
+
+
+def pool() -> dict:
+    """bf_ki_pool's own notes. Its code moves whenever an earlier module grows, so never type it."""
+    return built()["alloc_before"].notes["bf_ki_pool"]
+
+
+def hud_draw() -> int:
+    """bf_ki_pool's hud_draw, the HUD draw this module hooks ahead of (Thumb, so bit 0 is set)."""
+    return pool()["labels"]["hud_draw"] | 1
+
+
+def hud_key() -> int:
+    """bf_ki_pool's hud_key, the label hud_fp enters with the frame hud_draw builds."""
+    return pool()["labels"]["hud_key"] | 1
+
+
+def entry_problems(rom: bytes, labels: dict, key: int, draw: int) -> list:
+    """Why hud_fp does not enter bf_ki_pool's hud_draw at hud_key with the frame that code expects."""
+    got = texts(rom, labels["hud_fp"], labels["ep_fill"])
+    problems = []
+    if got[:3] != ["push {r4,r5,r6,r7,lr}", "add r4,r0,#0", "add r5,r1,#0"]:
+        problems.append(f"hud_fp builds the frame {got[:3]}")
+    for want in (f"ldr r3,={key:#010x}", f"ldr r3,={draw:#010x}"):
+        if want not in got:
+            problems.append(f"hud_fp does not carry `{want}`")
+    entry = f"ldr r3,={key:#010x}"
+    if entry in got and got[got.index(entry) - 1] != "add r6,r0,#0":
+        problems.append("the yellow step count is not put in r6 before the hud_key entry")
+    return problems
 
 
 def built() -> dict:
@@ -106,8 +140,10 @@ class ListTests(unittest.TestCase):
     def test_a_changed_source_byte_refuses_before_writing(self):
         b = built()
         stretch = b["alloc_before"].notes["fullpower_ssj"]["stretch_on"]
-        for off in (ENTER_WORD, HUD_WORD, 0x17376 + 0x16, 0x21F30, stretch + 3, R39_HUD_KEY - 1 - ROM_BASE + 0x10,
-                    0x90A000, 0x88DC54 + 20 * 5 + 0x10, 0x88DC54 + 20 * 20 + 0x13):
+        table = b["alloc_before"].notes["ssj2_form"]["table"]           # the two form objects the patch checks
+        for off in (ENTER_WORD, HUD_WORD, 0x17376 + 0x16, 0x21F30, stretch + 3,
+                    hud_key() - 1 - ROM_BASE + 0x10, pool()["code"] + 0x10,
+                    table + 20 * 5 + 0x10, table + 20 * 20 + 0x13):
             rom, alloc = bytearray(b["before"]), copy.deepcopy(b["alloc_before"])
             rom[off] ^= 0x01
             snap = bytes(rom)
@@ -134,7 +170,7 @@ class SiteTests(unittest.TestCase):
     def test_r39_words_are_the_vanilla_enter_and_the_pool_hud(self):
         self.assertEqual(slot(self.before, SSJ_VT, 8), VANILLA_ENTER)
         self.assertEqual(slot(self.before, SSJ_VT, 0xC), VANILLA_LEAVE)
-        self.assertEqual(slot(self.before, HUD_VT, 0x10), R39_HUD_DRAW)
+        self.assertEqual(slot(self.before, HUD_VT, 0x10), hud_draw())
 
     def test_hook_words_name_the_new_code(self):
         self.assertEqual(slot(self.rom, SSJ_VT, 8), self.lab["enter_fp"] | 1)
@@ -194,19 +230,16 @@ class DecodeTests(unittest.TestCase):
         self.assertEqual(got, want)
 
     def test_hud_entry_uses_the_hud_draw_frame(self):
-        got = texts(self.rom, self.lab["hud_fp"], self.lab["ep_fill"])
-        self.assertEqual(got[:3], ["push {r4,r5,r6,r7,lr}", "add r4,r0,#0", "add r5,r1,#0"])
-        self.assertIn(f"ldr r3,={R39_HUD_KEY:#010x}", got)
-        self.assertIn(f"ldr r3,={R39_HUD_DRAW:#010x}", got)
-        self.assertEqual(got[got.index(f"ldr r3,={R39_HUD_KEY:#010x}") - 1], "add r6,r0,#0")
+        self.assertEqual([], entry_problems(self.rom, self.lab, hud_key(), hud_draw()))
 
     def test_r39_hud_draw_frame_matches_the_entry(self):
         """bf_ki_pool hud_draw: push {r4-r7,lr}, r4 = HUD, r5 = OAM, r6 = steps; from hud_key on, r0-r3 and r7 are
-        written before they are read, and it ends with pop {r4-r7,pc}."""
-        rom = self.rom
-        head = texts(rom, R39_HUD_DRAW - 1, R39_HUD_DRAW - 1 + 8)
+        written before they are read, and it ends with pop {r4-r7,pc}. put_px is the next label, so it ends the
+        block, which is the same span the patch pins by SHA-1."""
+        rom, lab = self.rom, pool()["labels"]
+        head = texts(rom, lab["hud_draw"], lab["hud_draw"] + 8)
         self.assertEqual(head, ["push {r4,r5,r6,r7,lr}", "add r4,r0,#0", "add r5,r1,#0", "mov r6,#0x0"])
-        body = texts(rom, R39_HUD_KEY - 1, 0x0890A166)
+        body = texts(rom, lab["hud_key"], lab["put_px"])
         written = set()
         for t in body:
             op, _, rest = t.partition(" ")
@@ -291,11 +324,11 @@ class HudTests(unittest.TestCase):
         return self.draw(slot(built()["rom"], HUD_VT, 0x10), **kw)
 
     def old(self, **kw):
-        return self.draw(R39_HUD_DRAW, **kw)
+        return self.draw(hud_draw(), **kw)
 
     def yellow(self, steps: int) -> bytes:
         rom = built()["rom"]
-        at = built()["alloc_before"].notes["bf_ki_pool"]["yellow"]
+        at = pool()["yellow"]
         want = bytearray([1] * 0x500)
         for i in range(steps):
             for k in range(3):
@@ -381,6 +414,36 @@ class ChargeMeterTests(unittest.TestCase):
         """The other hud_fp exit tail-calls hud_draw, which reaches the same code."""
         buf, steps = self.draw(4, leader=GOHAN, entry=5, pool=25, ep=10, mep=50)
         self.assertEqual([buf[o] for o in steps], [1] * 28)
+
+
+class ControlTests(unittest.TestCase):
+    """`entry_problems` reads bf_ki_pool's labels from the allocator, so it must be shown to go red.
+
+    A check that reads its expectation from the build it tests can decay into "the build agrees with
+    itself". Every case here works on a copy in memory: no file and no cache is changed."""
+
+    def swapped_entry(self) -> bytes:
+        """The build with hud_fp's hud_key literal replaced by hud_draw: it would enter the wrong frame."""
+        b = built()
+        rom, n = bytearray(b["rom"]), b["notes"]
+        at = next(o for o in range(n["code"], n["code"] + n["size"], 4) if u32(rom, o) == hud_key())
+        struct.pack_into("<I", rom, at, hud_draw())
+        return bytes(rom)
+
+    def test_the_live_build_reports_nothing(self):
+        b = built()
+        self.assertEqual([], entry_problems(b["rom"], b["notes"]["labels"], hud_key(), hud_draw()))
+
+    def test_a_swapped_entry_literal_is_reported(self):
+        b = built()
+        problems = entry_problems(self.swapped_entry(), b["notes"]["labels"], hud_key(), hud_draw())
+        self.assertTrue(any(f"{hud_key():#010x}" in p for p in problems), problems)
+
+    def test_a_moved_hud_key_is_reported(self):
+        """What the rot looked like: the label moved and the check still named the old address."""
+        b = built()
+        problems = entry_problems(b["rom"], b["notes"]["labels"], hud_key() + 4, hud_draw())
+        self.assertTrue(problems)
 
 
 if __name__ == "__main__":

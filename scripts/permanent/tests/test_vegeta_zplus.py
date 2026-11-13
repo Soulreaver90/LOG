@@ -42,8 +42,12 @@ BLOCK_LITERAL, BLOCK_IDS = 0xBE10, 122
 PRE_CONTROL_RECORDS = (0x3DB930, 0x3DBABC)     # npc_gi's two chamber exit lines, which own portrait id 121
 TABLE_LITERALS = (0x1954, 0x1B3C, 0x3B30, 0x414C, 0x854C, 0x886C, 0x8B04, 0xA77C, 0xAA04, 0xB050,
                   0xC804, 0x10F18, 0x112BC, 0x13574, 0x14FF4, 0x26458, 0x26474)
-MODULE_LITERALS = (0x88E3B4, 0x894978, 0x89A9B4, 0x90A250, 0x90A3E0)   # ssj2_form, status_bonus, fullpower_ssj,
-EXPANSION = (0x800000, 0xF00000)                                       # bf_ki_pool, fullpower_hud
+# One literal pool word in each of these modules names the appearance table. Each sits in the
+# module's own allocation, so its offset moves whenever an earlier module grows. The value is the
+# note that points INTO the allocation holding that literal pool, never the literal itself.
+TABLE_READERS = {"ssj2_form": "code", "status_bonus": "page", "fullpower_ssj": "code",
+                 "bf_ki_pool": "code", "fullpower_hud": "code"}
+EXPANSION = (0x800000, 0xF00000)
 ART_REGION = (0xF00000, 0x1000000)
 ICONS = ("hud_zplus_usable.bin", "hud_zplus_dim.bin")
 PNG = log_paths.TABLE_PORTRAITS / "122_vegeta_grade2.png"
@@ -137,8 +141,9 @@ def built() -> dict:
         return _CACHE
     rom, alloc = log2_build.assemble(log2_build.BASE, log2_build.read_build_list(log2_build.DEV_LIST))
     before = bytes(rom)
+    used = alloc.used()                       # every span the allocator gave out before this module ran
     vegeta_zplus.apply(rom, alloc)
-    _CACHE.update(before=before, rom=bytes(rom), notes=alloc.notes["vegeta_zplus"],
+    _CACHE.update(before=before, rom=bytes(rom), notes=alloc.notes["vegeta_zplus"], used=used,
                   ssj2=alloc.notes["ssj2_form"], npc_gi=alloc.notes["npc_gi"], all_notes=alloc.notes)
     return _CACHE
 
@@ -150,6 +155,40 @@ def block_of(rom: bytes) -> int:
 def words_naming(rom: bytes, address: int) -> list:
     want = struct.pack("<I", address)
     return [off for off in range(0, len(rom) - 3, 4) if rom[off:off + 4] == want]
+
+
+def module_spans(used: list, notes: dict) -> dict:
+    """{module: the allocation that holds its literal pool}, from the spans the allocator gave out."""
+    return {m: next((at, n) for at, n in used if at <= notes[m][key] < at + n)
+            for m, key in TABLE_READERS.items()}
+
+
+def module_namers(rom: bytes, table: int, used: list, notes: dict) -> dict:
+    """{module: every word inside that module's own allocation that names the appearance table}."""
+    hits = [o for o in words_naming(rom, table + ROM_BASE) if o >= log2_build.BASE_SIZE]
+    return {m: [o for o in hits if at <= o < at + n]
+            for m, (at, n) in module_spans(used, notes).items()}
+
+
+def namer_problems(rom: bytes, table: int, used: list, notes: dict) -> list:
+    """Why the words naming the appearance table are not the 17 base literals plus one per module.
+
+    The base literals never move, so they are typed. Every other namer is a literal pool word in a
+    module's own allocation, so it is located through the allocator, never typed."""
+    hits = words_naming(rom, table + ROM_BASE)
+    base = sorted(o for o in hits if o < log2_build.BASE_SIZE)
+    found = module_namers(rom, table, used, notes)
+    problems = []
+    if base != sorted(TABLE_LITERALS):
+        problems.append(f"the base ROM literals are {[hex(o) for o in base]}")
+    for m, offs in found.items():
+        if len(offs) != 1:
+            problems.append(f"{m} holds {len(offs)} words naming the table, expected 1")
+    owned = {o for offs in found.values() for o in offs}
+    loose = [o for o in hits if o >= log2_build.BASE_SIZE and o not in owned]
+    if loose:
+        problems.append("no module owns " + ", ".join(f"rom:0x{o:X}" for o in loose))
+    return problems
 
 
 def normalized(rom: bytes, notes: dict, name: str, count: int) -> list:
@@ -408,13 +447,14 @@ class VegetaZplusTests(unittest.TestCase):
 
     def test_the_table_moved_and_every_namer_followed(self):
         old, new = table_of(self.before), table_of(self.rom)
+        used, notes = built()["used"], built()["all_notes"]
         self.assertNotEqual(old, new)
         self.assertEqual(new, self.notes["table"])
-        self.assertEqual(sorted(words_naming(self.before, old + ROM_BASE)),
-                         sorted(TABLE_LITERALS + MODULE_LITERALS))
+        self.assertEqual([], namer_problems(self.before, old, used, notes))
+        self.assertEqual([], namer_problems(self.rom, new, used, notes))
         self.assertEqual(words_naming(self.rom, old + ROM_BASE), [])
-        self.assertEqual(sorted(words_naming(self.rom, new + ROM_BASE)),
-                         sorted(TABLE_LITERALS + MODULE_LITERALS))
+        self.assertEqual(sorted(words_naming(self.before, old + ROM_BASE)),
+                         sorted(words_naming(self.rom, new + ROM_BASE)))
 
     def test_the_new_table_copies_the_live_one(self):
         old, new = table_of(self.before), table_of(self.rom)
@@ -537,9 +577,11 @@ class VegetaZplusTests(unittest.TestCase):
         rom = bytearray(self.before)
         stray = 0x7FFFF0                                  # base ROM, not a known literal and not allocated
         rom[stray:stray + 4] = struct.pack("<I", table_of(self.before) + ROM_BASE)
-        allowed = [(off, 4) for off in TABLE_LITERALS + MODULE_LITERALS]
+        mine = module_namers(self.before, table_of(self.before), built()["used"], built()["all_notes"])
+        known = TABLE_LITERALS + tuple(o for offs in mine.values() for o in offs)
+        allowed = [(off, 4) for off in known]
         self.assertEqual(vegeta_zplus.namers(self.before, table_of(self.before) + ROM_BASE, allowed),
-                         sorted(TABLE_LITERALS + MODULE_LITERALS))
+                         sorted(known))
         with self.assertRaisesRegex(ValueError, f"rom:0x{stray:X}"):
             vegeta_zplus.namers(bytes(rom), table_of(self.before) + ROM_BASE, allowed)
 
@@ -547,6 +589,45 @@ class VegetaZplusTests(unittest.TestCase):
         self.assertTrue(PNG.is_file(), PNG)
         self.assertEqual(Path(vegeta_zplus.PORTRAIT_PNG), PNG)
         self.assertNotIn(ZPLUS_PORTRAIT, at.load_portraits())      # not wired through the normal route
+
+
+class ControlTests(unittest.TestCase):
+    """`namer_problems` locates the module literals instead of typing them, so it must be shown to
+    go red. A check that reads its expectation from the build it tests can decay into "the build
+    agrees with itself". Every case here works on a copy in memory: no file is changed."""
+
+    @classmethod
+    def setUpClass(cls):
+        b = built()
+        cls.before, cls.rom, cls.used = b["before"], b["rom"], b["used"]
+        cls.notes, cls.old, cls.new = b["all_notes"], table_of(b["before"]), table_of(b["rom"])
+
+    def test_both_builds_report_nothing(self):
+        self.assertEqual([], namer_problems(self.before, self.old, self.used, self.notes))
+        self.assertEqual([], namer_problems(self.rom, self.new, self.used, self.notes))
+
+    def test_a_module_that_stopped_naming_the_table_is_reported(self):
+        rom = bytearray(self.before)
+        mine = module_namers(self.before, self.old, self.used, self.notes)
+        struct.pack_into("<I", rom, mine["bf_ki_pool"][0], 0)
+        problems = namer_problems(bytes(rom), self.old, self.used, self.notes)
+        self.assertTrue(any("bf_ki_pool" in p for p in problems), problems)
+
+    def test_a_namer_left_behind_on_the_old_table_is_reported(self):
+        """The real failure a relocation can have: one word still names the table nobody updates."""
+        rom = bytearray(self.rom)
+        off = module_namers(self.rom, self.new, self.used, self.notes)["fullpower_hud"][0]
+        struct.pack_into("<I", rom, off, self.old + ROM_BASE)
+        self.assertEqual([off], words_naming(bytes(rom), self.old + ROM_BASE))
+        problems = namer_problems(bytes(rom), self.new, self.used, self.notes)
+        self.assertTrue(any("fullpower_hud" in p for p in problems), problems)
+
+    def test_a_stray_namer_outside_every_allocation_is_reported(self):
+        rom = bytearray(self.rom)
+        stray = EXPANSION[1] - 0x10                   # free region, past everything the allocator gave out
+        struct.pack_into("<I", rom, stray, self.new + ROM_BASE)
+        problems = namer_problems(bytes(rom), self.new, self.used, self.notes)
+        self.assertTrue(any("no module owns" in p for p in problems), problems)
 
 
 if __name__ == "__main__":

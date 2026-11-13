@@ -7,10 +7,14 @@ Run (absolute paths, because no tool in this project may cd):
 Nothing here writes a ROM file. Every ROM is built in memory, every document goes to a temporary
 folder, and nothing is written under data\.
 
-WHY A BUILD AND NOT THE BASE ROM. Map 14,4 of build_list_dev.txt names its OWN chunk table at
-0x0890A92C, not the shared pool 0x084DF574. The base ROM cannot show that, because all 336 base
-layouts name the pool. A round trip that compared tile PAIRS would pass on that map and put the
+WHY A BUILD AND NOT THE BASE ROM. Map 14,4 of build_list_dev.txt names its OWN chunk table, which
+beam_struggle builds, not the shared pool 0x084DF574. The base ROM cannot show that, because all 336
+base layouts name the pool. A round trip that compared tile PAIRS would pass on that map and put the
 wrong pixels in the game, which is the one failure in this file that has no symptom.
+
+WHY THE TABLE ADDRESS IS READ, NOT TYPED. The allocator hands out ROM space in build list order, so
+a module that grows moves every later address. The private table address comes from beam_struggle's
+own notes, and ControlTests proves the checks still go red when that table moves or loses its art.
 
 WHY PIXELS AND NOT PAIRS. A pair is (chunk, tile) in some table. Equality of pairs says only that
 two documents index the same way, never that they name the same art.
@@ -34,8 +38,8 @@ import roundtrip                                                           # noq
 import tile_stream                                                         # noqa: E402
 
 DEV_LIST = log_paths.BUILD_LISTS / "build_list_dev.txt"
-PRIVATE_TABLE = 0x0890A92C          # map 14,4's own chunk table in every current build
 PRIVATE_MAP = (14, 4)
+POOL_CHUNKS = 168                   # the shared pool's entries; the private table copies them and adds one
 ROM_BASE = map_view.ROM_BASE
 _CACHE = {}
 
@@ -51,8 +55,31 @@ def dev_build() -> bytes:
     """The dev master. Its map 14,4 carries a private chunk table, which the base ROM cannot."""
     if "dev" not in _CACHE:
         names = log2_build.read_build_list(DEV_LIST)
-        _CACHE["dev"] = bytes(log2_build.assemble(log2_build.BASE, names)[0])
+        rom, alloc = log2_build.assemble(log2_build.BASE, names)
+        _CACHE["dev"] = bytes(rom)
+        _CACHE["table"] = alloc.notes["beam_struggle"]["offsets"]["chunk table"] + ROM_BASE
     return _CACHE["dev"]
+
+
+def private_table() -> int:
+    """Map 14,4's own chunk table, where the allocator put it in this build."""
+    dev_build()
+    return _CACHE["table"]
+
+
+def table_problems(rom: bytes, table: int) -> list:
+    """Why this ROM's map 14,4 does not carry the private chunk table beam_struggle built."""
+    word = scene_probe.u32(rom, layout_of(rom, *PRIVATE_MAP) + 0x4C)
+    problems = []
+    if word != table:
+        problems.append(f"map 14,4 names 0x{word:08X}, the allocator put the table at 0x{table:08X}")
+    if word == tile_stream.CHUNK_TABLE:
+        problems.append("map 14,4 names the shared pool, so this build cannot show a private table")
+    extra = scene_probe.u32(rom, table - ROM_BASE + 4 * POOL_CHUNKS)
+    if extra == scene_probe.u32(rom, tile_stream.CHUNK_TABLE - ROM_BASE + 4 * POOL_CHUNKS) \
+            or not ROM_BASE <= extra < ROM_BASE + len(rom):
+        problems.append(f"word {POOL_CHUNKS} of the table is 0x{extra:08X}, not a chunk of its own")
+    return problems
 
 
 def layout_of(rom: bytes, zone: int, area: int, var: int = 1) -> int:
@@ -106,7 +133,7 @@ class DifferenceTests(unittest.TestCase):
 
     def test_a_changed_chunk_table_is_reported_even_when_the_pairs_match(self):
         after = map_file.read_map(self.rom, 7, 15)
-        after["chunk_table"] = PRIVATE_TABLE
+        after["chunk_table"] = private_table()
         self.assertEqual(self.doc["tiles"], after["tiles"])
         self.assertIn("chunk_table",
                       " ".join(roundtrip.differences(self.doc, after, self.rom, dev_build())))
@@ -166,24 +193,22 @@ class ChunkTableTests(unittest.TestCase):
 
     def test_the_dev_build_really_gave_map_14_4_a_private_chunk_table(self):
         """The precondition. Without it the test below would pass for the wrong reason."""
-        rom = dev_build()
-        word = scene_probe.u32(rom, layout_of(rom, *PRIVATE_MAP) + 0x4C)
-        self.assertEqual(PRIVATE_TABLE, word)
-        self.assertNotEqual(tile_stream.CHUNK_TABLE, word)
+        self.assertEqual([], table_problems(dev_build(), private_table()))
 
     def test_map_14_4_loads_a_chunk_that_its_private_table_alone_holds(self):
         """What the private table IS, measured rather than assumed. It copies the shared pool's 168
-        entries and adds a 169th at 0x0890ACF4. Map 14,4 loads from that one, and the pool's word
-        at the same index is 0x00000001, the next structure. So the shared pool cannot draw this
-        map: it raises. A table that REPLACED an entry would draw the wrong art in silence, and no
-        build list has one today."""
+        entries and adds a 169th of its own. Map 14,4 loads from that one, and the pool's word at
+        the same index is 0x00000001, the next structure. So the shared pool cannot draw this map:
+        it raises. A table that REPLACED an entry would draw the wrong art in silence, and no build
+        list has one today."""
         rom = dev_build()
-        pool, private = tile_stream.CHUNK_TABLE - ROM_BASE, PRIVATE_TABLE - ROM_BASE
-        self.assertEqual(168, sum(scene_probe.u32(rom, private + 4 * c)
-                                  == scene_probe.u32(rom, pool + 4 * c) for c in range(168)))
-        self.assertEqual(1, scene_probe.u32(rom, pool + 4 * 168))
+        pool, private = tile_stream.CHUNK_TABLE - ROM_BASE, private_table() - ROM_BASE
+        self.assertEqual(POOL_CHUNKS, sum(scene_probe.u32(rom, private + 4 * c)
+                                          == scene_probe.u32(rom, pool + 4 * c)
+                                          for c in range(POOL_CHUNKS)))
+        self.assertEqual(1, scene_probe.u32(rom, pool + 4 * POOL_CHUNKS))
         doc = map_file.read_map(rom, *PRIVATE_MAP)
-        self.assertIn(168, {chunk for chunk, _tile in doc["tiles"]})
+        self.assertIn(POOL_CHUNKS, {chunk for chunk, _tile in doc["tiles"]})
         self.assertEqual(605, len(roundtrip.pixels(rom, doc)))
         doc["chunk_table"] = tile_stream.CHUNK_TABLE
         with self.assertRaises((ValueError, struct.error)):
@@ -191,7 +216,7 @@ class ChunkTableTests(unittest.TestCase):
 
     def test_a_document_carries_the_chunk_table_it_was_read_from(self):
         rom = dev_build()
-        self.assertEqual(PRIVATE_TABLE, map_file.read_map(rom, *PRIVATE_MAP)["chunk_table"])
+        self.assertEqual(private_table(), map_file.read_map(rom, *PRIVATE_MAP)["chunk_table"])
         self.assertEqual(tile_stream.CHUNK_TABLE, map_file.read_map(rom, 7, 15)["chunk_table"])
 
     def test_a_new_map_names_the_shared_pool(self):
@@ -206,9 +231,9 @@ class ChunkTableTests(unittest.TestCase):
         self.assertEqual([], result["problems"])
 
     def test_apply_refuses_a_document_whose_chunk_table_this_rom_has_not_got(self):
-        """The base ROM has no table at 0x0890A92C: that address is 0xFF fill there."""
+        """The base ROM has no table where beam_struggle built one: that address is 0xFF fill there."""
         doc = map_file.read_map(dev_build(), *PRIVATE_MAP)
-        with self.assertRaisesRegex(ValueError, "890A92C"):
+        with self.assertRaisesRegex(ValueError, f"{private_table():08X}"):
             import_map.apply(padded_base(), doc, 7, 101)
 
     def test_validate_reports_a_document_with_no_chunk_table(self):
@@ -223,6 +248,36 @@ class ChunkTableTests(unittest.TestCase):
             path.write_text('{"schema": 1, "blocks": [1, 1]}', encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "1"):
                 map_file.load(path)
+
+
+class ControlTests(unittest.TestCase):
+    """`table_problems` reads the table address from beam_struggle's notes, so it must be shown to
+    go red. A check that reads its expectation from the build it tests can decay into "the build
+    agrees with itself". Every case here works on a copy in memory: no ROM file is written."""
+
+    def moved(self, word: int) -> bytes:
+        """The dev build with map 14,4's layout word changed to `word`."""
+        rom = bytearray(dev_build())
+        struct.pack_into("<I", rom, layout_of(dev_build(), *PRIVATE_MAP) + 0x4C, word)
+        return bytes(rom)
+
+    def test_the_dev_build_itself_reports_nothing(self):
+        self.assertEqual([], table_problems(dev_build(), private_table()))
+
+    def test_a_table_word_four_bytes_out_is_reported(self):
+        self.assertTrue(table_problems(self.moved(private_table() + 4), private_table()))
+
+    def test_a_map_sent_back_to_the_shared_pool_is_reported(self):
+        problems = table_problems(self.moved(tile_stream.CHUNK_TABLE), private_table())
+        self.assertTrue(any("shared pool" in p for p in problems), problems)
+
+    def test_a_table_that_is_only_a_copy_of_the_pool_is_reported(self):
+        """The address can be right while the table holds nothing extra. Then map 14,4 draws from
+        the pool, and the private table proves nothing."""
+        rom = bytearray(dev_build())
+        struct.pack_into("<I", rom, private_table() - ROM_BASE + 4 * POOL_CHUNKS, 1)
+        problems = table_problems(bytes(rom), private_table())
+        self.assertTrue(any("chunk of its own" in p for p in problems), problems)
 
 
 if __name__ == "__main__":
