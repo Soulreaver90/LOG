@@ -56,7 +56,9 @@ GOKU_TRANSFORM = "0037022e1d0200120239000a022a0037022f0004003d0249000a022b"    #
 # name: (record or the notes key, length or None for the notes size, table word, SHA-1, offset, old, new)
 RECORDS = {
     "door_seq33": (0x3DE620, 0xB2, 0x3DE774, "e894d9b3cca20bc754af321858f5c2c4cdb20d07",
-                   0x7C, "0095021b", "0095021b" "0004003d0249"),          # SET 149, then ext 73 (4, 61)
+                   0x90, "00020246", "00020246" "0004003d0249"),   # leader(2), THEN ext 73 (4, 61):
+    # appearance_revert runs inside ext 70 and skips only the NEW leader, so a form set before the
+    # leader change is undone at once (bible B0554). Vanilla's own two ext 73 calls sit after it.
     "entry_seq1": ("cellgames_ssj", None, 0x3E8D98, "3d7448a18e0238bdda65300baeddaa0c90e6a018",
                    0xCF, GOKU_TRANSFORM + "0032", "0032"),                  # r27 power-up out
     "post_cell_seq20": ("npc_gi", 0x261, 0x3EC7A4, "e3aedfa6c75e17a72995a79bbdbd228235409421",

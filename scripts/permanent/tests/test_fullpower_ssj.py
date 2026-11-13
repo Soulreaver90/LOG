@@ -165,9 +165,11 @@ class StretchFlagTests(unittest.TestCase):
 
     def test_start_flag_set_with_gokus_record_at_the_door(self):
         seq = ext_sequence(self.rom, record_of(self.rom, 0x3DE774))
-        i = seq.index((27, (START_FLAG,)))
-        self.assertEqual(seq[i + 1], (73, (4, 61)))
-        self.assertLess(i, seq.index((70, (2,))))                       # before the leader goes to Vegeta
+        leader = seq.index((70, (2,)))
+        # AFTER the leader change. appearance_revert runs inside ext 70 and spares only the NEW
+        # leader, so Goku set before it is reverted to entry 19 at once (bible B0554).
+        self.assertEqual(seq[leader + 1], (73, (4, 61)))
+        self.assertLess(seq.index((27, (START_FLAG,))), leader)         # the flag still precedes it
 
     def test_end_flag_site_unchanged_and_goku_base_when_cell_is_beaten(self):
         self.assertEqual(self.rom[SET_195:SET_195 + 4], bytes([0, END_FLAG, 2, 27]))
@@ -346,7 +348,7 @@ class ScriptTests(unittest.TestCase):
     def test_door_record_is_old_plus_gokus_record(self):
         a = ext_sequence(self.before, record_of(self.before, 0x3DE774))
         b = ext_sequence(self.rom, record_of(self.rom, 0x3DE774))
-        i = a.index((27, (START_FLAG,)))
+        i = a.index((70, (2,)))                                        # insert after the leader change
         self.assertEqual(b, a[:i + 1] + [(73, (4, 61))] + a[i + 1:])
 
     def test_arena_entry_without_gokus_power_up(self):
