@@ -437,6 +437,19 @@ Source: on 2026-11-01 the owner said he had "randomly splashed skin colors". The
 x10, x9, x9 on five consecutive rows. Not one pixel was the wrong colour. The offset wandered, and a
 wandering highlight is what reads as splashed.
 
+### No record may sit under 2 per cent bright pixels, in ANY direction
+
+Vanilla Gohan never lets a frame go dark: 0 of its 162 records fall under 2 per cent bright pixels, in
+any direction. Our gi does it 33 times, and 29 of those are direction 1, the back.
+
+The cause is an outfit swap removing the light. Vanilla armour puts white at the gloves and the boots,
+which stay lit from every angle. The gi replaced them with bare hands and dark boots, so the back view
+lost every bright pixel it had.
+
+It went unseen because every review sheet leads with direction 0. **Render direction 1 before you call a
+set finished.** The same blind spot is why 7 kamehameha records were never drawn at all: they are the
+back view. Full working in `docs\tasks\2026-10-31-sprite-diagnosis\`.
+
 ### A dark edge is an outline, but so is everything else dark
 
 Before you darken a skin pixel at the edge of a limb, read the REAL index of its neighbour. Black tank `01`,

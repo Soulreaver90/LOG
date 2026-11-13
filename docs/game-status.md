@@ -114,16 +114,54 @@ This is the biggest single line of work and it is close to done.
 
 ## 8. Art
 
-Record-by-record detail, including which frames are reviewed and which are still the old sprite, is in
-[art-status.md](art-status.md).
-
 | Code | | What happens |
 |---|---|---|
-| ART-1 | **IN** | Gohan's gi across all four sets, including the aura shapes cycling on the idle. |
-| ART-2 | **PLAY** | **Trunks wears the tank top** instead of the jacket, in both forms, with no scabbard and no strap. |
+| ART-1 | **IN** | Gohan's gi across all four sets, including the aura shapes cycling on the idle. Part drawn: see the coverage below. |
+| ART-2 | **PLAY** | **Trunks wears the tank top** instead of the jacket, in both forms, with no scabbard and no strap. Part drawn: see below. |
 | ART-3 | **IN** | Your drawn power-up frames are in the ROM for both Vegeta and Piccolo. |
 | ART-4 | **IN** | All 89 vanilla portraits exported, and the portrait kit rebuilt on the right background model. |
 | ART-5 | **OPEN** | The dust colour Buu's Fury uses at the end of a transformation, grey or tan. Not settled. |
+
+> [!IMPORTANT]
+> A drawing is only **in the game** once it has been read back out of a built ROM. A file sitting in an
+> art folder is not in the game. On 2026-10-31 that difference hid twelve days of finished drawings.
+
+### ART-1, the gi: how much is actually drawn
+
+Set 157 is base Gohan, 158 Super Saiyan, 159 Super Saiyan 2, 160 Rage. Where only part of a cycle is
+reviewed, play mixes new and old frames. That is the art, not a build fault.
+
+| Piece | State |
+|---|---|
+| Reviewed frames, set 157 | 150 of 288 records |
+| Of those, signed off by you | 102 |
+| Never drawn | the whole back view of the kamehameha, 7 records |
+| Sets 158 and 159 | derived from the base body plus the form's head, not hand drawn |
+| In the golden master | nothing: golden uses vanilla pixels |
+
+Complete cycles: animations 3, 9, 11, 14, 17 and 20. Part done: 5 (11 of 12), 1 (12 of 16), 12 (12 of 16),
+the kamehameha (21 of 28), 13 (7 of 16) and 0 (3 of 8). The kamehameha, 1 and 13 were never signed off.
+
+**The back view is the weak spot.** Vanilla Gohan never lets a frame go dark: 0 of its 162 records fall
+under 2 per cent bright pixels. Our gi does it 33 times, and 29 are the back. Every review sheet leads
+with the front, which is why it went unseen, and why the 7 undrawn frames are also the back. The rule
+that came out of it now lives in [sprite-guide.md](sprite-guide.md).
+
+### ART-2, the Trunks tank: how much is actually drawn
+
+Set 128 is base Trunks, 134 Super Saiyan. Set 128 holds 288 records and each is drawn by hand.
+
+| Piece | State |
+|---|---|
+| Read back out of a built ROM | 20 of 288 records |
+| Covered by art and the manifest | 24 of 288 |
+| The down walk, 4 frames | approved by eye 2026-11-02, wired, **never built** |
+| Everything else | still the jacket: the side stand, and every combat, fly, crouch and special row |
+
+The sword draw idle plays during a long stand and is still the jacket.
+
+**To check any art claim here yourself:** `scripts\one-time\2026-10-31-gi-v2\sweep_art_against_build.py`
+compares every frame PNG under `art\` against the art the build actually reads, and prints what is not in.
 
 ---
 

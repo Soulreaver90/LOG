@@ -555,3 +555,14 @@ entry's done and active scripts.
 | 4 | **`fullpower_ssj` drops Goku out of Super Saiyan at the Vegeta chamber exit.** Record `rom:0x89A9C0`, table `rom:0x3DE6F4` word 32: `appearance(4, 61)` runs BEFORE `leader(2)`, so `appearance_revert` undoes it. Fix is a reorder. | his rebuild timing | `fullpower_ssj` is in `build_list_core.txt`, so it moves both master SHA-1s |
 | 5 | **Piccolo Z+ stats.** He asked it himself and never answered: "+10 with the healing back", "+10 with no healing", or "healing as a separate ability". | his answer | it decides the form object and whether `pool_ref` has to move |
 | 6 | **Piccolo Z+ (phase 2) is not built.** Phase 1 only. The unlock already exists: the Kami fusion's `ext 82 (1)` at `rom:0x3E0D75` is spare now that Z starts open. Needs the anim 9 borrow for `set:104`, portrait id 123 with a `MAX_ID` bump, a placeholder sprite, and item 5 answered. | item 5 | blocked on the stats decision |
+
+## 2026-11-13, carried technical debt (from the old STATUS.md, folded in when the trackers merged)
+
+| # | item | why it is parked |
+|---|---|---|
+| 7 | **Stale docstrings in five modules**, naming tools or routes that no longer exist. | cosmetic, and the folder registry pass touched most of them |
+| 8 | **The build script writes a ROM without an exclusive create**, so a build can overwrite a ROM in place. The project rule is check absence, then create. | no incident yet, but it is the rule this breaks |
+| 9 | **Dead path references inside dated task reports.** | history, not live code |
+| 10 | **Reviewed art has no single route into a build.** It is done by hand each time, and no test fails when signed-off art is missing from the build art. | it needs a design, not a patch |
+| 11 | **The derived Super Saiyan body needs a play test**: sets 158 and 159 come from the base body plus the form head, never hand drawn. | waiting on a play |
+| 12 | **One colour, (248,200,192), is not in the game palette.** 16 pixels across 4 power-up frames, mapped to the top of the skin ramp those frames already use. The nearest palette entry by distance is a pink, not a skin tone. | a judgement call, and the mapping looks right |
