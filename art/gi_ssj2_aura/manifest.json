@@ -1,0 +1,6690 @@
+[
+ {
+  "header": 2758108,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d0.png",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 21 px",
+   "rule golden torso (shift 0,0): 18 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d0_s0_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d0.png",
+   "pattern": "idle_d0_s0"
+  }
+ },
+ {
+  "header": 2758108,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d0.png",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 21 px",
+   "rule golden torso (shift 0,0): 18 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d0_s1_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 0,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d0.png",
+   "pattern": "idle_d0_s1"
+  }
+ },
+ {
+  "header": 2758108,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d0.png",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 21 px",
+   "rule golden torso (shift 0,0): 18 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d0_s2_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 0,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d0.png",
+   "pattern": "idle_d0_s2"
+  }
+ },
+ {
+  "header": 2758776,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d1.png",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 24 px",
+   "rule golden torso (shift 0,0): 20 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d1_s0_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d1.png",
+   "pattern": "idle_d1_s0"
+  }
+ },
+ {
+  "header": 2758776,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d1.png",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 24 px",
+   "rule golden torso (shift 0,0): 20 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d1_s1_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 1,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d1.png",
+   "pattern": "idle_d1_s1"
+  }
+ },
+ {
+  "header": 2758776,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d1.png",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 24 px",
+   "rule golden torso (shift 0,0): 20 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d1_s2_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 1,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d1.png",
+   "pattern": "idle_d1_s2"
+  }
+ },
+ {
+  "header": 2759084,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d2.png",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 8 px",
+   "rule shading: 15 px",
+   "rule golden torso (shift 0,0): 3 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d2_s0_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 0,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d2.png",
+   "pattern": "idle_d2_s0"
+  }
+ },
+ {
+  "header": 2759084,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d2.png",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 8 px",
+   "rule shading: 15 px",
+   "rule golden torso (shift 0,0): 3 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d2_s1_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 2,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 0,
+    "dir": 3,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d2.png",
+   "pattern": "idle_d2_s1"
+  }
+ },
+ {
+  "header": 2759084,
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "golden golden_gi_ssj2std_d2.png",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 8 px",
+   "rule shading: 15 px",
+   "rule golden torso (shift 0,0): 3 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "png": "aura_idle_d2_s2_b0.png",
+  "keys": [
+   {
+    "anim": 0,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 2,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 0,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 0,
+    "dir": 3,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "golden_gi_ssj2std_d2.png",
+   "pattern": "idle_d2_s2"
+  }
+ },
+ {
+  "header": 2759816,
+  "png": "aura_a01_d0_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "2 armor white pixels repainted",
+   "rule shading: 5 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a1_d0_i0_r17.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A1C88.png",
+   "pattern": "a01_d0_i0"
+  }
+ },
+ {
+  "header": 2760104,
+  "png": "aura_a01_d0_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 11 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A1DA8.png",
+   "pattern": "a01_d0_i1"
+  }
+ },
+ {
+  "header": 2760408,
+  "png": "aura_a01_d0_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "1 armor white pixels repainted",
+   "rule shading: 6 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a1_d0_i2_r17.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A1ED8.png",
+   "pattern": "a01_d0_i2"
+  }
+ },
+ {
+  "header": 2760696,
+  "png": "aura_a01_d0_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 11 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A1FF8.png",
+   "pattern": "a01_d0_i3"
+  }
+ },
+ {
+  "header": 2760988,
+  "png": "aura_a01_d1_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 14 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A211C.png",
+   "pattern": "a01_d1_i0"
+  }
+ },
+ {
+  "header": 2761248,
+  "png": "aura_a01_d1_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 16 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 1,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A2220.png",
+   "pattern": "a01_d1_i1"
+  }
+ },
+ {
+  "header": 2761524,
+  "png": "aura_a01_d1_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 9 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A2334.png",
+   "pattern": "a01_d1_i2"
+  }
+ },
+ {
+  "header": 2761784,
+  "png": "aura_a01_d1_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 16 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 1,
+    "index": 3,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A2438.png",
+   "pattern": "a01_d1_i3"
+  }
+ },
+ {
+  "header": 2762068,
+  "png": "aura_a01_d2_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shoes: 7 px",
+   "rule shading: 13 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a1_d2_i0_r18.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 2,
+    "index": 0,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 1,
+    "dir": 3,
+    "index": 0,
+    "dx": -16,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A2554.png",
+   "pattern": "a01_d2_i0"
+  }
+ },
+ {
+  "header": 2762348,
+  "png": "aura_a01_d2_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.2.1",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 7 px",
+   "rule shading: 7 px",
+   "stray pink: 1 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 2,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 1,
+    "dir": 3,
+    "index": 1,
+    "dx": -16,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A266C.png",
+   "pattern": "a01_d2_i1"
+  }
+ },
+ {
+  "header": 2762620,
+  "png": "aura_a01_d2_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.2.2",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 9 px",
+   "rule shading: 11 px",
+   "hand edit: 11 pixels"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 2,
+    "index": 2,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 1,
+    "dir": 3,
+    "index": 2,
+    "dx": -16,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A277C.png",
+   "pattern": "a01_d2_i2"
+  }
+ },
+ {
+  "header": 2762884,
+  "png": "aura_a01_d2_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 1.2.3",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 4 px",
+   "rule shading: 8 px",
+   "stray pink: 1 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 1,
+    "dir": 2,
+    "index": 3,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 1,
+    "dir": 3,
+    "index": 3,
+    "dx": -16,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A2884.png",
+   "pattern": "a01_d2_i3"
+  }
+ },
+ {
+  "header": 2763344,
+  "png": "frame_2A2A50.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 10 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2763640,
+  "png": "frame_2A2B78.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 18 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 0,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2763916,
+  "png": "frame_2A2C8C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "3 spark pixels blue (Ruling 19)",
+   "rule shading: 11 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "parts: listed for the owner (owner-0948 review sheet)",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2764184,
+  "png": "frame_2A2D98.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 5 px",
+   "rule v lines: 1 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2764460,
+  "png": "frame_2A2EAC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 13 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2764740,
+  "png": "frame_2A2FC4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shading: 14 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2765012,
+  "png": "frame_2A30D4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "3 spark pixels blue (Ruling 19)",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2765276,
+  "png": "frame_2A31DC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2765536,
+  "png": "frame_2A32E0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.2.0",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shoes: 6 px",
+   "rule shading: 11 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 2,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2765812,
+  "png": "frame_2A33F4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.2.1",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "1 spark pixels blue (Ruling 19)",
+   "rule shoes: 9 px",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 2,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 2,
+    "dir": 3,
+    "index": 1,
+    "dx": -16,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2766088,
+  "png": "frame_2A3508.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shoes: 4 px",
+   "rule shading: 16 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 2,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2766336,
+  "png": "frame_2A3600.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 2.2.3",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 5 px",
+   "rule shading: 18 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 2,
+    "dir": 2,
+    "index": 3,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 2,
+    "dir": 3,
+    "index": 3,
+    "dx": -16,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2766784,
+  "png": "frame_2A37C0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 3.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 20 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 3,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2767100,
+  "png": "frame_2A38FC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 3.0.1",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes along the legs: 21 px",
+   "rule shading: 16 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "knocked down: the box under the chin holds the hand on the ground, not the chest (reviewed at 4x)",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 3,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2767348,
+  "png": "frame_2A39F4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 3.0.2",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes along the legs: 23 px",
+   "rule shading: 15 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 3,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2767568,
+  "png": "frame_2A3AD0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 3.0.3",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "2 armor white pixels repainted",
+   "rule shoes along the legs: 18 px",
+   "rule shading: 11 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a3_d0_i3.png, golden_gi_ssj2std_a3_d1_i3.png, golden_gi_ssj2std_a3_d2_i3.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 3,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 3,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2767864,
+  "png": "aura_a04_d0_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "6 spark pixels blue (Ruling 19)",
+   "rule gap folds: 2 px",
+   "rule shading: 21 px",
+   "rule golden torso (shift 0,0): 18 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A3BF8.png",
+   "pattern": "a04_d0_i0"
+  }
+ },
+ {
+  "header": 2768204,
+  "png": "aura_a04_d0_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "12 spark pixels blue (Ruling 19)",
+   "rule shading: 21 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A3D4C.png",
+   "pattern": "a04_d0_i1"
+  }
+ },
+ {
+  "header": 2768548,
+  "png": "aura_a04_d0_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "6 spark pixels blue (Ruling 19)",
+   "rule shading: 18 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A3EA4.png",
+   "pattern": "a04_d0_i2"
+  }
+ },
+ {
+  "header": 2768880,
+  "png": "aura_a04_d0_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 17 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A3FF0.png",
+   "pattern": "a04_d0_i3"
+  }
+ },
+ {
+  "header": 2769196,
+  "png": "aura_a04_d1_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "5 spark pixels blue (Ruling 19)",
+   "rule gap folds: 2 px",
+   "rule shading: 24 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A412C.png",
+   "pattern": "a04_d1_i0"
+  }
+ },
+ {
+  "header": 2769512,
+  "png": "aura_a04_d1_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "12 spark pixels blue (Ruling 19)",
+   "rule gap folds: 2 px",
+   "rule shading: 22 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A4268.png",
+   "pattern": "a04_d1_i1"
+  }
+ },
+ {
+  "header": 2769832,
+  "png": "aura_a04_d1_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "6 spark pixels blue (Ruling 19)",
+   "rule gap folds: 3 px",
+   "rule shading: 16 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A43A8.png",
+   "pattern": "a04_d1_i2"
+  }
+ },
+ {
+  "header": 2770140,
+  "png": "aura_a04_d1_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule gap folds: 2 px",
+   "rule shading: 24 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A44DC.png",
+   "pattern": "a04_d1_i3"
+  }
+ },
+ {
+  "header": 2770448,
+  "png": "aura_a04_d2_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shoes: 8 px",
+   "rule shading: 15 px",
+   "rule golden torso (shift 0,0): 3 px"
+  ],
+  "check_exception": "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 4,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A4610.png",
+   "pattern": "a04_d2_i0"
+  }
+ },
+ {
+  "header": 2770772,
+  "png": "aura_a04_d2_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.2.1",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "6 spark pixels blue (Ruling 19)",
+   "rule shoes: 8 px",
+   "rule shading: 13 px",
+   "stray pink: 1 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 4,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A4754.png",
+   "pattern": "a04_d2_i1"
+  }
+ },
+ {
+  "header": 2771096,
+  "png": "aura_a04_d2_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shoes: 8 px",
+   "rule shading: 9 px",
+   "stray pink: 1 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 4,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A4898.png",
+   "pattern": "a04_d2_i2"
+  }
+ },
+ {
+  "header": 2771416,
+  "png": "aura_a04_d2_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 4.2.3",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shoes: 8 px",
+   "rule shading: 13 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 4,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 4,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A49D8.png",
+   "pattern": "a04_d2_i3"
+  }
+ },
+ {
+  "header": 2771920,
+  "png": "frame_2A4BD0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 8 px",
+   "rule v lines: 2 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2772204,
+  "png": "frame_2A4CEC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 7 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 0,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2772480,
+  "png": "frame_2A4E00.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 14 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a5_d0_i2.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2772748,
+  "png": "frame_2A4F0C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2773020,
+  "png": "frame_2A501C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 1",
+   "rule shading: 13 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 1,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2773292,
+  "png": "frame_2A512C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 1",
+   "rule gap folds: 1 px",
+   "rule shading: 18 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2773568,
+  "png": "frame_2A5240.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 4, wristbands 4",
+   "rule shoes: 7 px",
+   "rule shading: 24 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 5,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2773904,
+  "png": "frame_2A5390.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.2.1",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 6 px",
+   "rule shading: 22 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 5,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2774212,
+  "png": "frame_2A54C4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 5.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shoes: 6 px",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 5,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 5,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2774668,
+  "png": "frame_2A568C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2774956,
+  "png": "frame_2A57AC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 8 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2775272,
+  "png": "frame_2A58E8.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 9 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2775560,
+  "png": "frame_2A5A08.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.0.3",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 11 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2775860,
+  "png": "frame_2A5B34.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shading: 13 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2776164,
+  "png": "frame_2A5C64.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "1 armor white pixels repainted",
+   "rule shading: 18 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2776484,
+  "png": "frame_2A5DA4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 23 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2776800,
+  "png": "frame_2A5EE0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 18 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2777104,
+  "png": "frame_2A6010.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.2.0",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shoes: 7 px",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 6,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2777428,
+  "png": "frame_2A6154.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.2.1",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "1 spark pixels blue (Ruling 19)",
+   "rule shoes: 9 px",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 6,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2777772,
+  "png": "frame_2A62AC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 7 px",
+   "rule shading: 22 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 6,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2778128,
+  "png": "frame_2A6410.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 6.2.3",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 4, wristbands 3",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shoes: 7 px",
+   "rule shading: 22 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 6,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 6,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2778664,
+  "png": "frame_2A6628.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2778952,
+  "png": "frame_2A6748.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 9 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2779268,
+  "png": "frame_2A6884.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 7 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2779564,
+  "png": "frame_2A69AC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 9 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2779872,
+  "png": "frame_2A6AE0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2780164,
+  "png": "frame_2A6C04.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "1 armor white pixels repainted",
+   "rule shading: 26 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2780480,
+  "png": "frame_2A6D40.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 25 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2780788,
+  "png": "frame_2A6E74.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 18 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2781100,
+  "png": "frame_2A6FAC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 4, wristbands 4",
+   "rule shoes: 4 px",
+   "rule shading: 13 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 7,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2781432,
+  "png": "frame_2A70F8.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.2.1",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 6 px",
+   "rule shading: 21 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 7,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2781736,
+  "png": "frame_2A7228.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 7 px",
+   "rule shading: 20 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 7,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2782048,
+  "png": "frame_2A7360.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 7.2.3",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "1 spark pixels blue (Ruling 19)",
+   "rule shoes: 7 px",
+   "rule shading: 28 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand edit: 2 pixels"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 7,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 7,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2782556,
+  "png": "frame_2A755C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shading: 6 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2782848,
+  "png": "frame_2A7680.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 17 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2783172,
+  "png": "frame_2A77C4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 12 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2783492,
+  "png": "frame_2A7904.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 8 px",
+   "rule v lines: 3 px",
+   "hand frame golden_gi_ssj2std_a8_d0_i3.png"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2783808,
+  "png": "frame_2A7A40.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 7 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2784108,
+  "png": "frame_2A7B6C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 5, wristbands 5",
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2784432,
+  "png": "frame_2A7CB0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 4 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2784740,
+  "png": "frame_2A7DE4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 23 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2785048,
+  "png": "frame_2A7F18.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.2.0",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 4, wristbands 4",
+   "rule shoes: 4 px",
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 8,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2785392,
+  "png": "frame_2A8070.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.2.1",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 4, wristbands 4",
+   "1 spark pixels blue (Ruling 19)",
+   "rule shoes: 4 px",
+   "rule shading: 6 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 8,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2785712,
+  "png": "frame_2A81B0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 5, wristbands 3",
+   "rule shoes: 4 px",
+   "rule shading: 7 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a8_d2_i2.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 8,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2786044,
+  "png": "frame_2A82FC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 8.2.3",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 4, wristbands 3",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shoes: 4 px",
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 8,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 8,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2825192,
+  "png": "frame_2B1BE8.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 9.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 9.0.0: set 59 body with the set 58 head of 0.0.0",
+   "rule shading: 14 px",
+   "rule v lines: 3 px",
+   "rule straps: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 9,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2825484,
+  "png": "frame_2B1D0C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 9.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 9.0.1: set 59 body with the set 58 head of 0.0.0, aura ring 120 redrawn, hair trimmed to fit 32x32 (rows 1, columns 0)",
+   "rule shading: 17 px",
+   "rule v lines: 3 px",
+   "rule straps: 8 px",
+   "rule step light: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 9,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2825808,
+  "png": "frame_2B1E50.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 9.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 9.0.2: set 59 body with the set 58 head of 0.0.0, aura ring 46 redrawn, hair trimmed to fit 32x32 (rows 1, columns 0)",
+   "rule shading: 18 px",
+   "rule v lines: 3 px",
+   "rule straps: 8 px",
+   "rule step light: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 9,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2826160,
+  "png": "frame_2B1FB0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 9.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 9.0.3: set 59 body with the set 58 head of 0.0.0, aura ring 37 redrawn, hair trimmed to fit 32x32 (rows 1, columns 0)",
+   "rule shading: 19 px",
+   "rule v lines: 3 px",
+   "rule straps: 8 px",
+   "rule step light: 24 px",
+   "body: own (on the gi_ssj body the head sits higher: a second neck opening)"
+  ],
+  "check_exception": "parts: listed for the owner (owner-0948 review sheet)",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 9,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 9,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2826560,
+  "png": "frame_2B2140.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 11.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 11.0.0: set 59 body with the set 58 head of 0.0.0, hair trimmed to fit 32x32 (rows 1, columns 0)",
+   "rule shading: 17 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 11,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 11,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 11,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 11,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2826836,
+  "png": "frame_2B2254.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 11.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 6, wristbands 6",
+   "set 58 has no 11.0.1: set 59 body with the set 58 head of 0.0.0, hair trimmed to fit 32x32 (rows 1, columns 0)",
+   "rule shading: 28 px",
+   "rule v lines: 3 px",
+   "body: own (on the gi_ssj body the head sits higher: a second neck opening)",
+   "record enlarged to 32x32 (dx -7, dy -24) to hold the head"
+  ],
+  "check_exception": "parts: listed for the owner (owner-0948 review sheet)",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 11,
+    "dir": 0,
+    "index": 1,
+    "dx": -7,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 11,
+    "dir": 1,
+    "index": 1,
+    "dx": -7,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 11,
+    "dir": 2,
+    "index": 1,
+    "dx": -7,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 11,
+    "dir": 3,
+    "index": 1,
+    "dx": -7,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2827116,
+  "png": "frame_2B236C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 2",
+   "set 58 has no 12.0.0: set 59 body with the set 58 head of 1.0.0",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head",
+   "hand frame golden_gi_ssj2std_a12_d0_i0.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2827348,
+  "png": "frame_2B2454.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.0.1",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.0.1: set 59 body with the set 58 head of 1.0.0",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head",
+   "hand frame golden_gi_ssj2std_a12_d0_i1.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2827584,
+  "png": "frame_2B2540.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.0.2",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.0.2: set 59 body with the set 58 head of 1.0.0",
+   "rule shading: 2 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head",
+   "hand frame golden_gi_ssj2std_a12_d0_i2.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2827828,
+  "png": "frame_2B2634.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.0.3",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.0.3: set 59 body with the set 58 head of 1.0.0",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head",
+   "hand frame golden_gi_ssj2std_a12_d0_i3.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2828064,
+  "png": "frame_2B2720.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 0",
+   "set 58 has no 12.1.0: set 59 body with the set 58 head of 1.1.0",
+   "rule shading: 14 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2828292,
+  "png": "frame_2B2804.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 0",
+   "set 58 has no 12.1.1: set 59 body with the set 58 head of 1.1.0",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2828516,
+  "png": "frame_2B28E4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 0",
+   "set 58 has no 12.1.2: set 59 body with the set 58 head of 1.1.0",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2828740,
+  "png": "frame_2B29C4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "enlarged",
+  "source": "set59 12.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 0",
+   "set 58 has no 12.1.3: set 59 body with the set 58 head of 1.1.0",
+   "2 spark pixels blue (Ruling 19)",
+   "rule shading: 17 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "record enlarged to 32x32 (dx -8, dy -24) to hold the head"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2828964,
+  "png": "frame_2B2AA4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 12.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.2.0: set 59 body with the set 58 head of 5.2.1, hair trimmed to fit 32x32 (rows 0, columns 9)",
+   "rule shoes along the legs: 20 px",
+   "rule shading: 20 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 12,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2829232,
+  "png": "frame_2B2BB0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 12.2.1",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.2.1: set 59 body with the set 58 head of 5.2.1, hair trimmed to fit 32x32 (rows 0, columns 9)",
+   "rule shoes along the legs: 20 px",
+   "rule shading: 20 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 12,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2829488,
+  "png": "frame_2B2CB0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 12.2.2",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.2.2: set 59 body with the set 58 head of 5.2.1, hair trimmed to fit 32x32 (rows 0, columns 9)",
+   "rule shoes along the legs: 20 px",
+   "rule shading: 20 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 12,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2829744,
+  "png": "frame_2B2DB0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 12.2.3",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "set 58 has no 12.2.3: set 59 body with the set 58 head of 5.2.1, hair trimmed to fit 32x32 (rows 0, columns 9)",
+   "rule shoes along the legs: 20 px",
+   "rule shading: 20 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 12,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 12,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2786552,
+  "png": "aura_a13_d0_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A84F8.png",
+   "pattern": "a13_d0_i0"
+  }
+ },
+ {
+  "header": 2786828,
+  "png": "aura_a13_d0_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shading: 14 px",
+   "rule v lines: 3 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 0,
+    "index": 1,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A860C.png",
+   "pattern": "a13_d0_i1"
+  }
+ },
+ {
+  "header": 2787124,
+  "png": "aura_a13_d0_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.0.2",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8734.png",
+   "pattern": "a13_d0_i2"
+  }
+ },
+ {
+  "header": 2787388,
+  "png": "aura_a13_d0_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 22 px",
+   "rule v lines: 3 px",
+   "hand frame golden_gi_ssj2std_a13_d0_i3_r17.png"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 0,
+    "index": 3,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A883C.png",
+   "pattern": "a13_d0_i3"
+  }
+ },
+ {
+  "header": 2787684,
+  "png": "aura_a13_d1_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8964.png",
+   "pattern": "a13_d1_i0"
+  }
+ },
+ {
+  "header": 2787936,
+  "png": "aura_a13_d1_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8A60.png",
+   "pattern": "a13_d1_i1"
+  }
+ },
+ {
+  "header": 2788208,
+  "png": "aura_a13_d1_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 1,
+    "index": 2,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8B70.png",
+   "pattern": "a13_d1_i2"
+  }
+ },
+ {
+  "header": 2788456,
+  "png": "aura_a13_d1_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 14 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8C68.png",
+   "pattern": "a13_d1_i3"
+  }
+ },
+ {
+  "header": 2788740,
+  "png": "aura_a13_d2_i0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 9 px",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 13,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8D84.png",
+   "pattern": "a13_d2_i0"
+  }
+ },
+ {
+  "header": 2789060,
+  "png": "aura_a13_d2_i1.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.2.1",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule shoes: 7 px",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 13,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8EC4.png",
+   "pattern": "a13_d2_i1"
+  }
+ },
+ {
+  "header": 2789356,
+  "png": "aura_a13_d2_i2.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.2.2",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 9 px",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 13,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A8FEC.png",
+   "pattern": "a13_d2_i2"
+  }
+ },
+ {
+  "header": 2789672,
+  "png": "aura_a13_d2_i3.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 13.2.3",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 6 px",
+   "rule shading: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 13,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 13,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ],
+  "aura": {
+   "body": "frame_2A9128.png",
+   "pattern": "a13_d2_i3"
+  }
+ },
+ {
+  "header": 2790152,
+  "png": "frame_2A9308.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 14 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2790448,
+  "png": "frame_2A9430.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 4, wristbands 4",
+   "rule shading: 21 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2790764,
+  "png": "frame_2A956C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 19 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2791060,
+  "png": "frame_2A9694.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 16 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2791356,
+  "png": "frame_2A97BC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.0.4",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 10 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2791656,
+  "png": "frame_2A98E8.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.0.5",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 12 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 0,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2791964,
+  "png": "frame_2A9A1C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 5, wristbands 5",
+   "rule shading: 6 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2792264,
+  "png": "frame_2A9B48.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 4, wristbands 4",
+   "1 armor white pixels repainted",
+   "rule shading: 7 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2792508,
+  "png": "frame_2A9C3C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "rule shading: 5 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2792764,
+  "png": "frame_2A9D3C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "1 spark pixels blue (Ruling 19)",
+   "rule shading: 8 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2793028,
+  "png": "frame_2A9E44.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.1.4",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 1",
+   "rule shading: 7 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2793300,
+  "png": "frame_2A9F54.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.1.5",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "3 spark pixels blue (Ruling 19)",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 1,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2793604,
+  "png": "frame_2AA084.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 8 px",
+   "rule shading: 10 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2793924,
+  "png": "frame_2AA1C4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.2.1",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shoes: 7 px",
+   "rule shading: 14 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a16_d2_i1.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2794220,
+  "png": "frame_2AA2EC.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.2.2",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shoes: 6 px",
+   "rule shading: 12 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2794512,
+  "png": "frame_2AA410.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.2.3",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 3 px",
+   "rule shading: 22 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2794812,
+  "png": "frame_2AA53C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.2.4",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 2",
+   "rule shoes: 6 px",
+   "rule shading: 20 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top",
+   "hand frame golden_gi_ssj2std_a16_d2_i4.png"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2795100,
+  "png": "frame_2AA65C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 16.2.5",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 2",
+   "rule shoes: 8 px",
+   "rule shading: 11 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 2,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 16,
+    "dir": 3,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2795748,
+  "png": "frame_2AA8E4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 3, wristbands 3",
+   "rule shading: 7 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2796020,
+  "png": "frame_2AA9F4.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "rule gap folds: 1 px",
+   "rule shading: 9 px",
+   "rule v lines: 2 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2796312,
+  "png": "frame_2AAB18.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 1, wristbands 1",
+   "lit frame: parts read from 18.0.1, lit head kept",
+   "rule gap folds: 1 px",
+   "rule shading: 9 px",
+   "rule v lines: 2 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 0,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2796620,
+  "png": "frame_2AAC4C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shading: 16 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 0,
+    "dx": 0,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2796864,
+  "png": "frame_2AAD40.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "rule shading: 15 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2797140,
+  "png": "frame_2AAE54.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "lit frame: parts read from 18.1.1, lit head kept",
+   "rule shading: 15 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 1,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2797452,
+  "png": "frame_2AAF8C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.2.0",
+  "view": "side",
+  "v_neck": "yes",
+  "notes": [
+   "hands 3, wristbands 3",
+   "2 chest skin pixels covered with gi",
+   "rule shoes: 8 px",
+   "rule shading: 17 px"
+  ],
+  "check_exception": "",
+  "body": "own",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2797784,
+  "png": "frame_2AB0D8.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.2.1",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "rule shoes: 8 px",
+   "rule shading: 23 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2798132,
+  "png": "frame_2AB234.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set58",
+  "source": "set58 18.2.2",
+  "view": "side",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 2, wristbands 2",
+   "lit frame: parts read from 18.2.1, lit head kept",
+   "rule shoes: 8 px",
+   "rule shading: 23 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 2,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 4,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 5,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   },
+   {
+    "anim": 18,
+    "dir": 3,
+    "index": 6,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2841644,
+  "png": "frame_2B5C2C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.0.0",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 6, wristbands 6",
+   "set 58 has no 20.0.0: set 59 body with the set 58 head of 16.0.0, hair trimmed to fit 32x32 (rows 3, columns 0)",
+   "2 chest skin pixels covered with gi",
+   "rule shoes along the legs: 7 px",
+   "rule shading: 16 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2841924,
+  "png": "frame_2B5D44.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.0.1",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 6, wristbands 6",
+   "set 58 has no 20.0.1: set 59 body with the set 58 head of 16.0.0, hair trimmed to fit 32x32 (rows 3, columns 0)",
+   "2 chest skin pixels covered with gi",
+   "rule shoes along the legs: 7 px",
+   "rule shading: 16 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2842212,
+  "png": "frame_2B5E64.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.0.2",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 6, wristbands 6",
+   "set 58 has no 20.0.2: set 59 body with the set 58 head of 16.0.0, hair trimmed to fit 32x32 (rows 3, columns 0)",
+   "2 chest skin pixels covered with gi",
+   "rule shoes along the legs: 7 px",
+   "rule shading: 16 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2842500,
+  "png": "frame_2B5F84.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.0.3",
+  "view": "front",
+  "v_neck": "no: no gi under the chin (arm, pose or effect in the way)",
+  "notes": [
+   "hands 6, wristbands 6",
+   "set 58 has no 20.0.3: set 59 body with the set 58 head of 16.0.0, hair trimmed to fit 32x32 (rows 3, columns 0)",
+   "2 chest skin pixels covered with gi",
+   "rule shoes along the legs: 7 px",
+   "rule shading: 16 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2842792,
+  "png": "frame_2B60A8.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.1.0",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "set 58 has no 20.1.0: set 59 body with the set 58 head of 13.1.2, hair trimmed to fit 32x32 (rows 2, columns 0)",
+   "rule shoes along the legs: 30 px",
+   "rule shading: 25 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2843040,
+  "png": "frame_2B61A0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.1.1",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "set 58 has no 20.1.1: set 59 body with the set 58 head of 13.1.2, hair trimmed to fit 32x32 (rows 2, columns 0)",
+   "rule shoes along the legs: 30 px",
+   "rule shading: 25 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2843296,
+  "png": "frame_2B62A0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.1.2",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "set 58 has no 20.1.2: set 59 body with the set 58 head of 13.1.2, hair trimmed to fit 32x32 (rows 2, columns 0)",
+   "rule shoes along the legs: 30 px",
+   "rule shading: 25 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2843544,
+  "png": "frame_2B6398.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 20.1.3",
+  "view": "back",
+  "v_neck": "n.a. (back)",
+  "notes": [
+   "hands 1, wristbands 1",
+   "set 58 has no 20.1.3: set 59 body with the set 58 head of 13.1.2, hair trimmed to fit 32x32 (rows 2, columns 0)",
+   "rule shoes along the legs: 30 px",
+   "rule shading: 25 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 20,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 20,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 36864
+   }
+  ]
+ },
+ {
+  "header": 2843992,
+  "png": "frame_2B6558.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 21.0.0",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 21.0.0: set 59 body with the set 58 head of 2.0.0, hair trimmed to fit 32x32 (rows 1, columns 0)",
+   "rule shading: 19 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 21,
+    "dir": 0,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 1,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 2,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 3,
+    "index": 0,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2844284,
+  "png": "frame_2B667C.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 21.0.1",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 21.0.1: set 59 body with the set 58 head of 2.0.0, hair dimmed like set 59 21.x.1",
+   "rule shading: 19 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 21,
+    "dir": 0,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 1,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 2,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 3,
+    "index": 1,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2844564,
+  "png": "frame_2B6794.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 21.0.2",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 21.0.2: base head kept (the revert ends in base form)",
+   "rule shading: 18 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 21,
+    "dir": 0,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 1,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 2,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 3,
+    "index": 2,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ },
+ {
+  "header": 2844832,
+  "png": "frame_2B68A0.png",
+  "w": 32,
+  "h": 32,
+  "geometry": "set59",
+  "source": "set59 21.0.3",
+  "view": "front",
+  "v_neck": "yes",
+  "notes": [
+   "hands 2, wristbands 2",
+   "set 58 has no 21.0.3: base head kept (the revert ends in base form)",
+   "rule shading: 15 px",
+   "rule v lines: 3 px",
+   "body: gi_ssj (armor 58 = 59 under the chin), own head and sparks on top"
+  ],
+  "check_exception": "",
+  "body": "gi_ssj",
+  "keys": [
+   {
+    "anim": 21,
+    "dir": 0,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 1,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 2,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   },
+   {
+    "anim": 21,
+    "dir": 3,
+    "index": 3,
+    "dx": -8,
+    "dy": -24,
+    "w": 32,
+    "h": 32,
+    "attr0": 8192,
+    "attr1": 32768
+   }
+  ]
+ }
+]

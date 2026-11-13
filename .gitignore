@@ -86,9 +86,56 @@ art/base-audit/*
 art/cell_aura/*
 !art/cell_aura/scale_15/
 
-# The four gi art folders left on 2026-10-31, when the golden master stopped needing them.
-# Golden builds from vanilla pixels (gohan_gi_vanilla). The gi art is dev-only and stays on disk.
-# A clone can build the golden master. It cannot build dev, which is the point.
+# --- the dev master gi art (owner, 2026-11-13: "All final approved art") ---
+# This REVERSES the 2026-10-31 decision to keep dev unbuildable from a clone. gohan_gi reads these four
+# folders by name, so without them a clone builds the golden master and nothing else. 627 files, 6 MB.
+!art/gi_base/
+!art/gi_ssj_v2/
+!art/gi_ssj2_aura/
+!art/gi_rage_aura/
+
+# --- his own finished drawings ---
+# These are the files that cannot be redrawn from anything in this repository. They go up first.
+!art/portraits/
+!art/hand-fixes/
+!art/palettes/
+!art/base-audit/approved/
+
+# --- our own effect art, kept apart from vanilla (owner, 2026-11-13) ---
+# The white and gold aura and the dust, exported from Buu's Fury and recoloured here. powerup_fx reads them.
+!art/transformations/
+
+# --- build inputs of the committed trial modules ---
+# A clone that cannot open these cannot rebuild the Vegeta and Piccolo Z+ ROMs.
+!art/plateau/
+!art/trunks_tank/
+!art/portraits_review.png
+!art/hud_zplus_usable.bin
+!art/hud_zplus_dim.bin
+
+# --- the eight power-up frames he drew, and nothing else from the kits ---
+# A kit folder is 1,150 files of working rounds. Only these eight are read, and only these are his.
+!art/kits/
+art/kits/*
+!art/kits/2026-11-12-vegeta-powerup/
+art/kits/2026-11-12-vegeta-powerup/*
+!art/kits/2026-11-12-vegeta-powerup/Frame_1.png
+!art/kits/2026-11-12-vegeta-powerup/Frame_2.png
+!art/kits/2026-11-12-vegeta-powerup/his-edit/
+art/kits/2026-11-12-vegeta-powerup/his-edit/*
+!art/kits/2026-11-12-vegeta-powerup/his-edit/v2/
+art/kits/2026-11-12-vegeta-powerup/his-edit/v2/*
+!art/kits/2026-11-12-vegeta-powerup/his-edit/v2/build-ready/
+!art/kits/2026-11-12-piccolo-powerup/
+art/kits/2026-11-12-piccolo-powerup/*
+!art/kits/2026-11-12-piccolo-powerup/P_Frame1.png
+!art/kits/2026-11-12-piccolo-powerup/P_Frame2.png
+!art/kits/2026-11-12-piccolo-powerup/P_Frame3.png
+!art/kits/2026-11-12-piccolo-powerup/P_Frame4.png
+
+# --- the owner build folder stays out ---
+# art\Owner Build - Trunks Tank\ is his live working folder. Nothing here reads it,
+# writes to it or deletes from it, and tracking it would mean reading it. He decides whether it goes up.
 
 # ===== local working files, not part of the hack =====
 # CLAUDE.md drives the local tooling. It is not something a modder cloning this needs, and the repository
