@@ -566,3 +566,21 @@ entry's done and active scripts.
 | 10 | **Reviewed art has no single route into a build.** It is done by hand each time, and no test fails when signed-off art is missing from the build art. | it needs a design, not a patch |
 | 11 | **The derived Super Saiyan body needs a play test**: sets 158 and 159 come from the base body plus the form head, never hand drawn. | waiting on a play |
 | 12 | **One colour, (248,200,192), is not in the game palette.** 16 pixels across 4 power-up frames, mapped to the top of the skin ramp those frames already use. The nearest palette entry by distance is a pink, not a skin tone. | a judgement call, and the mapping looks right |
+
+## 2026-11-13, from the verified structure review (`docs\reviews\2026-11-13-structure.md`)
+
+Every row below was checked against the real files, not relayed from the reviewer.
+
+| # | item | why it is parked |
+|---|---|---|
+| 13 | **`docs\tool-index.md` is stale.** Line 209 still lists `art\golden\work`, retired by the art move. `test_make_tool_index.py` checks `build()` in memory and never reads the file, so the suite cannot see it. Fix: one test that the file matches a fresh generation. | same class as the status page; regenerate first, then add the test |
+| 14 | **Nothing in the suite runs `make_status.py`.** A forgotten regeneration leaves the health section reporting last run's `none`. | needs a temp-copy test so it does not fight the real file |
+| 15 | **A missing FILE still reads as a pass.** `test_log_paths_exist.py` closed the folder hole. Eight test files still skip when a historical ROM, save or state is absent, and `unittest` exit 0 includes skips. Fix: fail, not skip, for anything the suite treats as required; keep skip only for a tool that may be absent on a machine. | it needs the required/optional split decided per file |
+| 16 | **`build_file()` does not search `builds\mockups\`**, so `test_scene_probe.py`'s arena class guards its own path outside the helper that fixed every other skip. | one-line widening, but it changes what `build_file` means |
+| 17 | **`.gitignore` un-ignores art build inputs one folder at a time.** A new build-input folder under `gohan\` would be missing from a clone with nothing noticing, because the files are present here. Fix: a test that every art constant a patch reads is not ignored. | needs `git check-ignore` in a test |
+| 18 | **The art split is half done.** `art\effects\_buus-fury-reference\` is reference art inside the approved-art folder; auras live in three places; portraits in three. `art\README.md` still describes the pre-move tree and its "Not moved yet" table lists destinations equal to its sources. `art\tables\README.md` still says `art\portrait-sources\remaster\...`. | a second art move, after the test work settles |
+| 19 | **`art\palettes\` has no registry constant**, so the folder-literal guard cannot see it. | one constant, plus a check that nothing else is in the same state |
+| 20 | **Guard blind spots are now written down** (non-`.py` files, a folder the registry does not name, a full path to `open`/`glob`, names built by concatenation, case differences, docstrings). The guard's own docstring claims it skips the constant parts of an f-string; the walker does not. | the docstring is wrong today and should be corrected even if the guard is not widened |
+| 21 | **The status health check cannot see three kinds of drift**: item MARKS are never read, a code may name the WRONG module and pass if the file exists, and a Reference row with a third column or backticks vanishes from the regex silently. | fix the regex to fail loudly on a near-miss row first |
+| 22 | **Eight modules read as untested** because the Test column looks for `test_<module>.py` and they are tested under another name (`gohan_gi` in `test_gi.py`, `ssj2_form` in `test_ssj2.py`, and six more). | a one-line declaration in each test file beats guessing from the filename |
+| 23 | **Move B is cancelled, pending the owner.** Merging `docs\tasks\` with `scripts\one-time\` would put tracked and ignored content in one tree. Replacement: keep the boundary and add a test that the folder names pair up. | the owner asked for the merge; he has not seen the reason to cancel it |
