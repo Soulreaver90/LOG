@@ -334,5 +334,49 @@ class HudTests(unittest.TestCase):
                              (co.load(RAM + 0xC, 1), co.load(HUD + 0x15, 1)), kw)
 
 
+class ChargeMeterTests(unittest.TestCase):
+    """The Z charge meter tail must also be erased on the hud_fp path, which enters hud_draw at hud_key."""
+
+    def steps(self) -> list:
+        from patches.bf_hud import BF_CD, load_bf, t_bf
+        bf = load_bf()
+        return [t_bf(u32(bf, BF_CD - ROM_BASE + 4 * i)) for i in range(28)]
+
+    def draw(self, level: int, **kw):
+        """One draw through the live HUD vtable word, with a stub that does what 0x08008BEE does."""
+        steps = self.steps()
+        cp = cpu(data=built()["rom"], **kw)
+
+        def vanilla(cc):
+            base = 0x06010000 + 32 * HUD_TILE
+            for o in range(0, 0x500, 2):
+                cc.store(base + o, 2, 0x2525)
+            for o in steps[:20]:
+                cc.store(base + o, 1, 1)
+            cc.store(HUD + 0x15, 1, level)
+            return 0
+        cp.store(HUD + 0xC, 2, HUD_TILE)
+        cp.store(HUD + 0x15, 1, 3)
+        cp.r[0], cp.r[1] = HUD, OAM
+        out = cp.run(slot(built()["rom"], HUD_VT, 0x10), {**STOPS, HUD_VANILLA: vanilla, DIV: STOPS[DIV]},
+                     limit=8000)
+        self.assertEqual((out, cp.r[0], cp.r[13], cp.r[4:8]), ("ret", 0, STACK, REGS))
+        return bytes(cp.ram[0x06][0x10000 + 32 * HUD_TILE:0x10000 + 32 * HUD_TILE + 0x500]), steps
+
+    def test_stretch_gohan_erases_the_whole_meter(self):
+        """hud_fp enters bf_ki_pool at hud_key, so the tail erase must run on that path too."""
+        buf, steps = self.draw(4, leader=GOHAN, entry=5, ep=67, mep=134, f149=True)
+        self.assertEqual([buf[o] for o in steps], [1] * 28)
+
+    def test_stretch_gohan_keeps_the_tail_at_a_charged_level(self):
+        buf, steps = self.draw(2, leader=GOHAN, entry=5, ep=67, mep=134, f149=True)
+        self.assertEqual([buf[o] for o in steps[20:]], [0x25] * 8)
+
+    def test_a_pool_form_erases_the_whole_meter(self):
+        """The other hud_fp exit tail-calls hud_draw, which reaches the same code."""
+        buf, steps = self.draw(4, leader=GOHAN, entry=5, pool=25, ep=10, mep=50)
+        self.assertEqual([buf[o] for o in steps], [1] * 28)
+
+
 if __name__ == "__main__":
     unittest.main()

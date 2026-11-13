@@ -21,10 +21,12 @@ What I measured myself, so do not re-derive it:
   offsets, with `BF_YELLOW = 0x713AD8`.
 - At those offsets the yellow image uses BF palette indices **26, 27, 28, 29, 30** and 0.
   `bf_hud.BF_TO_LOG2` maps them to our 41, 40, 46, 131, 123.
-- **There is no second bar image at a simple offset.** I slid a candidate base over
-  `BF_YELLOW +/- 0x4000` in 4 byte steps and read the indices at those 106 offsets. Nothing in range
-  gave a coherent second ramp. So a second IMAGE is unlikely and a PALETTE SWAP is my hypothesis,
-  which is a hypothesis and not a measurement.
+- **CORRECTED 2026-11-12. There IS a second bar image, at `BF_YELLOW + 0x500` = `0x713FD8`.**
+  My first pass claimed there was none. That was a FALSE NEGATIVE of my own making: the sweep
+  printed 933 candidates and named `0x713FD8` on line 887, and I piped it through `head -30` and
+  read 26 lines before declaring a negative. Never cut an enumeration. The two images agree at
+  1 of the 106 ki offsets and differ at the other 105, mapping BF index 26 to 107, 27 to 108,
+  28 to 4, 29 to 109 and 30 to 110.
 
 Find the real answer. Read the BF code that draws the ki bar and the code that picks its colour.
 Report the addresses, say whether it is a second image, a palette swap or something else, and label

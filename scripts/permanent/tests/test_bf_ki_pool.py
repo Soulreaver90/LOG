@@ -33,6 +33,8 @@ ST46_OBJ, MOVE_OBJ = 0x0300219C, 0x02012000
 INPUT_RELEASED = 0x0300229C + 0x16
 ST46_TICK, ST46_FIRE, ST46_RAND, ST46_SOUND = 0x08015078, 0x08014160, 0x0802141C, 0x0801FC9C
 VEGETA, VEGETA_BASE = 2, 8
+XFORM_OBJ = 0x03002184                                            # the state 35 object (bible B0492)
+from patches.bf_ki_pool import CD_SET                             # noqa: E402
 REGS = [0x44444444, 0x55555555, 0x66666666, 0x77777777]
 
 
@@ -139,7 +141,7 @@ class PoolRef(unittest.TestCase):
         self.assertEqual((form_obj(5), form_obj(22), form_obj(20), form_obj(17)),
                          (0x030021EC, 0x0888DE20, 0x030021EC, 0x030021EC))
         for leader, entry, want in ((0, 5, RAM), (0, 22, RAM), (4, 20, RAM), (3, 17, RAM), (0, 2, 0), (0, 4, 0),
-                                    (1, 7, 0), (2, 10, 0)):
+                                    (1, 7, 0), (2, 10, RAM)):
             cp = cpu(leader=leader, entry=entry)
             self.assertEqual(self.run_ref(cp), (want, rec(leader)), (leader, entry))
 
@@ -232,6 +234,57 @@ class FillEmpty(unittest.TestCase):
         stops = {**STOPS, TRANSFORM_END: vanilla, REVERT_END: vanilla}
         self.assertEqual(cp.run(labels()[label], stops), "ret")
         self.assertEqual((cp.r[13], cp.r[4:8]), (STACK, REGS))
+
+    def test_the_transform_tick_hands_the_cooldown_back(self):
+        """Buu's Fury sets the whole cooldown when the form lands, so the meter must not drain during it."""
+        vanilla = {}
+
+        def anim(cc):
+            r = cc.load(STRUCT + 8, 4)
+            vanilla["seen"] = r
+            cc.store(STRUCT + 8, 4, r + 8)                        # what 0x080155EE does every frame
+            return 0
+        cp = cpu(entry=2, cooldown=0x40)
+        for _ in range(20):
+            cp.r[0], cp.r[1], cp.r[13], cp.r[14] = 0x03002184, PLAYER, STACK, RET | 1
+            self.assertEqual(cp.run(labels()["tick_xform"], {**STOPS, 0x080155E4: anim}, limit=400), "ret")
+            self.assertEqual((cp.r[13], cp.r[4:8]), (STACK, REGS))
+        self.assertEqual(cp.load(STRUCT + 8, 4), 0x40)             # 20 frames of the anim, none of them kept
+        self.assertEqual(vanilla["seen"], 0x40)                    # and the vanilla still ran every frame
+
+    def test_the_landing_frame_keeps_the_cooldown_fill_end_wrote(self):
+        """End to end, no anim stub: at frame 0xA0 powerup_tick calls fill_end from INSIDE the anim, so a
+        blind restore in tick_xform would wipe the landing store and leave the cooldown at 0."""
+        for frame, want in ((0x9F, CD_SET), (0x9E, 0x40)):
+            cp = cpu(entry=2, cooldown=0x40)
+            cp.store(XFORM_OBJ, 4, 0x08025D9C)                   # the state object names state 35's vtable
+            cp.store(PLAYER + 0x12, 2, frame)                    # powerup_tick's own counter, +1 a frame
+            cp.r[0], cp.r[1], cp.r[13], cp.r[14] = XFORM_OBJ, PLAYER, STACK, RET | 1
+            stops = {**STOPS, 0x0801FC9C: lambda cc: 0, TRANSFORM_END: lambda cc: 0}
+            self.assertEqual(cp.run(labels()["tick_xform"], stops, limit=4000), "ret", frame)
+            self.assertEqual((cp.r[13], cp.r[4:8]), (STACK, REGS), frame)
+            self.assertEqual(cp.load(STRUCT + 8, 4), want, hex(frame))
+
+    def test_a_second_step_sets_the_cooldown_rather_than_adding(self):
+        """Super Saiyan to Super Saiyan 2 also runs state 35, and Buu's Fury SETS. So the second step does
+        not stack a second wait on the first, the way the vanilla anim's +8 a frame did."""
+        cp = cpu(entry=5, pool=12, mep=134, cooldown=CD_SET)
+        self.end(cp, "fill_end", 22)
+        self.assertEqual(cp.load(STRUCT + 8, 4), CD_SET)
+
+    def test_the_transform_end_sets_the_whole_cooldown(self):
+        cp = cpu(entry=2, ep=30, mep=134, cooldown=0)
+        self.end(cp, "fill_end", 5)
+        self.assertEqual(cp.load(STRUCT + 8, 4), CD_SET)
+        cp = cpu(entry=5, pool=12, mep=134, cooldown=0x123)        # a stale cooldown is replaced, not added to
+        self.end(cp, "fill_end", 22)
+        self.assertEqual(cp.load(STRUCT + 8, 4), CD_SET)
+
+    def test_the_revert_leaves_the_cooldown_alone(self):
+        """Buu's Fury's revert writes no cooldown, so the meter refills through its counts, it does not snap."""
+        cp = cpu(entry=5, pool=40, cooldown=0x321)
+        self.end(cp, "empty_end", 2)
+        self.assertEqual(cp.load(STRUCT + 8, 4), 0x321)
 
     def test_transform_fills_to_max_ep(self):
         cp = cpu(entry=2, ep=30, mep=134)
@@ -508,6 +561,170 @@ class State46(unittest.TestCase):
         cp = vegeta(pool_v=30, data=hud)
         hold(cp, ST46_TICK)
         self.assertEqual((cp.load(RAM, 2), cp.load(rec(VEGETA) + 4, 2)), (30, 119))
+
+
+# ===== the ascended grade and the orange bar (2026-11-12) =====
+
+ASC_OBJ, ASC_VTABLE, VANILLA_ASC_TICK = 0x030021E8, 0x0802526C, 0x080171E5
+ASC_ENTRIES, SSJ_ENTRIES = (10, 14), (5, 11, 16, 17, 20)
+COLOUR = RAM + 0xE
+ORANGE_RAMP = {41: 33, 40: 32, 46: 39, 131: 38, 123: 37}
+ORANGE_AT = 0x800
+
+
+def images() -> tuple:
+    n = built()["notes"]["bf_ki_pool"]
+    return (rom()[n["yellow"]:n["yellow"] + 0x500], rom()[n["orange"]:n["orange"] + 0x500], n["orange"] - n["yellow"])
+
+
+class Ascended(unittest.TestCase):
+    """The ascended grade form object 0x030021E8 joins the pool, and a second transformation draws orange."""
+
+    def ref(self, cp) -> tuple:
+        out = cp.run(labels()["pool_ref"], STOPS)
+        self.assertEqual((out, cp.r[13], cp.r[4:8]), ("ret", STACK, REGS))
+        return cp.r[0], cp.load(COLOUR, 1)
+
+    def test_the_ascended_vtable_tick_becomes_the_pool_tick(self):
+        """A/B: before bf_ki_pool the word names the vanilla ascended tick, after it names tick_ssj."""
+        self.assertEqual((ASC_VTABLE + u32(built()["hud"], ASC_VTABLE + 4)) & M32, VANILLA_ASC_TICK)
+        self.assertEqual((ASC_VTABLE + u32(rom(), ASC_VTABLE + 4)) & M32, labels()["tick_ssj"] | 1)
+        self.assertEqual((0x08024C58 + u32(rom(), 0x08024C58 + 4)) & M32, labels()["tick_ssj"] | 1)
+
+    def test_the_ascended_entries_carry_that_form_object(self):
+        for e in ASC_ENTRIES:
+            self.assertEqual(form_obj(e), ASC_OBJ, e)
+        for e in SSJ_ENTRIES:
+            self.assertEqual(form_obj(e), 0x030021EC, e)
+
+    def test_the_ascended_grade_is_a_pool_form(self):
+        for leader, entry in ((2, 10), (3, 14)):
+            cp = cpu(leader=leader, entry=entry, ep=40, mep=134, pool=7, tag=0x8002)
+            self.assertEqual(self.ref(cp)[0], RAM, entry)
+            self.assertEqual(cp.load(RAM, 2), 134)                       # a stale tag fills to max EP
+            self.assertEqual(cp.load(rec(leader) + 4, 2), 40)            # regular EP untouched
+
+    def test_colour_per_form_object(self):
+        """Orange for a second transformation (ascended grade, Super Saiyan 2), yellow for a plain Super Saiyan."""
+        for entry, want in ((5, 0), (11, 0), (16, 0), (17, 0), (20, 0), (22, 1), (10, 1), (14, 1)):
+            leader = {5: 0, 22: 0, 11: 2, 10: 2, 16: 3, 17: 3, 14: 3, 20: 4}[entry]
+            cp = cpu(leader=leader, entry=entry)
+            cp.store(COLOUR, 1, 1 - want)                                # start at the wrong colour
+            self.assertEqual(self.ref(cp), (RAM, want), entry)
+
+    def test_a_form_with_no_pool_clears_the_colour(self):
+        """fullpower_hud enters hud_draw at hud_key without calling pool_ref, so a stale orange must not survive."""
+        for leader, entry, f149 in ((0, 2, False), (1, 7, False), (0, 4, False), (0, 5, True), (4, 20, True)):
+            cp = cpu(leader=leader, entry=entry, f149=f149)
+            cp.store(COLOUR, 1, 1)
+            self.assertEqual(self.ref(cp), (0, 0), (leader, entry, f149))
+
+    def test_the_red_image_is_the_yellow_ramp_swapped(self):
+        yellow, orange, gap = images()
+        self.assertEqual(gap, ORANGE_AT)
+        self.assertEqual(orange, bytes(ORANGE_RAMP.get(v, v) for v in yellow))
+        self.assertEqual(set(yellow) - {0}, set(ORANGE_RAMP))
+        self.assertEqual(set(orange) - {0}, set(ORANGE_RAMP.values()))
+
+
+class RedHud(unittest.TestCase):
+    """The same draw Hud runs, with the image the overlay reads checked per form object."""
+
+    def overlay(self, cp, image: bytes, fill: int) -> None:
+        buf = Hud.draw(self, cp)
+        want = bytearray([1] * 0x500)
+        for i in range(fill):
+            for k in range(3):
+                o = u32(rom(), EP_TABLE + 16 * i + 4 * k)
+                want[o] = image[o]
+        self.assertEqual(buf, bytes(want))
+        self.assertEqual(cp.load(RAM + 0xC, 1), fill)
+
+    def test_a_second_transformation_draws_the_red_image(self):
+        yellow, orange, _ = images()
+        for leader, entry, image in ((0, 22, orange), (2, 10, orange), (3, 14, orange), (0, 5, yellow), (2, 11, yellow)):
+            cp = cpu(leader=leader, entry=entry, ep=10, mep=50, pool=25)
+            self.overlay(cp, image, 25 * 49 // 50)
+
+    def test_the_two_images_disagree_on_every_painted_pixel(self):
+        """Proof the bar really changes colour: no painted offset holds the same index in both images."""
+        yellow, orange, _ = images()
+        painted = {u32(rom(), EP_TABLE + 16 * i + 4 * k) for i in range(49) for k in range(3)}
+        self.assertEqual([o for o in painted if yellow[o] == orange[o]], [])
+        self.assertEqual(len(painted), 105)
+
+
+# ===== the Z charge meter =====
+
+def meter_steps() -> list:
+    """Every Buu's Fury charge meter step as a LoG II buffer offset, derived from the Buu's Fury ROM here."""
+    from patches.bf_hud import BF_CD, load_bf, t_bf
+    bf = load_bf()
+    return [t_bf(u32(bf, BF_CD + 4 * i)) for i in range(28)]
+
+
+class ChargeMeter(unittest.TestCase):
+    """bf_hud gives LoG II a 28 pixel meter and a 20 slot table, so the draw must erase the last 8 itself."""
+
+    def draw(self, cp, level: int, lit: int = 0x25) -> bytes:
+        """One hud_draw whose vanilla stub does what 0x08008BEE does: erase what its table reaches, paint
+        index 1 nowhere else, and write the charge level back to HUD +0x15."""
+        reach = meter_steps()[:20]
+
+        def vanilla(cc):
+            base = 0x06010000 + 32 * HUD_TILE
+            for o in range(0, 0x500, 2):
+                cc.store(base + o, 2, lit | lit << 8)
+            for o in reach:
+                cc.store(base + o, 1, 1)
+            cc.store(HUD + 0x15, 1, level)
+            cc.vram_bytes.clear()                            # the stub's own erase is not the patch's writes
+            return 0
+        cp.store(HUD + 0xC, 2, HUD_TILE)
+        cp.store(HUD + 0x15, 1, 3)
+        cp.r[0], cp.r[1] = HUD, OAM
+        out = cp.run(labels()["hud_draw"], {**STOPS, HUD_VANILLA: vanilla}, limit=8000)
+        self.assertEqual((out, cp.r[0], cp.r[13], cp.r[4:8]), ("ret", 0, STACK, REGS))
+        return bytes(cp.ram[0x06][0x10000 + 32 * HUD_TILE:0x10000 + 32 * HUD_TILE + 0x500])
+
+    def test_the_tail_is_the_complement_of_the_vanilla_table(self):
+        """The 20 slots and the 8 the module carries together name the 28 steps once each."""
+        from patches import bf_ki_pool
+        steps = meter_steps()
+        tail = [0x300 + b for b in bf_ki_pool.CD_TAIL]
+        self.assertEqual(len(set(steps)), 28)
+        self.assertEqual(sorted(steps[:20] + tail), sorted(steps))
+        self.assertEqual(steps[20:], tail)
+        self.assertEqual([u32(rom(), 0x3B5B90 + 4 * i) for i in range(20)], steps[:20])
+
+    def test_the_empty_level_erases_every_meter_pixel(self):
+        buf = self.draw(cpu(entry=2), level=4)
+        self.assertEqual([buf[o] for o in meter_steps()], [1] * 28)
+
+    def test_a_charged_level_leaves_the_tail_alone(self):
+        for level in (0, 1, 2, 3):
+            buf = self.draw(cpu(entry=2), level=level)
+            self.assertEqual([buf[o] for o in meter_steps()[20:]], [0x25] * 8, level)
+            self.assertEqual([buf[o] for o in meter_steps()[:20]], [1] * 20, level)
+
+    def test_the_tail_runs_with_a_pool_bar_too(self):
+        """A transformed leader draws the pool overlay and the meter tail in the same call."""
+        cp = cpu(entry=5, ep=10, mep=50, pool=25)
+        buf = self.draw(cp, level=4)
+        self.assertEqual([buf[o] for o in meter_steps()], [1] * 28)
+        at = built()["notes"]["bf_ki_pool"]["yellow"]
+        img = rom()[at:at + 0x500]
+        for i in range(25 * 49 // 50):
+            for k in range(3):
+                o = u32(rom(), EP_TABLE + 16 * i + 4 * k)
+                self.assertEqual(buf[o], img[o], (i, k))
+
+    def test_the_tail_write_is_a_halfword_write(self):
+        """OBJ VRAM takes no byte store: the pixels must go in through put_icon's read, merge, strh."""
+        cp = cpu(entry=2)
+        cp.vram_bytes = []
+        self.draw(cp, level=4)
+        self.assertEqual(cp.vram_bytes, [])
 
 
 if __name__ == "__main__":

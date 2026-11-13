@@ -44,7 +44,11 @@ HUD_VTABLE, HUD_SLOT = 0x0802408C, 0x10
 DIV = 0x08021F31                                         # ARM signed divide r0 = r1 / r0 (bf_ki_pool SYMS["DIV"])
 DIV_BYTES = (0x21F30, "78470000802410e2")                # bx pc ; ARM
 STRETCH_ON_BYTES = bf_ki_pool.STRETCH_ON_BYTES           # fullpower_ssj stretch_on, 22 bytes
-HUD_KEY = (0x4A, "f3cb6d1d5806eeea0f101eedfde389110f112f74")   # hud_key to put_px in r39: length, SHA-1
+# hud_key to put_px: length, SHA-1. The block grew twice after r39 (f3cb6d1d5806eeea0f101eedfde389110f112f74):
+# the second ki bar moved its literal pool 8 bytes on (dbdff3fc1df989572fb3904e8edaf9809bc4402a), then the Z charge
+# meter tail added 4 instructions after the vanilla call. The hud_fp entry contract is unchanged: hud_key still
+# starts the frame bf_ki_pool's hud_draw builds, and r4, r5 and r6 still mean HUD, OAM cursor and yellow steps.
+HUD_KEY = (0x54, "e3aeee87b5d3d5a34e9f11dbe963d9a8e15b92ec")
 FILL_MAX = 0x31                                          # 49 EP steps
 CODE_REGION = bf_ki_pool.CODE_REGION
 MAX_TRIES = 8

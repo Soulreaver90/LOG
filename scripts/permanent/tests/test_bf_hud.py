@@ -50,6 +50,8 @@ HOOKS = {                                              # build_proto_b.HOOKS: (v
     "beam49": (0x08025F70, 0x08, 0x0801539B, "st49"),
     "ball51": (0x08025CCC, 0x08, 0x080156B7, "st51"),
     "hold46": (0x080258B4, 0x08, 0x08015079, "st46"),
+    "asc_tick": (0x0802526C, 0x04, 0x080171E5, "tick_ssj"),   # the ascended grade, added with the red ki bar
+    "xform_tick": (0x08025D9C, 0x04, 0x080155E5, "tick_xform"),   # the cooldown freeze, added with the Z meter
 }
 HOOK_OFFSETS = sorted(vt - ROM_BASE + slot for vt, slot, _, _ in HOOKS.values())
 ABILITY_WORDS = sorted(ABILITY_TABLE + 16 * n + k for n in WRAP_ABILITIES for k in (8, 12))

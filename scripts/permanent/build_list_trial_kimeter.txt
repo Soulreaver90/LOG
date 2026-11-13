@@ -1,0 +1,4 @@
+# Trial list: the Z charge meter reaches empty (2026-11-12 ki-meter-drain).
+# The fix lives in bf_ki_pool, which build_list_core.txt already carries, so this list adds no module of
+# its own. It exists so the trial ROM gets its own name and SHA-1 beside the dev master.
+include build_list_dev.txt

@@ -1,40 +1,66 @@
 r"""
-bf_ki_pool.py - Patch: one Super Saiyan ki pool in the Buu's Fury style, drawn yellow over the EP row (r39, HUD v2b part 2).
+bf_ki_pool.py - Patch: one Super Saiyan ki pool in the Buu's Fury style, drawn over the EP row (r39, HUD v2b part 2).
 
 Usage:   py -3 -P scripts\permanent\log2_build.py --list --out builds\log2_poc_r39.gba
 Input:   the ROM after bf_hud (its EP table places the pool pixels); the Buu's Fury USA ROM (read only).
 API:     apply(rom, alloc) -> None; addresses, labels and hook offsets in alloc.notes["bf_ki_pool"].
-Method:  New code and the pool image in one allocation; pointer-level hooks only, no vanilla code byte changes.
+Method:  New code and the two pool images in one allocation; pointer-level hooks only, no vanilla code byte changes.
          RAM 0x03003A00: +0 u16 pool, +2 u16 tag (0x8000 | leader << 8 | entry), +8 u32 drain accumulator,
-         +0xC u8 HUD overlay fill cache, +0xD u8 swap guard.
-         - pool_ref: the leader is in a pool form (form object 0x030021EC Super Saiyan or ssj2_form's Super Saiyan 2)
-           and not in the r28 full-power stretch (fullpower_ssj stretch_on, leader 0 or 4). A tag that does not
-           match fills the pool to max EP (any way into the form gets a full pool).
+         +0xC u8 HUD overlay fill cache, +0xD u8 swap guard, +0xE u8 bar colour (0 yellow, 1 orange).
+         - pool_ref: the leader is in a pool form (form object 0x030021EC Super Saiyan, 0x030021E8 the ascended
+           grade, or ssj2_form's Super Saiyan 2) and not in the r28 full-power stretch (fullpower_ssj
+           stretch_on, leader 0 or 4). A tag that does not match fills the pool to max EP (any way into the
+           form gets a full pool). It also writes the bar colour every call: orange for a second transformation
+           (the ascended grade and Super Saiyan 2), yellow for a plain Super Saiyan, and 0 when there is no
+           pool form, so a later draw never inherits a stale orange bar.
          - Fill: state 35 (transform) vtable 0x08025D9C +0x14 runs vanilla transform(player,1), then a full pool.
            Empty: state 36 (revert) +0x14 runs transform(player,0), then pool 0, tag 0.
-         - Drain: Super Saiyan vtable 0x08024C58 +4 and ssj2_form's vtable +4 (were fullpower_ssj's and
-           scene_drain_pause's ticks): the vanilla base tick 0x08017028 first with the cooldown kept (regular EP
+         - Drain: Super Saiyan vtable 0x08024C58 +4, the ascended grade vtable 0x0802526C +4 and ssj2_form's
+           vtable +4 (were fullpower_ssj's, the vanilla ascended tick and scene_drain_pause's): the vanilla
+           base tick 0x08017028 first with the cooldown kept (regular EP
            regenerates), then the r28 stretch, r27 scene and state-0x24 gates, then +STEP per frame into the
            accumulator; per overflow pool -1, or at pool 0 and HP not 0 state 0x24 (BF 0x0800E412-0x0800E46C).
          - Spend: ability tests and actions 0-4, 6-10, 13 (ability table rom:0x1D9900) and the ki states 34 +4,
            46 +8 (Vegeta's hold, v2b), 48 +8, 49 +8, 51 +8 run with the leader record EP swapped for the pool.
          - HUD: vtable 0x0802408C +0x10: when the pool fill (pool x 49 / max EP) changes, HUD +0x15 = 0xFF forces
-           the vanilla redraw; then EP steps below the fill get the BF yellow pixels in OBJ VRAM (halfwords).
-         Layout = v2b's window: pool image 0x500, the v2 code blob, then the st46 blob at the next word.
-Rules:   Source: docs\tasks\2026-10-24-r39-build\r39.md, hud-ki-proto-report.md, hud-ki-proto-b-report.md; CODE and FIX_CODE
-         are scripts\one-time\2026-10-24-hud-ki\proto\build_proto_b.py's, byte for byte. Every hook word, ability word and
+           the vanilla redraw; then EP steps below the fill get the pool pixels in OBJ VRAM (halfwords), from
+           the yellow image or, 0x800 past it, from the orange one. Buu's Fury draws its second bar the same way,
+           from a second image at a fixed offset past the first (BF 0x08713FD8, loop 0x0800BB98).
+         - Z charge meter, where it empties: the same draw paints index 1 at the CD_TAIL icon bytes when the
+           vanilla draw leaves its top charge level (4) at HUD +0x15. bf_hud gives LoG II the Buu's Fury
+           meter, which is CD_STEPS pixels, and the vanilla table rom:0x3B5B90 holds CD_SLOTS, so without this
+           the last 8 stay lit at every level and the meter never reads empty (Buu's Fury erases all 28).
+         - Z charge meter, WHEN it empties: state 35 vtable 0x08025D9C +4 (was the vanilla anim 0x080155E4,
+           which adds 8 to the cooldown every frame) runs that anim and then puts the cooldown back, and
+           fill_end writes CD_SET in one store. On the landing frame powerup_tick calls fill_end from
+           inside the anim, so tick_xform puts the old value back only when the cooldown moved by exactly
+           8, which means the anim alone touched it. So the meter stays full through the transformation and
+           empties in one step when the form lands, which is Buu's Fury's own order: its landing routine
+           stores 0x37FFF to record +4 at BF 0x0801C34C, in the same breath as the pool. The anim's +8 is a
+           pure side effect: powerup_tick 0x08011D4A counts its own u16 at actor +0x12 and never reads it.
+         Layout = v2b's window plus the orange image: yellow 0x500, pad to 0x800, orange 0x500, the v2 code blob,
+         then the st46 blob at the next word. The orange image is the yellow one with its five ramp indices
+         swapped for their orange twins, which is exactly what the Buu's Fury pair does.
+Rules:   Source: docs\tasks\2026-10-24-r39-build\r39.md, hud-ki-proto-report.md, hud-ki-proto-b-report.md,
+         docs\tasks\2026-11-12-orange-ki-bar\rows.md (the Buu's Fury second bar and the orange ramp) and
+         docs\tasks\2026-11-12-ki-meter-drain\report.md (the Z charge meter). Every hook word, ability word and
          earlier-patch address is checked before the first write; the new space must be 0xFF and named by no
          ROM word (a named chunk is left unused, notes "skipped"); a second run raises. Drain rates are LoG II's (final decisions open): SSJ 1 every 20 frames,
          SSJ2 1 every 10.
 """
 import struct
 
-from patches.bf_hud import EP, load_bf, remap, t_bf, u32
+from patches.bf_hud import BF_CD, CD, CD_COUNTS, COUNTS, EP, load_bf, remap, t_bf, u32
 from patches.ssj2_form import assemble
 
 # ===== constants =====
 ROM_BASE, M32 = 0x08000000, 0xFFFFFFFF
 YELLOW_LEN = 0x500
+ORANGE_AT = 0x800                                         # put_px reaches the orange image with one shift, flag << 11
+IMAGES_LEN = ORANGE_AT + YELLOW_LEN
+# Yellow OBJ index -> its orange twin: #D06000, #F87000, #F89018, #F8B028, #F8D040. The owner chose
+# this dark based ramp by eye over the nearer red one, so never "correct" step 1 to a closer match.
+ORANGE_RAMP = {41: 33, 40: 32, 46: 39, 131: 38, 123: 37}
 BF_YELLOW, BF_KI = 0x713AD8, 0x08071F40
 RAM = 0x03003A00
 STEP = {"ssj": 0x0CCD, "ssj2": 0x199A}                 # LoG II rates kept: 1 every 20 frames, 1 every 10 frames
@@ -53,15 +79,25 @@ VANILLA_HOOKS = {                                      # name: (vtable, slot, va
     "beam49": (0x08025F70, 0x08, 0x0801539B, "st49"),
     "ball51": (0x08025CCC, 0x08, 0x080156B7, "st51"),
     "hold46": (0x080258B4, 0x08, 0x08015079, "st46"),       # v2b
+    "asc_tick": (0x0802526C, 0x04, 0x080171E5, "tick_ssj"),  # the ascended grade (entries 10, 14 and Vegeta's Z+)
+    "xform_tick": (0x08025D9C, 0x04, 0x080155E5, "tick_xform"),  # state 35 anim: the cooldown freeze
 }
+CD_SLOTS, CD_STEPS, CD_EMPTY, ICON_AT = 20, 28, 4, 0x300   # vanilla table slots, BF meter pixels, top level
+CD_TAIL = (0xE0, 0xD9, 0xAE, 0xA7, 0xD8, 0xA6, 0x9F, 0x9E)  # icon bytes of BF meter steps 20-27, checked in _check
+CD_CLAMP = (0x8D3E, "042800dd0420")                    # cmp r0,#0x4 ; ble ; mov r0,#0x4: the level reaches 4
+CD_WRITEBACK = (0x8D90, "6075")                        # strb r0,[r4,#0x15]: the level this patch reads back
+CD_SET = 0x500                                         # 0xA0 transform frames x 8: the value the anim reached
+XFORM_ANIM = (0x155E4, "784a08b5d268936808339360fcf7abfb08bd")   # the +8 a frame tick_xform undoes
 SSJ_VTABLE, APPEARANCE_LITERAL, BASE_FORM_VTABLE = 0x08024C58, 0x14FF4, 0x08024004
 SSJ_OBJ, SSJ, SSJ2 = 0x030021EC, 5, 22
+ASC_OBJ, ASC = 0x030021E8, 10                          # the ascended grade form object; entry 10 is Super Vegeta
 STRETCH_ON_BYTES = "3c4b1a78920604d59a79120701d40122704700227047"   # fullpower_ssj stretch_on, 22 bytes
 CODE_REGION = (0x0, 0x28724)                           # base-relative vtables live here and in ssj2_form's
 MAX_TRIES = 4
 SYMS = {"RAM": RAM, "SAVE_PTR": 0x086F7E50, "SSJ_OBJ": SSJ_OBJ, "BASE_TICK": 0x08017029, "DIV": 0x08021F31,
         "EP_TABLE": EP + ROM_BASE, "SCENE_FLAG": 0x03001FD8, "SCENE_MGR": 0x03000E1C, "VRAM_OBJ": 0x06010000,
-        "VALID": 0x8000, "STEP_SSJ": STEP["ssj"], "STEP_SSJ2": STEP["ssj2"]}
+        "VALID": 0x8000, "STEP_SSJ": STEP["ssj"], "STEP_SSJ2": STEP["ssj2"], "CD_EMPTY": CD_EMPTY,
+        "ICON_HI": ICON_AT >> 8}
 
 CODE = """
 ; ===== 1. pool_ref: r0 = RAM when the leader is in a pool form, else 0; r1 = leader record; keeps r4-r7
@@ -86,21 +122,28 @@ pool_ref:
     ldr r0,[r0,#0x10]       ; form object of the entry
     ldr r5,=SSJ2_OBJ
     cmp r0,r5
-    beq ref_pool
+    beq ref_second
+    ldr r5,=SSJ_OBJ
+    sub r5,#0x4             ; the ascended grade 0x030021E8, off the Super Saiyan literal: no new pool word
+    cmp r0,r5
+    beq ref_second
     ldr r5,=SSJ_OBJ
     cmp r0,r5
     bne ref_none
     ldr r3,=STRETCH_ON      ; r28 leaf: r2 = 1 when flag 149 is set and flag 195 clear; uses r2, r3
     bl via_r3
     cmp r2,#0x0
-    beq ref_pool
+    beq ref_first
     lsr r2,r4,#8
     cmp r2,#0x0
     beq ref_none            ; Gohan in the full-power stretch: regular EP, as r28
     cmp r2,#0x4
     beq ref_none            ; Goku in the stretch
+ref_first:
+    mov r5,#0x0             ; a plain Super Saiyan draws yellow
 ref_pool:
     ldr r0,=RAM
+    strb r5,[r0,#0xe]       ; bar colour, read by put_px on every pixel
     ldr r3,=VALID
     add r4,r4,r3
     ldrh r3,[r0,#0x2]
@@ -115,19 +158,44 @@ ref_pool:
 ref_done:
     pop {r4,r5,pc}
 ref_none:
+    ldr r5,=RAM
     mov r0,#0x0
+    strb r0,[r5,#0xe]       ; no pool form: fullpower_hud enters the draw without calling here, so clear it
     pop {r4,r5,pc}
+ref_second:
+    mov r5,#0x1             ; a second transformation draws orange
+    b ref_pool
 
 ; ===== 2. fill and empty: transform and revert ends (state +0x14, r0 = state, r1 = player)
 fill_end:
     push {r4,lr}
     ldr r3,=0x0801563d      ; vanilla: sound, transform(player, 1)
     bl via_r3
+    ldr r0,=SAVE_PTR
+    ldr r0,[r0,#0x4]
+    ldr r1,=CD_SET
+    str r1,[r0,#0x8]        ; the whole cooldown in one store, so the charge meter empties in one step
     ldr r0,=RAM
     mov r1,#0x0
     strh r1,[r0,#0x2]       ; tag 0: pool_ref fills to max EP when the new entry is a pool form
     bl pool_ref
     pop {r4,pc}
+; ===== 2b. transform tick: hold the Z charge meter full until the form lands, as Buu's Fury does
+tick_xform:
+    push {r4,r5,lr}
+    ldr r4,=SAVE_PTR
+    ldr r4,[r4,#0x4]
+    ldr r5,[r4,#0x8]        ; the vanilla anim adds 8 a frame, which drains the meter through the transform
+    ldr r3,=0x080155e5
+    bl via_r3
+    ldr r0,[r4,#0x8]
+    sub r0,#0x8
+    cmp r0,r5
+    bne xform_done          ; on the landing frame powerup_tick called fill_end from inside the anim
+    str r5,[r4,#0x8]        ; only the anim moved it: put it back
+xform_done:
+    pop {r4,r5,pc}
+
 empty_end:
     push {r4,lr}
     ldr r3,=0x080157af      ; vanilla: transform(player, 0)
@@ -245,12 +313,17 @@ hud_call:
     ldr r3,=0x08008bef
     bl via_r3
     push {r0}
-    cmp r6,#0x0
-    beq hud_done
     ldrh r0,[r4,#0xc]       ; HUD tile
+    ldrb r5,[r4,#0x15]      ; the Z charge level the vanilla draw wrote back @0x08008D90
     lsl r0,r0,#5
     ldr r1,=VRAM_OBJ
     add r4,r0,r1
+    cmp r5,#CD_EMPTY
+    bne hud_pool
+    bl cd_tail              ; the vanilla table is 8 slots short of the meter, so empty means empty
+hud_pool:
+    cmp r6,#0x0
+    beq hud_done
     ldr r5,=EP_TABLE
     mov r7,#0x0
 hud_step:
@@ -268,10 +341,22 @@ hud_step:
 hud_done:
     pop {r0}
     pop {r4,r5,r6,r7,pc}
-put_px:                     ; r1 = buffer offset, r4 = VRAM base: pixel = YELLOW[r1]; keeps r0, r1, r4-r7
+put_px:                     ; r1 = buffer offset, r4 = VRAM base: pixel = IMAGE[r1]; keeps r0, r1, r4-r7
     push {r0,r5}
     ldr r2,=YELLOW
+    ldr r0,=RAM
+    ldrb r0,[r0,#0xe]
+    lsl r0,r0,#11           ; the orange image sits ORANGE_AT = 0x800 past the yellow one
+    add r2,r2,r0
     ldrb r2,[r2,r1]
+    b px_merge
+put_icon:                   ; r1 = icon byte of a Z charge meter step: that pixel = index 1, the empty colour
+    push {r0,r5}
+    mov r2,#ICON_HI
+    lsl r2,r2,#8            ; the meter pixels live in the icon half of the buffer, ICON_AT to 0x4FF
+    add r1,r1,r2
+    mov r2,#0x1
+px_merge:
     lsr r3,r1,#1
     lsl r3,r3,#1
     add r3,r3,r4
@@ -338,7 +423,14 @@ via_r2:
     bx r2
 via_r3:
     bx r3
+
+; ===== 8. Z charge meter tail: the meter steps rom:0x3B5B90 has no slot for (one pair each, CD_TAIL)
+cd_tail:
+    push {r3,lr}
 """
+# Generated into CODE itself, not appended by layout(), because fullpower_hud and piccolo_z_start re-assemble
+# bf_ki_pool from CODE plus stubs() alone and would otherwise find no cd_tail label.
+CODE += "".join(f"    mov r1,#{b:#04x}\n    bl put_icon\n" for b in CD_TAIL) + "    pop {r3,pc}\n"
 
 # v2b: second blob after the v2 blob (its own literal pool), so the v2 code and literals keep their bytes.
 FIX_CODE = """
@@ -366,7 +458,7 @@ def hooks(notes: dict) -> dict:
 def syms(notes: dict, yellow: int) -> dict:
     form = notes["ssj2_form"]
     return dict(SYMS, TABLE=form["table"] + ROM_BASE, SSJ2_OBJ=form["form_object"] + ROM_BASE,
-                STRETCH_ON=notes["fullpower_ssj"]["stretch_on"] + ROM_BASE | 1, YELLOW=yellow)
+                STRETCH_ON=notes["fullpower_ssj"]["stretch_on"] + ROM_BASE | 1, YELLOW=yellow, CD_SET=CD_SET)
 
 
 def stubs() -> tuple:
@@ -382,6 +474,14 @@ def stubs() -> tuple:
     return "\n".join(src) + "\n", words
 
 
+def cd_tail(bf: bytes) -> tuple:
+    """Icon bytes of the Buu's Fury charge meter steps the vanilla CD_SLOTS-word table cannot erase."""
+    out = tuple(t_bf(u32(bf, BF_CD + 4 * i)) - ICON_AT for i in range(CD_SLOTS, CD_STEPS))
+    if len(set(out)) != len(out) or not all(0 <= b <= 0xFF for b in out):
+        raise ValueError(f"the charge meter tail is not distinct icon bytes: {out}")
+    return out
+
+
 def yellow_image(bf: bytes) -> bytes:
     """0x500-byte LoG II buffer: the BF yellow pool pixels (image 0x08713AD8) at the ki-row offsets, remapped."""
     img = bytearray(YELLOW_LEN)
@@ -392,9 +492,17 @@ def yellow_image(bf: bytes) -> bytes:
     return bytes(img)
 
 
+def orange_image(yellow: bytes) -> bytes:
+    """The same buffer with the five yellow ramp indices swapped for their orange twins, as Buu's Fury does."""
+    missing = sorted(set(yellow) - set(ORANGE_RAMP) - {0})
+    if missing:
+        raise ValueError(f"the yellow pool image holds indices with no orange twin: {missing}")
+    return bytes(ORANGE_RAMP.get(v, v) for v in yellow)
+
+
 def layout(base: int, notes: dict) -> tuple:
-    """(code blob, fix blob, labels, {window, yellow, code, code_len, fix, fix_len}) for a window at GBA `base`."""
-    code_at = base + YELLOW_LEN
+    """(code blob, fix blob, labels, {window, yellow, orange, code, code_len, fix, fix_len}) for a GBA `base`."""
+    code_at = base + IMAGES_LEN
     stub_src, _ = stubs()
     blob, labels = assemble(CODE + stub_src, code_at, syms(notes, base))
     fix_at = (code_at + len(blob) + 3) & ~3
@@ -402,8 +510,8 @@ def layout(base: int, notes: dict) -> tuple:
     if set(fix_labels) & set(labels):
         raise ValueError("label clash")
     return blob, fix_blob, {**labels, **fix_labels}, {
-        "window": base, "yellow": base, "code": code_at, "code_len": len(blob), "fix": fix_at,
-        "fix_len": len(fix_blob), "size": fix_at + len(fix_blob) - base}
+        "window": base, "yellow": base, "orange": base + ORANGE_AT, "code": code_at, "code_len": len(blob),
+        "fix": fix_at, "fix_len": len(fix_blob), "size": fix_at + len(fix_blob) - base}
 
 
 def words_naming(rom: bytes, lo: int, hi: int, rel_ranges: tuple) -> list:
@@ -443,8 +551,9 @@ def _check(rom: bytearray, alloc) -> dict:
     if u32(rom, APPEARANCE_LITERAL) != s["TABLE"]:
         raise ValueError("live appearance table literal moved")
     tb = s["TABLE"] - ROM_BASE
-    if (u32(rom, tb + 20 * SSJ + 0x10), u32(rom, tb + 20 * SSJ2 + 0x10)) != (SSJ_OBJ, s["SSJ2_OBJ"]):
-        raise ValueError("form objects of entries 5 and 22 moved")
+    want = (SSJ_OBJ, s["SSJ2_OBJ"], ASC_OBJ)
+    if tuple(u32(rom, tb + 20 * e + 0x10) for e in (SSJ, SSJ2, ASC)) != want:
+        raise ValueError(f"form objects of entries {SSJ}, {SSJ2} and {ASC} moved")
     if (BASE_FORM_VTABLE + u32(rom, BASE_FORM_VTABLE + 4)) & M32 != s["BASE_TICK"]:
         raise ValueError("base form tick moved")
     hk = hooks(notes)
@@ -455,7 +564,23 @@ def _check(rom: bytearray, alloc) -> dict:
     for name, (off, v) in stubs()[1].items():
         if u32(rom, off) != v:
             raise ValueError(f"ability word rom:0x{off:X} ({name}) is 0x{u32(rom, off):08X}, expected 0x{v:08X}")
+    _check_charge_meter(rom)
     return hk
+
+
+def _check_charge_meter(rom: bytearray) -> None:
+    """The Z charge meter tail is the complement of bf_hud's table, and the vanilla draw still feeds HUD +0x15."""
+    bf = load_bf()
+    want = [t_bf(u32(bf, BF_CD + 4 * i)) for i in range(CD_SLOTS)]
+    if [u32(rom, CD + 4 * i) for i in range(CD_SLOTS)] != want:
+        raise ValueError("the cooldown offset table is not bf_hud's Buu's Fury steps: run bf_hud first")
+    if [u32(rom, CD_COUNTS + 4 * i) for i in range(len(COUNTS))] != list(COUNTS):
+        raise ValueError("the cooldown count table is not bf_hud's")
+    if cd_tail(bf) != CD_TAIL:
+        raise ValueError(f"the charge meter tail is {cd_tail(bf)}, not the frozen {CD_TAIL}")
+    for off, want_hex in (CD_CLAMP, CD_WRITEBACK, XFORM_ANIM):
+        if rom[off:off + len(want_hex) // 2].hex() != want_hex:
+            raise ValueError(f"rom:0x{off:X} is not the vanilla code this patch reads: re-check the charge meter")
 
 
 # ===== patch =====
@@ -482,6 +607,8 @@ def apply(rom: bytearray, alloc) -> None:
     yellow = yellow_image(load_bf())
     _, ab_words = stubs()
     rom[at:at + YELLOW_LEN] = yellow
+    rom[at + YELLOW_LEN:at + ORANGE_AT] = bytes(ORANGE_AT - YELLOW_LEN)
+    rom[at + ORANGE_AT:at + ORANGE_AT + YELLOW_LEN] = orange_image(yellow)
     rom[lay["code"] - ROM_BASE:lay["code"] - ROM_BASE + len(blob)] = blob
     rom[lay["fix"] - ROM_BASE:lay["fix"] - ROM_BASE + len(fix_blob)] = fix_blob
     hook_words = {}
@@ -491,6 +618,7 @@ def apply(rom: bytearray, alloc) -> None:
         hook_words[name] = off
     for name, (off, _) in ab_words.items():
         rom[off:off + 4] = _word(labels[name] | 1)
-    offsets = {k: v - ROM_BASE if k in ("window", "yellow", "code", "fix") else v for k, v in lay.items()}
+    offsets = {k: v - ROM_BASE if k in ("window", "yellow", "orange", "code", "fix") else v for k, v in lay.items()}
     notes["bf_ki_pool"] = {**offsets, "labels": labels, "hooks": hook_words, "ram": RAM, "skipped": skipped,
+                           "cd_tail": list(CD_TAIL),
                            "ability_words": {name: off for name, (off, _) in ab_words.items()}}
