@@ -19,8 +19,8 @@ from pathlib import Path
 from unittest import mock
 
 import log2_build
-from rom import log2_save
 import log_paths
+from rom import log2_save
 from patches import bf_hud, bf_ki_pool
 
 # ===== constants (mockup builders, r38 reads) =====
@@ -31,7 +31,7 @@ V2B, V2, MOCK1 = MOCKS / "log2_poc_r38_bfhud2b.gba", MOCKS / "log2_poc_r38_bfhud
 V2B_SHA1, V2_SHA1 = "f5f5ee730346695c25035871378efebc084165b1", "5f17f8fc9c31e7c60b44543c8868d02b18b8fd6c"
 R38_SHA1 = "7a7cb85fa5873c4a44d360b33b6755d4e71e18e3"
 R38, R39 = BUILD / "log2_poc_r38.gba", BUILD / "log2_poc_r39.gba"
-BF = log2_build.ROOT / "data" / "roms" / "Dragon Ball Z - Buu's Fury (USA).gba"
+BF = log_paths.BF_ROM
 
 MOCK_WINDOW, MOCK_SIZE, YELLOW_LEN = 0xE11000, 0x824, 0x500
 RAM = 0x03003A00

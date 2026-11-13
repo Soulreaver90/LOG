@@ -33,11 +33,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P and -I omit the script folder
 
+import log_paths  # noqa: E402
 from scene import scene_lib as S                                         # noqa: E402
 
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE = log_paths.BASE_ROM
 TOOL_INDEX_NOTE = ("**`--map` is the section 9 READER.** It prints one map end to end: the entry fields "
                    "by name, the layout chain, BOTH door carriers side by side (the region list at entry "
                    "`+0x10` and the layout door list at `+0x40`/`+0x44`), the layout props, the collision "

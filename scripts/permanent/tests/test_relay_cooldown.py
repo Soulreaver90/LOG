@@ -17,6 +17,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import relay_cooldown
 from rom.rom_space import Allocator
 from tests.test_ssj2 import Cpu
@@ -24,7 +25,7 @@ from rom.thumb_dis import listing
 
 # ===== constants (brief, study report, r39 reads) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_cooldown.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_cooldown.txt"
 R39_SHA1 = "aa51dc16da5f6b633c0f50dc566864fe43f89ff0"
 HOOK, VANILLA_EXT70 = 0x3B5E40, 0x0800A785               # ext table 0x083B5D28 + 4 x 70
 EXT70_BODY = (0xA784, "08b5fff77bff9d48006af9f7a1fb08bd")

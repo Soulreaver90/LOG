@@ -24,8 +24,7 @@ from rom.thumb_dis import listing
 from rom.webfoot_decompress import ROM_BASE, unpack_frame
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE = log_paths.BASE_ROM
 BASE_ROM = BASE.read_bytes()
 OUT = log_paths.TEST_ROMS / "portraits.gba"
 
@@ -34,8 +33,8 @@ OLD_BLOCK, STRUCT_WORD, OLD_IDS = 0x3EC9D0, 0x03000E90, 115
 PLUS2_LITERAL, PLUS3_LITERAL = 0x26458, 0x3B30           # re-portraits.md 3
 APPEARANCE, ENTRY, ENTRIES = 0x1D967C, 20, 23            # relocated table holds entry 22 (Task 6)
 OBJ_PAL, STATUS_PAL = 0x1DA6C8, 0x1D4F50
-NEW = {"gi_ssj": (5, (0x3E, 0x0D), (115, 116)), "gi_ssj2": (22, (0x3D, 0x0C), (117, 118)),
-       "gi_base": (2, (0x3B, 0x0A), (119, 120))}
+NEW = {log_paths.GI_SSJ.name: (5, (0x3E, 0x0D), (115, 116)), log_paths.GI_SSJ2.name: (22, (0x3D, 0x0C), (117, 118)),
+       log_paths.GI_BASE.name: (2, (0x3B, 0x0A), (119, 120))}
 GI_STATUS = {232, 234}                                   # Piccolo gi: the game pairs OBJ 97 to 232, 233 to 234
 OLD_GI_DIALOG = {96, 80, 215}                            # indices recolored to 97 and 233
 MAP_LOAD_LITERAL, SET_TABLE_LITERAL = 0xC804, 0x959C    # one of the 17 table literals; the set table literal
@@ -202,7 +201,7 @@ class PortraitTests(unittest.TestCase):
         self.assertEqual(set(FORMS), set(NEW))
         for name in FORMS:
             self.assertEqual(form_art(BASE_ROM, name)[:2], load_art(name), name)
-        self.assertEqual(load_art("gi_base")[0], Image.open(BASE_SRC).tobytes())
+        self.assertEqual(load_art(log_paths.GI_BASE.name)[0], Image.open(BASE_SRC).tobytes())
         self.assertEqual(hashlib.sha1(BASE_SRC.read_bytes()).hexdigest(), BASE_SRC_SHA1)
 
     def test_gi_uses_piccolo_colors(self):

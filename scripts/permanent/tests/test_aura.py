@@ -22,10 +22,9 @@ from art.gi_review import BACKGROUND
 import log_paths
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
-GOLDEN = ART / "golden"
-OUTS = {"gi_ssj2_aura": "gi_ssj2_v2", "gi_rage_aura": "gi_rage"}
+GOLDEN = log_paths.GOLDEN
+OUTS = {log_paths.GI_SSJ2_AURA.name: log_paths.GI_SSJ2_V2.name, log_paths.GI_RAGE_AURA.name: log_paths.GI_RAGE.name}
 BOLT = {gi_aura.BLUE, gi_aura.WHITE}
 
 
@@ -148,15 +147,15 @@ class AuraFolderTests(unittest.TestCase):
 
     def test_rage_idle_shapes_are_the_owner_columns(self):    # set 160 body 0 = the reference body
         pats = gi_aura.reference_patterns()
-        keys = {(k["anim"], k["dir"], k["index"]): e for e in manifest("gi_rage_aura") for k in e["keys"]}
+        keys = {(k["anim"], k["dir"], k["index"]): e for e in manifest(log_paths.GI_RAGE_AURA.name) for k in e["keys"]}
         for d in (0, 1, 2):
             gold, pal, _ = px_of(GOLDEN / f"golden_gi_ssj2_d{d}.png")
             for s in range(3):
-                got, _, _ = px_of(ART / "gi_rage_aura" / keys[(0, d, s)]["png"])
+                got, _, _ = px_of(log_paths.GI_RAGE_AURA / keys[(0, d, s)]["png"])
                 self.assertEqual(got, gi_aura.bake(gold, pats[s][d], pal), (d, s))
 
     def test_ssj2_idle_body_is_the_std_golden(self):          # set 159 idle: std goldens, both bodies
-        for e in manifest("gi_ssj2_aura"):
+        for e in manifest(log_paths.GI_SSJ2_AURA.name):
             if any(k["anim"] == 0 for k in e["keys"]):
                 self.assertTrue(e["aura"]["body"].startswith("golden_gi_ssj2std_d"), e["png"])
 
@@ -174,7 +173,7 @@ class AuraFolderTests(unittest.TestCase):
 
     def test_rage_has_the_set_58_layout(self):
         rows = gi_aura._layout_rows(58)
-        got = {(k["anim"], k["dir"]) for e in manifest("gi_rage_aura") for k in e["keys"]}
+        got = {(k["anim"], k["dir"]) for e in manifest(log_paths.GI_RAGE_AURA.name) for k in e["keys"]}
         self.assertEqual(got, rows)
         self.assertFalse({a for a, _ in got} & {9, 11, 12, 20, 21})
 

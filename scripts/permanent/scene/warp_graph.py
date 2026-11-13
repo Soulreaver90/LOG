@@ -30,12 +30,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
 
+import log_paths  # noqa: E402
 from scene import scene_probe                                            # noqa: E402
 
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-OUT = ROOT / "docs" / "research"
+BASE = log_paths.BASE_ROM
+OUT = log_paths.RESEARCH
 ROM_BASE = 0x08000000
 WARP_FACTORIES = (0x0800C233, 0x0800D9C3)
 REGION_SIZE = 8

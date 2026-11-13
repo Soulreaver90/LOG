@@ -26,10 +26,10 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # run it straight, not only as a module
 
-import log_paths                       # noqa: E402
 from art import art_tables as A        # noqa: E402
+import log_paths  # noqa: E402
 
-BASE_ROM = log_paths.ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE_ROM = log_paths.BASE_ROM
 PATTERN = "*_vanilla.png"              # what this tool owns, and all it will ever delete
 
 
@@ -50,7 +50,7 @@ def main() -> int:
     a = ap.parse_args()
 
     rom_path = Path(a.rom) if a.rom else BASE_ROM
-    out = Path(a.out) if a.out else log_paths.ART / "portraits"
+    out = Path(a.out) if a.out else log_paths.PORTRAITS
     block = int(a.block, 16) if a.block else A.VANILLA_BLOCK
     lo, hi = ((int(v) for v in a.ids.split("-")) if a.ids
               else (A.DIALOG_IDS.start, A.DIALOG_IDS.stop))

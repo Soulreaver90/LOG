@@ -28,10 +28,10 @@ from rom.webfoot_decompress import unpack_frame
 
 # ===== constants (brief, s1_map.txt) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_gi_base.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_gi_base.txt"
 DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"        # build_list_dev.txt, the dev master (r41, 2026-10-31)
-APPROVED = log_paths.ART / "base-audit" / "approved"
-GI_BASE = log_paths.ART / "gi_base"
+APPROVED = log_paths.BASE_AUDIT_APPROVED
+GI_BASE = log_paths.GI_BASE
 SET_TABLE_LITERAL, FIRST_ID = 0x959C, 7
 PER_ANIM = {0: 3, 3: 12, 5: 12, 9: 16, 11: 8, 12: 8, 14: 20, 17: 8, 20: 16}   # 103 approved keys
 FRAMES, CHANGED = 39, 1765                               # frame headers written; bytes the dev master lacks

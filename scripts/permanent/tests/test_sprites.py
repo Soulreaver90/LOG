@@ -11,12 +11,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import log_paths
 from rom.log2_sprites import PALETTE_OFF, clone_set, export_set, image_to_tiles, set_records, tiles_to_image
 from rom.rom_space import Allocator
 from rom.webfoot_decompress import ROM_BASE, SET_TABLE, read_set, rom_ptr, unpack_frame
 
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE = log_paths.BASE_ROM
 FULL = 16777216
 SET_53, SET_56, SET_59 = 0x285234, 0x299C48, 0x2B69C8
 BASE_ROM = BASE.read_bytes()

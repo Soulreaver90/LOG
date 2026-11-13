@@ -24,15 +24,16 @@ from pathlib import Path
 import log2_build
 from scene import map_view
 from scene import scene_probe
+import log_paths  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import import_map                                                          # noqa: E402
 import map_file                                                            # noqa: E402
 import roundtrip                                                           # noqa: E402
 import tile_stream                                                         # noqa: E402
 
-DEV_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_dev.txt"
+DEV_LIST = log_paths.BUILD_LISTS / "build_list_dev.txt"
 PRIVATE_TABLE = 0x0890A92C          # map 14,4's own chunk table in every current build
 PRIVATE_MAP = (14, 4)
 ROM_BASE = map_view.ROM_BASE

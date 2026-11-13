@@ -22,10 +22,12 @@ import struct
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-OUT = ROOT / "docs" / "research"
+BASE = log_paths.BASE_ROM
+OUT = log_paths.RESEARCH
 TABLE, STRIDE = 0x6ADE24, 0x38
 STRING_TABLE = 0x0E2840
 F_NAME, F_DESC, F_HANDLER, F_SHARED = 0x04, 0x06, 0x30, 0x34

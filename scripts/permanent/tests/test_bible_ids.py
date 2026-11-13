@@ -13,16 +13,16 @@ import re
 import sys
 import unittest
 from pathlib import Path
+import log_paths  # noqa: E402
 
 PERMANENT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PERMANENT))
-import log_paths  # noqa: E402
 
 sys.path.insert(0, str(log_paths.DISASM))
 import symbols  # noqa: E402
 
 ID_FORM = re.compile(r"^B\d{4}$")
-BIBLE = log_paths.ROOT / "docs" / "RE-BIBLE.md"
+BIBLE = log_paths.BIBLE
 # A row shaped like a real fact row, inserted near the top where it moves every line below it.
 NEW_ROW = "| A test row that is never written to disk | #tool | C | TEST |"
 

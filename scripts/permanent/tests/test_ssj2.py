@@ -27,8 +27,7 @@ from rom.thumb_dis import dis, listing
 from rom.webfoot_decompress import ROM_BASE, rom_ptr
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE = log_paths.BASE_ROM
 BASE_ROM = BASE.read_bytes()
 ART = log_paths.ART
 OUT = log_paths.TEST_ROMS / "ssj2.gba"

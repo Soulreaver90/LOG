@@ -17,6 +17,9 @@ import struct
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 ROM_BASE, WIDTHS = 0x08000000, {1: "<B", 2: "<H", 4: "<I"}
 
 
@@ -36,7 +39,7 @@ def parse(arg: str) -> tuple:
 def poke(src: Path, out: Path, edits: list, save: Path = None) -> None:
     if out.exists():
         sys.exit(f"refusing to overwrite {out}. Pick a new name.")
-    if "data" in [p.lower() for p in out.parts]:
+    if log_paths.DATA.name in [p.lower() for p in out.parts]:
         sys.exit(f"refusing to write under a data folder: {out}")
     rom = bytearray(src.read_bytes())
     for off, value, width in edits:

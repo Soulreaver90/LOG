@@ -80,23 +80,22 @@ import log_paths  # noqa: E402
 from rom.log2_sprites import OBJ_SHAPES, PALETTE_LEN, PALETTE_OFF, SLOT_BYTES, image_to_tiles, tiles_to_image  # noqa: E402
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE_ROM = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE_ROM = log_paths.BASE_ROM
 SPRITES = log_paths.SPRITES
 ART = log_paths.ART
-WORK = ART / "work"                                        # old-method frames kept for before and after sheets
+WORK = log_paths.WORK                                        # old-method frames kept for before and after sheets
 HFLIP = 0x1000
 Key = tuple                                                # (anim, dir, index)
 
-FORMS = {"gi_base": "set56", "gi_ssj": "set59", "gi_ssj2": "set58"}   # gi folder: the form's original set
-FALLBACK = {"gi_ssj2": "set59"}                            # record list and keys the original set lacks
-SHARE = {"gi_ssj2": "gi_ssj"}                              # one gi body where the armor bodies match (final, 2026-10-18)
+FORMS = {log_paths.GI_BASE.name: "set56", log_paths.GI_SSJ.name: "set59", log_paths.GI_SSJ2.name: "set58"}   # gi folder: the form's original set
+FALLBACK = {log_paths.GI_SSJ2.name: "set59"}                            # record list and keys the original set lacks
+SHARE = {log_paths.GI_SSJ2.name: log_paths.GI_SSJ.name}                              # one gi body where the armor bodies match (final, 2026-10-18)
 BACK_DIR = 1                                               # dir 1 shows Gohan's back
 TRANSFORM_ANIM = 9                                         # faces front in every dir
-SASH_MATCH = {"gi_base": "gi_ssj"}                         # same poses: the base sash never sits below the SSJ one
+SASH_MATCH = {log_paths.GI_BASE.name: log_paths.GI_SSJ.name}                         # same poses: the base sash never sits below the SSJ one
 # Reviewed sash rows: {folder: {"anim.dir.index": rows to move}}. Base 16.0.2 (11:03 AM, 74.png): the kick's
 # sash sat on the narrow hip row under the torso; one row up it spans the full waist, as on the SSJ frame.
-SASH_NUDGE = {"gi_base": {"16.0.2": -1}}
+SASH_NUDGE = {log_paths.GI_BASE.name: {"16.0.2": -1}}
 
 # Palette groups (indices of the shared OBJ palette)
 RED = {24, 25, 26, 27}
@@ -997,7 +996,7 @@ def finish(px: dict, mask: set, k: Key, keep: set = frozenset(), arms: set = fro
 # ===== golden rules: shoes, shading, torso, step light (mine, 2026-10-17/18, the 12 golden frames) =====
 # They run on every frame after the conversion and never change `fixed` (head, effects, sparks). "Left" is the
 # image's left (`lean` = its direction in object space), so a mirrored dir shows the light mirrored, as golden d3.
-GOLDEN = ART / "golden"
+GOLDEN = log_paths.GOLDEN
 SHOE_ROWS = 2                                              # a gi shoe is the bottom 2 rows of a boot (set 104)
 SOLE_TILT = 1.5                                            # a lying boot points sideways only when clearly so
 GI_FILL = {88, 89}
@@ -1006,8 +1005,8 @@ STEP_FRAMES = (1, 2, 3)                                    # anim 9 frames the a
 STEP_LIGHT = {88: 87, 89: 88}                              # one step brighter: lit 88, and 89 beside a lit pixel
 TORSO_MARGIN = 2                                           # columns past the golden gi kept with the torso
 LOOSE = {v: 79 for v in SUIT}                              # suit shades read as one when torsos are compared
-IDLE_GOLDEN = ("gi_base", "gi_ssj")                        # gi_ssj2: finish_v2.py places it (transplant.py reads ours)
-OWNER_FRAMES = {"gi_base": {(1, 0, i): f"golden_gi_base_a1_d0_i{i}.png" for i in range(4)}}   # 9:48 AM walk
+IDLE_GOLDEN = (log_paths.GI_BASE.name, log_paths.GI_SSJ.name)                        # gi_ssj2: finish_v2.py places it (transplant.py reads ours)
+OWNER_FRAMES = {log_paths.GI_BASE.name: {(1, 0, i): f"golden_gi_base_a1_d0_i{i}.png" for i in range(4)}}   # 9:48 AM walk
 GOLDEN_CHECKS = {"sleeve", "lost"}                         # checks that read the converter's arms and silhouette
 GOLDEN_EXCEPTION = "golden pixels: the owner's torso and straps replace the converter's arm and outline guesses"
 HAND_EXCEPTION = "hand frame: the reviewed r12fix frame replaces the converter's; the checks read the armor parts"
@@ -1750,7 +1749,7 @@ def make_gi_set(name: str, layout: dict, out_dir: Path, palette: list, fixes: di
         arms = parts.get("arms", set()) - mask
         v, more = finish(px, mask, k, keep, arms)
         notes += more
-        if name == "gi_ssj2":
+        if name == log_paths.GI_SSJ2.name:
             spots = sparks(px, mask)
             if spots:
                 paint_sparks_blue(px, spots)
@@ -1935,9 +1934,9 @@ def overview_sheet(out_png: Path) -> None:
     """Standing frames (anim 0, frame 0) of every dir at 6x: armor next to the gi, for each form."""
     font = ImageFont.load_default()
     s = 6
-    rows = [("armor (set 56)", SPRITES / "set56"), ("gi base", ART / "gi_base"),
-            ("armor Super Saiyan (set 59)", SPRITES / "set59"), ("gi Super Saiyan", ART / "gi_ssj"),
-            ("armor Rage (set 58)", SPRITES / "set58"), ("gi Super Saiyan 2", ART / "gi_ssj2")]
+    rows = [("armor (set 56)", SPRITES / "set56"), ("gi base", log_paths.GI_BASE),
+            ("armor Super Saiyan (set 59)", SPRITES / "set59"), ("gi Super Saiyan", log_paths.GI_SSJ),
+            ("armor Rage (set 58)", SPRITES / "set58"), ("gi Super Saiyan 2", log_paths.GI_SSJ2)]
     sheet = Image.new("RGB", (220 + 4 * (32 * s + 12), len(rows) * (32 * s + 16) + 20), SHEET_BG)
     draw = ImageDraw.Draw(sheet)
     for i, (label, d) in enumerate(rows):
@@ -1978,7 +1977,7 @@ def transform_test_sheet(out_png: Path) -> None:
     """Ruling 25 test cases (my direction n): Super Saiyan 9.2.0-9.2.2, original | old method | gi."""
     old = WORK / "gi_ssj_old_method"
     groups = [(f"9.2.{i}", [("set 59", _png_of(SPRITES / "set59", (9, 2, i))), ("old method", _png_of(old, (9, 2, i))),
-                            ("gi", _png_of(ART / "gi_ssj", (9, 2, i)))]) for i in range(3)]
+                            ("gi", _png_of(log_paths.GI_SSJ, (9, 2, i)))]) for i in range(3)]
     before_after_sheet(groups, out_png, "Super Saiyan 9.2.0-9.2.2 (Ruling 25 test cases): original | before | after, 4x")
 
 # ===== animation review =====
@@ -2067,10 +2066,10 @@ def anim_review(form_dir: Path, orig_dirs: list, out_dir: Path, title: str) -> l
 COMPARE_ROWS = (("Goku set 60 (entry 19 -> 20)", "set60", 9), ("Goku SSJ set 61 (entry 20)", "set61", 21),
                 ("Vegeta set 137 (entry 8 -> 11)", "set137", 9), ("Vegeta SSJ set 140 (entry 11)", "set140", 21),
                 ("Trunks set 129 (entry 13 -> 14)", "set129", 9), ("Trunks SSJ set 130 (entry 14)", "set130", 21),
-                ("Gohan set 56 (entry 2 -> 5)", "set56", 9), ("gi base", "gi_base", 9),
-                ("Gohan SSJ set 59 (entry 5 -> 4)", "set59", 9), ("gi SSJ (SSJ -> SSJ2 step)", "gi_ssj", 9),
-                ("Gohan SSJ set 59 revert", "set59", 21), ("gi SSJ revert", "gi_ssj", 21),
-                ("gi SSJ2 revert", "gi_ssj2", 21))
+                ("Gohan set 56 (entry 2 -> 5)", "set56", 9), ("gi base", log_paths.GI_BASE.name, 9),
+                ("Gohan SSJ set 59 (entry 5 -> 4)", "set59", 9), ("gi SSJ (SSJ -> SSJ2 step)", log_paths.GI_SSJ.name, 9),
+                ("Gohan SSJ set 59 revert", "set59", 21), ("gi SSJ revert", log_paths.GI_SSJ.name, 21),
+                ("gi SSJ2 revert", log_paths.GI_SSJ2.name, 21))
 
 def compare_transform(out_png: Path, gif_dir: Path) -> list:
     """One sheet: a row per COMPARE_ROWS entry, all dirs, 4 frames each, one anchor, 4x; a GIF per row (dir 0)."""
@@ -2200,7 +2199,7 @@ _PUNCH_BAND = {"7.2.3": fix_rows("6,19: 195", "6,20: 72")}
 # 1.2.2 (my review 2026-10-17, side walk): the back arm swung behind is 1 px of suit in the armor. Drawn as the
 # front arm reads: a skin arm with its outline, the band beside the fist.
 _WALK_BACK_ARM = {"1.2.2": fix_rows("11,19: 23 116 116 23", "11,20: 23 116 195", "11,21: 23 117 72", "11,22: 23")}
-FIXES = {name: {**_PUNCH_BAND, **_WALK_BACK_ARM} for name in ("gi_base", "gi_ssj", "gi_ssj2")}
+FIXES = {name: {**_PUNCH_BAND, **_WALK_BACK_ARM} for name in (log_paths.GI_BASE.name, log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name)}
 # Image coordinates hold only for the record a fix was drawn on: (w, h, dx, dy). make_gi_set refuses any other.
 FIX_GEOMETRY = {"7.2.3": (32, 32, -8, -24), "1.2.2": (16, 32, 0, -24)}
 # White parts the shape rules miss, found in the strip review: {"anim.dir.index": {object point: class}}. The
@@ -2254,14 +2253,14 @@ ARM_SEEDS = {
 # would bare the whole torso. Their sleeve is the forearm only.
 SHORT_REACH = {"2.0.2": 3, "2.0.3": 3, "6.0.2": 3, "7.0.2": 3}
 _LYING_HAND = "knocked down: the box under the chin holds the hand on the ground, not the chest (reviewed at 4x)"
-CHECK_EXCEPTIONS = {"gi_base": {"3.0.1": _LYING_HAND}, "gi_ssj": {"3.0.1": _LYING_HAND},
-                    "gi_ssj2": {"3.0.1": _LYING_HAND}}                # {folder: {"anim.dir.index": reason}}
+CHECK_EXCEPTIONS = {log_paths.GI_BASE.name: {"3.0.1": _LYING_HAND}, log_paths.GI_SSJ.name: {"3.0.1": _LYING_HAND},
+                    log_paths.GI_SSJ2.name: {"3.0.1": _LYING_HAND}}                # {folder: {"anim.dir.index": reason}}
 # check_parts misfits of 1-3 px left for me to draw (owner-0948 report, review sheets parts_<form>.png):
 # the side views have no torso split, so an arm across the side torso reads as torso.
 _PARTS_OWNER = "parts: listed for the owner (owner-0948 review sheet)"
-PARTS_REVIEW = {"gi_base": ("7.2.3", "16.2.2"),
-                "gi_ssj": ("1.0.2", "2.0.2", "2.0.3", "4.1.1", "4.1.3", "7.0.3", "7.2.3", "16.2.1"),
-                "gi_ssj2": ("2.0.2", "9.0.3", "11.0.1")}
+PARTS_REVIEW = {log_paths.GI_BASE.name: ("7.2.3", "16.2.2"),
+                log_paths.GI_SSJ.name: ("1.0.2", "2.0.2", "2.0.3", "4.1.1", "4.1.3", "7.0.3", "7.2.3", "16.2.1"),
+                log_paths.GI_SSJ2.name: ("2.0.2", "9.0.3", "11.0.1")}
 for _name, _keys in PARTS_REVIEW.items():
     CHECK_EXCEPTIONS[_name].update({_k: _PARTS_OWNER for _k in _keys})
 
@@ -2273,20 +2272,20 @@ def make_frames() -> None:
         make_gi_set(name, form_layout(name), ART / name, palette, FIXES[name])
 
 def make_sheets() -> None:
-    contact_sheet(ART / "gi_base", [SPRITES / "set56"], ART / "gi_base_sheet.png", "gi base (pose: set 56)")
-    contact_sheet(ART / "gi_ssj", [SPRITES / "set59"], ART / "gi_ssj_sheet.png", "gi Super Saiyan (pose: set 59)",
+    contact_sheet(log_paths.GI_BASE, [SPRITES / "set56"], ART / "gi_base_sheet.png", "gi base (pose: set 56)")
+    contact_sheet(log_paths.GI_SSJ, [SPRITES / "set59"], ART / "gi_ssj_sheet.png", "gi Super Saiyan (pose: set 59)",
                   brow_ref=(SPRITES / "set61", (0, 0, 0), "Goku Super Saiyan set 61 0.0.0"))
-    contact_sheet(ART / "gi_ssj2", [SPRITES / "set58", SPRITES / "set59"], ART / "gi_ssj2_sheet.png",
+    contact_sheet(log_paths.GI_SSJ2, [SPRITES / "set58", SPRITES / "set59"], ART / "gi_ssj2_sheet.png",
                   "gi Super Saiyan 2 (pose: set 58; set 59 body where 58 has no frame)")
     overview_sheet(ART / "gi_overview.png")
 
 def make_anim() -> None:
-    anim_review(ART / "gi_base", [SPRITES / "set56"], ART / "anim" / "gi_base", "gi base")
-    anim_review(ART / "gi_ssj", [SPRITES / "set59"], ART / "anim" / "gi_ssj", "gi Super Saiyan")
-    anim_review(ART / "gi_ssj2", [SPRITES / "set58", SPRITES / "set59"], ART / "anim" / "gi_ssj2", "gi Super Saiyan 2")
+    anim_review(log_paths.GI_BASE, [SPRITES / "set56"], log_paths.ANIM / log_paths.GI_BASE.name, "gi base")
+    anim_review(log_paths.GI_SSJ, [SPRITES / "set59"], log_paths.ANIM / log_paths.GI_SSJ.name, "gi Super Saiyan")
+    anim_review(log_paths.GI_SSJ2, [SPRITES / "set58", SPRITES / "set59"], log_paths.ANIM / log_paths.GI_SSJ2.name, "gi Super Saiyan 2")
 
 def make_compare() -> None:
-    compare_transform(ART / "anim" / "compare_transform.png", ART / "anim" / "compare")
+    compare_transform(log_paths.ANIM / "compare_transform.png", log_paths.ANIM_COMPARE)
     transform_test_sheet(ART / "gi_ssj_9_2_test_cases.png")
 
 def _main(argv: list) -> int:

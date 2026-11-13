@@ -12,10 +12,11 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import scouter_future as sf
 
 ROM_BASE = 0x08000000
-LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_plateau.txt"
+LIST = log_paths.BUILD_LISTS / "build_list_trial_plateau.txt"
 ENEMY_TABLE, ENEMY_ENTRY = 0x6D56AC, 24
 
 

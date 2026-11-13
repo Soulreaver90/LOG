@@ -18,6 +18,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from rom import log2_save as ls
 from tests.test_bf_ki_pool import PLAYER, RAM, STOPS, STRUCT, Cpu2, cpu, rec
 from tests.test_bf_hud import labels
@@ -25,7 +26,7 @@ from tests.test_ssj2 import M32, REGNO
 
 # ===== constants (read on the dev master and the base ROM, never imported from the patch) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_piccolo.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_piccolo.txt"
 RET, STACK = 0x0EEE0000, 0x03007E00
 BASE_TICK = 0x08017028
 
@@ -44,7 +45,7 @@ FLAG_132 = (STRUCT + 0xB4 + 132 // 8, 1 << (132 % 8))    # the Kami fusion flag 
 HEAL_STEP = 0x290                                        # max HP x 0x290 >> 16, about 1 % (bible B0543)
 DRAIN_STEP = 0x0CCD                                      # 1 every 20 frames
 EXPECTED_RUNS = (0x024AC0, 0x025CF4, 0x1D9578, 0x909FFC)
-MOCKUP = log2_build.ROOT / "builds" / "mockups" / "2026-11-12-piccolo-z-start"
+MOCKUP = log_paths.PICCOLO_Z_MOCKUPS
 WEST_CITY, WEST_CITY_POS = (4, 6, 1), (656, 368)     # the 6,1 warp landing, bible B1186
 
 # Save code that must stay byte equal, or an old save stops loading the way it did.
@@ -351,7 +352,7 @@ class Saves(unittest.TestCase):
 
         It also shows the gate is really record +0x14 bit 5: these are post-fusion saves and every slot
         already carries it, which is why the owner's seeded save shows the tick change, not the gate."""
-        ram = ls.read_ram((log2_build.ROOT / "test-data" / "saves" / "log2_lv40_postcell.sav").read_bytes())
+        ram = ls.read_ram((log_paths.SAVES / "log2_lv40_postcell.sav").read_bytes())
         for n in range(ls.SLOT_COUNT):
             with self.subTest(slot=n):
                 slot = bytes(ram[ls.slot_range(n)])
@@ -394,7 +395,7 @@ class DemoSaves(unittest.TestCase):
         self.check("log2_piccolo_z_v1_z_from_start.sav", 0x6F, [2, 9, NAMEK_ABILITY])
 
     def test_neither_save_changes_another_character(self):
-        seed = ls.read_ram((log2_build.ROOT / "builds" / "log2_poc_r40.sav").read_bytes())
+        seed = ls.read_ram((log_paths.BUILDS / "log2_poc_r40.sav").read_bytes())
         for name in ("log2_piccolo_z_v1_gate_shut.sav", "log2_piccolo_z_v1_z_from_start.sav"):
             for n, slot in enumerate(self.slots(name)):
                 was = bytes(seed[ls.slot_range(n)])

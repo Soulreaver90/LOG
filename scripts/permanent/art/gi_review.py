@@ -19,11 +19,10 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P and -I omit the script folder
-
 import log_paths  # noqa: E402
 
+
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
 BACKGROUND = (191, 255, 7)
 LABEL = (0, 0, 0)
@@ -56,11 +55,11 @@ def strip_cell(path: Path, k: dict) -> Image.Image:
 
 def strips(art: Path = ART) -> list:
     """Per animation, each direction row shows gi_ssj2 over gi_ssj2_v2 at 3x. Red box = flagged, yellow = shifted."""
-    out = art / "gi_ssj2_v2" / "review"
+    out = log_paths.under(art, log_paths.GI_SSJ2_REVIEW)
     out.mkdir(exist_ok=True)
     s, cw, ch = STRIP_SCALE, CELL_W, CELL_H
-    old, new = load_keys(art / "gi_ssj2"), load_keys(art / "gi_ssj2_v2")
-    flags = {r["png"]: r["status"] for r in json.loads((art / "gi_ssj2_v2" / "transplant.json").read_text())}
+    old, new = load_keys(log_paths.under(art, log_paths.GI_SSJ2)), load_keys(log_paths.under(art, log_paths.GI_SSJ2_V2))
+    flags = {r["png"]: r["status"] for r in json.loads((log_paths.under(art, log_paths.GI_SSJ2_V2) / "transplant.json").read_text())}
     for a in sorted({k[0] for k in old}):
         dirs = sorted({k[1] for k in old if k[0] == a})
         n = max(k[2] for k in old if k[0] == a) + 1
@@ -122,9 +121,9 @@ def save_gif(loop: list, path: Path) -> None:
 def base_step(art: Path = ART) -> dict:
     """Base to SSJ step (anim 9 of the base set, dir 0): armor set 56 on top, gi set 157 below, by dx/dy at 6x."""
     s = STEP_SCALE
-    anim = art / "anim"
+    anim = log_paths.under(art, log_paths.ANIM)
     anim.mkdir(exist_ok=True)
-    rows = {"armor": anim_frames(log_paths.SPRITES / "set56", 9), "gi": anim_frames(art / "gi_base", 9)}
+    rows = {"armor": anim_frames(log_paths.SPRITES / "set56", 9), "gi": anim_frames(log_paths.under(art, log_paths.GI_BASE), 9)}
     sheet = Image.new("RGB", (4 * 40 * s, 2 * 40 * s + 20), BACKGROUND)
     for r, (name, fr) in enumerate(rows.items()):
         for i, (im, k) in enumerate(fr):
@@ -141,9 +140,9 @@ def base_step(art: Path = ART) -> dict:
 def ssj2_step(art: Path = ART) -> None:
     """Set 158 anim 9 sheet: old (gi_ssj) on top, new (gi_ssj_v2) below, placed by dx/dy at 6x."""
     s = STEP_SCALE
-    anim = art / "anim"
+    anim = log_paths.under(art, log_paths.ANIM)
     anim.mkdir(exist_ok=True)
-    rows = [anim_frames(art / "gi_ssj", 9), anim_frames(art / "gi_ssj_v2", 9)]
+    rows = [anim_frames(log_paths.under(art, log_paths.GI_SSJ), 9), anim_frames(log_paths.under(art, log_paths.GI_SSJ_V2), 9)]
     sheet = Image.new("RGB", (4 * 40 * s, 2 * 40 * s + 20), BACKGROUND)
     for r, fr in enumerate(rows):
         for i, (im, k) in enumerate(fr):
@@ -154,9 +153,9 @@ def ssj2_step(art: Path = ART) -> None:
     print("ssj2 step sheet written")
 
 
-def step_gif(art: Path = ART, folder: str = "gi_ssj_v2", anim: int = 9) -> list:
+def step_gif(art: Path = ART, folder: str = log_paths.GI_SSJ_V2.name, anim: int = 9) -> list:
     """GIF of the SSJ to SSJ2 step only: set 158 anim 9, dir 0, frame 0 held, frames 1-3 cycle 4 times."""
-    out = art / "anim"
+    out = log_paths.under(art, log_paths.ANIM)
     out.mkdir(exist_ok=True)
     loop = step_loop(gif_frames(anim_frames(art / folder, anim)))
     save_gif(loop, out / "ssj_to_ssj2_step.gif")

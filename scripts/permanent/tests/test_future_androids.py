@@ -16,6 +16,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import future_androids as F
 from scene import scene_probe as P
 from scene.scene_lib import record_end, words_naming, zigzag
@@ -23,7 +24,7 @@ from tests.test_cellgames_ssj import ext_sequence, ops as raw_ops
 
 # ===== constants (the brief, the owner's words, and the base reads) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_future.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_future.txt"
 BASE_MAPS, BASE_COUNT, MAP_SIZE = 0x409368, 327, 56
 TABLE, TABLE_WORDS = 0x3B8140, 27
 PLAYER, TRUNKS, TRUNKS_BASE, TRUNKS_SSJ = 0, 3, 132, 133
@@ -393,7 +394,7 @@ class BuildOrder(unittest.TestCase):
 
     def test_the_two_masters_do_not_carry_this_module(self):
         for name in ("build_list.txt", "build_list_core.txt", "build_list_dev.txt"):
-            names = log2_build.read_build_list(log2_build.ROOT / "scripts" / "permanent" / name)
+            names = log2_build.read_build_list(log_paths.BUILD_LISTS / name)
             self.assertNotIn("future_androids", names, name)
 
     def test_a_second_run_raises(self):

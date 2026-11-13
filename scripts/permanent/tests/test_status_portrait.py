@@ -26,11 +26,10 @@ from rom.thumb_dis import dis, listing
 from rom.webfoot_decompress import ROM_BASE, decompress, unpack_frame
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE_ROM = (ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba").read_bytes()
+BASE_ROM = (log_paths.BASE_ROM).read_bytes()
 R19 = ("gohan_gi", "ssj2_form", "gohan_portraits", "status_bonus", "ssj2_idle", "cutscene_portraits", "npc_gi",
        "rage_text")
-REMASTER = log_paths.PORTRAIT_SOURCES / "remaster"
+REMASTER = log_paths.REMASTER
 MENU_PAL, OBJ_PAL = 0x1D4F50, 0x1DA6C8
 PORTRAIT, BLOCK_LITERAL = 0x0800BDCC, 0xBE10
 CREATE, UNPACK, PBLIT, COPY = 0x08020E5C, 0x0801F394, 0x080211C8, 0x080236B4

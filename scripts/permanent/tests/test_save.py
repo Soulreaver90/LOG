@@ -13,12 +13,11 @@ import unittest
 import zlib
 from pathlib import Path
 
-from rom import log2_save as ls
 import log_paths
+from rom import log2_save as ls
 
-ROOT = Path(__file__).resolve().parents[3]
-BASE_SAV = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).sav"
-BASE_ROM = (ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba").read_bytes()
+BASE_SAV = log_paths.BASE_ROM.with_suffix(".sav")
+BASE_ROM = (log_paths.BASE_ROM).read_bytes()
 LOADED_SAV = log_paths.SAVES / "log2_lv40_postcell.sav"   # the file I loaded (r12)
 CELLGAMES_SAV = log_paths.SAVES / "log2_lv40_cellgames.sav"  # SHA-1 c755acf0..., slots 1-2 must stay
 POSTCELL_SHA1 = "3ecf1e40b2267cc2cb63c3f64bafe6a010afac0d"         # build output recorded in the bible
@@ -83,7 +82,7 @@ class BuildTests(unittest.TestCase):
     def test_write_refuses_a_data_folder(self):
         with tempfile.TemporaryDirectory() as t:
             with self.assertRaises(SystemExit):
-                ls.write(Path(t) / "data" / "x.sav", bytearray(ls.SAV_SIZE))
+                ls.write(log_paths.under(t, log_paths.DATA) / "x.sav", bytearray(ls.SAV_SIZE))
 
 
 class CellGamesSetTests(unittest.TestCase):

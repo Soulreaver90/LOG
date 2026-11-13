@@ -24,12 +24,13 @@ Rules:   Source: docs\tasks\2026-10-24-r39-build\r39.md, hud-ki-study-report.md 
          Every region is checked against its r38 bytes (SHA-1) before the first write; a second run raises.
 """
 import hashlib
+import log_paths
 import struct
 from pathlib import Path
 
 # ===== constants =====
 ROM_BASE = 0x08000000
-BF_PATH = Path(__file__).resolve().parents[3] / "data" / "roms" / "Dragon Ball Z - Buu's Fury (USA).gba"
+BF_PATH = log_paths.BF_ROM
 BF_SHA1 = "f1c4b07554d2a3b1ad2f325307051e775ce68087"
 BF_TO_LOG2 = {0: 0, 1: 1, 3: 5, 5: 8, 6: 4, 26: 41, 27: 40, 28: 46, 29: 131, 30: 123, 32: 26, 33: 25, 34: 24,
               35: 30, 48: 58, 49: 57, 50: 56, 52: 151, 75: 68, 95: 216, 96: 3, 97: 197, 98: 76, 99: 202, 100: 177,

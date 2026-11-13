@@ -11,9 +11,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import log_paths  # noqa: E402
 from rom import state_dump                                                # noqa: E402
 
-STATES = (Path(__file__).resolve().parents[3] / "builds" / "mockups" / "2026-11-06-arena-v3")
+STATES = (log_paths.ARENA_V3_MOCKUPS)
 
 
 def planted(pairs: list, size: int = 0x400) -> bytes:

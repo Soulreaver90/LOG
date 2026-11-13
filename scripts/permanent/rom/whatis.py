@@ -49,20 +49,20 @@ ROM_END = 0x0A000000
 RAM_LO = 0x02000000                                      # a bare value below this is read as a file offset
 CODE_HI_FALLBACK = 0x28724                               # rom offset; used when codemap.json cannot be read
 DEFAULT_SPAN = 0x1000                                    # shape C extent when no stride and count are given
-BASE_ROM = log_paths.ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE_ROM = log_paths.BASE_ROM
 
-RAM_LEDGER = log_paths.DISASM_REPO / "docs" / "RAM_LEDGER.csv"
-CODE_INDEX = log_paths.DISASM_REPO / "docs" / "CODE_INDEX.md"
-FUNCTION_BOUNDS = log_paths.DISASM_REPO / "tools" / "code" / "FUNCTION_BOUNDS.csv"
-FUNCTION_ENDS = log_paths.DISASM_REPO / "tools" / "code" / "FUNCTION_ENDS.csv"
+RAM_LEDGER = log_paths.DISASM_REPO_DOCS / "RAM_LEDGER.csv"
+CODE_INDEX = log_paths.DISASM_REPO_DOCS / "CODE_INDEX.md"
+FUNCTION_BOUNDS = log_paths.DISASM_REPO_BOUNDS / "FUNCTION_BOUNDS.csv"
+FUNCTION_ENDS = log_paths.DISASM_REPO_BOUNDS / "FUNCTION_ENDS.csv"
 # The DISASM repo's own build\code, never the gnu clone's. The gnu copy is a measured stale tree:
 # 1333 files against 1476, 154 missing starts, and 29 shared starts whose bodies differ. Pointing a
 # lookup tool there hands the reader a body that may belong to a different function. See CLAUDE.md.
 GENERATED_CODE = log_paths.DISASM_REPO / "build" / "code"
-MODULES = [log_paths.ROOT / "scripts" / "permanent" / "patches",
-           log_paths.ROOT / "scripts" / "permanent" / "scene" / "scene_lib.py"]
+MODULES = [log_paths.PATCHES,
+           log_paths.SCENE / "scene_lib.py"]
 
-SOURCES = [("bible", log_paths.ROOT / "docs" / "RE-BIBLE.md"),
+SOURCES = [("bible", log_paths.BIBLE),
            ("our symbol table", log_paths.DISASM / "symbols.py"), ("RAM ledger", RAM_LEDGER),
            ("code index", CODE_INDEX), ("function bounds", FUNCTION_BOUNDS),
            ("generated assembly", GENERATED_CODE), ("our modules", MODULES[0])]
@@ -271,7 +271,7 @@ class Shapes:
 def code_hi() -> int:
     """The end of the code region, from the committed codemap snapshot when it can be read."""
     def make():
-        return json.loads((log_paths.DISASM / "data" / "codemap.json")
+        return json.loads((log_paths.DISASM_DATA / "codemap.json")
                           .read_text(encoding="utf-8"))["code_hi"] - ROM_BASE
     v = _cached("codehi", make)
     return CODE_HI_FALLBACK if isinstance(v, (OSError, KeyError, ValueError)) else v
@@ -374,7 +374,7 @@ def answer(query: str, rom_path=None, span=None, stride=None, count=None,
     found = []
 
     rows = _bible_hits(q)
-    out.append(f"-- bible: {len(rows)} row(s) in {_rel(log_paths.ROOT / 'docs' / 'RE-BIBLE.md')}")
+    out.append(f"-- bible: {len(rows)} row(s) in {_rel(log_paths.BIBLE)}")
     if rows:
         found.append("bible")
         for r in cut(rows):

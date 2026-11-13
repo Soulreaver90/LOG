@@ -272,7 +272,7 @@ def cmd_portrait(where: Where, pid: int, png: Path, snap: bool, note: str) -> in
     art = check_png(pre, palette, png, pid, snap)
     if art.problems:
         return _refuse([f"{png.name}: {p}" for p in art.problems])
-    dest = Path("portraits") / f"{pid:03d}_{png.stem.removeprefix(f'{pid:03d}_')}.png"
+    dest = Path(log_paths.TABLE_PORTRAITS.name) / f"{pid:03d}_{png.stem.removeprefix(f'{pid:03d}_')}.png"
     note = table.get(pid, {}).get("note", "") if note is None else note
     table, pal = {**table, pid: {"png": dest.as_posix(), "note": note}}, at.obj_palette(pre.rom, palette)
     built = build_verified(where, pre, palette, table, {pid: art.px})

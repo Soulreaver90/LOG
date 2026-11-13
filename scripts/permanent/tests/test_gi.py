@@ -23,13 +23,12 @@ from rom.log2_sprites import PALETTE_LEN, PALETTE_OFF, SLOT_BYTES, set_records, 
 from rom.webfoot_decompress import ROM_BASE, SET_TABLE, rom_ptr, unpack_frame
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE = log_paths.BASE_ROM
 ART = log_paths.ART
 BASE_ROM = BASE.read_bytes()
 SETS = {53: 0x285234, 56: 0x299C48, 58: 0x2AB508, 59: 0x2B69C8}
-GEOMETRY = {"gi_base": (56,), "gi_ssj": (59,), "gi_ssj2": (58, 59)}   # first set that has the key wins
-KEYS_FROM = {"gi_base": 56, "gi_ssj": 59, "gi_ssj2": 59}              # the key list each folder covers
+GEOMETRY = {log_paths.GI_BASE.name: (56,), log_paths.GI_SSJ.name: (59,), log_paths.GI_SSJ2.name: (58, 59)}   # first set that has the key wins
+KEYS_FROM = {log_paths.GI_BASE.name: 56, log_paths.GI_SSJ.name: 59, log_paths.GI_SSJ2.name: 59}              # the key list each folder covers
 EXTRA = {34, 35, 87, 88, 89, 211, 26, 72, 195, 191}        # gi colors named by me and the briefs; 191 = spark
                                                            # blue, 87 = the step light (gi-rules-night rule 4)
 RECORD = ("dx", "dy", "w", "h", "attr0", "attr1")
@@ -177,10 +176,10 @@ class GiArtTests(unittest.TestCase):
 
 # ===== my review 2026-10-17 (gi-fix-1125): legs vs arms, front V, side neck opening =====
 
-GOLDEN = ART / "golden"
+GOLDEN = log_paths.GOLDEN
 V_ROWS = (19, 20)                                          # first two gi rows under the collar on the idle goldens
-GOLDEN_V = {"gi_base": (6, 10), "gi_ssj": (5, 9), "gi_ssj2": (13, 17)}   # gi columns between the collar outlines
-GOLDEN_SIDE = ("gi_ssj2", (13, 15))                        # the golden side shows the opening (base and SSJ: arm)
+GOLDEN_V = {log_paths.GI_BASE.name: (6, 10), log_paths.GI_SSJ.name: (5, 9), log_paths.GI_SSJ2.name: (13, 17)}   # gi columns between the collar outlines
+GOLDEN_SIDE = (log_paths.GI_SSJ2.name, (13, 15))                        # the golden side shows the opening (base and SSJ: arm)
 SKIN = gi_art.SKIN
 BAND = {72, 195}
 BOOT = {gi_art.BOOT_EDGE, gi_art.BOOT_FILL}
@@ -213,10 +212,10 @@ class OwnerReviewTests(unittest.TestCase):
 
     def test_owner_arms_are_skin_with_a_band(self):
         for k, b in ARMS.items():
-            got = box(gi_pixels("gi_ssj2", k), b)
+            got = box(gi_pixels(log_paths.GI_SSJ2.name, k), b)
             self.assertTrue(got & SKIN and got & BAND, f"gi_ssj2 {k}: arm without skin and band")
         for k, b in ARM_ONLY.items():
-            for name in ("gi_ssj", "gi_ssj2"):
+            for name in (log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name):
                 self.assertTrue(box(gi_pixels(name, k), b) & SKIN, f"{name} {k}: arm piece is not skin")
 
     def test_front_v_matches_golden(self):                   # 3 over 1 with 211 lines; idle frame 1 by the torso rule
@@ -278,10 +277,10 @@ def same_body(k: tuple) -> bool:
 class TransformStepTests(unittest.TestCase):
     def test_step_chin_stays_skin(self):                    # 157 9.0.2-3 painted the neck under the chin purple
         armor = gi_art.by_key(gi_art.SPRITES / "set56")
-        gi = gi_art.by_key(ART / "gi_base")
-        good = load(ART / "gi_base" / gi[STEP[1]]["png"])
+        gi = gi_art.by_key(log_paths.GI_BASE)
+        good = load(log_paths.GI_BASE / gi[STEP[1]]["png"])
         for k in STEP[2:]:
-            got = load(ART / "gi_base" / gi[k]["png"])
+            got = load(log_paths.GI_BASE / gi[k]["png"])
             src = load(gi_art.SPRITES / "set56" / armor[k]["png"])
             row = [got.getpixel((x, CHIN_ROW)) for x in range(got.width)]
             skin = [x for x in range(src.width) if src.getpixel((x, CHIN_ROW)) in gi_art.SKIN]
@@ -297,7 +296,7 @@ class TransformStepTests(unittest.TestCase):
             self.assertEqual(rows, [rows[0]] * 4, name)
 
     def test_base_sash_not_below_ssj(self):                 # 10:56 PM: base belt matches SSJ
-        base, ssj = gi_art.by_key(ART / "gi_base"), gi_art.by_key(ART / "gi_ssj")
+        base, ssj = gi_art.by_key(log_paths.GI_BASE), gi_art.by_key(log_paths.GI_SSJ)
         checked = 0
         for k in sorted(set(base) & set(ssj)):
             if not same_body(k) or hand(base[k]):              # r17: my flight back views 20.1/20.3 tilt the sash
@@ -310,7 +309,7 @@ class TransformStepTests(unittest.TestCase):
         self.assertGreater(checked, 20)
 
     def test_idle_sash_row_matches_golden(self):
-        for name in ("gi_base", "gi_ssj"):
+        for name in (log_paths.GI_BASE.name, log_paths.GI_SSJ.name):
             gi = gi_art.by_key(ART / name)
             for d in range(4):
                 rec = gi[(0, d, 0)]
@@ -420,7 +419,7 @@ class GoldenRuleTests(unittest.TestCase):
         mask = {p for p in px if p[1] < -5}
         self.assertEqual(gi_art.v_lines(px, mask), 3)
         self.assertEqual(gi_art.straps(px, mask, set(), (0, 0, 0), -1), 8)
-        want, _ = golden_px("gi_base", 0)
+        want, _ = golden_px(log_paths.GI_BASE.name, 0)
         for y in range(-7, -3):                             # golden rows 17-20 (row 21: the converter misses bands)
             self.assertEqual([px.get((x, y)) for x in range(2, 15)], [want.get((x, y + 24)) for x in range(2, 15)],
                              f"row {y + 24}")
@@ -438,14 +437,14 @@ class GoldenRuleTests(unittest.TestCase):
 
 # ===== me, 2026-10-18 8:53 AM: one gi body for SSJ and SSJ2, golden torso per frame, stray pinks =====
 
-GI_FOLDERS = ("gi_base", "gi_ssj", "gi_ssj2", "gi_ssj_v2", "gi_ssj2_v2")
+GI_FOLDERS = (log_paths.GI_BASE.name, log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name, log_paths.GI_SSJ_V2.name, log_paths.GI_SSJ2_V2.name)
 OWN_ANIMS = (0, 4)                                         # power-pose idle and ki charge: the armor bodies differ
 
 
 class OneBodyTests(unittest.TestCase):
     def test_shared_frames_are_the_gi_ssj_body(self):       # only the SSJ2 head (both head masks) and sparks differ
-        ssj, ssj2 = gi_art.by_key(ART / "gi_ssj"), gi_art.by_key(ART / "gi_ssj2")
-        shared = [k for k, r in ssj2.items() if r["body"] == "gi_ssj"]
+        ssj, ssj2 = gi_art.by_key(log_paths.GI_SSJ), gi_art.by_key(log_paths.GI_SSJ2)
+        shared = [k for k, r in ssj2.items() if r["body"] == log_paths.GI_SSJ.name]
         self.assertGreater(len(shared), 200)
         for k in shared:
             a, b = gi_art.frame_pixels(ssj[k]), gi_art.frame_pixels(ssj2[k])
@@ -456,7 +455,7 @@ class OneBodyTests(unittest.TestCase):
             self.assertFalse(body, f"{gi_art.key_str(k)}: body pixels differ from gi_ssj")
 
     def test_own_body_keys(self):                           # the armor differs, or a shared body fails the chest check
-        ssj2 = gi_art.by_key(ART / "gi_ssj2")
+        ssj2 = gi_art.by_key(log_paths.GI_SSJ2)
         s58, s59 = gi_art.by_key(gi_art.SPRITES / "set58"), gi_art.by_key(gi_art.SPRITES / "set59")
         for k, r in ssj2.items():
             differ = gi_art.armor_body_diff(s58.get(k), s59[k]) > 0
@@ -484,10 +483,10 @@ class OneBodyTests(unittest.TestCase):
         self.assertEqual(px[(1, 1)], 37)
 
     def test_golden_torso_per_frame(self):                  # me: 157 a4 back did not match the golden
-        base = gi_art.by_key(ART / "gi_base")
+        base = gi_art.by_key(log_paths.GI_BASE)
         own = gi_art.by_key(gi_art.SPRITES / "set56")
         for d in (0, 1, 2):
-            gold, idle, window = gi_art.golden_torso("gi_base", own[(0, d, 0)], d)
+            gold, idle, window = gi_art.golden_torso(log_paths.GI_BASE.name, own[(0, d, 0)], d)
             for i in range(4):
                 notes = base[(4, d, i)]["notes"]
                 torso = any(n.startswith("rule golden torso") for n in notes)
@@ -522,7 +521,7 @@ class HudZ2Tests(unittest.TestCase):
 
 # ===== patch tests (Steps 6-7, part 2) =====
 
-GI_IDS = {157: "gi_base", 158: "gi_ssj_v2", 159: "gi_ssj2_aura", 160: "gi_rage_aura"}   # gohan_gi default folders
+GI_IDS = {157: log_paths.GI_BASE.name, 158: log_paths.GI_SSJ_V2.name, 159: log_paths.GI_SSJ2_AURA.name, 160: log_paths.GI_RAGE_AURA.name}   # gohan_gi default folders
 REVERSE_LITERAL = 0x42F0
 PALETTE = BASE_ROM[PALETTE_OFF:PALETTE_OFF + PALETTE_LEN]
 

@@ -19,6 +19,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import battle_arena
 from rom.rom_space import Allocator
 from rom.webfoot_decompress import unpack_frame
@@ -27,7 +28,7 @@ from tests.test_cellgames_ssj import diff, ext_sequence
 
 # ===== constants (brief, base reads) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_ending.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_ending.txt"
 MAPS, MAP_SIZE, MAP_COUNT = 0x409368, 56, 327
 NEXT_TABLE = MAPS + MAP_SIZE * MAP_COUNT                      # rom:0x40DAF0: a second table, not padding
 BASE_LITERALS = (0x5ADC, 0x5D5C, 0xEBD8)

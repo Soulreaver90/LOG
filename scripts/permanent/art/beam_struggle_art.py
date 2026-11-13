@@ -24,11 +24,12 @@ import math
 import struct
 from pathlib import Path
 
+import log_paths
 from rom.webfoot_decompress import unpack_frame
 
 # ===== sources =====
 ROM_BASE = 0x08000000
-BF_PATH = Path(__file__).resolve().parents[3] / "data" / "roms" / "Dragon Ball Z - Buu's Fury (USA).gba"
+BF_PATH = log_paths.BF_ROM
 BF_SHA1 = "f1c4b07554d2a3b1ad2f325307051e775ce68087"
 BF_LAYOUT, BF_BG3_REC, BF_FACTORY, BF_BG_PAL = 0x082B5E94, 0x082B5E5C, 0x08008087, 0x5632C
 LOG2_BG_PAL = 0x1DA4C8

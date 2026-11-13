@@ -18,13 +18,14 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import ending_fight
 from scene.scene_lib import record_end
 from tests.test_cellgames_ssj import diff, ext_sequence
 
 # ===== constants (brief, design, base reads) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_ending.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_ending.txt"
 TABLE, TABLE_WORDS = 0x3B8140, 27
 FIGHT_WORD = TABLE + 4 * 23
 REC23, REC23_LEN = 0x3B8016, 0xFF

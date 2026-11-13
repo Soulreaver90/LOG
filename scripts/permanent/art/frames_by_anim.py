@@ -22,9 +22,12 @@ import shutil
 from pathlib import Path
 
 from PIL import Image
+import sys
 
-LOG = Path(__file__).resolve().parents[3]
-SETS = LOG / "art" / "vanilla-sets"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
+SETS = log_paths.SPRITES
 
 # Bible B0078, by eye, confidence L. A missing number gets "anim<NN>".
 ANIM_NAMES = {

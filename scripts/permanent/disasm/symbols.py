@@ -25,10 +25,12 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 HERE = Path(__file__).resolve().parent              # scripts\permanent\disasm
-ROOT = HERE.parents[2]                             # the LOG root
-OUT_DIR = HERE / "data"                            # committed outputs (not the LOG data\ folder)
-BIBLE = ROOT / "docs" / "RE-BIBLE.md"
+OUT_DIR = log_paths.DISASM_DATA                     # committed outputs, NOT the LOG data\ folder
+BIBLE = log_paths.BIBLE
 ROM_BASE = 0x08000000
 ARM_FUNCS = (0x080000C0, 0x0802369C)               # crt0 and the cpp_init veneer; IWRAM code is ARM too
 IWRAM_CODE = (0x03000000, 0x03000E7C)              # crt0 copies rom:0x7FD6BC here (bible s14 #boot)
@@ -390,7 +392,7 @@ def _check(path=OUT_DIR / "codemap.json"):
     code_hi, (iw_src, iw_dst, iw_size) = cm["code_hi"], cm["iwram"]
     sys.path.insert(0, str(HERE))
     import codemap
-    img = codemap.Image((ROOT / "data" / "roms" / codemap.GAMES["usa"]).read_bytes())
+    img = codemap.Image((log_paths.ROMS / codemap.GAMES["usa"]).read_bytes())
     counts, rows = {}, []
     for a, refs in sorted(bible_addresses().items()):
         if not (ROM_BASE <= a < code_hi or iw_dst <= a < iw_dst + iw_size):

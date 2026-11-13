@@ -21,12 +21,13 @@ from PIL import Image
 
 from art import art_tables as at
 from art import inject
+import log_paths
 from patches import art_inject
 from tests.test_art_inject import BASE_ROM, built, diff, edited
 
 # ===== constants =====
 SAV, SS1 = b"S" * 8192, b"T" * 1000
-CELL = at.ART_DIR / "portraits" / "040_cell_40.png"
+CELL = log_paths.TABLE_PORTRAITS / "040_cell_40.png"
 
 
 def run(where: inject.Where, *argv) -> tuple:
@@ -54,13 +55,13 @@ class Folder:
     def __init__(self):
         self.tmp = tempfile.TemporaryDirectory()
         root = Path(self.tmp.name)
-        shutil.copytree(at.ART_DIR, root / "art")
+        shutil.copytree(at.ART_DIR, log_paths.under(root, log_paths.ART))
         (root / "build").mkdir()
         (root / "build" / "log2_poc_r1.gba").write_bytes(built()["rom"])
         (root / "build" / "log2_poc_r1.sav").write_bytes(SAV)
         (root / "build" / "log2_poc_r1.ss1").write_bytes(SS1)
         self.root = root
-        self.where = inject.Where(build=root / "build", art=root / "art", log=root / "build-log.md")
+        self.where = inject.Where(build=root / "build", art=log_paths.under(root, log_paths.ART), log=root / "build-log.md")
 
     def rom(self, n: int) -> bytes:
         return (self.root / "build" / f"log2_poc_r{n}.gba").read_bytes()
@@ -178,7 +179,9 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(at.live_frame(r2, self.block, 94)[1], px)
         table = at.load_portraits(self.f.where.portraits_json)
         self.assertEqual(table[94], {"png": "portraits/094_piccolo.png", "note": "test"})
-        with Image.open(self.f.root / "art" / "portraits" / "094_piccolo.png") as img:   # stored indexed
+        stored = (log_paths.under(self.f.root, log_paths.ART) / log_paths.TABLE_PORTRAITS.name
+                  / "094_piccolo.png")
+        with Image.open(stored) as img:                                    # stored indexed
             self.assertTrue(at.is_canonical(img, at.obj_palette(BASE_ROM), at.allowed_indices(BASE_ROM, {})))
             self.assertEqual(img.tobytes(), px)
         build = self.f.root / "build"
@@ -233,7 +236,8 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(self.f.files(), before)
 
     def test_a_hand_edited_table_png_is_refused(self):
-        stored = self.f.root / "art" / "portraits" / "063_goku_mid_A.png"
+        stored = (log_paths.under(self.f.root, log_paths.ART) / log_paths.TABLE_PORTRAITS.name
+                  / "063_goku_mid_A.png")
         with Image.open(stored) as img:
             px, pal = bytearray(img.tobytes()), img.getpalette()
         px[40 * 64 + 20] = 9 if px[40 * 64 + 20] != 9 else 2

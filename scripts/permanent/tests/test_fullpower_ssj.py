@@ -14,8 +14,8 @@ import unittest
 from pathlib import Path
 
 import log2_build
-from rom import log2_save
 import log_paths
+from rom import log2_save
 from tests.test_cellgames_ssj import (STRUCT, PLAYER, PLAYER_VT, IN_STATE, SCENE_FLAG, SCENE_DEPTH, CALL_R1,
                                       CALL_R2, REVERT, GOHAN, GOKU, cpu_with, diff, ext_sequence, run_ext73,
                                       set_hits, u32, vt_method, words_naming)
@@ -40,7 +40,6 @@ GOHAN_EXIT = {0x3DB62A: (157, 158)}
 WORDS = {0x3DE774: "door_seq33", 0x3E8D98: "entry_seq1", 0x3EC7A4: "post_cell_seq20"}
 CHAMBER_EXIT, DENDE = {0x3DBDD4: 36}, {0x3DD380: 10}                   # scene tables: word count
 GOKU_POWER_UP = [(46, (55,)), (57, (0, 9)), (42, (10,)), (47, (55,)), (73, (4, 61)), (43, (10,))]
-LOG = Path(__file__).resolve().parents[3]
 CHAMBER_SAVE = log_paths.BUILDS / "log2_poc_r28_chamber.sav"
 R27_SAVE = log_paths.BUILDS / "log2_poc_r27.sav"
 

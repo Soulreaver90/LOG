@@ -38,6 +38,7 @@ from pathlib import Path
 for _folder in (Path(__file__).resolve().parent, Path(__file__).resolve().parents[1]):
     sys.path.insert(0, str(_folder))              # -P omits the script folder; scene\ is one up
 
+import log_paths  # noqa: E402
 from scene import scene_probe                                              # noqa: E402
 import import_map                                                          # noqa: E402
 import map_file                                                            # noqa: E402
@@ -49,7 +50,7 @@ SKIPPED = ("dropped",)                      # read_map's note of what the editor
 LAYER_FIELDS = ("priority", "scroll", "offset", "cells")
 SLOT_FIRST = 0xC0                           # a free (zone, area) is searched from here: vanilla
 SLOT_LAST = 0xFE                            # zones run to 14 and every module so far stays below
-SCRATCH = Path(__file__).resolve().parents[3] / "scratch" / "roundtrip"   # never the owner's maps\
+SCRATCH = log_paths.ROUNDTRIP   # never the owner's maps\
 
 
 # ===== the whole document =====
@@ -207,7 +208,7 @@ def _main(argv: list) -> int:
 
     rom = Path(args.rom).read_bytes()
     folder = Path(args.out).resolve() if args.out else SCRATCH
-    if "data" in (part.lower() for part in folder.parts):
+    if log_paths.DATA.name in (part.lower() for part in folder.parts):
         raise ValueError(f"{folder} is under a data folder, and nothing here writes there")
     if args.map:
         zone, area = (int(v) for v in args.map.split(","))

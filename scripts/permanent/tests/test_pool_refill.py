@@ -15,12 +15,13 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from rom.thumb_dis import listing
 from tests.test_bf_ki_pool import Cpu2
 
 # ===== constants (base ROM reads and bible rows B0418, B0423, B0243) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_plateau.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_plateau.txt"
 EXT73 = 73
 VANILLA_EXT73 = 0x0800A8ED                        # the handler, Thumb; its even address is the stub key
 EXT_POOLS = (0x921C, 0x92DC)                      # every ROM word naming the ext op table

@@ -83,14 +83,14 @@ import struct
 import sys
 from pathlib import Path
 
-import log_paths
 from rom.webfoot_decompress import unpack_frame
 from scene.scene_lib import (battle_start, call, code, ext, fade_in, fade_out, record_end, text,
                              wait, walk_to, words_naming)
+import log_paths  # noqa: E402
 
 # map-editor\ carries a hyphen, so it is not an importable package: its folder goes on sys.path, the
 # way scripts\permanent\tests\test_import_map.py already reaches it.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import import_map                                                       # noqa: E402
 import map_file                                                         # noqa: E402
@@ -120,7 +120,7 @@ BLOCK_TILES = 32
 
 # ===== constants: the owner's map =====
 PLATEAU_ZONE, PLATEAU_AREA, PLATEAU_VARIATIONS = 7, 100, 1      # zone 7 uses areas 1..26
-MAP_DOC = log_paths.ART / "plateau" / "map_142.json"            # his "map 142", copied byte for byte
+MAP_DOC = log_paths.PLATEAU_ART / "map_142.json"            # his "map 142", copied byte for byte
 VIEW = (240, 160)
 
 # bible B0246: set 28 reaches 20 px left, 44 right, 56 up and 8 down of its own point.

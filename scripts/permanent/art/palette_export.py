@@ -15,11 +15,13 @@ import struct
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 # ===== constants =====
 OBJ_PAL, BG_PAL, ENTRIES = 0x1DA6C8, 0x1DA4C8, 256
 RUNTIME_OBJ = {0: "transparent, set at run time", 168: "set at run time"}
-DEFAULT_ROM = Path(__file__).resolve().parents[3] / "data" / "roms" / \
-    "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+DEFAULT_ROM = log_paths.BASE_ROM
 
 
 # ===== conversion =====

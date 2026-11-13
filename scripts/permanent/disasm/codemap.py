@@ -36,18 +36,19 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent              # scripts\permanent\disasm
-ROOT = HERE.parents[2]                             # the LOG root
-OUT_DIR = HERE / "data"                            # committed outputs (not the LOG data\ folder)
 sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(HERE))
+import log_paths  # noqa: E402
 from rom import thumb_dis  # noqa: E402
+
+OUT_DIR = log_paths.DISASM_DATA                    # committed outputs, NOT the LOG data\ folder
 
 # ===== constants =====
 ROM_BASE = 0x08000000
 CRT0_WORDS = 0x140            # [fill dst, fill size, copy src, copy dst, copy size, main | 1]
 IRQ_VECTOR = 0x03007FFC
 HEADER_END = 0x080000C0       # cartridge header (branch word, logo, title, checksum); crt0 starts here
-ROMS = ROOT / "data" / "roms"
+ROMS = log_paths.ROMS
 GAMES = {"usa": "Dragon Ball Z - The Legacy of Goku II (USA).gba",
          "eu": "Dragon Ball Z - The Legacy of Goku II (Europe) (En,Fr,De,Es,It).gba",
          "bf": "Dragon Ball Z - Buu's Fury (USA).gba"}
@@ -910,7 +911,7 @@ def main(argv):
     args = ap.parse_args(argv)
     rom = Path(args.rom) if args.rom else ROMS / GAMES[args.game]
     out = Path(args.out) if args.out else (OUT_DIR if args.game == "usa" else OUT_DIR / args.game)
-    data_dir = (ROOT / "data").resolve()
+    data_dir = (log_paths.DATA).resolve()
     if out.resolve() == data_dir or data_dir in out.resolve().parents:
         raise ValueError("refusing to write under data")
     img = Image(rom.read_bytes())

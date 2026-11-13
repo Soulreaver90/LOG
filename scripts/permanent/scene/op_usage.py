@@ -26,13 +26,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
 
+import log_paths  # noqa: E402
 from scene import scene_lib as S                                         # noqa: E402
 from scene import scene_probe                                            # noqa: E402
 
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-OUT = ROOT / "docs" / "research"
+BASE = log_paths.BASE_ROM
+OUT = log_paths.RESEARCH
 EXAMPLES = 10                       # sites listed per op; the count is always the full one
 PUSH_OPS = (0, 1, 29)               # the ops that leave values for an ext op to consume
 FLAG_OPS = {27: "set", 28: "clear", 19: "test", 20: "test_alt"}   # each takes the flag as its last value

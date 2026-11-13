@@ -10,8 +10,8 @@ Rules:   Loads scripts\permanent\disasm\symbols.py by file path. re\ cannot be a
 """
 import difflib
 import importlib.util
-
 import log_paths
+
 
 _SPEC = importlib.util.spec_from_file_location("re_symbols", log_paths.DISASM / "symbols.py")
 SYMBOLS = importlib.util.module_from_spec(_SPEC)

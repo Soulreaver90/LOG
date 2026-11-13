@@ -17,10 +17,12 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 # ===== the two trees =====
-GITHUB = Path("C:/Users/josephgonzalez/Documents/GitHub")
-DISASM = GITHUB / "legacyofgoku2-disasm" / "build" / "code"
-GNU = GITHUB / "legacyofgoku2-gnu" / "build" / "code"
+DISASM = log_paths.DISASM_REPO_CODE
+GNU = log_paths.GNU_REPO_CODE
 
 LOC = re.compile(r"\|loc_([0-9A-Fa-f]{8})\|")
 

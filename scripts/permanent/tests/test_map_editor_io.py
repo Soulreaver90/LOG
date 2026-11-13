@@ -29,8 +29,9 @@ import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+import log_paths  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import map_file                                                            # noqa: E402
 import serve                                                              # noqa: E402
@@ -285,7 +286,7 @@ class StampRemovalTests(unittest.TestCase):
 
     def setUp(self):
         self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
-        self.deleted = self.folder / "library" / "deleted"
+        self.deleted = self.folder / log_paths.MAP_EDITOR_LIBRARY.name / log_paths.MAP_EDITOR_DELETED.name
         serve.save_stamp(dict(STAMP), self.folder)
 
     def test_a_deleted_stamp_moves_into_deleted_and_leaves_the_library(self):
@@ -293,7 +294,7 @@ class StampRemovalTests(unittest.TestCase):
         self.assertEqual(moved.parent, self.deleted)
         self.assertEqual(json.loads(moved.read_text(encoding="utf-8"))["name"], "boulder")
         self.assertEqual(serve.stamps(self.folder), [])
-        self.assertFalse((self.folder / "library" / "boulder.json").exists())
+        self.assertFalse((self.folder / log_paths.MAP_EDITOR_LIBRARY.name / "boulder.json").exists())
 
     def test_nothing_under_deleted_is_ever_offered_again(self):
         """stamps() globs library\\*.json, which is not recursive. This pins that it stays so."""
@@ -359,14 +360,14 @@ class AutosaveTests(unittest.TestCase):
         self.keep()
         self.keep(doc={**self.doc, "schema": map_file.SCHEMA, "marker": 2})
         self.assertEqual(serve.autosave_read("map 7 15", self.folder)["doc"]["marker"], 2)
-        self.assertFalse((self.folder / "autosave" / "older").exists())
+        self.assertFalse((self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name / "older").exists())
 
     def test_another_session_moves_the_first_aside_before_it_writes(self):
         """A second tab, or a page that was offered this file and did not take it."""
         self.keep(session="one")
         answer = self.keep(session="two", doc={**self.doc, "marker": 2})
         self.assertTrue(answer["moved"])
-        older = list((self.folder / "autosave" / "older").glob("*.json"))
+        older = list((self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name / "older").glob("*.json"))
         self.assertEqual(len(older), 1)
         self.assertEqual(json.loads(older[0].read_text(encoding="utf-8"))["session"], "one")
         self.assertEqual(serve.autosave_read("map 7 15", self.folder)["doc"]["marker"], 2)
@@ -380,7 +381,7 @@ class AutosaveTests(unittest.TestCase):
 
     def test_a_title_cannot_carry_a_path(self):
         self.keep(title="../../escaped")
-        self.assertEqual([p.name for p in (self.folder / "autosave").glob("*.json")],
+        self.assertEqual([p.name for p in (self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name).glob("*.json")],
                          ["escaped.json"])
 
     def test_one_with_no_saved_map_is_always_offered(self):
@@ -393,18 +394,18 @@ class AutosaveTests(unittest.TestCase):
         """He saved the map after that autosave, so it holds nothing he does not already have."""
         self.keep(title="field")
         serve.save_map(self.doc, "field", self.folder)
-        os.utime(self.folder / "maps" / "field.json", (time.time() + 60, time.time() + 60))
+        os.utime(self.folder / log_paths.MAP_EDITOR_MAPS.name / "field.json", (time.time() + 60, time.time() + 60))
         self.assertEqual(serve.autosaves(self.folder), [])
 
     def test_one_newer_than_its_saved_map_is_offered(self):
         serve.save_map(self.doc, "field", self.folder)
-        os.utime(self.folder / "maps" / "field.json", (time.time() - 60, time.time() - 60))
+        os.utime(self.folder / log_paths.MAP_EDITOR_MAPS.name / "field.json", (time.time() - 60, time.time() - 60))
         self.keep(title="field")
         self.assertEqual([row["name"] for row in serve.autosaves(self.folder)], ["field"])
 
     def test_a_file_that_will_not_parse_is_left_out_rather_than_fatal(self):
-        (self.folder / "autosave").mkdir(parents=True, exist_ok=True)
-        (self.folder / "autosave" / "half written.json").write_text("{", encoding="utf-8")
+        (self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name).mkdir(parents=True, exist_ok=True)
+        (self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name / "half written.json").write_text("{", encoding="utf-8")
         self.keep()
         self.assertEqual([row["name"] for row in serve.autosaves(self.folder)], ["map 7 15"])
 
@@ -412,7 +413,7 @@ class AutosaveTests(unittest.TestCase):
         self.keep(title="field")
         self.assertTrue(serve.autosave_retire("field", self.folder))
         self.assertEqual(serve.autosaves(self.folder), [])
-        self.assertEqual(len(list((self.folder / "autosave" / "older").glob("*.json"))), 1)
+        self.assertEqual(len(list((self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name / "older").glob("*.json"))), 1)
 
     def test_retiring_when_there_is_nothing_to_retire_says_so(self):
         self.assertFalse(serve.autosave_retire("field", self.folder))
@@ -450,8 +451,8 @@ class WriteRouteTests(unittest.TestCase):
         serve.autosave_write({"name": "field", "session": "one", "doc": self.doc}, self.folder)
         answer = self.post("/api/save", {"name": "field", "doc": self.doc, "retire": "field"})
         self.assertEqual(answer, {"taken": "field"})            # no "error": the page must ASK
-        self.assertTrue((self.folder / "autosave" / "field.json").exists())
-        self.assertFalse((self.folder / "autosave" / "older").exists())
+        self.assertTrue((self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name / "field.json").exists())
+        self.assertFalse((self.folder / log_paths.MAP_EDITOR_AUTOSAVE.name / "older").exists())
 
     def test_a_replace_through_the_route_retires_the_net_and_names_the_old_file(self):
         serve.save_map(self.doc, "field", self.folder)
@@ -466,7 +467,7 @@ class WriteRouteTests(unittest.TestCase):
     def test_the_replace_flag_never_reaches_the_stamp_file(self):
         """The body IS the stamp, so the route lifts the flag out before anything is written."""
         self.post("/api/stamp", {**STAMP, "replace": False})
-        kept = json.loads((self.folder / "library" / "boulder.json").read_text(encoding="utf-8"))
+        kept = json.loads((self.folder / log_paths.MAP_EDITOR_LIBRARY.name / "boulder.json").read_text(encoding="utf-8"))
         self.assertNotIn("replace", kept)
         self.assertEqual(kept, STAMP)
 

@@ -21,9 +21,8 @@ from art import gi_post
 import log_paths
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
-GOLD = ART / "golden"
+GOLD = log_paths.GOLDEN
 BELT = {26, 27}                                            # sash indices
 STEP = (9, 0)                                              # anim 9, dir 0: the SSJ to SSJ2 step
 
@@ -41,7 +40,7 @@ def by_png(folder: Path) -> dict:
 
 class GiPostTests(unittest.TestCase):
     def test_golden_idle_slots_equal_goldens(self):          # byte for byte, not a rule that comes close
-        v2 = ART / "gi_ssj2_v2"
+        v2 = log_paths.GI_SSJ2_V2
         for png, d in gi_post.GOLDEN.items():
             self.assertEqual(pixels(v2 / png), pixels(GOLD / f"golden_gi_ssj2_d{d}.png"), png)
         man = by_png(v2)
@@ -51,7 +50,7 @@ class GiPostTests(unittest.TestCase):
         self.assertEqual({status[p] for p in gi_post.GOLDEN}, {"golden"})
 
     def test_kept_frames_equal_the_source(self):             # powered-down frames keep the black hair
-        v2, src = ART / "gi_ssj2_v2", ART / "gi_ssj2"
+        v2, src = log_paths.GI_SSJ2_V2, log_paths.GI_SSJ2
         man, src_man = by_png(v2), by_png(src)
         self.assertEqual(len(gi_post.KEEP), 5)
         for png in gi_post.KEEP:
@@ -66,8 +65,9 @@ class GiPostTests(unittest.TestCase):
             gate[d] = n
             self.assertEqual(out.tobytes() != img.tobytes(), n > 0, f"golden d{d}")
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
-            shutil.copytree(GOLD, Path(tmp) / "golden")
-            shutil.copytree(ART / "gi_ssj2_v2", Path(tmp) / "gi_ssj2_v2", ignore=shutil.ignore_patterns("review"))
+            shutil.copytree(GOLD, log_paths.under(tmp, log_paths.GOLDEN))
+            shutil.copytree(log_paths.GI_SSJ2_V2, log_paths.under(tmp, log_paths.GI_SSJ2_V2),
+                            ignore=shutil.ignore_patterns(log_paths.GI_SSJ2_REVIEW.name))
             self.assertEqual(gi_post.body_rules(Path(tmp), apply=False)["gate"], gate)
 
     def test_gate_passes_on_all_goldens(self):               # the armpit exemption keeps my chest
@@ -85,17 +85,17 @@ class GiPostTests(unittest.TestCase):
     def test_body_rules_skip_shared_frames(self):            # SSJ and SSJ2 stay one body; own-body frames still change
         with tempfile.TemporaryDirectory() as tmp:
             art = Path(tmp)
-            shutil.copytree(GOLD, art / "golden")
-            shutil.copytree(ART / "gi_ssj2", art / "gi_ssj2")
+            shutil.copytree(GOLD, log_paths.under(art, log_paths.GOLDEN))
+            shutil.copytree(log_paths.GI_SSJ2, log_paths.under(art, log_paths.GI_SSJ2))
             with mock.patch("builtins.print"):
                 gi_post.transplant_heads(art)
                 gi_post.finish_golden_slots(art)
-                before = {p.name: p.read_bytes() for p in (art / "gi_ssj2_v2").glob("frame_*.png")}
+                before = {p.name: p.read_bytes() for p in log_paths.under(art, log_paths.GI_SSJ2_V2).glob("frame_*.png")}
                 res = gi_post.body_rules(art)
             self.assertTrue(res["applied"])
-            shared = {e["png"] for e in json.loads((art / "gi_ssj2_v2" / "manifest.json").read_text())
-                      if e["body"] == "gi_ssj"}
-            changed = {n for n, b in before.items() if (art / "gi_ssj2_v2" / n).read_bytes() != b}
+            shared = {e["png"] for e in json.loads((log_paths.under(art, log_paths.GI_SSJ2_V2) / "manifest.json").read_text())
+                      if e["body"] == log_paths.GI_SSJ.name}
+            changed = {n for n, b in before.items() if (log_paths.under(art, log_paths.GI_SSJ2_V2) / n).read_bytes() != b}
             self.assertGreater(len(shared), 100)
             self.assertFalse(changed & shared, "body rules changed a shared gi_ssj body")
             self.assertTrue(changed, "the own-body frames still take R1/R2")
@@ -123,20 +123,21 @@ class GiPostTests(unittest.TestCase):
     def test_body_rules_gate_decides(self):                  # gate blocked: no byte of gi_ssj2_v2 changes
         with tempfile.TemporaryDirectory() as tmp:
             art = Path(tmp)
-            shutil.copytree(GOLD, art / "golden")
-            shutil.copytree(ART / "gi_ssj2_v2", art / "gi_ssj2_v2", ignore=shutil.ignore_patterns("review"))
+            shutil.copytree(GOLD, log_paths.under(art, log_paths.GOLDEN))
+            shutil.copytree(log_paths.GI_SSJ2_V2, log_paths.under(art, log_paths.GI_SSJ2_V2),
+                            ignore=shutil.ignore_patterns(log_paths.GI_SSJ2_REVIEW.name))
             with mock.patch("builtins.print"):
                 res = gi_post.body_rules(art)
             self.assertEqual(res["applied"], not any(res["gate"].values()))
             if not res["applied"]:
                 self.assertEqual(res["pixels"], 0)
-                for p in (art / "gi_ssj2_v2").iterdir():
-                    self.assertEqual(p.read_bytes(), (ART / "gi_ssj2_v2" / p.name).read_bytes(), p.name)
+                for p in log_paths.under(art, log_paths.GI_SSJ2_V2).iterdir():
+                    self.assertEqual(p.read_bytes(), (log_paths.GI_SSJ2_V2 / p.name).read_bytes(), p.name)
             for png, d in gi_post.GOLDEN.items():
-                self.assertEqual(pixels(art / "gi_ssj2_v2" / png), pixels(GOLD / f"golden_gi_ssj2_d{d}.png"), png)
+                self.assertEqual(pixels(log_paths.under(art, log_paths.GI_SSJ2_V2) / png), pixels(GOLD / f"golden_gi_ssj2_d{d}.png"), png)
 
     def test_step_frames_keep_the_belt_row(self):            # the head grows, the body stays: dy -1 offsets the shift
-        folder = ART / "gi_ssj_v2"
+        folder = log_paths.GI_SSJ_V2
         rows = {}
         for e in json.loads((folder / "manifest.json").read_text()):
             for k in e["keys"]:
@@ -151,9 +152,9 @@ class GiPostTests(unittest.TestCase):
             self.assertEqual(rows[i], rows[0], f"frame {i}: belt left frame 0's screen row")
 
     def test_step_frames_only_frames_1_to_3_change(self):
-        src, out = by_png(ART / "gi_ssj"), by_png(ART / "gi_ssj_v2")
+        src, out = by_png(log_paths.GI_SSJ), by_png(log_paths.GI_SSJ_V2)
         self.assertEqual(set(src), set(out))
-        changed = {p for p in src if pixels(ART / "gi_ssj" / p) != pixels(ART / "gi_ssj_v2" / p)}
+        changed = {p for p in src if pixels(log_paths.GI_SSJ / p) != pixels(log_paths.GI_SSJ_V2 / p)}
         hand = {p for p, e in out.items() if any(n.startswith("hand frame") for n in e.get("notes", []))}
         self.assertEqual(len(hand), 14)                              # r15 4 + r17 1 + r18 9: set 158 hand frames
         self.assertEqual(changed, set(gi_post.STEP_FRAMES) | hand)
@@ -164,10 +165,10 @@ class GiPostTests(unittest.TestCase):
     def test_chain_is_repeatable(self):                      # a fresh run on copies equals the folders on disk
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
             art = Path(tmp)
-            for name in ("golden", "gi_ssj", "gi_ssj2", "gi_base"):          # gi_base: step 5, one body
+            for name in ("golden", log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name, log_paths.GI_BASE.name):          # gi_base: step 5, one body
                 shutil.copytree(ART / name, art / name)
             gi_post.run_all(art)
-            for name in ("gi_ssj2_v2", "gi_ssj_v2", "gi_ssj_v4", "gi_ssj2_v4"):
+            for name in (log_paths.GI_SSJ2_V2.name, log_paths.GI_SSJ_V2.name, log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ2_V4.name):
                 mine = {p.name: p for p in (art / name).iterdir()}
                 disk = {p.name: p for p in (ART / name).iterdir() if p.is_file()}
                 self.assertEqual(set(mine), set(disk), name)
@@ -187,15 +188,15 @@ class GohanGiDefaultTests(unittest.TestCase):
 
     def test_defaults_read_the_v2_and_aura_folders(self):   # 159 and 160: gi_aura.py output (aura-rage pass)
         sets = self.reload({})
-        self.assertEqual(sets[157][0], "gi_base")
-        self.assertEqual(sets[158][0], "gi_ssj_v2")
-        self.assertEqual(sets[159], ("gi_ssj2_aura", 59))
-        self.assertEqual(sets[160], ("gi_rage_aura", 58))
+        self.assertEqual(sets[157][0], log_paths.GI_BASE.name)
+        self.assertEqual(sets[158][0], log_paths.GI_SSJ_V2.name)
+        self.assertEqual(sets[159], (log_paths.GI_SSJ2_AURA.name, 59))
+        self.assertEqual(sets[160], (log_paths.GI_RAGE_AURA.name, 58))
 
     def test_env_overrides_stay(self):
-        sets = self.reload({"LOG_GI_SSJ": "gi_ssj", "LOG_GI_SSJ2": "gi_ssj2"})
-        self.assertEqual((sets[158][0], sets[159][0]), ("gi_ssj", "gi_ssj2"))
-        self.assertEqual(sets[157][0], "gi_base")
+        sets = self.reload({"LOG_GI_SSJ": log_paths.GI_SSJ.name, "LOG_GI_SSJ2": log_paths.GI_SSJ2.name})
+        self.assertEqual((sets[158][0], sets[159][0]), (log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name))
+        self.assertEqual(sets[157][0], log_paths.GI_BASE.name)
 
 
 if __name__ == "__main__":

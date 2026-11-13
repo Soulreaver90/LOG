@@ -75,6 +75,7 @@ from urllib.parse import parse_qs, urlparse
 for _folder in (Path(__file__).resolve().parent, Path(__file__).resolve().parents[1]):
     sys.path.insert(0, str(_folder))                  # -P omits the script folder; scene\ is one up
 
+import log_paths                                      # noqa: E402
 from scene import map_view                            # noqa: E402
 from scene import scene_probe                         # noqa: E402
 import export_assets                                  # noqa: E402
@@ -83,12 +84,12 @@ import tile_stream                                    # noqa: E402
 
 # ===== CONFIG =====
 HERE = Path(__file__).resolve().parent
-ASSETS = HERE / "assets"
+ASSETS = log_paths.MAP_EDITOR_ASSETS
 HOST, PORT = "127.0.0.1", 8777
-MAPS_IN, STAMPS_IN = "maps", "library"      # folders beside this file, made on the first save
-AUTOSAVE_IN = "autosave"                    # the live document, overwritten; never a saved map
+MAPS_IN, STAMPS_IN = log_paths.MAP_EDITOR_MAPS.name, log_paths.MAP_EDITOR_LIBRARY.name      # folders beside this file, made on the first save
+AUTOSAVE_IN = log_paths.MAP_EDITOR_AUTOSAVE.name                    # the live document, overwritten; never a saved map
 OLDER_IN = "older"                          # under autosave\ and maps\: a copy about to be lost
-DELETED_IN = "deleted"                      # under library\: a stamp the owner removed, kept whole
+DELETED_IN = log_paths.MAP_EDITOR_DELETED.name                      # under library\: a stamp the owner removed, kept whole
 UNSAFE = re.compile(r"[^A-Za-z0-9 _-]")     # a name is a file name, so it holds nothing else
 NAME_MAX = 60
 STAMP_DEFAULT = re.compile(r"^stamp (\d+)$")   # the name an unnamed grab proposes
@@ -372,7 +373,7 @@ def map_names() -> dict:
     The file is optional and the picker works without it. Nothing here decodes the ROM's name pool:
     a plain string walk of rom:0xE2840 reads map 7,15 as Triceratops Jungle, which belongs to 4,50,
     so the pool is not a flat list and a decode would label every map wrong."""
-    source = HERE.parents[2] / "docs" / "research" / "map-names.md"
+    source = log_paths.RESEARCH / "map-names.md"
     if not source.exists():
         return {}
     names = {}

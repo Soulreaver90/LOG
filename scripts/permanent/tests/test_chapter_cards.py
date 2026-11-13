@@ -26,6 +26,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import chapter_cards
 from rom.rom_space import Allocator
 from tests.test_ssj2 import Cpu
@@ -33,14 +34,14 @@ from rom.thumb_dis import dis, listing
 
 # ===== constants (report, base ROM reads) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_chapters.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_chapters.txt"
 R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"        # build_list_dev.txt r40 (2026-10-30), the r41 base
 HOOK, FS_VTABLE, VANILLA_CONTINUE = 0x23B38, 0x08023B0C, 0x0800180D          # file select vtable +0x2C
 SLOT_VALID, ALLOC, FREE, SCENE_PUSH, MUSIC_PLAY = 0x080019F7, 0x0801F08D, 0x0801F111, 0x0801F2F5, 0x08020A4D
 IMAGE_VTABLE = 0x080237C0
 PLAYER = 0x030026C8
 KEYS_NEW = 0x030022B0
-BF_PATH = log2_build.ROOT / "data" / "roms" / "Dragon Ball Z - Buu's Fury (USA).gba"
+BF_PATH = log_paths.BF_ROM
 BF_SONG37 = 0x083BB78C + 20 * 37                         # BF ext 35 table + 20 x song
 BF_SONG37_RECORD = (0x083A618C, 0x083A5DFC, 0x0836D18C, 0x0836D540, 0x473)   # patterns, orders, dir, masks, 115/4
 BF_SONG37_INSTRUMENTS = [7, 17, 18, 19, 22, 26, 29, 32, 43, 62]               # v2_song_decode.txt

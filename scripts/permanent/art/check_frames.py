@@ -16,14 +16,17 @@ Run: py -3.14 -P scripts\permanent\art\check_frames.py <folder with your frames>
      py -3.14 -P scripts\permanent\art\check_frames.py <folder> --set 128 --quiet
 """
 import argparse
+import sys
 from collections import Counter
 from pathlib import Path
 
 from PIL import Image
 
-LOG = Path(__file__).resolve().parents[3]
-ROM = LOG / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-SETS = LOG / "art" / "vanilla-sets"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
+ROM = log_paths.BASE_ROM
+SETS = log_paths.SPRITES
 OBJ_PAL, ENTRIES = 0x1DA6C8, 256
 RUNTIME = {0, 168}            # index 0 is transparent, 168 is written at run time (bible B0250)
 

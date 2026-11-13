@@ -23,15 +23,14 @@ from rom.rom_sheet import live_set_offset
 from rom.webfoot_decompress import unpack_frame
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
 SNAP = log_paths.HAND_FIXES / "snap_r19"
 SNAP18 = log_paths.HAND_FIXES / "snap_r18"
 R18 = log_paths.BUILDS / "log2_poc_r18.gba"
-SET_OF = {"gi_base": 157, "gi_ssj_v2": 158, "gi_ssj2_aura": 159}
+SET_OF = {log_paths.GI_BASE.name: 157, log_paths.GI_SSJ_V2.name: 158, log_paths.GI_SSJ2_AURA.name: 159}
 TWINS = [(1, 3, 0), (3, 3, 3), (8, 3, 2), (16, 3, 1), (16, 3, 4)]
 MIRRORS = {f: TWINS for f in SET_OF}                                               # unlisted dir 3 h-flip twins
-R19_MIRRORS = {"gi_base": [], "gi_ssj_v2": [], "gi_ssj2_aura": []}                # anim 12 has no dir 3
+R19_MIRRORS = {log_paths.GI_BASE.name: [], log_paths.GI_SSJ_V2.name: [], log_paths.GI_SSJ2_AURA.name: []}                # anim 12 has no dir 3
 BOLT = (120, 208, 248)                                                             # r13 aura bolt blue
 
 
@@ -136,7 +135,7 @@ class HandFrameTests(unittest.TestCase):
                     self.assertNotEqual(o.tobytes(), n.tobytes(), new)
 
     def test_ssj2_side_walk_keeps_the_aura_bolts(self):     # r17 concern 1: 159 1.2.0 had lost the bolts
-        have = shown("gi_ssj2_aura")
+        have = shown(log_paths.GI_SSJ2_AURA.name)
         for k in ((1, 2, 0), (1, 3, 0)):
             bolts = sum(1 for v in have[k][2] if v and self.rgb[v] == BOLT)
             self.assertGreaterEqual(bolts, 19, k)
@@ -183,13 +182,13 @@ class HandFrameTests(unittest.TestCase):
                     self.assertEqual(have[k][1:3], old[k][1:3], f"{folder} {k}")
 
     def test_flight_dirs_2_and_3_are_listed_flips_of_dirs_0_and_1(self):
-        have = shown("gi_base")
+        have = shown(log_paths.GI_BASE.name)
         for i in range(4):
             for src, dst in ((0, 2), (1, 3)):
                 a, b = have[(20, src, i)], have[(20, dst, i)]
                 self.assertEqual(a[3], b[3], (src, dst, i))                         # one PNG, one frame header
                 self.assertEqual(b[2], flip(a), (src, dst, i))
-                self.assertIn((20, dst, i), hand_frames.HAND["gi_base"])
+                self.assertIn((20, dst, i), hand_frames.HAND[log_paths.GI_BASE.name])
 
     def test_golden_lock_holds_the_hand_frames(self):
         self.assertEqual(len(hand_frames.GOLDEN_HAND), 64)
@@ -199,29 +198,29 @@ class HandFrameTests(unittest.TestCase):
             self.assertEqual(lock["frames"][name]["fingerprint"], frame_lock.fingerprint(frame_lock.GOLDEN_DIR / name), name)
 
     def test_gi_base_notes_and_exception(self):
-        man = json.loads((ART / "gi_base" / "manifest.json").read_text())
-        for k in hand_frames.HAND["gi_base"]:
+        man = json.loads((log_paths.GI_BASE / "manifest.json").read_text())
+        for k in hand_frames.HAND[log_paths.GI_BASE.name]:
             e = next(e for e in man if any((q["anim"], q["dir"], q["index"]) == k for q in e["keys"]))
             self.assertTrue(any(n.startswith("hand frame") for n in e["notes"]), k)
 
     def test_drawn_refuses_an_unlisted_key_on_a_shared_frame(self):
         with self.assertRaises(ValueError):                   # 4.0.0 is no flip twin of a listed key
-            hand_frames.drawn("gi_base", {(3, 0, 3): 0x8000, (4, 0, 0): 0x8000}, (32, 32))
+            hand_frames.drawn(log_paths.GI_BASE.name, {(3, 0, 3): 0x8000, (4, 0, 0): 0x8000}, (32, 32))
         with self.assertRaises(ValueError):                   # dir 3 without the flip bit is no mirror
-            hand_frames.drawn("gi_base", {(8, 2, 2): 0x8000, (8, 3, 2): 0x8000}, (32, 32))
-        self.assertIsNotNone(hand_frames.drawn("gi_base", {(8, 2, 2): 0x8000, (8, 3, 2): 0x9000}, (32, 32)))
+            hand_frames.drawn(log_paths.GI_BASE.name, {(8, 2, 2): 0x8000, (8, 3, 2): 0x8000}, (32, 32))
+        self.assertIsNotNone(hand_frames.drawn(log_paths.GI_BASE.name, {(8, 2, 2): 0x8000, (8, 3, 2): 0x9000}, (32, 32)))
         with self.assertRaises(ValueError):                   # listed flip pair, flip bit missing: the bytes differ
-            hand_frames.drawn("gi_base", {(20, 0, 0): 0x8000, (20, 2, 0): 0x8000}, (32, 32))
-        self.assertIsNotNone(hand_frames.drawn("gi_base", {(20, 0, 0): 0x8000, (20, 2, 0): 0x9000}, (32, 32)))
+            hand_frames.drawn(log_paths.GI_BASE.name, {(20, 0, 0): 0x8000, (20, 2, 0): 0x8000}, (32, 32))
+        self.assertIsNotNone(hand_frames.drawn(log_paths.GI_BASE.name, {(20, 0, 0): 0x8000, (20, 2, 0): 0x9000}, (32, 32)))
 
     def test_drawn_refuses_a_wrong_size_and_ignores_unlisted_frames(self):
         with self.assertRaises(ValueError):
-            hand_frames.drawn("gi_base", {(5, 0, 2): 0x8000}, (32, 32))
-        self.assertIsNone(hand_frames.drawn("gi_base", {(4, 0, 0): 0x8000}, (32, 32)))
-        self.assertIsNone(hand_frames.drawn("gi_rage_aura", {(3, 0, 3): 0x8000}, (32, 32)))
+            hand_frames.drawn(log_paths.GI_BASE.name, {(5, 0, 2): 0x8000}, (32, 32))
+        self.assertIsNone(hand_frames.drawn(log_paths.GI_BASE.name, {(4, 0, 0): 0x8000}, (32, 32)))
+        self.assertIsNone(hand_frames.drawn(log_paths.GI_RAGE_AURA.name, {(3, 0, 3): 0x8000}, (32, 32)))
 
     def test_flipped_key_gets_the_golden_flipped_back(self):
-        name = hand_frames.golden_name("gi_base", (8, 2, 2))
+        name = hand_frames.golden_name(log_paths.GI_BASE.name, (8, 2, 2))
         plain = hand_frames._stored(name, 0x8000).tobytes()
         flipped = hand_frames._stored(name, 0x9000)
         self.assertEqual(flipped.transpose(Image.FLIP_LEFT_RIGHT).tobytes(), plain)

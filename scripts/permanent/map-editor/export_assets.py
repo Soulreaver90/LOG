@@ -38,6 +38,7 @@ from PIL import Image
 for folder in (Path(__file__).resolve().parent, Path(__file__).resolve().parents[1]):
     sys.path.insert(0, str(folder))                           # -P omits the script folder; scene\ is one up
 
+import log_paths                                              # noqa: E402
 from scene import map_view                                    # noqa: E402
 from rom import log2_sprites                                  # noqa: E402
 from rom.webfoot_decompress import set_offset, unpack_frame   # noqa: E402
@@ -48,7 +49,7 @@ CHUNK_COUNT = 168               # frames in the shared pool (bible B1080), measu
 TRANSPARENT_INDEX = 0           # the GBA draws colour 0 as nothing; the PNG tRNS marker says so too
 ATLAS_COLUMNS = 16             # tiles across one atlas
 TILE_PIXELS = 8
-DEFAULT_OUT = Path(__file__).resolve().parent / "assets"
+DEFAULT_OUT = log_paths.MAP_EDITOR_ASSETS
 
 # ===== CONFIG: the sprites the editor stands on a map, so a hill reads next to a person =====
 # One line adds another. The id is a sprite set, resolved through THIS ROM's own table (the

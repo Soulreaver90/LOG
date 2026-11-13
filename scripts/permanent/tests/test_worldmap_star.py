@@ -26,12 +26,13 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import worldmap_star as WS
 from rom.rom_space import Allocator
 from scene import scene_lib as S
 
 ROM_BASE = 0x08000000
-LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_plateau.txt"
+LIST = log_paths.BUILD_LISTS / "build_list_trial_plateau.txt"
 
 # Capsule Corp's own block in the VANILLA script, read op for op 2026-11-09.
 BLOCK_AT, BLOCK_END = 0x3FB8EF, 0x3FB927     # from after the previous place's icon to after its own

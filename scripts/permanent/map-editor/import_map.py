@@ -53,6 +53,7 @@ from pathlib import Path
 for _folder in (Path(__file__).resolve().parent, Path(__file__).resolve().parents[1]):
     sys.path.insert(0, str(_folder))              # -P omits the script folder; scene\ is one up
 
+import log_paths                                                       # noqa: E402
 from rom.webfoot_decompress import decompress                          # noqa: E402
 from rom.webfoot_lz_pack import pack                                   # noqa: E402
 from scene import map_view                                             # noqa: E402
@@ -428,7 +429,7 @@ def _main(argv: list) -> None:
     args = ap.parse_args(argv)
 
     out = Path(args.out).resolve()
-    if "data" in (part.lower() for part in out.parts):
+    if log_paths.DATA.name in (part.lower() for part in out.parts):
         raise ValueError(f"{out} is under a data folder, and nothing here writes there")
     sites = []
     rom = apply(Path(args.rom).read_bytes(), map_file.load(Path(args.doc)), args.zone, args.area,

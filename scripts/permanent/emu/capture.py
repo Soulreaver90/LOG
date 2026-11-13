@@ -43,15 +43,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # -P omits the script folder
-
 import log_paths  # noqa: E402
 
+
 # ===== CONFIG =====
-BIZHAWK = Path(r"C:\Users\josephgonzalez\Downloads\BizHawk-2.11.1-win-x64")
+BIZHAWK = log_paths.BIZHAWK
 EMUHAWK = BIZHAWK / "EmuHawk.exe"
 INSTALL_CONFIG = BIZHAWK / "config.ini"
 CAPTURE_LUA = Path(__file__).resolve().parent / "capture.lua"
-RUN_ROOT = log_paths.ROOT / "scratch" / "capture"
+RUN_ROOT = log_paths.CAPTURE
 DEFAULT_TIMEOUT = 900
 BUTTONS = ("A", "B", "Start", "Select", "Up", "Down", "Left", "Right", "L", "R")
 STEP_WORDS = ("wait", "press", "shot", "read", "write", "savestate", "loadstate", "end")

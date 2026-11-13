@@ -38,13 +38,13 @@ import log_paths  # noqa: E402
 from rom.rom_space import Allocator  # noqa: E402
 
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[2]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+ROOT = log_paths.ROOT                                # kept: one-time scripts read log2_build.ROOT
+BASE = log_paths.BASE_ROM
 OUT = log_paths.BUILDS / "log2_hack.gba"
-BUILD_LOG = ROOT / "docs" / "build-log.md"           # ALWAYS written. --log adds a second file, never replaces this
+BUILD_LOG = log_paths.BUILD_LOG           # ALWAYS written. --log adds a second file, never replaces this
 EXTRA_LOG = None                                     # --log <path>: a per-build copy beside the ROM
-BUILD_LIST = ROOT / "scripts" / "permanent" / "build_list.txt"       # the golden master, and the --list default
-DEV_LIST = BUILD_LIST.parent / "build_list_dev.txt"                  # the dev master, which every trial includes
+BUILD_LIST = log_paths.BUILD_LISTS / "build_list.txt"       # the golden master, and the --list default
+DEV_LIST = log_paths.BUILD_LISTS / "build_list_dev.txt"                  # the dev master, which every trial includes
 BASE_SIZE = 8388608
 BASE_SHA1 = "18e0715dec419f3501c301511530d2edcd590f8b"
 ROM_SIZE = 16777216
@@ -107,7 +107,7 @@ def seed_save() -> Path:
     """The save of the highest numbered main build, which is the one that holds real progress.
 
     Suffixed builds (_spar, _computer) hold their own scenario saves, so the name must match exactly."""
-    saves = [(int(m.group(1)), p) for p in (ROOT / "builds").glob("log2_poc_r*.sav")
+    saves = [(int(m.group(1)), p) for p in (log_paths.BUILDS).glob("log2_poc_r*.sav")
              if (m := re.fullmatch(r"log2_poc_r(\d+)", p.stem))]
     return max(saves)[1] if saves else None
 
@@ -137,7 +137,7 @@ def is_throwaway(out: Path) -> bool:
 
 def build(base: Path, out: Path, patch_names: list, save: Path = None) -> str:
     out = Path(out).resolve()
-    if (ROOT / "data").resolve() in out.parents:
+    if (log_paths.DATA).resolve() in out.parents:
         raise ValueError(f"refusing to write under the data folder: {out}")
     rom, _ = assemble(base, patch_names)
     out.parent.mkdir(parents=True, exist_ok=True)

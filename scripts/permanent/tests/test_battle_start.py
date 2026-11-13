@@ -38,12 +38,13 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from scene import scene_harness as H
 from scene import scene_lib as S
 from scene import scene_probe as P
 
 # ===== constants =====
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_ending.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_ending.txt"
 TEMPLATE = 0x3E9384                             # the vanilla template, map 14,3, the Cell Games start
 
 # Scene tables no map entry owns, so the map walk cannot reach them.

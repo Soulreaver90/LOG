@@ -26,8 +26,9 @@ from pathlib import Path
 
 from scene import map_view
 from scene import scene_probe
+import log_paths  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import map_file                                                            # noqa: E402
 import tile_stream                                                         # noqa: E402

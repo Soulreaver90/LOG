@@ -23,11 +23,10 @@ from rom.log2_sprites import image_to_tiles, set_records
 from rom.webfoot_decompress import ROM_BASE, SET_TABLE, rom_ptr, unpack_frame
 
 # ===== constants (the briefs, the manifest and the base ROM) =====
-ROOT = log2_build.ROOT
-LISTS = ROOT / "scripts" / "permanent"
+LISTS = log_paths.PERMANENT
 TRIAL_LIST = LISTS / "build_list_trial_trunkstank.txt"
 SPRITELAB_LIST = LISTS / "build_list_trial_spritelab.txt"
-ART = log_paths.ART / "trunks_tank"
+ART = log_paths.TRUNKS_TANK
 FIRST_ID, SET_TABLE_LITERAL = 7, 0x959C
 BASE_SET, SSJ_SET = 128, 134
 VANILLA = {BASE_SET: 0x35BBE0, SSJ_SET: 0x37FB74}       # both read out of the base ROM with set_records

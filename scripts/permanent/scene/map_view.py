@@ -43,12 +43,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanen
 
 from PIL import Image                                         # noqa: E402
 
+import log_paths  # noqa: E402
 from scene import scene_probe                                            # noqa: E402
 from rom.webfoot_decompress import unpack_frame                   # noqa: E402
 
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE = log_paths.BASE_ROM
 ROM_BASE, BG_PAL = 0x08000000, 0x1DA4C8
 # No map table constant lives here on purpose: scene_probe.map_entry resolves it from the ROM it is
 # given, so a build whose table has moved reads its own. A copy of the base address would read a dead one.

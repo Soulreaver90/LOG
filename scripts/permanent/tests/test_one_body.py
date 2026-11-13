@@ -22,10 +22,9 @@ from art import hand_frames
 import log_paths
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
 SPR = log_paths.SPRITES
-OUTS = {"gi_ssj_v4": ("gi_ssj_v2", ["set59"]), "gi_ssj2_v4": ("gi_ssj2_v2", ["set58", "set59"])}
+OUTS = {log_paths.GI_SSJ_V4.name: (log_paths.GI_SSJ_V2.name, ["set59"]), log_paths.GI_SSJ2_V4.name: (log_paths.GI_SSJ2_V2.name, ["set58", "set59"])}
 
 
 def keys(text: str) -> set:
@@ -39,10 +38,10 @@ REVERT_MATCH = {(21, d, 3): (0, 0, 0) for d in range(4)}            # standing: 
 ANCHOR_159 = {(20, d, i): (0, 2) for d in (0, 2) for i in range(4)}   # 159 flight head placed high by the transplant
 STEP = {(9, d, i) for d in range(4) for i in (1, 2, 3)}              # 158 SSJ to SSJ2 step: golden SSJ2 head
 KEPT = {   # every key that is not derived, by class (my rules 2026-10-22 and 2026-10-23)
-    "gi_ssj_v4": {"vanilla pose": ANIM16,
+    log_paths.GI_SSJ_V4.name: {"vanilla pose": ANIM16,
                   "box": keys("4.1.3 6.0.0 7.0.0 13.0.3"),
                   "no base": REVERT_KEPT},
-    "gi_ssj2_v4": {"exception": {(0, d, i) for d in range(4) for i in range(2)},     # SSJ2 idle (std golden)
+    log_paths.GI_SSJ2_V4.name: {"exception": {(0, d, i) for d in range(4) for i in range(2)},     # SSJ2 idle (std golden)
                    "vanilla pose": ANIM16 | {(4, d, i) for d in range(4) for i in range(4)},   # 4: SSJ2 rage stance
                    "box": keys("6.0.0 7.0.0"),
                    "no base": REVERT_KEPT}}
@@ -58,7 +57,7 @@ def report(out: str) -> dict:
 
 def tables(out: str) -> dict:
     src, sets = OUTS[out]
-    return {"base": gi_art.by_key(ART / "gi_base"), "now": gi_art.by_key(ART / src), "new": gi_art.by_key(ART / out),
+    return {"base": gi_art.by_key(log_paths.GI_BASE), "now": gi_art.by_key(ART / src), "new": gi_art.by_key(ART / out),
             "v56": gi_art.by_key(SPR / "set56"), "vform": [gi_art.by_key(SPR / s) for s in sets]}
 
 
@@ -92,8 +91,8 @@ class OneBodyTests(unittest.TestCase):
     def test_pinned_lists(self):                             # me, 2026-10-23: box keys, revert, head anchors
         self.assertEqual({o: set(v) for o, v in gi_one_body.KEPT_BOX.items()},
                          {o: KEPT[o]["box"] for o in KEPT})
-        self.assertEqual(gi_one_body.EXCEPTIONS["gi_ssj_v4"], {})
-        self.assertEqual(gi_one_body.HEAD_ANCHOR, {"gi_ssj_v4": {}, "gi_ssj2_v4": ANCHOR_159})
+        self.assertEqual(gi_one_body.EXCEPTIONS[log_paths.GI_SSJ_V4.name], {})
+        self.assertEqual(gi_one_body.HEAD_ANCHOR, {log_paths.GI_SSJ_V4.name: {}, log_paths.GI_SSJ2_V4.name: ANCHOR_159})
         for out in OUTS:
             self.assertEqual(gi_one_body.POSE_MATCH[out], REVERT_MATCH)
             rep = report(out)
@@ -133,7 +132,7 @@ class OneBodyTests(unittest.TestCase):
                 self.assertEqual({p for p in sash if new.get(p) != b[p]}, set(), f"{out} {gi_art.key_str(k)}: sash")
 
     def test_step_frames_keep_the_golden_head(self):         # 158 anim 9 indices 1-3: base body, golden SSJ2 head
-        t, rep = tables("gi_ssj_v4"), report("gi_ssj_v4")
+        t, rep = tables(log_paths.GI_SSJ_V4.name), report(log_paths.GI_SSJ_V4.name)
         for k in sorted(STEP):
             r = rep[gi_art.key_str(k)]
             self.assertEqual(r["class"], "derived", k)
@@ -154,22 +153,22 @@ class OneBodyTests(unittest.TestCase):
                 self.assertEqual({p for p in sash if new.get(p) in gi_art.RED}, sash, (out, k))
 
     def test_boot_gray_carries_through_base(self):           # r19 fix: base 12.0.x never had the armor gray
-        t = tables("gi_ssj_v4")
+        t = tables(log_paths.GI_SSJ_V4.name)
         for i in range(4):
             self.assertNotIn(12, gi_art.frame_pixels(t["base"][(12, 0, i)]).values())
             self.assertNotIn(12, gi_art.frame_pixels(t["new"][(12, 0, i)]).values(), i)
 
     def test_kept_keys_show_todays_frame(self):
-        for out, today in (("gi_ssj_v4", "gi_ssj_v2"), ("gi_ssj2_aura_v4", "gi_ssj2_aura")):
-            rep = report("gi_ssj_v4" if out == "gi_ssj_v4" else "gi_ssj2_v4")
+        for out, today in ((log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ_V2.name), (log_paths.GI_SSJ2_AURA_V4.name, log_paths.GI_SSJ2_AURA.name)):
+            rep = report(log_paths.GI_SSJ_V4.name if out == log_paths.GI_SSJ_V4.name else log_paths.GI_SSJ2_V4.name)
             a, b = gi_art.by_key(ART / out), gi_art.by_key(ART / today)
             for k in b:
-                rk = (0, k[1], k[2] // 3) if out == "gi_ssj2_aura_v4" and k[0] == 0 else k
+                rk = (0, k[1], k[2] // 3) if out == log_paths.GI_SSJ2_AURA_V4.name and k[0] == 0 else k
                 if rep[gi_art.key_str(rk)]["class"] != "derived":
                     self.assertEqual(gi_art.frame_pixels(a[k]), gi_art.frame_pixels(b[k]), (out, k))
 
     def test_frames_keep_size_name_and_order(self):          # no allocation of the build moves
-        for out, today in (("gi_ssj_v4", "gi_ssj_v2"), ("gi_ssj2_aura_v4", "gi_ssj2_aura")):
+        for out, today in ((log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ_V2.name), (log_paths.GI_SSJ2_AURA_V4.name, log_paths.GI_SSJ2_AURA.name)):
             new, old = gi_art.load_manifest(ART / out), gi_art.load_manifest(ART / today)
             self.assertEqual([e["png"] for e in new], [e["png"] for e in old], out)
             for e, f in zip(new, old):
@@ -181,8 +180,8 @@ class OneBodyTests(unittest.TestCase):
                     self.assertLessEqual(abs(k["dx"] - j["dx"]) + abs(k["dy"] - j["dy"]), 2 * gi_one_body.SPAN)
 
     def test_aura_adds_only_bolts_to_the_body(self):          # order: base body, derived SSJ2 body, bolts
-        body, aura = gi_art.by_key(ART / "gi_ssj2_v4"), gi_art.by_key(ART / "gi_ssj2_aura_v4")
-        rep = report("gi_ssj2_v4")
+        body, aura = gi_art.by_key(log_paths.GI_SSJ2_V4), gi_art.by_key(log_paths.GI_SSJ2_AURA_V4)
+        rep = report(log_paths.GI_SSJ2_V4.name)
         for k, rec in aura.items():
             if k[0] == 0 or rep[gi_art.key_str(k)]["class"] != "derived":
                 continue
@@ -190,9 +189,9 @@ class OneBodyTests(unittest.TestCase):
             self.assertTrue(all(a.get(p) in BOLT for p in set(a) | set(b) if a.get(p) != b.get(p)), k)
 
     def test_hand_lists(self):
-        self.assertEqual(hand_frames.DERIVED["gi_ssj_v4"], [])
-        self.assertEqual(set(hand_frames.DERIVED["gi_ssj2_aura_v4"]),
-                         {k for k in hand_frames.HAND["gi_ssj2_aura"] if k in KEPT["gi_ssj2_v4"]["vanilla pose"]})
+        self.assertEqual(hand_frames.DERIVED[log_paths.GI_SSJ_V4.name], [])
+        self.assertEqual(set(hand_frames.DERIVED[log_paths.GI_SSJ2_AURA_V4.name]),
+                         {k for k in hand_frames.HAND[log_paths.GI_SSJ2_AURA.name] if k in KEPT[log_paths.GI_SSJ2_V4.name]["vanilla pose"]})
         self.assertEqual(len(hand_frames.GOLDEN_HAND), len(set(hand_frames.GOLDEN_HAND)))
 
 
@@ -200,12 +199,12 @@ class OneBodyRunTests(unittest.TestCase):
     def test_fresh_run_equals_the_folders(self):             # gi_one_body and the v4 aura are deterministic
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
             art = Path(tmp)
-            for name in ("gi_base", "gi_ssj_v2", "gi_ssj2_v2"):
+            for name in (log_paths.GI_BASE.name, log_paths.GI_SSJ_V2.name, log_paths.GI_SSJ2_V2.name):
                 shutil.copytree(ART / name, art / name)
             gi_one_body.run_all(art)
             for name, (body, idle, layout, tag, ring) in gi_aura.V4_OUTPUTS.items():
                 gi_aura.aura_folder(art / body, art / name, idle, tag, layout, art / ring)
-            for name in ("gi_ssj_v4", "gi_ssj2_v4", "gi_ssj2_aura_v4"):
+            for name in (log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ2_V4.name, log_paths.GI_SSJ2_AURA_V4.name):
                 mine = {p.name: p.read_bytes() for p in (art / name).iterdir()}
                 disk = {p.name: p.read_bytes() for p in (ART / name).iterdir() if p.is_file()}
                 self.assertEqual(set(mine), set(disk), name)
@@ -213,11 +212,11 @@ class OneBodyRunTests(unittest.TestCase):
 
     def test_ring_on_its_own_body_changes_nothing(self):     # the ring path gives today's bolts on today's body
         with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / "gi_ssj2_aura"
-            body, idle, layout = gi_aura.OUTPUTS["gi_ssj2_aura"]
-            gi_aura.aura_folder(ART / body, out, idle, "gi_ssj2_aura", layout, ART / body)
+            out = log_paths.under(tmp, log_paths.GI_SSJ2_AURA)
+            body, idle, layout = gi_aura.OUTPUTS[log_paths.GI_SSJ2_AURA.name]
+            gi_aura.aura_folder(ART / body, out, idle, log_paths.GI_SSJ2_AURA.name, layout, ART / body)
             mine = {p.name: p.read_bytes() for p in out.iterdir()}
-            disk = {p.name: p.read_bytes() for p in (ART / "gi_ssj2_aura").iterdir() if p.is_file()}
+            disk = {p.name: p.read_bytes() for p in (log_paths.GI_SSJ2_AURA).iterdir() if p.is_file()}
             self.assertEqual(mine, disk)
 
 

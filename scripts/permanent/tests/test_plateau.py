@@ -12,9 +12,10 @@ import struct
 import sys
 import unittest
 from pathlib import Path
+import log_paths  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import log2_build  # noqa: E402
 from patches import plateau  # noqa: E402

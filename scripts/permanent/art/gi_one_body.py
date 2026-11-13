@@ -65,24 +65,24 @@ import log_paths  # noqa: E402
 ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
 SPRITES = log_paths.SPRITES
-BASE = "gi_base"
+BASE = log_paths.GI_BASE.name
 VANILLA_BASE = "set56"
-OUTPUTS = {"gi_ssj_v4": ("gi_ssj_v2", ("set59",)),                     # out: (head source, vanilla sets in order)
-           "gi_ssj2_v4": ("gi_ssj2_v2", ("set58", "set59"))}
+OUTPUTS = {log_paths.GI_SSJ_V4.name: (log_paths.GI_SSJ_V2.name, ("set59",)),                     # out: (head source, vanilla sets in order)
+           log_paths.GI_SSJ2_V4.name: (log_paths.GI_SSJ2_V2.name, ("set58", "set59"))}
 EXCEPTIONS = {                                                          # kept as today (final, 2026-10-22)
-    "gi_ssj_v4": {},
-    "gi_ssj2_v4": {(0, d, i): "SSJ2 idle: std golden body, aura idle records" for d in range(4) for i in range(2)}}
+    log_paths.GI_SSJ_V4.name: {},
+    log_paths.GI_SSJ2_V4.name: {(0, d, i): "SSJ2 idle: std golden body, aura idle records" for d in range(4) for i in range(2)}}
 KEPT_BOX = {                                                            # need more than 32x32: kept (final, 2026-10-23)
-    "gi_ssj_v4": {(4, 1, 3), (6, 0, 0), (7, 0, 0), (13, 0, 3)},
-    "gi_ssj2_v4": {(6, 0, 0), (7, 0, 0)}}
+    log_paths.GI_SSJ_V4.name: {(4, 1, 3), (6, 0, 0), (7, 0, 0), (13, 0, 3)},
+    log_paths.GI_SSJ2_V4.name: {(6, 0, 0), (7, 0, 0)}}
 # Anim 21 (the revert) has no base counterpart. Index 3 (standing, hair black) has the vanilla body of the base idle
 # 0.0.0 (shape residual 1); indices 0-2 (power-down pose, residual 26 or more) have no clear match and stay.
 POSE_MATCH = {out: {(21, d, 3): (0, 0, 0) for d in range(4)} for out in OUTPUTS}
 # The 159 flight head sits 2 rows above the vanilla form head on the same body (irises, all indices; 158 sits at 0):
 # the transplant placed it, and the base chin showed under it, so it moves back down. 159 12.0.x sits 1 row high
 # too, but there the taller golden face needs that row: moved down, its mouth covers the base collar. It stays.
-HEAD_ANCHOR = {"gi_ssj_v4": {},
-               "gi_ssj2_v4": {(20, d, i): (0, 2) for d in (0, 2) for i in range(4)}}
+HEAD_ANCHOR = {log_paths.GI_SSJ_V4.name: {},
+               log_paths.GI_SSJ2_V4.name: {(20, d, i): (0, 2) for d in (0, 2) for i in range(4)}}
 SPAN = 2                                                                # body shift search, pixels
 POSE_LIMIT = 25                                                         # shape residual: vanilla anim 16 starts at 28
 HAIR = gi_art.GOLD | {16, 43, 45, 131, 142}                             # SSJ hair, its shine and the golden head's

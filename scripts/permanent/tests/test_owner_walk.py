@@ -17,9 +17,8 @@ from art import gi_art
 import log_paths
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
-GOLDEN = ART / "golden"
+GOLDEN = log_paths.GOLDEN
 SPRITES = gi_art.SPRITES
 FORM_SET = {"base": "set56", "ssj": "set59", "ssj2": "set58"}
 
@@ -68,7 +67,7 @@ class OwnerFrameTests(unittest.TestCase):
             self.assertTrue((GOLDEN / name).is_file(), name)
 
     def test_owner_walk_frames_are_byte_equal_in_gi_base(self):
-        base = gi_art.by_key(ART / "gi_base")
+        base = gi_art.by_key(log_paths.GI_BASE)
         for i in range(4):
             rec = base[(1, 0, i)]
             got = Image.open(rec["dir_path"] / rec["png"])
@@ -113,7 +112,7 @@ class ClassifierTests(unittest.TestCase):
 
 class RuleTests(unittest.TestCase):
     def test_back_width_follows_golden_d1(self):            # 9:55 AM: the gi back keeps the golden width
-        x0, x1, _ = gi_art.back_columns("gi_base", SPRITES / "set56")
+        x0, x1, _ = gi_art.back_columns(log_paths.GI_BASE.name, SPRITES / "set56")
         self.assertEqual((x0, x1), (4, 10))
         for i in range(4):
             _, _, _, parts = convert("set56", (1, 1, i), "base")
@@ -132,7 +131,7 @@ class RuleTests(unittest.TestCase):
         boot = {(x, y) for x in range(4) for y in range(5)}
         edge = {(x, y) for (x, y) in boot if x in (0, 3) or y in (0, 2, 4)}
         self.assertEqual(len(gi_art.feet(boot, edge)), 1)
-        px = gi("gi_ssj", (4, 1, 1))
+        px = gi(log_paths.GI_SSJ.name, (4, 1, 1))
         legs = [y for (x, y), v in px.items() if v in (34, 35) and y > 0]
         self.assertGreater(len(legs), 0)
         self.assertEqual(sorted(set(legs))[-2:], [max(legs) - 1, max(legs)])   # the shoe is the lowest rows only
@@ -155,7 +154,7 @@ class RuleTests(unittest.TestCase):
     def test_loose_white_stays_effect(self):                # 10:52 AM, 16.0.4: effect white stays white
         orig, _, _, parts = convert("set56", (16, 0, 4), "base")
         self.assertGreater(len(parts["loose"]), 0)
-        final = gi("gi_base", (16, 0, 4))
+        final = gi(log_paths.GI_BASE.name, (16, 0, 4))
         self.assertTrue(all(final.get(p) == orig[p] for p in parts["loose"]))
 
     def test_sash_only_on_the_waist_span(self):             # 10:52 AM, 8.0.1: never along the kicking leg
@@ -165,12 +164,12 @@ class RuleTests(unittest.TestCase):
         self.assertTrue(all(parts["span"][0] <= x <= parts["span"][1] for x, _ in red))
 
     def test_kick_shaft_is_gi_not_hem(self):                # 11:03 AM, 72.png: base 8.0.1 at (-2..-1, -1)
-        final = gi("gi_base", (8, 0, 1))
+        final = gi(log_paths.GI_BASE.name, (8, 0, 1))
         self.assertEqual([final.get((x, -1)) in (88, 89) for x in (-2, -1)], [True, True])
 
     def test_golden_torso_never_covers_an_arm(self):        # 11:03 AM: the golden torso replaces torso only
         orig, mask, _, parts = convert("set56", (4, 2, 0), "base")
-        final = gi("gi_base", (4, 2, 0))
+        final = gi(log_paths.GI_BASE.name, (4, 2, 0))
         chin = gi_art.chin_of(orig, mask)
         limbs = {p for p in parts["arms"] | parts["hands"] if p[1] > chin[1] + gi_art.STRAP_ROWS}
         self.assertGreater(len(limbs), 3)
@@ -178,13 +177,13 @@ class RuleTests(unittest.TestCase):
 
     def test_kick_8_0_3_keeps_its_arm(self):                # 11:03 AM, 73.png: the near arm is skin
         orig, _, _, parts = convert("set56", (8, 0, 3), "base")
-        final = gi("gi_base", (8, 0, 3))
+        final = gi(log_paths.GI_BASE.name, (8, 0, 3))
         glove = [p for p in parts["hands"] if p[0] < 6]
         self.assertGreater(len(glove), 4)
         self.assertTrue(all(final.get(p) in gi_art.SKIN | {23} | gi_art.WRISTBAND for p in glove))
 
     def test_kick_16_0_2_sash_spans_the_waist(self):        # 11:03 AM, 74.png: one row up, full width
-        final = gi("gi_base", (16, 0, 2))
+        final = gi(log_paths.GI_BASE.name, (16, 0, 2))
         rows = {y for (_, y), v in final.items() if v in gi_art.RED}
         self.assertEqual(len(rows), 1)
         self.assertEqual(sum(1 for (_, y), v in final.items() if v in gi_art.RED), 7)

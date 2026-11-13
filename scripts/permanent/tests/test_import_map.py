@@ -25,14 +25,15 @@ import log2_build
 from scene import map_view
 from scene import scene_probe
 from scene.scene_lib import words_naming
+import log_paths  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import import_map                                                          # noqa: E402
 import map_file                                                            # noqa: E402
 
 ROM_BASE = map_view.ROM_BASE
-TRIAL_ENDING = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_ending.txt"
+TRIAL_ENDING = log_paths.BUILD_LISTS / "build_list_trial_ending.txt"
 
 # Map 7,15, re-measured below by the tests that use them.
 W15_PAIR = (713, 609)                   # the +0x08 and +0x0A words map 7,15 stores

@@ -35,12 +35,14 @@ import json
 import re
 import struct
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
 
 # ===== CONFIG =====
-LOG = Path(r"C:\Users\josephgonzalez\Documents\Projects\Workspace\LOG")
-DISASM = Path(r"C:\Users\josephgonzalez\Documents\GitHub\legacyofgoku2-disasm")
-ROM = LOG / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-OUT = LOG / "docs" / "research"
+ROM = log_paths.BASE_ROM
+OUT = log_paths.RESEARCH
 EXT_TABLE = 0x3B5D28
 ROM_BASE, CODE_TOP = 0x08000000, 0x08800000
 MAX_DELEGATE = 2
@@ -61,7 +63,7 @@ def code_index() -> dict:
     """{address: (name, file)} from CODE_INDEX.md. The addresses are LOWERCASE hex; an uppercase
     pattern matches nothing and silently reports every handler as unnamed."""
     row = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*`0x([0-9a-f]{8})`\s*\|\s*`?([^`|]+?)`?\s*\|\s*$", re.M)
-    text = (DISASM / "docs" / "CODE_INDEX.md").read_text(encoding="utf-8", errors="replace")
+    text = (log_paths.DISASM_REPO_DOCS / "CODE_INDEX.md").read_text(encoding="utf-8", errors="replace")
     return {int(a, 16): (n, f.strip()) for n, a, f in row.findall(text)}
 
 
@@ -69,7 +71,7 @@ def build_label_map() -> dict:
     """{address: file} for every sub_ and loc_ label. A handler start is not always a function start,
     and CODE_INDEX lists only function starts, so scanning every label is what finds the rest."""
     out = {}
-    for f in (DISASM / "build" / "code").glob("*.s"):
+    for f in log_paths.DISASM_REPO_CODE.glob("*.s"):
         for addr in LABEL.findall(f.read_text(encoding="utf-8", errors="replace")):
             out.setdefault(int(addr, 16), f)
     return out

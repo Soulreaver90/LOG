@@ -29,12 +29,13 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import celljr_fight
 from tests.test_cellgames_ssj import diff, ops, u32, words_naming
 from rom.webfoot_decompress import ROM_BASE
 
 # ===== constants (brief, study, r39 and r40 reads) =====
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial.txt"
 MAP_14_3 = 0x40DA80
 COUNT_AT, LIST_WORD, OLD_LIST = 0x40DA84, 0x40DA94, 0x409118
 ITEM8, ITEM9, ITEM10 = 0x409038, 0x409068, 0x409098

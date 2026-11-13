@@ -41,7 +41,6 @@ import log_paths  # noqa: E402
 from rom.log2_sprites import OBJ_SHAPES  # noqa: E402
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
 
 # -- transplant
@@ -108,7 +107,8 @@ def best(px, cands, mask, old):
 
 def transplant_heads(art: Path = ART) -> list:
     """Golden SSJ2 head on every gi_ssj2 frame; writes gi_ssj2_v2 (frames, manifest.json, transplant.json)."""
-    src_dir, out, gold = art / "gi_ssj2", art / "gi_ssj2_v2", art / "golden"
+    src_dir, out, gold = (log_paths.under(art, log_paths.GI_SSJ2), log_paths.under(art, log_paths.GI_SSJ2_V2),
+                       log_paths.under(art, log_paths.GOLDEN))
     out.mkdir(exist_ok=True)
     man = json.loads((src_dir / "manifest.json").read_text())
     idle = {}
@@ -196,7 +196,8 @@ def transplant_heads(art: Path = ART) -> list:
 
 def finish_golden_slots(art: Path = ART) -> dict:
     """Golden frames replace the idle frames, powered-down frames go back to the source; transplant.json follows."""
-    src_dir, v2, gold = art / "gi_ssj2", art / "gi_ssj2_v2", art / "golden"
+    src_dir, v2, gold = (log_paths.under(art, log_paths.GI_SSJ2), log_paths.under(art, log_paths.GI_SSJ2_V2),
+                      log_paths.under(art, log_paths.GOLDEN))
     man = {e["png"]: e for e in json.loads((v2 / "manifest.json").read_text())}
     src = {e["png"]: e for e in json.loads((src_dir / "manifest.json").read_text())}
     rep = json.loads((v2 / "transplant.json").read_text())
@@ -259,7 +260,7 @@ def rules(img, front_back=True, front=False):
 
 def body_rules(art: Path = ART, apply: bool = True) -> dict:
     """Run the golden gate, then (if no golden changes and apply) the rules on every gi_ssj2_v2 frame."""
-    v2, gold = art / "gi_ssj2_v2", art / "golden"
+    v2, gold = log_paths.under(art, log_paths.GI_SSJ2_V2), log_paths.under(art, log_paths.GOLDEN)
     gate = {d: rules(Image.open(gold / f"golden_gi_ssj2_d{d}.png"), d in (0, 1), d == 0)[1] for d in (0, 1, 2, 3)}
     print("golden changes per rule set (must be 0):", gate)
     result = {"gate": gate, "applied": False, "pixels": 0}
@@ -288,7 +289,8 @@ def body_rules(art: Path = ART, apply: bool = True) -> dict:
 
 def ssj2_step_frames(art: Path = ART) -> None:
     """gi_ssj_v2 = copy of gi_ssj plus anim 9 frames 1-3 with the golden SSJ2 head."""
-    src_dir, out, gold_dir = art / "gi_ssj", art / "gi_ssj_v2", art / "golden"
+    src_dir, out, gold_dir = (log_paths.under(art, log_paths.GI_SSJ), log_paths.under(art, log_paths.GI_SSJ_V2),
+                           log_paths.under(art, log_paths.GOLDEN))
     if out.exists():
         shutil.rmtree(out)
     shutil.copytree(src_dir, out)

@@ -15,10 +15,11 @@ import unittest
 from pathlib import Path
 
 import log2_build
+import log_paths
 from scene import op_usage
 from scene import scene_lib as S
 
-PROFILE = Path(__file__).resolve().parents[3] / "docs" / "research" / "scene-vm-ext-ops.json"
+PROFILE = log_paths.RESEARCH / "scene-vm-ext-ops.json"
 HANDLER_COUNT = 145                 # ext 0 to 144. Word 145 is 0x03000E90, IWRAM, not a handler.
 NOT_AN_OP = {145}                   # named by us (the chapter card) and past the end of the table
 BASE_ROM = log2_build.BASE.read_bytes()

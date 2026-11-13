@@ -114,6 +114,7 @@ import hashlib
 import struct
 from pathlib import Path
 
+import log_paths
 from rom import webfoot_decompress
 from patches.bf_ki_pool import words_naming
 from patches.npc_gi import _op_end, relocate
@@ -316,7 +317,7 @@ EXTRA_GLYPHS = {".": (0x3000, 0x3000), "'": (0x001E, 0x000E)}   # dot on rows 12
 # pointers, +4 order bytes (0xFF = loop), +8 sample directory (12-byte entries: u32 data, u16 flags, u16 loop,
 # u16 length, u16 rate), +0xC mask table (14 bytes), +0x10 tempo, +0x11 ticks per row}, and the player reads all
 # of it through the record. So the port copies the record's data, rebases its pointers and plays the new record.
-BF_PATH = Path(__file__).resolve().parents[3] / "data" / "roms" / "Dragon Ball Z - Buu's Fury (USA).gba"
+BF_PATH = log_paths.BF_ROM
 BF_SHA1 = "f1c4b07554d2a3b1ad2f325307051e775ce68087"
 LG_PATH = BF_PATH.with_name("Dragon Ball Z - The Legacy of Goku II (USA).gba")   # vanilla ext words (read only)
 BF_MUSIC_TABLE = 0x083BB78C                              # BF ext 35 0x080008BC: table + 20 x song

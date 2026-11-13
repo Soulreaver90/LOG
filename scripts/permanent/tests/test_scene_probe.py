@@ -16,7 +16,7 @@ from scene import scene_probe as P
 from scene.scene_probe import show_table
 
 BASE_ROM = log2_build.BASE.read_bytes()
-ARENA = (log_paths.BUILDS / "mockups" / "2026-11-05-ending-arena" / "log2_poc_r41_arena_v7.gba")
+ARENA = (log_paths.ARENA_MOCKUPS / "log2_poc_r41_arena_v7.gba")
 
 # bible tag OPS: map 6,1 +0x40 = 3, +0x44 = 0x085F2090, items rom:0x5F2048, 0x5F2060, 0x5F2078.
 CC_LAYOUT, CC_DOOR_LIST = 0x5F209C, 0x5F2090

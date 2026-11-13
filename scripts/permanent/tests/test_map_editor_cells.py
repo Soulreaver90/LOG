@@ -31,12 +31,13 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+import log_paths  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import map_file                                                            # noqa: E402
 
-EDITOR = Path(__file__).resolve().parents[1] / "map-editor" / "editor"
+EDITOR = log_paths.MAP_EDITOR_EDITOR
 CELLS = EDITOR / "cells.js"
 NODE = shutil.which("node")
 LIMITS = {"budget": map_file.TILE_BUDGET, "groupMax": map_file.GROUP_MAX,

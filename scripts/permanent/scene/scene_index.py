@@ -18,13 +18,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
 
+import log_paths  # noqa: E402
 from scene import op_usage                                              # noqa: E402
 from scene import scene_lib as S                                        # noqa: E402
 
 # ===== CONFIG =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-OUT = ROOT / "docs" / "research"
+BASE = log_paths.BASE_ROM
+OUT = log_paths.RESEARCH
 
 # capability: the ext ops that prove it
 CAPABILITY = {

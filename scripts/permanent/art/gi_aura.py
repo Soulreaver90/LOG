@@ -41,11 +41,10 @@ from art import hand_frames  # noqa: E402
 import log_paths  # noqa: E402
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
 ART = log_paths.ART
-GOLDEN = ART / "golden"
+GOLDEN = log_paths.GOLDEN
 REF_DIR = GOLDEN / "work_r3" / "aura2"                        # My approved mockups
-BASE_ROM = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE_ROM = log_paths.BASE_ROM
 BLUE, WHITE = 191, 2
 IRIS = {64, 65}
 BRIGHT = 450                                                  # r + g + b above this: white would vanish
@@ -53,12 +52,12 @@ REF_SEED, REF_COLUMNS, REF_SCALE = 22, 6, 6                   # bolts.py main():
 AURA_ANIMS = (1, 4, 13)                                       # walk, ki charge, run (idle is handled apart)
 IDLE_SHAPES, IDLE_BODIES = 3, 2
 HFLIP = 0x1000
-OUTPUTS = {"gi_ssj2_aura": ("gi_ssj2_v2", "golden_gi_ssj2std", None),     # out: (body folder, idle golden, layout)
-           "gi_rage_aura": ("gi_rage", None, 58)}
+OUTPUTS = {log_paths.GI_SSJ2_AURA.name: (log_paths.GI_SSJ2_V2.name, "golden_gi_ssj2std", None),     # out: (body folder, idle golden, layout)
+           log_paths.GI_RAGE_AURA.name: (log_paths.GI_RAGE.name, None, 58)}
 # One body (gi_one_body.py): the derived set 159 body gets today's bolts. Same seeds (tag gi_ssj2_aura), and the
 # start points come from the gi_ssj2_v2 frames (ring), so the bolts stay where they are. out: (body, idle, layout,
 # tag, ring)
-V4_OUTPUTS = {"gi_ssj2_aura_v4": ("gi_ssj2_v4", "golden_gi_ssj2std", None, "gi_ssj2_aura", "gi_ssj2_v2")}
+V4_OUTPUTS = {log_paths.GI_SSJ2_AURA_V4.name: (log_paths.GI_SSJ2_V4.name, "golden_gi_ssj2std", None, log_paths.GI_SSJ2_AURA.name, log_paths.GI_SSJ2_V2.name)}
 
 
 # ===== bolts (port of aura2\bolts.py, outline family) =====

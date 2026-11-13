@@ -44,9 +44,8 @@ import log_paths  # noqa: E402
 from rom.webfoot_decompress import ROM_BASE, unpack_frame  # noqa: E402
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
-REFERENCE = ROOT / "data" / "reference" / "122601.png"
+BASE = log_paths.BASE_ROM
+REFERENCE = log_paths.REFERENCE / "122601.png"
 ART = log_paths.PORTRAIT_SOURCES
 REVIEW = log_paths.ART / "portraits_review.png"
 
@@ -67,9 +66,9 @@ RECOLOR_SSJ, RECOLOR_SSJ2 = {96: 97}, {80: 233, 215: 97}
 # name: (source, appearance entry, old +2/+3 (the armor portraits), new +2/+3, dialog recolor)
 # source: (sheet column, row) in 122601.png, or the drawn PNG whose pixels are dialog indices
 FORMS = {
-    "gi_ssj":  ((4, 1), 5, (0x3E, 0x0D), (115, 116), RECOLOR_SSJ),
-    "gi_ssj2": ((5, 1), 22, (0x3D, 0x0C), (117, 118), RECOLOR_SSJ2),
-    "gi_base": (BASE_SRC, 2, (0x3B, 0x0A), (119, 120), {}),
+    log_paths.GI_SSJ.name:  ((4, 1), 5, (0x3E, 0x0D), (115, 116), RECOLOR_SSJ),
+    log_paths.GI_SSJ2.name: ((5, 1), 22, (0x3D, 0x0C), (117, 118), RECOLOR_SSJ2),
+    log_paths.GI_BASE.name: (BASE_SRC, 2, (0x3B, 0x0A), (119, 120), {}),
 }
 
 

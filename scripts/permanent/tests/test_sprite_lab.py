@@ -15,15 +15,15 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from scene import scene_lib
 from patches import sprite_lab
 from rom.thumb_dis import listing
 
 # ===== constants (brief, the task probes, the base and dev master bytes) =====
 ROM_BASE = 0x08000000
-ROOT = log2_build.ROOT
 DEV_LIST = log2_build.DEV_LIST                                  # the trial list includes this, not golden
-TRIAL_LIST = ROOT / "scripts" / "permanent" / "build_list_trial_spritelab.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_spritelab.txt"
 DEV_SHA1 = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"       # the dev master (r41, 2026-10-31)
 # The hook: vt_player (symbols.py) slot +8, whose only reference the codemap names "vt_player+0x8".
 VT_PLAYER, HOOK, VANILLA_PLAYER_UPDATE = 0x08025604, 0x2560C, 0x08008767

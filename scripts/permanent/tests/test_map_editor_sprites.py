@@ -26,8 +26,9 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+import log_paths  # noqa: E402
 
-EDITOR = Path(__file__).resolve().parents[1] / "map-editor"
+EDITOR = log_paths.MAP_EDITOR
 sys.path.insert(0, str(EDITOR))
 
 import export_assets                                                      # noqa: E402
@@ -51,7 +52,7 @@ EXPECTED = {
 # The one module that may never make the map dirty. The sprite is a reference overlay: it is not
 # saved, not exported and never placed as tiles, so a change to it must not start the autosave or
 # put the unsaved marker on the owner's tab.
-RULER_JS = EDITOR / "editor" / "ruler.js"
+RULER_JS = log_paths.MAP_EDITOR_EDITOR / "ruler.js"
 FORBIDDEN = ["markDirty", "edit(", "setDoc", "setView", "notify("]
 
 
@@ -170,7 +171,7 @@ class AssetFolderTests(unittest.TestCase):
         self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
 
     def test_a_full_export_writes_the_sprites_beside_the_atlases(self):
-        assets = self.folder / "assets"
+        assets = self.folder / log_paths.MAP_EDITOR_ASSETS.name
         export_assets.export(_rom(), assets)
         self.assertTrue((assets / "assets.json").is_file())
         sprites = assets / export_assets.SPRITES_IN / "sprites.json"
@@ -180,7 +181,7 @@ class AssetFolderTests(unittest.TestCase):
 
     def test_the_server_tops_up_an_assets_folder_that_has_no_sprites(self):
         import serve
-        assets = self.folder / "assets"
+        assets = self.folder / log_paths.MAP_EDITOR_ASSETS.name
         export_assets.export(_rom(), assets)
         import shutil
         shutil.rmtree(assets / export_assets.SPRITES_IN)         # an assets\ from before the ruler
@@ -194,7 +195,7 @@ class AssetFolderTests(unittest.TestCase):
 
     def test_the_server_leaves_a_complete_assets_folder_alone(self):
         import serve
-        assets = self.folder / "assets"
+        assets = self.folder / log_paths.MAP_EDITOR_ASSETS.name
         export_assets.export(_rom(), assets)
         before = sorted(p.name for p in (assets / export_assets.SPRITES_IN).iterdir())
         stamp = (assets / export_assets.SPRITES_IN / "sprites.json").stat().st_mtime_ns
@@ -212,7 +213,7 @@ class AssetFolderTests(unittest.TestCase):
     def test_a_half_written_sprites_folder_does_not_stop_the_editor_opening(self):
         """Loud, never fatal. An interrupted export must not block every map he wants to open."""
         import serve
-        assets = self.folder / "assets"
+        assets = self.folder / log_paths.MAP_EDITOR_ASSETS.name
         export_assets.export(_rom(), assets)
         (assets / export_assets.SPRITES_IN / "sprites.json").unlink()
         original = serve.ASSETS

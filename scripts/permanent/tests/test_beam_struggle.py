@@ -17,12 +17,13 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import beam_struggle
 from rom.webfoot_decompress import decompress, unpack_frame
 
 # ===== constants (base ROM reads, BMS and BMG rows, bridge.txt) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_beam.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_beam.txt"
 BEFORE_SHA1 = "60572a84bf91fcfaa2c0690c9a5dc47bec0d2c88"       # r39 + relay_cooldown + fullpower_hud (r40 order)
 ROM_SHA1 = "9256a6ba861e03743c1d971a3f054bea1bcc6aae"          # before + beam_struggle (r40 order, 2026-10-30)
 TRIAL_SHA1 = "d7eed3c3b90a789edb935544dc261d01e6b69217"        # r39 + beam_struggle v2 (v1 05318b4e...), 2026-10-25

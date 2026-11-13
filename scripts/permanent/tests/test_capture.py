@@ -17,10 +17,10 @@ from unittest import mock
 
 from emu import actors as actors_mod
 from emu import capture
+import log_paths
 
-ROOT = Path(__file__).resolve().parents[3]
-BUILDS = ROOT / "builds"
-GOOD_ROM = BUILDS / "mockups" / "2026-10-25-chapter-cards" / "log2_poc_r40_chapters_v10.gba"
+BUILDS = log_paths.BUILDS
+GOOD_ROM = log_paths.CHAPTER_MOCKUPS / "log2_poc_r40_chapters_v10.gba"
 
 JOB = f"""
 # a comment
@@ -89,8 +89,8 @@ class TestRomGuard(unittest.TestCase):
         self.assertEqual(capture.check_rom(GOOD_ROM), GOOD_ROM.resolve())
 
     def test_a_rom_outside_builds_is_refused(self):
-        for path in (ROOT / "data" / "roms" / "base.gba", ROOT / "scratch" / "x.gba",
-                     Path("C:/Temp/x.gba"), ROOT / "builds" / ".." / "data" / "x.gba"):
+        for path in (log_paths.ROMS / "base.gba", log_paths.SCRATCH / "x.gba",
+                     Path("C:/Temp/x.gba"), log_paths.BUILDS / ".." / log_paths.DATA.name / "x.gba"):
             with self.subTest(path=str(path)):
                 with self.assertRaises(ValueError):
                     capture.check_rom(path)
@@ -101,7 +101,7 @@ class TestRomGuard(unittest.TestCase):
 
     def test_the_guard_can_be_pointed_at_another_builds_root(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp) / "builds"
+            root = log_paths.under(tmp, log_paths.BUILDS)
             root.mkdir()
             self.assertEqual(capture.check_rom(root / "a.gba", builds=root), (root / "a.gba").resolve())
             with self.assertRaises(ValueError):
@@ -202,7 +202,7 @@ class TestLoadstateGuard(unittest.TestCase):
     "Core.bin.zst", and the decompressed core carries the ROM's zlib.crc32 as a u32 at offset 12.
     """
     CRC_OFFSET = 12
-    REAL_STATE = (ROOT / "scripts" / "one-time" / "2026-10-30-capture-loop" / "states"
+    REAL_STATE = (log_paths.ONE_TIME / "2026-10-30-capture-loop" / "states"
                   / "card4_gohan_arrival.State")
 
     def fake_state(self, path, crc):

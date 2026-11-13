@@ -19,8 +19,7 @@ from rom.log2_sprites import set_records
 from rom.rom_sheet import TABLE_LITERAL, build_sheet, live_set_offset, write_frames
 from rom.webfoot_decompress import ROM_BASE, SET_TABLE, rom_ptr
 
-ROOT = Path(__file__).resolve().parents[3]
-BASE_ROM = (ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba").read_bytes()
+BASE_ROM = (log_paths.BASE_ROM).read_bytes()
 POC_ROM = (log_paths.BUILDS / "log2_poc.gba").read_bytes()
 
 
@@ -79,7 +78,7 @@ class FrameLockTests(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.tmp = Path(self._tmp.name)
-        self.art, self.locks = self.tmp / "art", self.tmp / "locks"
+        self.art, self.locks = log_paths.under(self.tmp, log_paths.ART), log_paths.under(self.tmp, log_paths.LOCKS)
         self.art.mkdir()
         self.locks.mkdir()
         _png(self.art / "a.png", [1] * 64)
@@ -105,9 +104,9 @@ class FrameLockTests(unittest.TestCase):
 
     def test_check_exit_codes(self):
         frame_lock.lock_folder(self.art, "t", self.locks)
-        lock = json.loads((self.locks / "art" / "lock.json").read_text())
+        lock = json.loads((self.locks / self.art.name / "lock.json").read_text())
         self.assertEqual(lock["frames"]["a.png"]["keys"], [[0, 1, 2]])
-        self.assertTrue((self.locks / "art" / "png" / "b.png").exists())
+        self.assertTrue((self.locks / self.art.name / "png" / "b.png").exists())
         self.assertEqual(sum(len(v) for v in frame_lock.check_folder(self.art, self.locks).values()), 0)
         px = [2] * 64
         px[0] = 3

@@ -16,8 +16,8 @@ import unittest
 from pathlib import Path
 
 import log2_build
-from rom import log2_save
 import log_paths
+from rom import log2_save
 from patches import chamber_spar
 from tests.test_cellgames_ssj import diff, ext_sequence, ops, u32, words_naming
 from tests.test_superperfect_cell import STATS_NEW, STATS_R35, TYPE25_STATS, with_stats

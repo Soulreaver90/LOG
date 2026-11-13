@@ -19,6 +19,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import finale_blast as FB
 from patches import plateau
 from rom import thumb_dis
@@ -28,7 +29,7 @@ from scene import scene_lib as S
 from tests.test_ssj2 import Cpu
 
 ROM_BASE = 0x08000000
-LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_plateau.txt"
+LIST = log_paths.BUILD_LISTS / "build_list_trial_plateau.txt"
 # The dialog box: 4 lines of 144 px a page (bible C4S and B2095), on the font at rom:0x2CC64. The
 # widest box the ending talk renders in vanilla is 294 px, ending word 3.
 DIALOG_FONT, DIALOG_WIDTH, BOX_LINES, WIDEST_VANILLA_BOX = 0x2CC64, 0x90, 4, 294

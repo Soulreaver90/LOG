@@ -23,13 +23,14 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import vegeta_ssj_scene
 from tests.test_cellgames_ssj import POS, diff, ext_sequence, u32, words_naming
 from rom.rom_sheet import live_set_offset, row_frames
 from rom.webfoot_decompress import ROM_BASE
 
 # ===== constants (report, r39 reads) =====
-LISTS = log2_build.ROOT / "scripts" / "permanent"
+LISTS = log_paths.PERMANENT
 TRIAL_LIST, VEGETA_LIST = LISTS / "build_list_trial.txt", LISTS / "build_list_trial_vegeta.txt"
 BEFORE_SHA1 = "9256a6ba861e03743c1d971a3f054bea1bcc6aae"   # r39 + relay_cooldown + fullpower_hud + beam_struggle
 R40_SHA1 = "14d6b8314f5f418f80021fe60ef8d052b5dcf2be"      # build_list_dev.txt r40 (2026-10-30)

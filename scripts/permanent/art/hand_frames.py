@@ -26,35 +26,38 @@ Source:  My r12fix frames, my review 2026-10-18 (art\hand-fixes\edits.py): snaps
          gi_one_body.py. They reuse the v2 golden names (SOURCE), so GOLDEN_HAND lists each name once.
 Rules:   The goldens are read only. Index 0 is transparent.
 """
+import sys
 from pathlib import Path
 
 from PIL import Image
 
-import log_paths
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 
 # ===== constants =====
-GOLDEN = log_paths.ART / "golden"
+GOLDEN = log_paths.GOLDEN
 HFLIP, VFLIP = 0x1000, 0x2000
 MIRROR_DIR, SOURCE_DIR = 3, 2
-FORM = {"gi_base": "base", "gi_ssj_v2": "ssj", "gi_ssj2_aura": "ssj2std",   # sets 157, 158, 159 (frame_lock names)
-        "gi_ssj_v4": "ssj", "gi_ssj2_aura_v4": "ssj2std"}                    # 158, 159 derived (gi_one_body.py)
+FORM = {log_paths.GI_BASE.name: "base", log_paths.GI_SSJ_V2.name: "ssj", log_paths.GI_SSJ2_AURA.name: "ssj2std",   # sets 157, 158, 159 (frame_lock names)
+        log_paths.GI_SSJ_V4.name: "ssj", log_paths.GI_SSJ2_AURA_V4.name: "ssj2std"}                    # 158, 159 derived (gi_one_body.py)
 LYING = [(3, d, 3) for d in range(3)]                                       # one shared frame per set
 FLIGHT = [(20, d, i) for d in range(4) for i in range(4)]                   # world map flight, r17
 CARRY = [(5, 0, 2), (8, 0, 3), (8, 2, 2), *[(12, 0, i) for i in range(4)], (16, 2, 1), (16, 2, 4)]   # r18, 158/159
-HAND = {"gi_base": LYING + [(5, 0, 2), (8, 0, 3), (8, 2, 2), *[(12, 0, i) for i in range(4)],
+HAND = {log_paths.GI_BASE.name: LYING + [(5, 0, 2), (8, 0, 3), (8, 2, 2), *[(12, 0, i) for i in range(4)],
                             (13, 0, 0), (13, 0, 2), (13, 0, 3), (16, 2, 4)]
                    + [(1, 2, 0), (16, 2, 1)] + FLIGHT,
-        "gi_ssj_v2": [(1, 0, 0), (1, 0, 2)] + LYING + [(13, 0, 3)] + [(1, 2, 0)] + CARRY,
-        "gi_ssj2_aura": [(1, 0, 0), (1, 0, 2)] + LYING + [(13, 0, 3)] + [(1, 2, 0)] + CARRY}
+        log_paths.GI_SSJ_V2.name: [(1, 0, 0), (1, 0, 2)] + LYING + [(13, 0, 3)] + [(1, 2, 0)] + CARRY,
+        log_paths.GI_SSJ2_AURA.name: [(1, 0, 0), (1, 0, 2)] + LYING + [(13, 0, 3)] + [(1, 2, 0)] + CARRY}
 # Derived sets (one body, me, 2026-10-22): 158 and 159 take the base body, so a derived key needs no hand frame
 # (the 32 v2 keys above are all body fixes, scripts\one-time\2026-10-22-one-body\a5_hand.txt). A key that stays as today keeps today's
 # frame: gi_ssj_v4 copies it from gi_ssj_v2 (hand frames placed), gi_ssj2_aura_v4 needs its v2 hand frame here.
 KEPT_159 = [(16, 2, 1), (16, 2, 4)]                                         # vanilla poses differ (gi_one_body)
-DERIVED = {"gi_ssj_v4": [], "gi_ssj2_aura_v4": KEPT_159}
-REVISION = {"gi_ssj2_aura": {(1, 0, 0): "r17", (1, 0, 2): "r17", (13, 0, 3): "r17",   # r17: aura bolts back
+DERIVED = {log_paths.GI_SSJ_V4.name: [], log_paths.GI_SSJ2_AURA_V4.name: KEPT_159}
+REVISION = {log_paths.GI_SSJ2_AURA.name: {(1, 0, 0): "r17", (1, 0, 2): "r17", (13, 0, 3): "r17",   # r17: aura bolts back
                              (1, 2, 0): "r18"},                                        # r18: side walk bolts back
-            "gi_ssj_v2": {(12, 0, 1): "r19", (12, 0, 2): "r19", (12, 0, 3): "r19"}}   # r19: no armor boot gray
-SOURCE = {"gi_ssj_v4": "gi_ssj_v2", "gi_ssj2_aura_v4": "gi_ssj2_aura"}       # a derived set uses the v2 golden names
+            log_paths.GI_SSJ_V2.name: {(12, 0, 1): "r19", (12, 0, 2): "r19", (12, 0, 3): "r19"}}   # r19: no armor boot gray
+SOURCE = {log_paths.GI_SSJ_V4.name: log_paths.GI_SSJ_V2.name, log_paths.GI_SSJ2_AURA_V4.name: log_paths.GI_SSJ2_AURA.name}       # a derived set uses the v2 golden names
 
 
 # ===== names =====

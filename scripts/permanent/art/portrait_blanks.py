@@ -50,10 +50,10 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # run it straight, not only as a module
 
-import log_paths                       # noqa: E402
 from art import art_tables as A        # noqa: E402
+import log_paths  # noqa: E402
 
-BASE_ROM = log_paths.ROOT / "data" / "roms" / "Dragon Ball Z - The Legacy of Goku II (USA).gba"
+BASE_ROM = log_paths.BASE_ROM
 SIDE, RING = A.SIDE, A.RING
 INNER = range(RING, SIDE - RING)
 TOLERANCE = 56          # RGB distance a flood fill may step; an outline jumps much further
@@ -62,7 +62,9 @@ STRAY = 16              # a ring differing by this many pixels or fewer is the s
 MIN_GROUP = 3           # under three portraits a background has too few independent characters
 CORNERS = [(x, y) for y in range(RING, 13)
            for x in list(range(RING, 13)) + list(range(52, SIDE - RING))]
-GENERATED = {"frames": "frame_*.png", "backgrounds": "bg_*.png", "proof": "*.png"}
+GENERATED = {log_paths.PORTRAIT_KIT_FRAMES.name: "frame_*.png",
+             log_paths.PORTRAIT_KIT_BACKGROUNDS.name: "bg_*.png",
+             log_paths.PORTRAIT_KIT_PROOF.name: "*.png"}
 CLEAR = (0, 0, 0, 0)
 
 
@@ -535,7 +537,7 @@ def main() -> int:
     globals()["SOFTEN"] = max(0, a.soften)
 
     rom_path = Path(a.rom) if a.rom else BASE_ROM
-    out = Path(a.out) if a.out else log_paths.ART / "portrait-kit"
+    out = Path(a.out) if a.out else log_paths.PORTRAIT_KIT
     rom = rom_path.read_bytes()
     pal = A.obj_palette(rom)
 
@@ -550,7 +552,7 @@ def main() -> int:
 
     bases, strays = group_frames(portraits)
     for n, (ring, _) in enumerate(bases):
-        frame_png(ring, pal).save(out / "frames" / f"frame_{n}.png")
+        frame_png(ring, pal).save(out / log_paths.PORTRAIT_KIT_FRAMES.name / f"frame_{n}.png")
 
     rows, inner, singles = [], len(INNER) ** 2, []
     for group in clusters(portraits):
@@ -562,13 +564,13 @@ def main() -> int:
             continue
         pct = measured * 100 // inner
         name = f"bg_{pct:02d}pct_id{group[0]:03d}.png"
-        img.save(out / "backgrounds" / name)
+        img.save(out / log_paths.PORTRAIT_KIT_BACKGROUNDS.name / name)
         rows.append((name, pct, sorted(group)))
         shots = [img] + [render(portraits[p], pal) for p in group[:6]]
         sheet = Image.new("RGBA", (len(shots) * SIDE * 3, SIDE * 3), (40, 40, 40, 255))
         for i, im in enumerate(shots):
             sheet.alpha_composite(im.resize((SIDE * 3, SIDE * 3), Image.NEAREST), (i * SIDE * 3, 0))
-        sheet.save(out / "proof" / f"{name[:-4]}_vs_real.png")
+        sheet.save(out / log_paths.PORTRAIT_KIT_PROOF.name / f"{name[:-4]}_vs_real.png")
     rows.sort(key=lambda r: -r[1])
 
     write_readme(out, bases, strays, rows, singles)

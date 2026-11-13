@@ -11,10 +11,10 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+import log_paths  # noqa: E402
 
 PERMANENT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PERMANENT))
-import log_paths  # noqa: E402
 
 sys.path.insert(0, str(log_paths.DISASM))
 import codemap  # noqa: E402

@@ -15,8 +15,9 @@ from pathlib import Path
 from PIL import Image
 
 from scene import map_view
+import log_paths  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "map-editor"))
+sys.path.insert(0, str(log_paths.MAP_EDITOR))
 
 import export_assets                                                        # noqa: E402
 import tile_stream                                                          # noqa: E402
@@ -32,7 +33,7 @@ class ExportAssetsTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._tmp = tempfile.TemporaryDirectory()
-        cls.out = Path(cls._tmp.name) / "assets"
+        cls.out = Path(cls._tmp.name) / log_paths.MAP_EDITOR_ASSETS.name
         cls.written = export_assets.export(ROM, cls.out)
 
     @classmethod

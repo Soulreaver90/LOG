@@ -27,14 +27,14 @@ from typing import NamedTuple
 
 from PIL import Image
 
-import log_paths
 from log2_build import BASE, BASE_SIZE
+import log_paths
 from rom.log2_sprites import OBJ_SHAPES, PALETTE_OFF, image_to_tiles, read_set, set_records
 from patches.bf_ki_pool import words_naming
 from patches.gohan_gi import art_records
 
 # ===== constants =====
-APPROVED = log_paths.ART / "base-audit" / "approved"
+APPROVED = log_paths.BASE_AUDIT_APPROVED
 NAME = re.compile(r"157_a(\d+)_d(\d+)_i(\d+)\.png")
 ROM_BASE = 0x08000000
 SET_ID, FIRST_ID, SET_TABLE_LITERAL = 157, 7, 0x959C       # gohan_gi's set table copy, ids 7-160
@@ -116,7 +116,7 @@ def plan(rom, alloc, frames: dict) -> tuple:
     for k, r in recs.items():
         by_hdr[r["header"]].append(k)
     obj = _obj_palette(rom)
-    gi_recs, gi_frames = art_records("gi_base")
+    gi_recs, gi_frames = art_records(log_paths.GI_BASE.name)
     out = {}
     for k, f in sorted(frames.items()):
         if k not in recs:

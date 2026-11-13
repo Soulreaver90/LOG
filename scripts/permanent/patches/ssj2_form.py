@@ -20,10 +20,10 @@ Rules:   Source: docs\research\re-forms.md section 7. Every site is checked agai
          Never touches the shared Super Saiyan pool 0x080174A0 or the Rage entry. Hand-assembled Thumb
          (no assembler installed); tests\test_ssj2.py checks it with the separate decoder thumb_dis.py.
 """
+import log_paths
 import re
 import struct
 
-import log_paths
 
 # ===== constants =====
 ROM_BASE = 0x08000000

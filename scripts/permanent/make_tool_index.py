@@ -10,12 +10,16 @@ Run: py -3.14 -P scripts\permanent\make_tool_index.py
 """
 import ast
 import datetime as dt
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[0]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 LOG = Path(__file__).resolve().parents[2]
-PERM = LOG / "scripts" / "permanent"
-ONCE = LOG / "scripts" / "one-time"
-OUT = LOG / "docs" / "tool-index.md"
+PERM = log_paths.PERMANENT
+ONCE = log_paths.ONE_TIME
+OUT = log_paths.TOOL_INDEX
 STATS = {}                      # what the last build() counted, for main() to print
 
 # One line per folder of tools. A folder with no line here is still listed, with a plain note.
@@ -104,7 +108,7 @@ def build() -> list[str]:
         L += group(folder, rf"`scripts\permanent\{folder.name}\`",
                    FOLDER_NOTES.get(folder.name, "Tools in this folder."))
 
-    patches = sorted((PERM / "patches").glob("*.py"))
+    patches = sorted(log_paths.PATCHES.glob("*.py"))
     if patches:
         rows = [[f"`{p.name}`", purpose(p)[0]] for p in patches]
         L += [f"### Patches ({len(patches)})", "",

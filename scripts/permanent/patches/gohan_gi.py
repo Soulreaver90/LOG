@@ -40,8 +40,8 @@ ART = log_paths.ART
 APPEARANCE, APPEARANCE_LEN = 0x1D967C, 22 * 20
 REVERSE_LITERAL, SET_TABLE_LITERAL = 0x42F0, 0x959C
 FIRST_ID, OLD_IDS = 7, 150                                   # the table holds ids 7-156
-SETS = {157: (os.environ.get("LOG_GI_BASE", "gi_base"), 56), 158: (os.environ.get("LOG_GI_SSJ", "gi_ssj_v2"), 59),
-        159: (os.environ.get("LOG_GI_SSJ2", "gi_ssj2_aura"), 59), 160: ("gi_rage_aura", 58)}   # id: (art, layout)
+SETS = {157: (os.environ.get("LOG_GI_BASE", log_paths.GI_BASE.name), 56), 158: (os.environ.get("LOG_GI_SSJ", log_paths.GI_SSJ_V2.name), 59),
+        159: (os.environ.get("LOG_GI_SSJ2", log_paths.GI_SSJ2_AURA.name), 59), 160: (log_paths.GI_RAGE_AURA.name, 58)}   # id: (art, layout)
 IDLE_RECORDS = {157: 2, 158: 2, 159: 6, 160: 6}              # anim 0 records per dir each set publishes
 GI_BLOCK = 580076                                            # bytes the dev master allocates for the four sets
 RAGE_SET, RAGE_ENTRY = 160, 4

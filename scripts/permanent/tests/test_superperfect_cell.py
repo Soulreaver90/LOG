@@ -62,9 +62,9 @@ CELL_SPAWNS = {0x406F78: (79, 14), 0x406FF0: (78, 13), 0x408E4C: (21, 15), 0x408
 ENEMY_FACTORY = 0x0800E77F                                       # spawn record +0; +8 type, +0x10 set
 MENU_FONT, NAME_FIELD, LIST_WIDTH = 0x28724, (73, 166), 160      # info name ink between the frame borders
 VANILLA_52 = 0x6BAF30
-ART = log_paths.ART / "cell_aura" / "scale_15"
+ART = log_paths.CELL_AURA_15
 BUILD = log_paths.BUILDS
-OWNER_52 = log_paths.PORTRAIT_SOURCES / "remaster" / "superperfect" / "owner" / "sp52_owner_v3.png"
+OWNER_52 = log_paths.SUPERPERFECT_OWNER / "sp52_owner_v3.png"
 OTHER_SETS = (30, 157, 158, 56, 59, 60, 61, 137)                 # vanilla tick, as before r30
 SEEDS = (0, 0x7B, 0xEE, 0xFFF0)
 

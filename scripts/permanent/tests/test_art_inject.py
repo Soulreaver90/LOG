@@ -124,14 +124,14 @@ class ArtInjectTests(unittest.TestCase):
     def test_owner_art_copies_are_the_files_the_owner_made(self):
         pal, ok = at.obj_palette(self.rom), at.allowed_indices(self.rom, {})
         for pid, (folder, name, colors) in OWNER.items():
-            src = log_paths.PORTRAIT_SOURCES / "remaster" / folder / name
+            src = log_paths.REMASTER / folder / name
             self.assertIn(name, at.load_portraits()[pid]["note"])
             with Image.open(src) as img:                     # inject stores RGB art indexed (--snap for 40)
                 self.assertEqual(at.to_pixels(img, pal, ok, snap=True)[0], self.png[pid], pid)
             self.assertEqual(len(set(self.png[pid])), colors)
-        self.assertEqual(hashlib.sha1((at.ART_DIR / "portraits" / "040_cell_40.png").read_bytes()).hexdigest(),
+        self.assertEqual(hashlib.sha1((log_paths.TABLE_PORTRAITS / "040_cell_40.png").read_bytes()).hexdigest(),
                          CELL_SHA1)
-        src = (log_paths.PORTRAIT_SOURCES / "remaster" / "superperfect" / "owner"
+        src = (log_paths.SUPERPERFECT_OWNER
                / "sp52_owner_v3.png")                                   # r36: Super Perfect Cell, my final v3
         with Image.open(src) as img:
             self.assertEqual(at.to_pixels(img, pal, ok, snap=True), (self.png[52], [], []))

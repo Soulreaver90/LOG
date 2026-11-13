@@ -17,6 +17,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import fullpower_hud
 from rom.rom_space import Allocator
 from tests.test_bf_ki_pool import EP_TABLE, HUD, HUD_TILE, OAM, RAM, REGS, RET, STACK, STOPS, cpu
@@ -24,7 +25,7 @@ from rom.thumb_dis import listing
 
 # ===== constants (brief, r39 reads, vanilla listings) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_fullpower.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_fullpower.txt"
 BEFORE_SHA1 = "22943be822a97d279f06d7ad31b02cdc5196f136"    # r39 + relay_cooldown (= the cooldown trial ROM, 2026-10-25)
 SSJ_VT, SSJ2_VT, RAGE_VT, HUD_VT, TRANSFORM_VT = 0x08024C58, 0x0888DE24, 0x08024E4C, 0x0802408C, 0x08025D9C
 ENTER_WORD, HUD_WORD = 0x24C60, 0x2409C                   # SSJ vtable +8, HUD vtable +0x10

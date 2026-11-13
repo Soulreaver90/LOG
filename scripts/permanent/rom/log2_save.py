@@ -29,6 +29,9 @@ import sys
 import zlib
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # scripts\permanent: -P omits the script folder
+import log_paths  # noqa: E402
+
 # ===== EEPROM layout (CONFIRMED: 0x08001E3C-0x08001EF4 options, 0x08003F90-0x0800409C slots) =====
 SAV_SIZE = 0x2000            # IdentifyEeprom(64) at 0x0802145A: 64 Kbit part, whole image read at boot
 OPT_OFF = 0x000              # 4 option bytes + u32 check
@@ -530,7 +533,7 @@ def edit(src: Path, out: Path, n: int, pairs) -> None:
     write(out, ram)
 
 def write(out: Path, ram: bytearray) -> None:
-    if "data" in [p.lower() for p in out.resolve().parts]:
+    if log_paths.DATA.name in [p.lower() for p in out.resolve().parts]:
         sys.exit("Refusing to write under a data folder.")
     if out.exists():
         sys.exit(f"Refusing to overwrite {out}. Pick a new file name.")

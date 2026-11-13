@@ -20,6 +20,7 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import vegeta_19_reveal
 from rom.rom_space import Allocator
 from tests.test_bf_ki_pool import PLAYER, RAM, RET, SET_STATE, STACK, STOPS, STRUCT, Cpu2, cpu, pool, rec
@@ -27,7 +28,7 @@ from tests.test_cellgames_ssj import diff, ext_sequence, ops
 
 # ===== constants (brief, plan item 11, base reads) =====
 ROM_BASE, M32 = 0x08000000, 0xFFFFFFFF
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_vegeta19.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_vegeta19.txt"
 BEFORE_SHA1 = "b1743beb4bb73217ae0474d3e1ef25e08efa8da1"     # r40 + chapter_cards (log2_poc_r40_chapters_v12)
 TABLE, TABLE_NAMER = 0x3D40C8, 0x3FD4F4                 # Android 19 table, named by map 7,15 region 0 item
 WORD40, WORD41 = 0x3D4168, 0x3D416C                     # seq 41 (the line) and seq 42 (the fight start)

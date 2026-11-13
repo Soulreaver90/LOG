@@ -42,10 +42,9 @@ from art.hand_frames import GOLDEN_HAND
 import log_paths
 
 # ===== constants =====
-ROOT = Path(__file__).resolve().parents[3]
-LOCKS = log_paths.ART / "locks"
-GOLDEN_DIR = log_paths.ART / "golden"
-GOLDEN_NAME = "golden"
+LOCKS = log_paths.LOCKS
+GOLDEN_DIR = log_paths.GOLDEN
+GOLDEN_NAME = log_paths.GOLDEN.name
 GOLDEN_IDLE = [f"golden_gi_{form}_d{d}.png" for form in ("base", "ssj", "ssj2", "ssj2std") for d in range(4)]
 GOLDEN_WALK = [f"golden_gi_base_a1_d0_i{i}.png" for i in range(4)]   # gi_base keys 1.0.0-1.0.3, record size
 GOLDEN_FILES = GOLDEN_IDLE + GOLDEN_WALK + GOLDEN_HAND   # GOLDEN_HAND: the 64 r12fix frames (hand_frames.py)

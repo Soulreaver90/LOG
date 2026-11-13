@@ -51,7 +51,7 @@ from rom.log2_sprites import clone_set, image_to_tiles, set_records
 from rom.webfoot_decompress import ROM_BASE, rom_ptr
 
 # ===== constants =====
-ART = log_paths.ART / "trunks_tank"
+ART = log_paths.TRUNKS_TANK
 FIRST_ID = 7                                   # set id N resolves through rom:0x959C, entry N - 7
 SET_TABLE_LITERAL = 0x959C
 VANILLA_SETS = {128: 0x35BBE0,                 # base Trunks, CONFIRMED by set_records

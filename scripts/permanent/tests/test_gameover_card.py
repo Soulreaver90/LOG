@@ -15,13 +15,14 @@ import struct
 import unittest
 
 import log2_build
+import log_paths
 from patches import gameover_card
 from scene import scene_lib as S
 
 # ===== constants (base ROM reads and the handlers, not the module) =====
 ROM_BASE = 0x08000000
-TRIAL_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_gameover.txt"
-PLATEAU_LIST = log2_build.ROOT / "scripts" / "permanent" / "build_list_trial_plateau.txt"
+TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_gameover.txt"
+PLATEAU_LIST = log_paths.BUILD_LISTS / "build_list_trial_plateau.txt"
 LITERAL = 0x8870                                 # the one ROM word that names the game-over table
 VANILLA_TABLE, VANILLA_WORDS = 0x3B63B4, 24
 VANILLA_RECORD0, VANILLA_RECORD0_END = 0x3B6104, 0x3B6139
