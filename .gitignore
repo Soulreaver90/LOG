@@ -160,3 +160,8 @@ scripts/permanent/map-editor/autosave/
 # Git history is the durable record of both, and these two folders grow without a bound.
 scripts/permanent/map-editor/maps/older/
 scripts/permanent/map-editor/library/deleted/
+
+# Pre-merge copies of the whole bible, written by merge_bible_rows.py before 2026-11-13.
+# Each is a full 1.1 MB copy of docs\RE-BIBLE.md. A task folder holds inputs, never outputs,
+# and git history is the durable record of what the bible said before a merge.
+RE-BIBLE.before-merge.md

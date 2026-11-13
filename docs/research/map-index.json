@@ -51,7 +51,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -201,7 +201,7 @@
    "warp"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -232,7 +232,7 @@
    "warp"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -255,7 +255,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -394,7 +394,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -532,7 +532,7 @@
    "script"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -681,7 +681,7 @@
    "item"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -803,7 +803,7 @@
   ],
   "region_kinds": [],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -1190,7 +1190,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -1373,7 +1373,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -1409,7 +1409,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -1684,7 +1684,7 @@
    "warp"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -1727,7 +1727,7 @@
    "script"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -1799,7 +1799,7 @@
    "warp"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -2372,7 +2372,7 @@
    "script"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -3096,7 +3096,7 @@
    "script"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -3497,7 +3497,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -3743,7 +3743,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -3766,7 +3766,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -3797,7 +3797,7 @@
    "warp"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -3970,7 +3970,7 @@
   ],
   "region_kinds": [],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -4085,7 +4085,7 @@
   ],
   "item_kinds": [
    "group",
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -4399,7 +4399,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -4532,7 +4532,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -4612,7 +4612,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -4998,7 +4998,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -5021,7 +5021,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -5095,7 +5095,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -5520,7 +5520,7 @@
   ],
   "region_kinds": [],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -5572,7 +5572,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -5597,7 +5597,7 @@
    "item"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -5909,7 +5909,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -6043,7 +6043,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -6234,7 +6234,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -6406,7 +6406,7 @@
   "region_kinds": [],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -6437,7 +6437,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -6546,7 +6546,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -6683,7 +6683,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -6708,7 +6708,7 @@
    "item"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -6795,7 +6795,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -6822,7 +6822,7 @@
   ],
   "region_kinds": [],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -6878,7 +6878,7 @@
    "script"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -6901,7 +6901,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -6930,7 +6930,7 @@
    "script"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -7107,7 +7107,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -7298,7 +7298,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -7325,7 +7325,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -7579,7 +7579,7 @@
    "script"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -7609,7 +7609,7 @@
    "scene"
   ],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -7639,7 +7639,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -7665,7 +7665,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -7692,7 +7692,7 @@
   "region_kinds": [],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -7798,7 +7798,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -7821,7 +7821,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -7852,7 +7852,7 @@
   ],
   "item_kinds": [
    "group",
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -8026,7 +8026,7 @@
   ],
   "region_kinds": [],
   "item_kinds": [
-   "item",
+   "npc",
    "talk"
   ]
  },
@@ -8076,7 +8076,7 @@
    "script"
   ],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  },
  {
@@ -8356,7 +8356,7 @@
   ],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -8388,7 +8388,7 @@
   "region_kinds": [],
   "item_kinds": [
    "group",
-   "item"
+   "npc"
   ]
  },
  {
@@ -8411,7 +8411,7 @@
   "scene_tables": [],
   "region_kinds": [],
   "item_kinds": [
-   "item"
+   "npc"
   ]
  }
 ]

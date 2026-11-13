@@ -39,6 +39,7 @@ Shared art tools: palettes, frame locks, art tables, the gi and aura builders.
 | `palette_export.py` | Write the LoG II palettes as GIMP .gpl files for Aseprite and friends. |
 | `portrait_blanks.py` | Export portrait FRAMES and complete BACKGROUNDS as 64x64 layers, to sandwich your own art between. |
 | `portrait_export.py` | Export every vanilla dialog portrait from a ROM to 64x64 PNGs, as the reference to draw against. |
+| `to_indexed.py` | Turn hand drawn RGBA frames into indexed frames that carry the LoG II shared OBJ palette. |
 
 ### `scripts\permanent\disasm\`
 
@@ -124,7 +125,7 @@ Cutscenes: read one, write one, draw a map, run one in a test.
 | `scene_probe.py` | The section 9 map reader, plus the scene table, record and text readers. **`--map` is the section 9 READER.** It prints one map end to end: the entry fields by name, the layout chain, BOTH door carriers side by side (the region list at entry `+0x10` and the layout door list at `+0x40`/`+0x44`), the layout props, the collision frame with its container type and open counts, and the BG layer records. It resolves the map table from the ROM it is given, so `--rom <a build>` finds an appended map. |
 | `warp_graph.py` | Every door in the game: the full map-to-map connectivity graph, from BOTH carriers. **A map carries doors in TWO places.** The region list holds 69 of the game's 655 doors; the other 586 are in the layout door list at `+0x40`/`+0x44`, which holds POINTERS to items, not items. This graph is every map at once; for ONE map end to end, with both carriers labelled, run `scene_probe --map`. |
 
-### Patches (44)
+### Patches (45)
 
 One file per change to the game. A build list names these in order.
 
@@ -136,7 +137,7 @@ One file per change to the game. A build list names these in order.
 | `battle_arena.py` | Trial patch: a NEW map, 6,100, that is nothing but a battle arena for the ending fight. |
 | `beam_struggle.py` | Trial patch: the grand beam struggle of mockup v2 (final, 2026-10-25 4:22 PM: "Beam struggle mockup |
 | `bf_hud.py` | Patch: the Buu's Fury player HUD look and boss bar look on LoG II, data only (r39, HUD v2b part 1). |
-| `bf_ki_pool.py` | Patch: one Super Saiyan ki pool in the Buu's Fury style, drawn yellow over the EP row (r39, HUD v2b part 2). |
+| `bf_ki_pool.py` | Patch: one Super Saiyan ki pool in the Buu's Fury style, drawn over the EP row (r39, HUD v2b part 2). |
 | `cellgames_ssj.py` | Patch: Gohan and Goku in Super Saiyan through the Cell Games (final, 2026-10-20). |
 | `celljr_fight.py` | Trial patch: Cell spawns 7 Cell Jrs; the relay Jrs end like a boss; Gohan (Super Saiyan 2) fights |
 | `chamber_spar.py` | Patch: prototype sparring fight, Gohan (Demon Clothes) vs Goku (set 60), in the Capsule Corp |
@@ -155,6 +156,7 @@ One file per change to the game. A build list names these in order.
 | `gohan_portraits.py` | Patch: gi portraits for playable Gohan in base form, Super Saiyan and Super Saiyan 2 (Task 7). |
 | `npc_gi.py` | Patch: cutscene Gohan wears the armor until the player controls him after the chamber, the gi after. |
 | `piccolo_gi_scene.py` | Patch: on Dende's Lookout, Piccolo gives Super Saiyan Gohan his gi (my storyboard r29-r32). |
+| `piccolo_powerup_art.py` | Patch: set 104 (Super Namek) gains the power-up animation the owner drew for it. |
 | `piccolo_z_start.py` | Trial patch: Super Namek is Piccolo's from the start, and the form no longer heals him. |
 | `plateau.py` | Trial patch: map 7,100, the OWNER'S OWN plateau map, and the ending's round 2 on it. |
 | `pool_refill.py` | Trial patch: a scripted form change (ext 73) gives the leader a FULL Super Saiyan ki pool |
@@ -216,15 +218,19 @@ These derive approved art from vanilla plus a hand drawing. A stale one silently
 | `art\hand-fixes\snap_r18` | 2 |
 | `art\hand-fixes\snap_r19` | 2 |
 
-### One-time work (145 dated folders, 1359 scripts)
+### One-time work (149 dated folders, 1398 scripts)
 
 Scripts written to answer one question, kept with the answers they printed. Not reusable by default, but check here before re-deriving a ROM fact: the answer may already be printed in a `.txt` beside the script. Newest first.
 
 | Folder | Scripts | Notes file |
 |---|---|---|
-| `2026-11-12-vegeta-zplus` | 7 |  |
+| `2026-11-12-vegeta-zplus` | 19 | build-log-line.md |
+| `2026-11-12-vegeta-powerup` | 1 |  |
+| `2026-11-12-red-ki-bar` | 5 |  |
+| `2026-11-12-powerup-art` | 11 |  |
 | `2026-11-12-piccolo-zplus-mockup` | 1 |  |
-| `2026-11-12-piccolo-z-start` | 3 |  |
+| `2026-11-12-piccolo-z-start` | 6 |  |
+| `2026-11-12-ki-meter-drain` | 7 |  |
 | `2026-11-09-worldmap-star` | 3 |  |
 | `2026-11-09-scouter-menu` | 1 |  |
 | `2026-11-09-japan-green` | 1 |  |
@@ -258,9 +264,5 @@ Scripts written to answer one question, kept with the answers they printed. Not 
 | `2026-11-06-arena-v7` | 4 |  |
 | `2026-11-06-arena-v6` | 5 |  |
 | `2026-11-06-arena-v5` | 0 |  |
-| `2026-11-06-arena-v4` | 21 |  |
-| `2026-11-06-arena-v3` | 4 |  |
-| `2026-11-06-arena-fixes` | 9 |  |
-| `2026-11-05-trunks-boss-fights` | 9 |  |
 
-...and 105 older folders in `scripts\one-time\`.
+...and 109 older folders in `scripts\one-time\`.
