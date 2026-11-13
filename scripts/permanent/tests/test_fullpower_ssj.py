@@ -40,8 +40,8 @@ GOHAN_EXIT = {0x3DB62A: (157, 158)}
 WORDS = {0x3DE774: "door_seq33", 0x3E8D98: "entry_seq1", 0x3EC7A4: "post_cell_seq20"}
 CHAMBER_EXIT, DENDE = {0x3DBDD4: 36}, {0x3DD380: 10}                   # scene tables: word count
 GOKU_POWER_UP = [(46, (55,)), (57, (0, 9)), (42, (10,)), (47, (55,)), (73, (4, 61)), (43, (10,))]
-CHAMBER_SAVE = log_paths.BUILDS / "log2_poc_r28_chamber.sav"
-R27_SAVE = log_paths.BUILDS / "log2_poc_r27.sav"
+CHAMBER_SAVE = log_paths.BUILD_VARIANTS / "log2_poc_r28_chamber" / "log2_poc_r28_chamber.sav"
+R27_SAVE = log_paths.MASTER_BUILDS / "log2_poc_r27.sav"
 
 _CACHE = {}
 
@@ -515,7 +515,7 @@ class ChamberSaveTests(unittest.TestCase):
         self.assertEqual([hex(i - slot3.start) for i in changed if i - slot3.start not in allowed], [])
 
 
-CHAMBER2 = CHAMBER_SAVE.with_name("log2_poc_r28_chamber2.sav")
+CHAMBER2 = log_paths.BUILD_VARIANTS / "log2_poc_r28_chamber2" / "log2_poc_r28_chamber2.sav"
 
 
 @unittest.skipUnless(CHAMBER2.exists() and R27_SAVE.exists(), "chamber2 save not built")

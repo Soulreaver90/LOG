@@ -95,6 +95,9 @@ SUPERPERFECT_OWNER = SUPERPERFECT / "owner"                      # his own drawi
 #     no tool, test or patch may read, write or list it.
 
 # ===== builds and saves =====
+MASTER_BUILDS = BUILDS / "masters"                           # log2_poc_r<N>: the numbered line, and the seed saves
+BUILD_VARIANTS = BUILDS / "variants"                         # r28_chamber, r31_scouter and the rest, one folder each
+EARLY_BUILDS = BUILDS / "early"                             # log2_hack, log2_pad16, log2_poc, log2_poc_gi
 MOCKUPS = BUILDS / "mockups"                                     # trial ROMs, one folder per type
 HUD_KI_MOCKUPS = MOCKUPS / "2026-10-24-hud-ki"                   # ki HUD trial ROMs (test_bf_hud)
 CHAPTER_MOCKUPS = MOCKUPS / "2026-10-25-chapter-cards"           # chapter card trial ROMs (test_capture)
@@ -155,6 +158,21 @@ GNU_REPO_CODE = GNU_REPO / "build" / "code"
 
 
 # ===== rebase a folder on another tree =====
+
+def build_file(name: str) -> Path:
+    r"""A build file by NAME, wherever builds\ holds it.
+
+    builds\ groups by stem (masters\, variants\<stem>\, early\), so a caller that knows only the
+    file name must not have to know its group. A missing file still gets a path back, so an
+    `.exists()` guard reads the same as it did when everything sat at the builds root.
+    """
+    import re as _re
+    stem = _re.sub(r"\.(gba|sav|ss\d)$", "", name)
+    for folder in (MASTER_BUILDS, EARLY_BUILDS, BUILD_VARIANTS / stem, BUILDS):
+        if (folder / name).exists():
+            return folder / name
+    return BUILD_VARIANTS / stem / name
+
 
 def under(root, folder) -> Path:
     r"""`folder` re-rooted on `root`, keeping its shape below the root it belongs to.

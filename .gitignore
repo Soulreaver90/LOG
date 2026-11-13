@@ -92,9 +92,10 @@ art/characters/cell/*
 art/characters/cell/aura/*
 !art/characters/cell/aura/scale_15/
 
-# portraits: the finished ones, his sources and the kit. The vanilla export is a ROM rip, kept out.
+# portraits: the finished ones, his sources, the kit, and the vanilla export. The export is a ROM
+# rip that portrait_export.py can remake, but it was tracked before the move and nothing is dropped
+# from git as a side effect of reorganising.
 !art/portraits/
-art/portraits/vanilla/
 
 # reference: base-audit's approved frames only. vanilla-sets, anim and sheets are rips and review.
 !art/reference/

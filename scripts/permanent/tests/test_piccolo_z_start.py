@@ -395,7 +395,7 @@ class DemoSaves(unittest.TestCase):
         self.check("log2_piccolo_z_v1_z_from_start.sav", 0x6F, [2, 9, NAMEK_ABILITY])
 
     def test_neither_save_changes_another_character(self):
-        seed = ls.read_ram((log_paths.BUILDS / "log2_poc_r40.sav").read_bytes())
+        seed = ls.read_ram((log_paths.MASTER_BUILDS / "log2_poc_r40.sav").read_bytes())
         for name in ("log2_piccolo_z_v1_gate_shut.sav", "log2_piccolo_z_v1_z_from_start.sav"):
             for n, slot in enumerate(self.slots(name)):
                 was = bytes(seed[ls.slot_range(n)])

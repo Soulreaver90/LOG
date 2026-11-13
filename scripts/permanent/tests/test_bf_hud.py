@@ -25,12 +25,12 @@ from patches import bf_hud, bf_ki_pool
 
 # ===== constants (mockup builders, r38 reads) =====
 ROM_BASE, M32 = 0x08000000, 0xFFFFFFFF
-BUILD = log_paths.BUILDS
+BUILD = log_paths.MASTER_BUILDS
 MOCKS = log_paths.HUD_KI_MOCKUPS
 V2B, V2, MOCK1 = MOCKS / "log2_poc_r38_bfhud2b.gba", MOCKS / "log2_poc_r38_bfhud2.gba", MOCKS / "log2_poc_r36_bfhud.gba"
 V2B_SHA1, V2_SHA1 = "f5f5ee730346695c25035871378efebc084165b1", "5f17f8fc9c31e7c60b44543c8868d02b18b8fd6c"
 R38_SHA1 = "7a7cb85fa5873c4a44d360b33b6755d4e71e18e3"
-R38, R39 = BUILD / "log2_poc_r38.gba", BUILD / "log2_poc_r39.gba"
+R38, R39 = log_paths.build_file("log2_poc_r38.gba"), log_paths.build_file("log2_poc_r39.gba")
 BF = log_paths.BF_ROM
 
 MOCK_WINDOW, MOCK_SIZE, YELLOW_LEN = 0xE11000, 0x824, 0x500
@@ -471,9 +471,10 @@ class FailClosedTests(unittest.TestCase):
 
 # ===== the r39 files =====
 
-R39_SAV, R39_SPAR, R39_COMPUTER = (BUILD / f"log2_poc_r39{s}" for s in (".sav", "_spar", "_computer"))
-R38_SCOUTER_SAV, R38_SPAR_SAV, R38_COMPUTER_SAV = (BUILD / f"log2_poc_r38{s}.sav" for s in ("_scouter", "_spar",
-                                                                                            "_computer"))
+R39_SAV, R39_SPAR, R39_COMPUTER = (log_paths.build_file(f"log2_poc_r39{s}")
+                                   for s in (".sav", "_spar", "_computer"))
+R38_SCOUTER_SAV, R38_SPAR_SAV, R38_COMPUTER_SAV = (log_paths.build_file(f"log2_poc_r38{s}.sav")
+                                                   for s in ("_scouter", "_spar", "_computer"))
 
 
 def scouter_bits(sav: bytes) -> list:

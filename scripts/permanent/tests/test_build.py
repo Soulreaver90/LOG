@@ -93,7 +93,7 @@ class BuildTests(unittest.TestCase):
         """The project log is keyed on WHERE the ROM lands, not on --log, which a caller can forget."""
         self.assertTrue(log2_build.is_throwaway(OUT_DIR / "nopatch.gba"))
         self.assertTrue(log2_build.is_throwaway(OUT_DIR / "deeper" / "nopatch.gba"))
-        self.assertFalse(log2_build.is_throwaway(log_paths.BUILDS / "log2_poc_r41.gba"))
+        self.assertFalse(log2_build.is_throwaway(log_paths.MASTER_BUILDS / "log2_poc_r41.gba"))
         self.assertFalse(log2_build.is_throwaway(log_paths.MOCKUPS / "x" / "trial.gba"))
 
     def test_a_real_build_always_appends_even_when_log_names_another_file(self):
@@ -245,7 +245,7 @@ class SavePairingTests(unittest.TestCase):
         seed = log2_build.seed_save()
         self.assertIsNotNone(seed, r"no builds\log2_poc_r<N>.sav to seed from")
         self.assertRegex(seed.name, r"^log2_poc_r\d+\.sav$")
-        numbers = [int(p.stem[len("log2_poc_r"):]) for p in (log_paths.BUILDS).glob("log2_poc_r*.sav")
+        numbers = [int(p.stem[len("log2_poc_r"):]) for p in log_paths.MASTER_BUILDS.glob("log2_poc_r*.sav")
                    if p.stem[len("log2_poc_r"):].isdigit()]
         self.assertEqual(int(seed.stem[len("log2_poc_r"):]), max(numbers))
 

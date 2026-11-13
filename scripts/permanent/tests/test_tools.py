@@ -20,7 +20,7 @@ from rom.rom_sheet import TABLE_LITERAL, build_sheet, live_set_offset, write_fra
 from rom.webfoot_decompress import ROM_BASE, SET_TABLE, rom_ptr
 
 BASE_ROM = (log_paths.BASE_ROM).read_bytes()
-POC_ROM = (log_paths.BUILDS / "log2_poc.gba").read_bytes()
+POC_ROM = (log_paths.EARLY_BUILDS / "log2_poc.gba").read_bytes()
 
 
 def _png(path: Path, pixels: list, w: int = 8, h: int = 8, compress: int = 6, palette_shift: int = 0) -> None:

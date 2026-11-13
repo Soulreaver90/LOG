@@ -40,7 +40,7 @@ from rom.rom_space import Allocator  # noqa: E402
 # ===== CONFIG =====
 ROOT = log_paths.ROOT                                # kept: one-time scripts read log2_build.ROOT
 BASE = log_paths.BASE_ROM
-OUT = log_paths.BUILDS / "log2_hack.gba"
+OUT = log_paths.EARLY_BUILDS / "log2_hack.gba"
 BUILD_LOG = log_paths.BUILD_LOG           # ALWAYS written. --log adds a second file, never replaces this
 EXTRA_LOG = None                                     # --log <path>: a per-build copy beside the ROM
 BUILD_LIST = log_paths.BUILD_LISTS / "build_list.txt"       # the golden master, and the --list default
@@ -107,7 +107,7 @@ def seed_save() -> Path:
     """The save of the highest numbered main build, which is the one that holds real progress.
 
     Suffixed builds (_spar, _computer) hold their own scenario saves, so the name must match exactly."""
-    saves = [(int(m.group(1)), p) for p in (log_paths.BUILDS).glob("log2_poc_r*.sav")
+    saves = [(int(m.group(1)), p) for p in log_paths.MASTER_BUILDS.glob("log2_poc_r*.sav")
              if (m := re.fullmatch(r"log2_poc_r(\d+)", p.stem))]
     return max(saves)[1] if saves else None
 

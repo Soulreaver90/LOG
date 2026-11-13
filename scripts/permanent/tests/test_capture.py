@@ -97,7 +97,7 @@ class TestRomGuard(unittest.TestCase):
 
     def test_a_file_under_builds_that_is_not_a_gba_is_refused(self):
         with self.assertRaises(ValueError):
-            capture.check_rom(BUILDS / "log2_poc_r40.sav")
+            capture.check_rom(log_paths.MASTER_BUILDS / "log2_poc_r40.sav")
 
     def test_the_guard_can_be_pointed_at_another_builds_root(self):
         with tempfile.TemporaryDirectory() as tmp:
