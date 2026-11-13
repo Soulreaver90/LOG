@@ -401,7 +401,7 @@ def apply(rom: bytearray, alloc) -> None:
     _expect(rom, APPEARANCE + ENTRY * BASE_FORM + 1, bytes([157]))
     set_table = struct.unpack_from("<I", rom, SET_TABLE_LITERAL)[0] - ROM_BASE
     _expect(rom, set_table + 4 * (SSJ2_SET - FIRST_SET_ID), _word(gi[f"set_{SSJ2_SET}"] + ROM_BASE))
-    icons = [(ART / name).read_bytes() for name in Z2_ICONS]
+    icons = [(log_paths.ART_UI / name).read_bytes() for name in Z2_ICONS]
     if any(len(i) != ICON_LEN for i in icons):
         raise ValueError("Z2 icon files must be 0x200 bytes each")
 

@@ -245,7 +245,7 @@ def _stored_bytes(px: dict, rec: dict, palette: list) -> bytes:
 def context(art: Path, out: str) -> dict:
     """The by_key tables one output needs: base, form (head source) and the vanilla sets."""
     src_name, sets = OUTPUTS[out]
-    return {"out": out, "base": gi_art.by_key(art / BASE), "form": gi_art.by_key(art / src_name),
+    return {"out": out, "base": gi_art.by_key(log_paths.under(art, log_paths.GI_BASE)), "form": gi_art.by_key(log_paths.under(art, log_paths.GOHAN_ART / src_name)),
             "vanilla": {"base": gi_art.by_key(SPRITES / VANILLA_BASE),
                         "form": [gi_art.by_key(SPRITES / s) for s in sets]}}
 
@@ -300,7 +300,7 @@ def _png(ctx: dict, e: dict, src: Path, report: dict) -> tuple:
 
 def derive_folder(art: Path, out: str) -> dict:
     """Write art/out from art/gi_base plus the form heads of OUTPUTS[out]; returns the report."""
-    ctx, src, dst = context(art, out), art / OUTPUTS[out][0], art / out
+    ctx, src, dst = context(art, out), log_paths.under(art, log_paths.GOHAN_ART / OUTPUTS[out][0]), log_paths.under(art, log_paths.GOHAN_ART / out)
     man = gi_art.load_manifest(src)
     if dst.exists():
         shutil.rmtree(dst)

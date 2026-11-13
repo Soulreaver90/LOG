@@ -47,7 +47,7 @@ from rom.webfoot_decompress import ROM_BASE, unpack_frame  # noqa: E402
 BASE = log_paths.BASE_ROM
 REFERENCE = log_paths.REFERENCE / "122601.png"
 ART = log_paths.PORTRAIT_SOURCES
-REVIEW = log_paths.ART / "portraits_review.png"
+REVIEW = log_paths.SHEETS / "portraits_review.png"
 
 PORTRAIT_LITERAL = 0xBE10                    # pool of portrait() @0x0800BDCC, the block's only reference
 BLOCK, STRUCT_WORD = 0x3EC9D0, 0x03000E90    # word 0 (read for ids 1-7), then ids 0-114

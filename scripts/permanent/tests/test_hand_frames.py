@@ -24,6 +24,7 @@ from rom.webfoot_decompress import unpack_frame
 
 # ===== constants =====
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 SNAP = log_paths.HAND_FIXES / "snap_r19"
 SNAP18 = log_paths.HAND_FIXES / "snap_r18"
 R18 = log_paths.BUILDS / "log2_poc_r18.gba"
@@ -55,8 +56,8 @@ def r19_keys(folder: str) -> list:
 def shown(folder: str) -> dict:
     """{key: (record fields, size, index bytes as the record shows them, png name)} of a final art folder."""
     out = {}
-    for e in json.loads((ART / folder / "manifest.json").read_text()):
-        with Image.open(ART / folder / e["png"]) as im:
+    for e in json.loads((GI / folder / "manifest.json").read_text()):
+        with Image.open(GI / folder / e["png"]) as im:
             img = im.copy()
         for k in e["keys"]:
             v = img.transpose(Image.FLIP_LEFT_RIGHT) if k["attr1"] & hand_frames.HFLIP else img

@@ -83,6 +83,7 @@ from rom.log2_sprites import OBJ_SHAPES, PALETTE_LEN, PALETTE_OFF, SLOT_BYTES, i
 BASE_ROM = log_paths.BASE_ROM
 SPRITES = log_paths.SPRITES
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 WORK = log_paths.WORK                                        # old-method frames kept for before and after sheets
 HFLIP = 0x1000
 Key = tuple                                                # (anim, dir, index)
@@ -2074,7 +2075,7 @@ COMPARE_ROWS = (("Goku set 60 (entry 19 -> 20)", "set60", 9), ("Goku SSJ set 61 
 def compare_transform(out_png: Path, gif_dir: Path) -> list:
     """One sheet: a row per COMPARE_ROWS entry, all dirs, 4 frames each, one anchor, 4x; a GIF per row (dir 0)."""
     gif_dir.mkdir(parents=True, exist_ok=True)
-    folders = {name: by_key(ART / name if name.startswith("gi_") else SPRITES / name) for _, name, _ in COMPARE_ROWS}
+    folders = {name: by_key(GI / name if name.startswith("gi_") else SPRITES / name) for _, name, _ in COMPARE_ROWS}
     strips = [[_strip_frames(folders[name], anim, d) for d in range(4)] for _, name, anim in COMPARE_ROWS]
     box = _canvas([f for row in strips for f in row])
     rows, labels, gifs = [], [], []
@@ -2269,15 +2270,15 @@ for _name, _keys in PARTS_REVIEW.items():
 def make_frames() -> None:
     palette = _palette()
     for name in FORMS:
-        make_gi_set(name, form_layout(name), ART / name, palette, FIXES[name])
+        make_gi_set(name, form_layout(name), GI / name, palette, FIXES[name])
 
 def make_sheets() -> None:
-    contact_sheet(log_paths.GI_BASE, [SPRITES / "set56"], ART / "gi_base_sheet.png", "gi base (pose: set 56)")
-    contact_sheet(log_paths.GI_SSJ, [SPRITES / "set59"], ART / "gi_ssj_sheet.png", "gi Super Saiyan (pose: set 59)",
+    contact_sheet(log_paths.GI_BASE, [SPRITES / "set56"], log_paths.SHEETS / "gi_base_sheet.png", "gi base (pose: set 56)")
+    contact_sheet(log_paths.GI_SSJ, [SPRITES / "set59"], log_paths.SHEETS / "gi_ssj_sheet.png", "gi Super Saiyan (pose: set 59)",
                   brow_ref=(SPRITES / "set61", (0, 0, 0), "Goku Super Saiyan set 61 0.0.0"))
-    contact_sheet(log_paths.GI_SSJ2, [SPRITES / "set58", SPRITES / "set59"], ART / "gi_ssj2_sheet.png",
+    contact_sheet(log_paths.GI_SSJ2, [SPRITES / "set58", SPRITES / "set59"], log_paths.SHEETS / "gi_ssj2_sheet.png",
                   "gi Super Saiyan 2 (pose: set 58; set 59 body where 58 has no frame)")
-    overview_sheet(ART / "gi_overview.png")
+    overview_sheet(log_paths.SHEETS / "gi_overview.png")
 
 def make_anim() -> None:
     anim_review(log_paths.GI_BASE, [SPRITES / "set56"], log_paths.ANIM / log_paths.GI_BASE.name, "gi base")
@@ -2286,7 +2287,7 @@ def make_anim() -> None:
 
 def make_compare() -> None:
     compare_transform(log_paths.ANIM / "compare_transform.png", log_paths.ANIM_COMPARE)
-    transform_test_sheet(ART / "gi_ssj_9_2_test_cases.png")
+    transform_test_sheet(log_paths.SHEETS / "gi_ssj_9_2_test_cases.png")
 
 def _main(argv: list) -> int:
     if not argv or argv[0] not in ("all", "frames", "sheets", "anim", "compare", "z2", "zplus"):
@@ -2306,7 +2307,7 @@ def _main(argv: list) -> int:
     if cmd == "zplus":
         make_zplus_icons(BASE_ROM.read_bytes(), ART)
     for name in FORMS:
-        man = load_manifest(ART / name)
+        man = load_manifest(GI / name)
         bad = [(m, failing(m)) for m in man if failing(m) and not m["check_exception"]]
         print(name, len(man), "frames, failing", len(bad), " ".join(
             f'{key_str((m["keys"][0]["anim"], m["keys"][0]["dir"], m["keys"][0]["index"]))}({",".join(f)})'

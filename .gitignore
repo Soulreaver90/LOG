@@ -62,59 +62,53 @@ LOG.code-workspace
 # list. Remove the four gi lines below to drop them, and a clean clone then cannot build r40.
 art/*
 
-# --- build inputs ---
+# The tree below is the 2026-11-13 layout. Each rule names a folder that now exists; the old flat
+# names (gi_base, portrait-sources, vanilla-sets) are gone, so a rule naming one would silently
+# untrack his art. That is exactly what happened mid-move and is why these are grouped by subject.
+
+# --- build inputs and his own drawings, by subject ---
 !art/tables/
-
-# --- finished portraits: the 6 finals, the manifest and the owner's source drawing. Not work\ or remaster\ ---
-!art/portrait-sources/
-art/portrait-sources/*
-!art/portrait-sources/*.png
-!art/portrait-sources/manifest.json
-!art/portrait-sources/src/
-
-# --- the master swatch ---
-!art/base-audit/
-art/base-audit/*
-!art/base-audit/gi_master_swatch.png
-
-# --- build inputs that live at the top of art\ or in an art subfolder ---
-# Proven by building the exported index, not by reading the code: each line below is a file the main
-# build list actually opens. ssj2_form reads the two HUD icon blobs; superperfect_cell reads cell_aura.
-!art/hud_z2_usable.bin
-!art/hud_z2_dim.bin
-!art/cell_aura/
-art/cell_aura/*
-!art/cell_aura/scale_15/
-
-# --- the dev master gi art (owner, 2026-11-13: "All final approved art") ---
-# This REVERSES the 2026-10-31 decision to keep dev unbuildable from a clone. gohan_gi reads these four
-# folders by name, so without them a clone builds the golden master and nothing else. 627 files, 6 MB.
-!art/gi_base/
-!art/gi_ssj_v2/
-!art/gi_ssj2_aura/
-!art/gi_rage_aura/
-
-# --- his own finished drawings ---
-# These are the files that cannot be redrawn from anything in this repository. They go up first.
-!art/portraits/
-!art/hand-fixes/
+!art/ui/
+!art/maps/
+!art/effects/
 !art/palettes/
-!art/base-audit/approved/
+!art/hand-fixes/
+!art/locks/
 
-# --- our own effect art, kept apart from vanilla (owner, 2026-11-13) ---
-# The white and gold aura and the dust, exported from Buu's Fury and recoloured here. powerup_fx reads them.
-!art/transformations/
+# characters: the gi sets the dev master reads, his tank art, and the Cell aura the build reads.
+!art/characters/
+art/characters/*
+!art/characters/gohan/
+art/characters/gohan/*
+!art/characters/gohan/gi_base/
+!art/characters/gohan/gi_ssj_v2/
+!art/characters/gohan/gi_ssj2_aura/
+!art/characters/gohan/gi_rage_aura/
+!art/characters/gohan/golden/
+!art/characters/trunks/
+!art/characters/cell/
+art/characters/cell/*
+!art/characters/cell/aura/
+art/characters/cell/aura/*
+!art/characters/cell/aura/scale_15/
 
-# --- build inputs of the committed trial modules ---
-# A clone that cannot open these cannot rebuild the Vegeta and Piccolo Z+ ROMs.
-!art/plateau/
-!art/trunks_tank/
-!art/portraits_review.png
-!art/hud_zplus_usable.bin
-!art/hud_zplus_dim.bin
+# portraits: the finished ones, his sources and the kit. The vanilla export is a ROM rip, kept out.
+!art/portraits/
+art/portraits/vanilla/
+
+# reference: base-audit's approved frames only. vanilla-sets, anim and sheets are rips and review.
+!art/reference/
+art/reference/*
+!art/reference/base-audit/
+art/reference/base-audit/*
+!art/reference/base-audit/approved/
+!art/reference/base-audit/gi_master_swatch.png
+# gohan_portraits READS this sheet, so a clone cannot build the masters without it.
+!art/reference/sheets/
+art/reference/sheets/*
+!art/reference/sheets/portraits_review.png
 
 # --- the eight power-up frames he drew, and nothing else from the kits ---
-# A kit folder is 1,150 files of working rounds. Only these eight are read, and only these are his.
 !art/kits/
 art/kits/*
 !art/kits/2026-11-12-vegeta-powerup/
@@ -134,8 +128,8 @@ art/kits/2026-11-12-piccolo-powerup/*
 !art/kits/2026-11-12-piccolo-powerup/P_Frame4.png
 
 # --- the owner build folder stays out ---
-# art\Owner Build - Trunks Tank\ is his live working folder. Nothing here reads it,
-# writes to it or deletes from it, and tracking it would mean reading it. He decides whether it goes up.
+# It is his live working folder. Nothing here reads it, writes to it or deletes from it, and
+# tracking it would mean reading it. He decides whether it goes up.
 
 # ===== local working files, not part of the hack =====
 # CLAUDE.md drives the local tooling. It is not something a modder cloning this needs, and the repository

@@ -1,0 +1,94 @@
+{
+ "version": 1,
+ "folder": "C:\\Users\\josephgonzalez\\Documents\\Projects\\Workspace\\LOG\\scratch\\art\\golden",
+ "only": [
+  "golden_gi_base_d0.png",
+  "golden_gi_base_d1.png",
+  "golden_gi_base_d2.png",
+  "golden_gi_base_d3.png",
+  "golden_gi_ssj2_d0.png",
+  "golden_gi_ssj2_d1.png",
+  "golden_gi_ssj2_d2.png",
+  "golden_gi_ssj2_d3.png",
+  "golden_gi_ssj_d0.png",
+  "golden_gi_ssj_d1.png",
+  "golden_gi_ssj_d2.png",
+  "golden_gi_ssj_d3.png"
+ ],
+ "note": "owner approved 2026-10-18 12:15 AM",
+ "time": "2026-10-18T02:28:41",
+ "frames": {
+  "golden_gi_base_d0.png": {
+   "fingerprint": "7ab747a216b685072e287ca3b47231ab1b65930f",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_base_d1.png": {
+   "fingerprint": "3d00969b2430d7a39dcb7c62a024dfa936041e56",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_base_d2.png": {
+   "fingerprint": "3101f7a2b1e017fddbbc181aacabb8193ddcb76a",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_base_d3.png": {
+   "fingerprint": "c080a823282866dc3acdf0286d2f4b5ddec2ad6d",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj2_d0.png": {
+   "fingerprint": "48593ac60b0eadbf03fec79b6cbe5f5329a9305d",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj2_d1.png": {
+   "fingerprint": "74a26036e0bc1a6e1d721fb64183536fb24f8326",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj2_d2.png": {
+   "fingerprint": "5499c1d0a1304fad9b74d0e082c125e3f79d9071",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj2_d3.png": {
+   "fingerprint": "6419288406e16ee0166ce62c7fd786bae26f7dab",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj_d0.png": {
+   "fingerprint": "f19732e09b05ad876340404a1f4676a0ad737916",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj_d1.png": {
+   "fingerprint": "e8778f916af34b30e102126affe1cf3a03713f85",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj_d2.png": {
+   "fingerprint": "0108873eef656e7c6d002be00a0d5129e4e5b15c",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  },
+  "golden_gi_ssj_d3.png": {
+   "fingerprint": "4d7b922764fb7b6c25db34a97f4b7088ec0f079f",
+   "keys": [],
+   "time": "2026-10-18T02:28:41",
+   "note": "owner approved 2026-10-18 12:15 AM"
+  }
+ }
+}

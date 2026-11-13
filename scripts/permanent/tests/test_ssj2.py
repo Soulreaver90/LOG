@@ -672,7 +672,7 @@ class Ssj2FormTests(unittest.TestCase):
         for key, name in (("z2", "hud_z2_usable.bin"), ("z2_dim", "hud_z2_dim.bin")):
             off = self.notes[key]
             self.assertEqual(off % 4, 0, key)                # the HUD copies it with 32-bit DMA (@0x08008DA4)
-            self.assertEqual(self.rom[off:off + 0x200], (ART / name).read_bytes(), key)
+            self.assertEqual(self.rom[off:off + 0x200], (log_paths.ART_UI / name).read_bytes(), key)
 
 
 if __name__ == "__main__":

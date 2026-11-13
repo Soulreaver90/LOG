@@ -23,6 +23,7 @@ import log_paths
 
 # ===== constants =====
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 SPR = log_paths.SPRITES
 OUTS = {log_paths.GI_SSJ_V4.name: (log_paths.GI_SSJ_V2.name, ["set59"]), log_paths.GI_SSJ2_V4.name: (log_paths.GI_SSJ2_V2.name, ["set58", "set59"])}
 
@@ -52,12 +53,12 @@ BOLT = {gi_aura.BLUE, gi_aura.WHITE}
 # ===== helpers =====
 
 def report(out: str) -> dict:
-    return json.loads((ART / out / "one_body.json").read_text(encoding="ascii"))["keys"]
+    return json.loads((GI / out / "one_body.json").read_text(encoding="ascii"))["keys"]
 
 
 def tables(out: str) -> dict:
     src, sets = OUTS[out]
-    return {"base": gi_art.by_key(log_paths.GI_BASE), "now": gi_art.by_key(ART / src), "new": gi_art.by_key(ART / out),
+    return {"base": gi_art.by_key(log_paths.GI_BASE), "now": gi_art.by_key(GI / src), "new": gi_art.by_key(GI / out),
             "v56": gi_art.by_key(SPR / "set56"), "vform": [gi_art.by_key(SPR / s) for s in sets]}
 
 
@@ -161,7 +162,7 @@ class OneBodyTests(unittest.TestCase):
     def test_kept_keys_show_todays_frame(self):
         for out, today in ((log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ_V2.name), (log_paths.GI_SSJ2_AURA_V4.name, log_paths.GI_SSJ2_AURA.name)):
             rep = report(log_paths.GI_SSJ_V4.name if out == log_paths.GI_SSJ_V4.name else log_paths.GI_SSJ2_V4.name)
-            a, b = gi_art.by_key(ART / out), gi_art.by_key(ART / today)
+            a, b = gi_art.by_key(GI / out), gi_art.by_key(GI / today)
             for k in b:
                 rk = (0, k[1], k[2] // 3) if out == log_paths.GI_SSJ2_AURA_V4.name and k[0] == 0 else k
                 if rep[gi_art.key_str(rk)]["class"] != "derived":
@@ -169,10 +170,10 @@ class OneBodyTests(unittest.TestCase):
 
     def test_frames_keep_size_name_and_order(self):          # no allocation of the build moves
         for out, today in ((log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ_V2.name), (log_paths.GI_SSJ2_AURA_V4.name, log_paths.GI_SSJ2_AURA.name)):
-            new, old = gi_art.load_manifest(ART / out), gi_art.load_manifest(ART / today)
+            new, old = gi_art.load_manifest(GI / out), gi_art.load_manifest(GI / today)
             self.assertEqual([e["png"] for e in new], [e["png"] for e in old], out)
             for e, f in zip(new, old):
-                with Image.open(ART / out / e["png"]) as a, Image.open(ART / today / f["png"]) as b:
+                with Image.open(GI / out / e["png"]) as a, Image.open(GI / today / f["png"]) as b:
                     self.assertEqual(a.size, b.size, e["png"])
                 for k, j in zip(e["keys"], f["keys"]):
                     self.assertEqual({x: k[x] for x in ("anim", "dir", "index", "w", "h", "attr0", "attr1")},
@@ -199,14 +200,16 @@ class OneBodyRunTests(unittest.TestCase):
     def test_fresh_run_equals_the_folders(self):             # gi_one_body and the v4 aura are deterministic
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
             art = Path(tmp)
-            for name in (log_paths.GI_BASE.name, log_paths.GI_SSJ_V2.name, log_paths.GI_SSJ2_V2.name):
-                shutil.copytree(ART / name, art / name)
+            for src in (log_paths.GI_BASE, log_paths.GI_SSJ_V2, log_paths.GI_SSJ2_V2):
+                shutil.copytree(src, log_paths.under(art, src))   # under() keeps the shape the tools expect
             gi_one_body.run_all(art)
             for name, (body, idle, layout, tag, ring) in gi_aura.V4_OUTPUTS.items():
-                gi_aura.aura_folder(art / body, art / name, idle, tag, layout, art / ring)
-            for name in (log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ2_V4.name, log_paths.GI_SSJ2_AURA_V4.name):
-                mine = {p.name: p.read_bytes() for p in (art / name).iterdir()}
-                disk = {p.name: p.read_bytes() for p in (ART / name).iterdir() if p.is_file()}
+                gi_aura.aura_folder(log_paths.under(art, GI / body), log_paths.under(art, GI / name),
+                                    idle, tag, layout, log_paths.under(art, GI / ring))
+            for folder in (log_paths.GI_SSJ_V4, log_paths.GI_SSJ2_V4, log_paths.GI_SSJ2_AURA_V4):
+                name = folder.name
+                mine = {p.name: p.read_bytes() for p in log_paths.under(art, folder).iterdir()}
+                disk = {p.name: p.read_bytes() for p in folder.iterdir() if p.is_file()}
                 self.assertEqual(set(mine), set(disk), name)
                 self.assertFalse([n for n in mine if mine[n] != disk[n]], name)
 
@@ -214,7 +217,7 @@ class OneBodyRunTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             out = log_paths.under(tmp, log_paths.GI_SSJ2_AURA)
             body, idle, layout = gi_aura.OUTPUTS[log_paths.GI_SSJ2_AURA.name]
-            gi_aura.aura_folder(ART / body, out, idle, log_paths.GI_SSJ2_AURA.name, layout, ART / body)
+            gi_aura.aura_folder(GI / body, out, idle, log_paths.GI_SSJ2_AURA.name, layout, GI / body)
             mine = {p.name: p.read_bytes() for p in out.iterdir()}
             disk = {p.name: p.read_bytes() for p in (log_paths.GI_SSJ2_AURA).iterdir() if p.is_file()}
             self.assertEqual(mine, disk)

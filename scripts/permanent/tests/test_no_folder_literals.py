@@ -45,6 +45,7 @@ ALSO_A_DATA_WORD = {
     "plateau": "the alloc.notes key patches.plateau writes",
     "portraits": "the alloc.notes key art_inject reads",
     "scene": "a map item kind, and a tool folder note",
+    "sources": "the alloc.notes key four scene patches write, and the key their tests read",
     "tables": "the alloc.notes key future_androids writes",
 }
 
@@ -59,16 +60,16 @@ EXCEPTIONS = {
     ("make_tool_index.py", "patches"): "one note per tool folder, keyed as the index prints it",
     ("make_tool_index.py", "review"): "one note per tool folder, keyed as the index prints it",
     ("make_tool_index.py", "tests"): "one note per tool folder, keyed as the index prints it",
+    ("art/gi_art.py", "sheets"): "an argparse command of gi_art.py",
+    ("patches/chapter_cards.py", "gohan"): "a card placement key, the character not the art folder",
     ("map-editor/serve.py", "deleted"): "a field of the delete response",
     ("map-editor/serve.py", "maps"): "a field of the map list response",
     ("patches/powerup_fx.py", "dust"): "the effect kind, against the aura",
-    ("patches/trunks_tank.py", "trunks_tank"): "the patch name and its alloc.notes key, not the art folder",
     ("tests/test_aura.py", "aura"): "the effect kind, against the body it is drawn on",
     ("tests/test_make_tool_index.py", "map-editor"): "it checks the note the index prints for that folder",
     ("tests/test_make_tool_index.py", "tests"): "it checks that the index leaves the suite out",
     ("tests/test_map_editor_io.py", "maps"): "a field of the map list response",
     ("tests/test_powerup_fx.py", "dust"): "the effect kind, against the aura",
-    ("tests/test_trunks_tank.py", "trunks_tank"): "the patch name and its build list entry, not the art folder",
 }
 
 
@@ -197,7 +198,7 @@ class NoFolderLiteralsTests(unittest.TestCase):
                   'P = os.path.join(root, "vanilla-sets")\n',
                   'P = ROOT.joinpath("builds")\n',
                   'NAME = "gi_ssj2_v2"\n',
-                  'def f(a="trunks_tank"): pass\n',
+                  'def f(a="gi_ssj2_aura"): pass\n',
                   'P = Path(r"C:\\Users\\someone\\Documents\\GitHub")\n',
                   'P = ART / "anim"\n']                      # an excused word is no excuse in a join
         with tempfile.TemporaryDirectory() as tmp:

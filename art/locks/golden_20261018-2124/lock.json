@@ -1,0 +1,332 @@
+{
+ "version": 1,
+ "folder": "C:\\Users\\josephgonzalez\\Documents\\Projects\\Workspace\\LOG\\scratch\\art\\golden",
+ "only": [
+  "golden_gi_base_a12_d0_i0.png",
+  "golden_gi_base_a12_d0_i1.png",
+  "golden_gi_base_a12_d0_i2.png",
+  "golden_gi_base_a12_d0_i3.png",
+  "golden_gi_base_a13_d0_i0.png",
+  "golden_gi_base_a13_d0_i2.png",
+  "golden_gi_base_a13_d0_i3.png",
+  "golden_gi_base_a16_d2_i4.png",
+  "golden_gi_base_a1_d0_i0.png",
+  "golden_gi_base_a1_d0_i1.png",
+  "golden_gi_base_a1_d0_i2.png",
+  "golden_gi_base_a1_d0_i3.png",
+  "golden_gi_base_a3_d0_i3.png",
+  "golden_gi_base_a3_d1_i3.png",
+  "golden_gi_base_a3_d2_i3.png",
+  "golden_gi_base_a5_d0_i2.png",
+  "golden_gi_base_a8_d0_i3.png",
+  "golden_gi_base_a8_d2_i2.png",
+  "golden_gi_base_d0.png",
+  "golden_gi_base_d1.png",
+  "golden_gi_base_d2.png",
+  "golden_gi_base_d3.png",
+  "golden_gi_ssj2_d0.png",
+  "golden_gi_ssj2_d1.png",
+  "golden_gi_ssj2_d2.png",
+  "golden_gi_ssj2_d3.png",
+  "golden_gi_ssj2std_a13_d0_i3.png",
+  "golden_gi_ssj2std_a1_d0_i0.png",
+  "golden_gi_ssj2std_a1_d0_i2.png",
+  "golden_gi_ssj2std_a3_d0_i3.png",
+  "golden_gi_ssj2std_a3_d1_i3.png",
+  "golden_gi_ssj2std_a3_d2_i3.png",
+  "golden_gi_ssj2std_d0.png",
+  "golden_gi_ssj2std_d1.png",
+  "golden_gi_ssj2std_d2.png",
+  "golden_gi_ssj2std_d3.png",
+  "golden_gi_ssj_a13_d0_i3.png",
+  "golden_gi_ssj_a1_d0_i0.png",
+  "golden_gi_ssj_a1_d0_i2.png",
+  "golden_gi_ssj_a3_d0_i3.png",
+  "golden_gi_ssj_a3_d1_i3.png",
+  "golden_gi_ssj_a3_d2_i3.png",
+  "golden_gi_ssj_d0.png",
+  "golden_gi_ssj_d1.png",
+  "golden_gi_ssj_d2.png",
+  "golden_gi_ssj_d3.png"
+ ],
+ "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)",
+ "time": "2026-10-18T18:57:27",
+ "frames": {
+  "golden_gi_base_a12_d0_i0.png": {
+   "fingerprint": "d009404f76b3ea8506724233475e8f071cb25333",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a12_d0_i1.png": {
+   "fingerprint": "8a0f733eeca9d27b3eb23d2a818aa4935d89bcf2",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a12_d0_i2.png": {
+   "fingerprint": "25a6197a6f3b7ec437d9c5019c3e8f9be96870f7",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a12_d0_i3.png": {
+   "fingerprint": "8a0f733eeca9d27b3eb23d2a818aa4935d89bcf2",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a13_d0_i0.png": {
+   "fingerprint": "c87cf97faa6ee416bdda6dab927471456efd41e5",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a13_d0_i2.png": {
+   "fingerprint": "3fc774219044b14c1e24de9a59933193c3477ded",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a13_d0_i3.png": {
+   "fingerprint": "d2fed656d1f887417c9fa1fb95264ab02020d25f",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a16_d2_i4.png": {
+   "fingerprint": "a1a6c8d0edc601e06ac38c4a3c13c68012c96891",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a1_d0_i0.png": {
+   "fingerprint": "9116b7e900ff5d9872bb39cf901e85cd3605fdcb",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a1_d0_i1.png": {
+   "fingerprint": "82ae2ca141efc84f85e3b0b789cce4e4e002113b",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a1_d0_i2.png": {
+   "fingerprint": "813d220a7e3e92acbe408d5799ba8d256beaa2ce",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a1_d0_i3.png": {
+   "fingerprint": "c5c3b3f156a97d47580b052a272cdeafe75b69f5",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a3_d0_i3.png": {
+   "fingerprint": "7843ec01d437e25c0d8c0fc6d98b68451ca29590",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a3_d1_i3.png": {
+   "fingerprint": "7843ec01d437e25c0d8c0fc6d98b68451ca29590",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a3_d2_i3.png": {
+   "fingerprint": "7843ec01d437e25c0d8c0fc6d98b68451ca29590",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a5_d0_i2.png": {
+   "fingerprint": "55dc7e81600cd21dce7e3ba3c689272a35aa933f",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a8_d0_i3.png": {
+   "fingerprint": "c679c6ba4ac20425e5d7e019102a9b734b4c740f",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_a8_d2_i2.png": {
+   "fingerprint": "5748ad3049151a01d809a5a97a167f9222f9fee5",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_d0.png": {
+   "fingerprint": "7ab747a216b685072e287ca3b47231ab1b65930f",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_d1.png": {
+   "fingerprint": "3d00969b2430d7a39dcb7c62a024dfa936041e56",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_d2.png": {
+   "fingerprint": "3101f7a2b1e017fddbbc181aacabb8193ddcb76a",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_base_d3.png": {
+   "fingerprint": "c080a823282866dc3acdf0286d2f4b5ddec2ad6d",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2_d0.png": {
+   "fingerprint": "48593ac60b0eadbf03fec79b6cbe5f5329a9305d",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2_d1.png": {
+   "fingerprint": "74a26036e0bc1a6e1d721fb64183536fb24f8326",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2_d2.png": {
+   "fingerprint": "5499c1d0a1304fad9b74d0e082c125e3f79d9071",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2_d3.png": {
+   "fingerprint": "6419288406e16ee0166ce62c7fd786bae26f7dab",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_a13_d0_i3.png": {
+   "fingerprint": "1ed007428c64ce3f36f43c920734ee180dfe9411",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_a1_d0_i0.png": {
+   "fingerprint": "d52dd2011fd43de509d1bf080ad40e7358002f4c",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_a1_d0_i2.png": {
+   "fingerprint": "67fbc0f733684d629ab8b9e88c3ff55deaeec0b1",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_a3_d0_i3.png": {
+   "fingerprint": "906f64e69c806402d988375f8c0eb9e4178dc796",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_a3_d1_i3.png": {
+   "fingerprint": "906f64e69c806402d988375f8c0eb9e4178dc796",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_a3_d2_i3.png": {
+   "fingerprint": "906f64e69c806402d988375f8c0eb9e4178dc796",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_d0.png": {
+   "fingerprint": "e500e96c9ec430367ad809415694a749a9bc4941",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_d1.png": {
+   "fingerprint": "64102a7fda20e80e94b16f1ac805b801461ecde5",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_d2.png": {
+   "fingerprint": "d4999db623bb2a33ad7aebf38806ff002cdd1b33",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj2std_d3.png": {
+   "fingerprint": "ecb1fba517c6c100708599d9c51aaded60464b32",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_a13_d0_i3.png": {
+   "fingerprint": "591b355fe555288e53fb5cd51f09be76a52e4d3d",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_a1_d0_i0.png": {
+   "fingerprint": "4a635e8cfdbeab41b5974838b7a3069957a1225c",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_a1_d0_i2.png": {
+   "fingerprint": "ebf44b8ad90bea9ac10c9ce5a2fa187cb50093e7",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_a3_d0_i3.png": {
+   "fingerprint": "906f64e69c806402d988375f8c0eb9e4178dc796",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_a3_d1_i3.png": {
+   "fingerprint": "906f64e69c806402d988375f8c0eb9e4178dc796",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_a3_d2_i3.png": {
+   "fingerprint": "906f64e69c806402d988375f8c0eb9e4178dc796",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_d0.png": {
+   "fingerprint": "f19732e09b05ad876340404a1f4676a0ad737916",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_d1.png": {
+   "fingerprint": "e8778f916af34b30e102126affe1cf3a03713f85",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_d2.png": {
+   "fingerprint": "0108873eef656e7c6d002be00a0d5129e4e5b15c",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  },
+  "golden_gi_ssj_d3.png": {
+   "fingerprint": "4d7b922764fb7b6c25db34a97f4b7088ec0f079f",
+   "keys": [],
+   "time": "2026-10-18T18:57:27",
+   "note": "r15 intake: 20 goldens plus the 26 reviewed r12fix hand frames (snapshot snap_r15)"
+  }
+ }
+}

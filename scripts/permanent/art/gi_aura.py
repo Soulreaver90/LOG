@@ -296,10 +296,10 @@ def aura_folder(body: Path, out: Path, idle_body: str = None, tag: str = None, l
 
 def run_all(art: Path = ART) -> None:
     for name, (body, idle, layout) in OUTPUTS.items():
-        man = aura_folder(art / body, art / name, idle, name, layout)
+        man = aura_folder(log_paths.under(art, log_paths.GOHAN_ART / body), log_paths.under(art, log_paths.GOHAN_ART / name), idle, name, layout)
         print(f"{name}: {len(man)} frames, {sum(len(e['keys']) for e in man)} keys")
     for name, (body, idle, layout, tag, ring) in V4_OUTPUTS.items():
-        man = aura_folder(art / body, art / name, idle, tag, layout, art / ring)
+        man = aura_folder(log_paths.under(art, log_paths.GOHAN_ART / body), log_paths.under(art, log_paths.GOHAN_ART / name), idle, tag, layout, log_paths.under(art, log_paths.GOHAN_ART / ring))
         print(f"{name}: {len(man)} frames, {sum(len(e['keys']) for e in man)} keys")
 
 

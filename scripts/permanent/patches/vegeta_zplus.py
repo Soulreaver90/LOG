@@ -410,7 +410,7 @@ def apply(rom: bytearray, alloc) -> None:
     frame = slot(ZPLUS_PORTRAIT)
     if set(rom[frame:frame + FRAME]) != {0xFF}:
         raise ValueError(f"portrait {ZPLUS_PORTRAIT}: art slot rom:0x{frame:X} is not free")
-    art = [(ART / name).read_bytes() for name in ICONS]
+    art = [(log_paths.ART_UI / name).read_bytes() for name in ICONS]
     if any(len(i) != ICON_LEN for i in art):
         raise ValueError(f"each Z+ icon must be 0x{ICON_LEN:X} bytes")
     live = [_u32(rom, ABILITY_TABLE - ROM_BASE + 16 * ABILITY_12 + k) - ROM_BASE for k in (0, 4)]

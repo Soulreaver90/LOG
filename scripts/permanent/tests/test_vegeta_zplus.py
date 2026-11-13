@@ -463,7 +463,7 @@ class VegetaZplusTests(unittest.TestCase):
         """bf_hud moved every icon picture to the Buu's Fury layout before this module ran, so the art file
         is pasted into the live icon instead of being written in raw."""
         for key, name, z in zip(("zplus", "zplus_dim"), ICONS, Z_ICONS):
-            art, live = (log_paths.ART / name).read_bytes(), self.rom[z:z + 0x200]
+            art, live = (log_paths.ART_UI / name).read_bytes(), self.rom[z:z + 0x200]
             built_icon = self.rom[self.notes[key]:self.notes[key] + 0x200]
             self.assertNotEqual(built_icon, art, name)
             self.assertNotEqual(built_icon, live, name)

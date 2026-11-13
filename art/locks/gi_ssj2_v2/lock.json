@@ -1,0 +1,2502 @@
+{
+ "version": 1,
+ "folder": "scratch\\art\\gi_ssj2_v2",
+ "only": null,
+ "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)",
+ "time": "2026-10-18T16:37:04",
+ "frames": {
+  "frame_2A15DC.png": {
+   "fingerprint": "48593ac60b0eadbf03fec79b6cbe5f5329a9305d",
+   "keys": [
+    [
+     0,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1728.png": {
+   "fingerprint": "4934df6d78cfb1b725f86be01a20ea43d59f42dc",
+   "keys": [
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1878.png": {
+   "fingerprint": "74a26036e0bc1a6e1d721fb64183536fb24f8326",
+   "keys": [
+    [
+     0,
+     1,
+     0
+    ],
+    [
+     0,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A19AC.png": {
+   "fingerprint": "5499c1d0a1304fad9b74d0e082c125e3f79d9071",
+   "keys": [
+    [
+     0,
+     2,
+     0
+    ],
+    [
+     0,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1AEC.png": {
+   "fingerprint": "e7d4b1e9626478aed8fe11c774b72786b6a88834",
+   "keys": [
+    [
+     0,
+     2,
+     1
+    ],
+    [
+     0,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1C88.png": {
+   "fingerprint": "a38d7c473b9ece70dcf8189752e3cf5a66e85fd3",
+   "keys": [
+    [
+     1,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1DA8.png": {
+   "fingerprint": "615211dddc7367458ed217490f8c27c48fd7ad11",
+   "keys": [
+    [
+     1,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1ED8.png": {
+   "fingerprint": "68a71b46413236d735ddb8212c4de589a93b21b5",
+   "keys": [
+    [
+     1,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A1FF8.png": {
+   "fingerprint": "780c3742c2425f62e42a4b5bdcfa983975982f68",
+   "keys": [
+    [
+     1,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A211C.png": {
+   "fingerprint": "03f42a651eeff09002e906269a4f5e279a81d9f3",
+   "keys": [
+    [
+     1,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2220.png": {
+   "fingerprint": "ce7e3d72c382d2bc844aa7452efef81eec7e4256",
+   "keys": [
+    [
+     1,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2334.png": {
+   "fingerprint": "0f6896084f84b53070f6fcecbc415d14aa406832",
+   "keys": [
+    [
+     1,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2438.png": {
+   "fingerprint": "fd02158388b8d4cb0fce4071940be5ebcbaf64b6",
+   "keys": [
+    [
+     1,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2554.png": {
+   "fingerprint": "0a2229322036aae19517cbb41ab931d53f156713",
+   "keys": [
+    [
+     1,
+     2,
+     0
+    ],
+    [
+     1,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A266C.png": {
+   "fingerprint": "e5f1a649f1519685baff46dc582ebf71d2f3e785",
+   "keys": [
+    [
+     1,
+     2,
+     1
+    ],
+    [
+     1,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A277C.png": {
+   "fingerprint": "2bc4b5fe1c2540a9c8c4af08b02e768e9ec18d32",
+   "keys": [
+    [
+     1,
+     2,
+     2
+    ],
+    [
+     1,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2884.png": {
+   "fingerprint": "5fdbba4e1d22031d571cd15a9fd6e6e10975c33c",
+   "keys": [
+    [
+     1,
+     2,
+     3
+    ],
+    [
+     1,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2A50.png": {
+   "fingerprint": "b404044a98fe4076dde6d69e7da9491efbc1670c",
+   "keys": [
+    [
+     2,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2B78.png": {
+   "fingerprint": "df8a3b87fe2500ba2580caffd54098f1c668d9a3",
+   "keys": [
+    [
+     2,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2C8C.png": {
+   "fingerprint": "6f9fcddf5a9840bcc4de57264d4f67867c3a9608",
+   "keys": [
+    [
+     2,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2D98.png": {
+   "fingerprint": "43df7214a003dc90b194544fde1ba73703ea48bc",
+   "keys": [
+    [
+     2,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2EAC.png": {
+   "fingerprint": "36c231720846c5cda064b4feb32eecda2832d036",
+   "keys": [
+    [
+     2,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A2FC4.png": {
+   "fingerprint": "2aecbc739ef0f3c7fe38aaebc982242cd074c4ac",
+   "keys": [
+    [
+     2,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A30D4.png": {
+   "fingerprint": "059bbca2035ba53219d8c985ca700fa96580e35f",
+   "keys": [
+    [
+     2,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A31DC.png": {
+   "fingerprint": "8a8e2a0f2145f8901fd11b09f64b3b0d5789c7c0",
+   "keys": [
+    [
+     2,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A32E0.png": {
+   "fingerprint": "58316e711693e983406f71d90b3163166119b60e",
+   "keys": [
+    [
+     2,
+     2,
+     0
+    ],
+    [
+     2,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A33F4.png": {
+   "fingerprint": "c68c1920b8491c0718845d4795378bccf1e5c73c",
+   "keys": [
+    [
+     2,
+     2,
+     1
+    ],
+    [
+     2,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3508.png": {
+   "fingerprint": "0101b66fbc8c27cab9a71d662efd7b6ba71dc628",
+   "keys": [
+    [
+     2,
+     2,
+     2
+    ],
+    [
+     2,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3600.png": {
+   "fingerprint": "83527b66b5c2dd691c1e65436fcbcde7ffc6fa72",
+   "keys": [
+    [
+     2,
+     2,
+     3
+    ],
+    [
+     2,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A37C0.png": {
+   "fingerprint": "0d03ddf50ece7c00ad0c779df5b79a128cac5737",
+   "keys": [
+    [
+     3,
+     0,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     3,
+     2,
+     0
+    ],
+    [
+     3,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A38FC.png": {
+   "fingerprint": "ba09e2a2d46f6f3088f2010af09340c8d067cd24",
+   "keys": [
+    [
+     3,
+     0,
+     1
+    ],
+    [
+     3,
+     1,
+     1
+    ],
+    [
+     3,
+     2,
+     1
+    ],
+    [
+     3,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A39F4.png": {
+   "fingerprint": "6cb9527ad09fb36a9d4f01baf3e5c1f7409f7567",
+   "keys": [
+    [
+     3,
+     0,
+     2
+    ],
+    [
+     3,
+     1,
+     2
+    ],
+    [
+     3,
+     2,
+     2
+    ],
+    [
+     3,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3AD0.png": {
+   "fingerprint": "1fecb1cdb97e79c4712904d7d895f6cbc3594a80",
+   "keys": [
+    [
+     3,
+     0,
+     3
+    ],
+    [
+     3,
+     1,
+     3
+    ],
+    [
+     3,
+     2,
+     3
+    ],
+    [
+     3,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3BF8.png": {
+   "fingerprint": "c2c3a52f24b737bd86be3a4269b05391f020980b",
+   "keys": [
+    [
+     4,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3D4C.png": {
+   "fingerprint": "1f1b5dfa13098569f2dcd7c61ca613abb2c75628",
+   "keys": [
+    [
+     4,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3EA4.png": {
+   "fingerprint": "3f4e8f85b41d0e442cc7fdc54e07932d4fe5d735",
+   "keys": [
+    [
+     4,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A3FF0.png": {
+   "fingerprint": "31bf75b87d590d701af7ca6798992a920a5a2687",
+   "keys": [
+    [
+     4,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A412C.png": {
+   "fingerprint": "64783c4e385aaa7bbb17a3bec34b2e9da2485f60",
+   "keys": [
+    [
+     4,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4268.png": {
+   "fingerprint": "d6279a4350dbc8c5c30f1c466aeefe88e9dbee27",
+   "keys": [
+    [
+     4,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A43A8.png": {
+   "fingerprint": "7998e0b7ee8183dbaf394dc974387a6a2e6419cb",
+   "keys": [
+    [
+     4,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A44DC.png": {
+   "fingerprint": "2260d0522492a13f8b4a6ed14e537be65c677b80",
+   "keys": [
+    [
+     4,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4610.png": {
+   "fingerprint": "ba3ab1f67e73b9da44e786db50cb40ff86020c2e",
+   "keys": [
+    [
+     4,
+     2,
+     0
+    ],
+    [
+     4,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4754.png": {
+   "fingerprint": "0f45a16abc421b9f63d2870510f39731c06188c2",
+   "keys": [
+    [
+     4,
+     2,
+     1
+    ],
+    [
+     4,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4898.png": {
+   "fingerprint": "6127cee480ec741b7b2f27d564dc0e3a06ff2d7b",
+   "keys": [
+    [
+     4,
+     2,
+     2
+    ],
+    [
+     4,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A49D8.png": {
+   "fingerprint": "fef302582b5987326b494792573a6b3963596c14",
+   "keys": [
+    [
+     4,
+     2,
+     3
+    ],
+    [
+     4,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4BD0.png": {
+   "fingerprint": "de699c8e402d49dc35fbb89a8c2e5849ec08aa4b",
+   "keys": [
+    [
+     5,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4CEC.png": {
+   "fingerprint": "16bac3bba1fb673ea4701e2b3e3d4c6b9e1e40d8",
+   "keys": [
+    [
+     5,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4E00.png": {
+   "fingerprint": "1ce6fe14a25ce9d4581e6df42b288d6b687c9033",
+   "keys": [
+    [
+     5,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A4F0C.png": {
+   "fingerprint": "192768bd81f6d3c1ac8f3b5cae7bccbb4ee5ec44",
+   "keys": [
+    [
+     5,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A501C.png": {
+   "fingerprint": "52ebfc63b55b7aa841c0f824fa8955403eb0394f",
+   "keys": [
+    [
+     5,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A512C.png": {
+   "fingerprint": "b83cfe8389ae0fda0dfdbc26a718a25944ee4e23",
+   "keys": [
+    [
+     5,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5240.png": {
+   "fingerprint": "c6939fda4f93bf224ccd5ca3476e6ac35ba1d45a",
+   "keys": [
+    [
+     5,
+     2,
+     0
+    ],
+    [
+     5,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5390.png": {
+   "fingerprint": "9cec48c41298b9214feff5cf7e40d6272bc8222e",
+   "keys": [
+    [
+     5,
+     2,
+     1
+    ],
+    [
+     5,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A54C4.png": {
+   "fingerprint": "f24b790cf812354721d80c273633011943c6982e",
+   "keys": [
+    [
+     5,
+     2,
+     2
+    ],
+    [
+     5,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A568C.png": {
+   "fingerprint": "f05f060682fbdefaf1c0ea8e72b6e16e028120bb",
+   "keys": [
+    [
+     6,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A57AC.png": {
+   "fingerprint": "c45f044800e2a2dbc8cb17c2f7a22766d0eca124",
+   "keys": [
+    [
+     6,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A58E8.png": {
+   "fingerprint": "b29766e2f973178d77515e24514b2f8b190b70b6",
+   "keys": [
+    [
+     6,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5A08.png": {
+   "fingerprint": "be410321a8f5796c9ba463d0e7f6aab056abbb58",
+   "keys": [
+    [
+     6,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5B34.png": {
+   "fingerprint": "17a5be0525d153f82bc7270110579864f3c99f29",
+   "keys": [
+    [
+     6,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5C64.png": {
+   "fingerprint": "338054dd26ae750472dc2ebbd06f604ce4f6096d",
+   "keys": [
+    [
+     6,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5DA4.png": {
+   "fingerprint": "86057f6dd4c0e513db621889e4109a9f555b25fa",
+   "keys": [
+    [
+     6,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A5EE0.png": {
+   "fingerprint": "46a603c087ece08b88d9d6d5ffc469983025919c",
+   "keys": [
+    [
+     6,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6010.png": {
+   "fingerprint": "d70c379e33fd38d7272efb769d74448480ec4ab3",
+   "keys": [
+    [
+     6,
+     2,
+     0
+    ],
+    [
+     6,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6154.png": {
+   "fingerprint": "b115622d11bb575bd796980884bc20055af64c39",
+   "keys": [
+    [
+     6,
+     2,
+     1
+    ],
+    [
+     6,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A62AC.png": {
+   "fingerprint": "ad68e0919d5365d472051ed50e7df0db1fa5cd3b",
+   "keys": [
+    [
+     6,
+     2,
+     2
+    ],
+    [
+     6,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6410.png": {
+   "fingerprint": "5d1155152fa9169b0dbda637644daa76e75bf101",
+   "keys": [
+    [
+     6,
+     2,
+     3
+    ],
+    [
+     6,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6628.png": {
+   "fingerprint": "dff945fc4193c140c3df01a68808d9b74b6cd43a",
+   "keys": [
+    [
+     7,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6748.png": {
+   "fingerprint": "9d4a9dea203631739d5b4e0736a2a131e1290444",
+   "keys": [
+    [
+     7,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6884.png": {
+   "fingerprint": "9efa19ffc2131dc341431a50461d5ce96fed2710",
+   "keys": [
+    [
+     7,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A69AC.png": {
+   "fingerprint": "ebb352f21d016507d22811d8633181a8b6dd94ce",
+   "keys": [
+    [
+     7,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6AE0.png": {
+   "fingerprint": "1b88ed41419518a3dba2158b24b3e45b8cf8474a",
+   "keys": [
+    [
+     7,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6C04.png": {
+   "fingerprint": "aea9a12989669a2b47584e7d473dbc4865e4fba7",
+   "keys": [
+    [
+     7,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6D40.png": {
+   "fingerprint": "dd99e75578b3b6356b933b3325760171fa7b1024",
+   "keys": [
+    [
+     7,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6E74.png": {
+   "fingerprint": "7c3306a5b5e30192d2f0d48aba93fbb8561c4d83",
+   "keys": [
+    [
+     7,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A6FAC.png": {
+   "fingerprint": "b2bdf705e62019226168a533726e76607d1a4196",
+   "keys": [
+    [
+     7,
+     2,
+     0
+    ],
+    [
+     7,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A70F8.png": {
+   "fingerprint": "53bcfccdd9732539bef191041bebaa7de9dcda41",
+   "keys": [
+    [
+     7,
+     2,
+     1
+    ],
+    [
+     7,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7228.png": {
+   "fingerprint": "6221139f60dc13cdbd08bbd1090a700a6df21de1",
+   "keys": [
+    [
+     7,
+     2,
+     2
+    ],
+    [
+     7,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7360.png": {
+   "fingerprint": "400d9d628ade6e91b5a45a721520f72a6304980e",
+   "keys": [
+    [
+     7,
+     2,
+     3
+    ],
+    [
+     7,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A755C.png": {
+   "fingerprint": "7adb368c5f8b71ba1e401f1efd3466fa121df6aa",
+   "keys": [
+    [
+     8,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7680.png": {
+   "fingerprint": "7a319ae51ee293778d18ff9118794fa385065d61",
+   "keys": [
+    [
+     8,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A77C4.png": {
+   "fingerprint": "cdf674fa1d6a09759c538fdb1a5c63d2c1a9c3cd",
+   "keys": [
+    [
+     8,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7904.png": {
+   "fingerprint": "2f1bff9de093255b4ab31428274083c34eeda555",
+   "keys": [
+    [
+     8,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7A40.png": {
+   "fingerprint": "ef417eaa4d8c4935d67d4605a57f5ff3ece5511c",
+   "keys": [
+    [
+     8,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7B6C.png": {
+   "fingerprint": "0494434c3dfbff217dcd644f17e1182db35aa892",
+   "keys": [
+    [
+     8,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7CB0.png": {
+   "fingerprint": "379940889e3ab049afdd5851528a02bb04ce842a",
+   "keys": [
+    [
+     8,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7DE4.png": {
+   "fingerprint": "48dd21f56cc3d3dd9de0e6c7f79859e6b47dce75",
+   "keys": [
+    [
+     8,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A7F18.png": {
+   "fingerprint": "f0822a5f17382e39284baa719540746fd50a9138",
+   "keys": [
+    [
+     8,
+     2,
+     0
+    ],
+    [
+     8,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8070.png": {
+   "fingerprint": "f0423e2778847c5146e7c789d35c5b56cddbf1bd",
+   "keys": [
+    [
+     8,
+     2,
+     1
+    ],
+    [
+     8,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A81B0.png": {
+   "fingerprint": "7decd5bf0621ab02746e0397adc0d5fda9a5bbed",
+   "keys": [
+    [
+     8,
+     2,
+     2
+    ],
+    [
+     8,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A82FC.png": {
+   "fingerprint": "844a162181d49916225291b919ce69779b40315c",
+   "keys": [
+    [
+     8,
+     2,
+     3
+    ],
+    [
+     8,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A84F8.png": {
+   "fingerprint": "879bd27e1a1e31059a2abd8b64e1ad1a40e4bb2e",
+   "keys": [
+    [
+     13,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A860C.png": {
+   "fingerprint": "b085e237fbe678409dc2d8fda605cd296fa322a5",
+   "keys": [
+    [
+     13,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8734.png": {
+   "fingerprint": "cd7ed9bae52ebd8b1fa5e8b86d2baa5dbeb70e87",
+   "keys": [
+    [
+     13,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A883C.png": {
+   "fingerprint": "339961402a40e31eca2e3e627f8ec60b06736b91",
+   "keys": [
+    [
+     13,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8964.png": {
+   "fingerprint": "2708217b1960f4c7601b5e34e4f92e219454d84f",
+   "keys": [
+    [
+     13,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8A60.png": {
+   "fingerprint": "ad4446f2102cbfe31f1740d317bfabd7ee68ff55",
+   "keys": [
+    [
+     13,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8B70.png": {
+   "fingerprint": "82ffdc17dc29d41598dbf600c335f25104e475db",
+   "keys": [
+    [
+     13,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8C68.png": {
+   "fingerprint": "8de8786c638c4529e7a78bdef1df718474a2df00",
+   "keys": [
+    [
+     13,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8D84.png": {
+   "fingerprint": "283b328d946c456c4cb28b5a97ecec055a28081d",
+   "keys": [
+    [
+     13,
+     2,
+     0
+    ],
+    [
+     13,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8EC4.png": {
+   "fingerprint": "708b51d04b6d0a7dd9b5df0417ada7bc1fba91ee",
+   "keys": [
+    [
+     13,
+     2,
+     1
+    ],
+    [
+     13,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A8FEC.png": {
+   "fingerprint": "7322ac8abb98b2e2dd5c01c0ef12e3c8f5b73b53",
+   "keys": [
+    [
+     13,
+     2,
+     2
+    ],
+    [
+     13,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9128.png": {
+   "fingerprint": "2b3df04ca7d1fe025be267beec5ccdd0434ef0c3",
+   "keys": [
+    [
+     13,
+     2,
+     3
+    ],
+    [
+     13,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9308.png": {
+   "fingerprint": "6827d5678467d2378e2a4e6fb4f9ae6fd10ad4fd",
+   "keys": [
+    [
+     16,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9430.png": {
+   "fingerprint": "d6d1b1489d312f5acb6189244926fb9fde58c316",
+   "keys": [
+    [
+     16,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A956C.png": {
+   "fingerprint": "a5de66989e182bded6e403b5b392343caa265fd7",
+   "keys": [
+    [
+     16,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9694.png": {
+   "fingerprint": "b52644ec9229ed2ad2ac833fbe613bc234b63bf9",
+   "keys": [
+    [
+     16,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A97BC.png": {
+   "fingerprint": "9807ff629c8e61402d89acd0990f1fdc9bb67d97",
+   "keys": [
+    [
+     16,
+     0,
+     4
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A98E8.png": {
+   "fingerprint": "7feb7fcb657442795adea692294524d9804924b2",
+   "keys": [
+    [
+     16,
+     0,
+     5
+    ],
+    [
+     16,
+     0,
+     6
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9A1C.png": {
+   "fingerprint": "1ca8ea11860b30f0f324e4b9a38e26b34f904ee1",
+   "keys": [
+    [
+     16,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9B48.png": {
+   "fingerprint": "2af375cbac6b10d4a0d0739e26c4045f1dd400ba",
+   "keys": [
+    [
+     16,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9C3C.png": {
+   "fingerprint": "e8c3203b03ef44e09c26fb1641427579f76955c5",
+   "keys": [
+    [
+     16,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9D3C.png": {
+   "fingerprint": "6fd8e0b7a6fd136d9e716f6cea61cf723e41ec58",
+   "keys": [
+    [
+     16,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9E44.png": {
+   "fingerprint": "b7ad88a00d0333f267fa3052ff2303cdcda9c631",
+   "keys": [
+    [
+     16,
+     1,
+     4
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2A9F54.png": {
+   "fingerprint": "99cfaf3601bb6c312f219fe1deeed83d6e5b789b",
+   "keys": [
+    [
+     16,
+     1,
+     5
+    ],
+    [
+     16,
+     1,
+     6
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA084.png": {
+   "fingerprint": "2657651cf65e45e8cb005bdd969ad8683ccee788",
+   "keys": [
+    [
+     16,
+     2,
+     0
+    ],
+    [
+     16,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA1C4.png": {
+   "fingerprint": "987438fed10ded9ecd07cdc24adc5d2869818e8f",
+   "keys": [
+    [
+     16,
+     2,
+     1
+    ],
+    [
+     16,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA2EC.png": {
+   "fingerprint": "d414d45ac7a4543ffeb73240ae8ddf3a45f4b759",
+   "keys": [
+    [
+     16,
+     2,
+     2
+    ],
+    [
+     16,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA410.png": {
+   "fingerprint": "000a9cac777bc0e1322a59f2f9436dd7113e2170",
+   "keys": [
+    [
+     16,
+     2,
+     3
+    ],
+    [
+     16,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA53C.png": {
+   "fingerprint": "f3f497ac6c68ce9cfdbcde615c159e26dc2f7a8f",
+   "keys": [
+    [
+     16,
+     2,
+     4
+    ],
+    [
+     16,
+     3,
+     4
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA65C.png": {
+   "fingerprint": "f0b0f1ac75c114547995c36b568922f965c4fa04",
+   "keys": [
+    [
+     16,
+     2,
+     5
+    ],
+    [
+     16,
+     2,
+     6
+    ],
+    [
+     16,
+     3,
+     5
+    ],
+    [
+     16,
+     3,
+     6
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA8E4.png": {
+   "fingerprint": "41b0cc3055d6ccf163258454c2b5152dee84888d",
+   "keys": [
+    [
+     18,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AA9F4.png": {
+   "fingerprint": "8d1fe69340e2af5a389bac1860c4bce5052943bb",
+   "keys": [
+    [
+     18,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AAB18.png": {
+   "fingerprint": "dc79cdf64155c14a80d232c5883b5a02417811de",
+   "keys": [
+    [
+     18,
+     0,
+     2
+    ],
+    [
+     18,
+     0,
+     3
+    ],
+    [
+     18,
+     0,
+     4
+    ],
+    [
+     18,
+     0,
+     5
+    ],
+    [
+     18,
+     0,
+     6
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AAC4C.png": {
+   "fingerprint": "2a97127d3401598bb02153d7953d5383fd29daa4",
+   "keys": [
+    [
+     18,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AAD40.png": {
+   "fingerprint": "0d542f100f4475f1821ca2dbb039d6dc8d056ad7",
+   "keys": [
+    [
+     18,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AAE54.png": {
+   "fingerprint": "104b487505706b1a2583850995ace62f493d3407",
+   "keys": [
+    [
+     18,
+     1,
+     2
+    ],
+    [
+     18,
+     1,
+     3
+    ],
+    [
+     18,
+     1,
+     4
+    ],
+    [
+     18,
+     1,
+     5
+    ],
+    [
+     18,
+     1,
+     6
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AAF8C.png": {
+   "fingerprint": "b56ab70e0fd7c71a15229dffa926883b1aba53bb",
+   "keys": [
+    [
+     18,
+     2,
+     0
+    ],
+    [
+     18,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AB0D8.png": {
+   "fingerprint": "7079f2f32ffc41dbda79243faf0199f4722f9b0b",
+   "keys": [
+    [
+     18,
+     2,
+     1
+    ],
+    [
+     18,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2AB234.png": {
+   "fingerprint": "ee6f0fbe068a9305957912b96be5cdd4ebdbaa22",
+   "keys": [
+    [
+     18,
+     2,
+     2
+    ],
+    [
+     18,
+     2,
+     3
+    ],
+    [
+     18,
+     2,
+     4
+    ],
+    [
+     18,
+     2,
+     5
+    ],
+    [
+     18,
+     2,
+     6
+    ],
+    [
+     18,
+     3,
+     2
+    ],
+    [
+     18,
+     3,
+     3
+    ],
+    [
+     18,
+     3,
+     4
+    ],
+    [
+     18,
+     3,
+     5
+    ],
+    [
+     18,
+     3,
+     6
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B1BE8.png": {
+   "fingerprint": "70af8b19a084814a8af15bd814d46ec0bc2c0b96",
+   "keys": [
+    [
+     9,
+     0,
+     0
+    ],
+    [
+     9,
+     1,
+     0
+    ],
+    [
+     9,
+     2,
+     0
+    ],
+    [
+     9,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B1D0C.png": {
+   "fingerprint": "ada56d6117da9e1c8de9d6e777c676da1478f33e",
+   "keys": [
+    [
+     9,
+     0,
+     1
+    ],
+    [
+     9,
+     1,
+     1
+    ],
+    [
+     9,
+     2,
+     1
+    ],
+    [
+     9,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B1E50.png": {
+   "fingerprint": "5a5799b1984e5818de1e8b31c2a073960ba6d085",
+   "keys": [
+    [
+     9,
+     0,
+     2
+    ],
+    [
+     9,
+     1,
+     2
+    ],
+    [
+     9,
+     2,
+     2
+    ],
+    [
+     9,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B1FB0.png": {
+   "fingerprint": "cbe36ba14cd33ea27c8a5897c5d0c5ff02f86c53",
+   "keys": [
+    [
+     9,
+     0,
+     3
+    ],
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     9,
+     2,
+     3
+    ],
+    [
+     9,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2140.png": {
+   "fingerprint": "ff669a7620b7364918b57713fbb55224e353e98d",
+   "keys": [
+    [
+     11,
+     0,
+     0
+    ],
+    [
+     11,
+     1,
+     0
+    ],
+    [
+     11,
+     2,
+     0
+    ],
+    [
+     11,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2254.png": {
+   "fingerprint": "92abfee74fb34a2ae5c1db6692b2b9fc24e83aca",
+   "keys": [
+    [
+     11,
+     0,
+     1
+    ],
+    [
+     11,
+     1,
+     1
+    ],
+    [
+     11,
+     2,
+     1
+    ],
+    [
+     11,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B236C.png": {
+   "fingerprint": "96d4d22dd75d1ffd1dd78ab61c205425e4d79d47",
+   "keys": [
+    [
+     12,
+     0,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2454.png": {
+   "fingerprint": "ea4aad1882db70104793f96d58e09725495f52fb",
+   "keys": [
+    [
+     12,
+     0,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2540.png": {
+   "fingerprint": "fcd0f6a6ffef02899897c0c06994750916d69ca9",
+   "keys": [
+    [
+     12,
+     0,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2634.png": {
+   "fingerprint": "ea4aad1882db70104793f96d58e09725495f52fb",
+   "keys": [
+    [
+     12,
+     0,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2720.png": {
+   "fingerprint": "d3256680b614b2fee6eace80422cb8b3d86b04f4",
+   "keys": [
+    [
+     12,
+     1,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2804.png": {
+   "fingerprint": "cdd4293a195c234129365e27dc759f7b21b80d3d",
+   "keys": [
+    [
+     12,
+     1,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B28E4.png": {
+   "fingerprint": "03067687fb5f639df2d121e45cbf362c76cebe42",
+   "keys": [
+    [
+     12,
+     1,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B29C4.png": {
+   "fingerprint": "cdd4293a195c234129365e27dc759f7b21b80d3d",
+   "keys": [
+    [
+     12,
+     1,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2AA4.png": {
+   "fingerprint": "0eddb39d73909c8612770bdb759af6c3aadd3478",
+   "keys": [
+    [
+     12,
+     2,
+     0
+    ],
+    [
+     12,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2BB0.png": {
+   "fingerprint": "f468a348422a7039742a11588c7bc48cee6b8dc1",
+   "keys": [
+    [
+     12,
+     2,
+     1
+    ],
+    [
+     12,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2CB0.png": {
+   "fingerprint": "f468a348422a7039742a11588c7bc48cee6b8dc1",
+   "keys": [
+    [
+     12,
+     2,
+     2
+    ],
+    [
+     12,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B2DB0.png": {
+   "fingerprint": "f468a348422a7039742a11588c7bc48cee6b8dc1",
+   "keys": [
+    [
+     12,
+     2,
+     3
+    ],
+    [
+     12,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B5C2C.png": {
+   "fingerprint": "93195f85ff78a411a05849a50c72c0ab6db274ed",
+   "keys": [
+    [
+     20,
+     0,
+     0
+    ],
+    [
+     20,
+     2,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B5D44.png": {
+   "fingerprint": "93195f85ff78a411a05849a50c72c0ab6db274ed",
+   "keys": [
+    [
+     20,
+     0,
+     1
+    ],
+    [
+     20,
+     2,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B5E64.png": {
+   "fingerprint": "93195f85ff78a411a05849a50c72c0ab6db274ed",
+   "keys": [
+    [
+     20,
+     0,
+     2
+    ],
+    [
+     20,
+     2,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B5F84.png": {
+   "fingerprint": "51546bf3da1f481e7bb2dc0db84f9fd9d0b9607a",
+   "keys": [
+    [
+     20,
+     0,
+     3
+    ],
+    [
+     20,
+     2,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B60A8.png": {
+   "fingerprint": "db85334b1bfde599530f7f86782f4cd851e33ac9",
+   "keys": [
+    [
+     20,
+     1,
+     0
+    ],
+    [
+     20,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B61A0.png": {
+   "fingerprint": "db85334b1bfde599530f7f86782f4cd851e33ac9",
+   "keys": [
+    [
+     20,
+     1,
+     1
+    ],
+    [
+     20,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B62A0.png": {
+   "fingerprint": "242ee2fbc2715f2f7992e39c1a8f284c6c0cd46f",
+   "keys": [
+    [
+     20,
+     1,
+     2
+    ],
+    [
+     20,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B6398.png": {
+   "fingerprint": "db85334b1bfde599530f7f86782f4cd851e33ac9",
+   "keys": [
+    [
+     20,
+     1,
+     3
+    ],
+    [
+     20,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B6558.png": {
+   "fingerprint": "561f0c89b61de7f1a5d40478a8e2c09100f6afbc",
+   "keys": [
+    [
+     21,
+     0,
+     0
+    ],
+    [
+     21,
+     1,
+     0
+    ],
+    [
+     21,
+     2,
+     0
+    ],
+    [
+     21,
+     3,
+     0
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B667C.png": {
+   "fingerprint": "13a286bbc6446f76a4b076101bc02a2040cce368",
+   "keys": [
+    [
+     21,
+     0,
+     1
+    ],
+    [
+     21,
+     1,
+     1
+    ],
+    [
+     21,
+     2,
+     1
+    ],
+    [
+     21,
+     3,
+     1
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B6794.png": {
+   "fingerprint": "86cc987fcf29fafd099a2c4ea6110875cc097b35",
+   "keys": [
+    [
+     21,
+     0,
+     2
+    ],
+    [
+     21,
+     1,
+     2
+    ],
+    [
+     21,
+     2,
+     2
+    ],
+    [
+     21,
+     3,
+     2
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  },
+  "frame_2B68A0.png": {
+   "fingerprint": "131c7990e4ef9c082164df0126cae18399834c5f",
+   "keys": [
+    [
+     21,
+     0,
+     3
+    ],
+    [
+     21,
+     1,
+     3
+    ],
+    [
+     21,
+     2,
+     3
+    ],
+    [
+     21,
+     3,
+     3
+    ]
+   ],
+   "time": "2026-10-18T16:37:04",
+   "note": "aura-rage pass 2026-10-18: aura-free body of set 159 (r12 frames)"
+  }
+ }
+}

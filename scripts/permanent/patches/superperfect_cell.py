@@ -36,6 +36,7 @@ Rules:   Source: docs\tasks\2026-10-23-r30-build\r30.md, r31.md, r33.md, r35.md,
 """
 import struct
 
+import log_paths
 from rom.log2_sprites import build_set
 from patches.art_inject import slot
 from patches.gohan_gi import art_records
@@ -47,7 +48,7 @@ ROM_BASE = 0x08000000
 SET_LITERAL, BLOCK_LITERAL = 0x959C, 0xBE10
 CELL, SUPER = 30, 58                                   # set ids
 CELL_HEADER, DEAD_58 = 0x242DBC, 0x2AB508              # set 30 header; vanilla set 58 (armor Rage, no reader)
-ART_FOLDER, IDLE_RECORDS = "cell_aura/scale_15", 6
+ART_FOLDER, IDLE_RECORDS = log_paths.CELL_AURA_15, 6
 RETURN_TABLE, DEATH_TABLE = 0x3EB704, 0x3EC758
 SEQ20 = "post_cell_seq20"                              # fullpower_ssj notes key of rom:0x3EC758 seq 20
 

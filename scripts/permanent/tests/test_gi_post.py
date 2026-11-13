@@ -22,6 +22,7 @@ import log_paths
 
 # ===== constants =====
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 GOLD = log_paths.GOLDEN
 BELT = {26, 27}                                            # sash indices
 STEP = (9, 0)                                              # anim 9, dir 0: the SSJ to SSJ2 step
@@ -165,12 +166,15 @@ class GiPostTests(unittest.TestCase):
     def test_chain_is_repeatable(self):                      # a fresh run on copies equals the folders on disk
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print"):
             art = Path(tmp)
-            for name in ("golden", log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name, log_paths.GI_BASE.name):          # gi_base: step 5, one body
-                shutil.copytree(ART / name, art / name)
+            # log_paths.under re-roots each folder on the temp art root, keeping the shape it has
+            # below art\. The pipeline re-roots the same way, so a copy and the real tree cannot drift.
+            for src in (log_paths.GOLDEN, log_paths.GI_SSJ, log_paths.GI_SSJ2, log_paths.GI_BASE):
+                shutil.copytree(src, log_paths.under(art, src))      # gi_base: step 5, one body
             gi_post.run_all(art)
-            for name in (log_paths.GI_SSJ2_V2.name, log_paths.GI_SSJ_V2.name, log_paths.GI_SSJ_V4.name, log_paths.GI_SSJ2_V4.name):
-                mine = {p.name: p for p in (art / name).iterdir()}
-                disk = {p.name: p for p in (ART / name).iterdir() if p.is_file()}
+            for folder in (log_paths.GI_SSJ2_V2, log_paths.GI_SSJ_V2, log_paths.GI_SSJ_V4, log_paths.GI_SSJ2_V4):
+                name = folder.name
+                mine = {p.name: p for p in log_paths.under(art, folder).iterdir()}
+                disk = {p.name: p for p in folder.iterdir() if p.is_file()}
                 self.assertEqual(set(mine), set(disk), name)
                 for n, p in mine.items():
                     self.assertEqual(p.read_bytes(), disk[n].read_bytes(), f"{name}\\{n}")
@@ -188,15 +192,15 @@ class GohanGiDefaultTests(unittest.TestCase):
 
     def test_defaults_read_the_v2_and_aura_folders(self):   # 159 and 160: gi_aura.py output (aura-rage pass)
         sets = self.reload({})
-        self.assertEqual(sets[157][0], log_paths.GI_BASE.name)
-        self.assertEqual(sets[158][0], log_paths.GI_SSJ_V2.name)
-        self.assertEqual(sets[159], (log_paths.GI_SSJ2_AURA.name, 59))
-        self.assertEqual(sets[160], (log_paths.GI_RAGE_AURA.name, 58))
+        self.assertEqual(sets[157][0], log_paths.GI_BASE)
+        self.assertEqual(sets[158][0], log_paths.GI_SSJ_V2)
+        self.assertEqual(sets[159], (log_paths.GI_SSJ2_AURA, 59))
+        self.assertEqual(sets[160], (log_paths.GI_RAGE_AURA, 58))
 
     def test_env_overrides_stay(self):
         sets = self.reload({"LOG_GI_SSJ": log_paths.GI_SSJ.name, "LOG_GI_SSJ2": log_paths.GI_SSJ2.name})
-        self.assertEqual((sets[158][0], sets[159][0]), (log_paths.GI_SSJ.name, log_paths.GI_SSJ2.name))
-        self.assertEqual(sets[157][0], log_paths.GI_BASE.name)
+        self.assertEqual((sets[158][0], sets[159][0]), (log_paths.GI_SSJ, log_paths.GI_SSJ2))
+        self.assertEqual(sets[157][0], log_paths.GI_BASE)
 
 
 if __name__ == "__main__":

@@ -40,8 +40,18 @@ ART = log_paths.ART
 APPEARANCE, APPEARANCE_LEN = 0x1D967C, 22 * 20
 REVERSE_LITERAL, SET_TABLE_LITERAL = 0x42F0, 0x959C
 FIRST_ID, OLD_IDS = 7, 150                                   # the table holds ids 7-156
-SETS = {157: (os.environ.get("LOG_GI_BASE", log_paths.GI_BASE.name), 56), 158: (os.environ.get("LOG_GI_SSJ", log_paths.GI_SSJ_V2.name), 59),
-        159: (os.environ.get("LOG_GI_SSJ2", log_paths.GI_SSJ2_AURA.name), 59), 160: (log_paths.GI_RAGE_AURA.name, 58)}   # id: (art, layout)
+def _set_art(var: str, default):
+    r"""The art folder a set reads. An env override names a folder under art\characters\gohan,
+    so an override cannot point outside the registry's tree.
+    """
+    name = os.environ.get(var)
+    return log_paths.GOHAN_ART / name if name else default
+
+
+SETS = {157: (_set_art("LOG_GI_BASE", log_paths.GI_BASE), 56),
+        158: (_set_art("LOG_GI_SSJ", log_paths.GI_SSJ_V2), 59),
+        159: (_set_art("LOG_GI_SSJ2", log_paths.GI_SSJ2_AURA), 59),
+        160: (log_paths.GI_RAGE_AURA, 58)}                   # id: (art folder, layout set)
 IDLE_RECORDS = {157: 2, 158: 2, 159: 6, 160: 6}              # anim 0 records per dir each set publishes
 GI_BLOCK = 580076                                            # bytes the dev master allocates for the four sets
 RAGE_SET, RAGE_ENTRY = 160, 4
@@ -58,11 +68,11 @@ def _gba(off: int) -> bytes:
     return struct.pack("<I", off + ROM_BASE)
 
 
-def art_records(folder: str) -> tuple:
+def art_records(folder) -> tuple:
     """({key: record with a frame id}, {frame id: tile bytes}) from a gi art folder."""
     records, frames = {}, {}
-    for m in json.loads((ART / folder / "manifest.json").read_text(encoding="ascii")):
-        with Image.open(ART / folder / m["png"]) as img:
+    for m in json.loads((folder / "manifest.json").read_text(encoding="ascii")):
+        with Image.open(folder / m["png"]) as img:
             frames[m["png"]] = image_to_tiles(img)
         for k in m["keys"]:
             records[(k["anim"], k["dir"], k["index"])] = {f: k[f] for f in ("dx", "dy", "w", "h", "attr0", "attr1")} \

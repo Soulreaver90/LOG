@@ -23,13 +23,14 @@ import log_paths
 
 # ===== constants =====
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 GOLDEN = log_paths.GOLDEN
 OUTS = {log_paths.GI_SSJ2_AURA.name: log_paths.GI_SSJ2_V2.name, log_paths.GI_RAGE_AURA.name: log_paths.GI_RAGE.name}
 BOLT = {gi_aura.BLUE, gi_aura.WHITE}
 
 
 def manifest(name: str) -> list:
-    return json.loads((ART / name / "manifest.json").read_text(encoding="ascii"))
+    return json.loads((GI / name / "manifest.json").read_text(encoding="ascii"))
 
 
 def hand(e: dict) -> bool:
@@ -44,7 +45,7 @@ def px_of(path: Path) -> tuple:
 
 def body_path(out: str, entry: dict) -> Path:
     src = entry["aura"]["body"]
-    return GOLDEN / src if src.startswith("golden_") else ART / OUTS[out] / src
+    return GOLDEN / src if src.startswith("golden_") else log_paths.GOHAN_ART / OUTS[out] / src
 
 
 def gif_classes(gif: Image.Image, frame: int, baked: bytes, pal: list) -> list:
@@ -105,9 +106,9 @@ class AuraFolderTests(unittest.TestCase):
     def test_folders_reproduce(self):                     # gi_aura.py all on disk equals a fresh run
         with tempfile.TemporaryDirectory() as tmp:
             for out, (body, idle, layout) in gi_aura.OUTPUTS.items():
-                gi_aura.aura_folder(ART / body, Path(tmp) / out, idle, out, layout)
+                gi_aura.aura_folder(GI / body, Path(tmp) / out, idle, out, layout)
                 mine = {p.name: p.read_bytes() for p in (Path(tmp) / out).iterdir()}
-                disk = {p.name: p.read_bytes() for p in (ART / out).iterdir() if p.is_file()}
+                disk = {p.name: p.read_bytes() for p in (GI / out).iterdir() if p.is_file()}
                 self.assertEqual(set(mine), set(disk), out)
                 self.assertFalse([n for n in mine if mine[n] != disk[n]], out)
 
@@ -116,7 +117,7 @@ class AuraFolderTests(unittest.TestCase):
             for e in manifest(out):
                 if "aura" not in e or hand(e):
                     continue
-                got, pal, (w, h) = px_of(ART / out / e["png"])
+                got, pal, (w, h) = px_of(GI / out / e["png"])
                 body, _, size = px_of(body_path(out, e))
                 self.assertEqual(size, (w, h))
                 face = gi_aura.face_box(body, w)
@@ -132,7 +133,7 @@ class AuraFolderTests(unittest.TestCase):
         for out, body in OUTS.items():
             for e in manifest(out):
                 if "aura" not in e and not hand(e):
-                    self.assertEqual((ART / out / e["png"]).read_bytes(), (ART / body / e["png"]).read_bytes())
+                    self.assertEqual((GI / out / e["png"]).read_bytes(), (GI / body / e["png"]).read_bytes())
                     self.assertFalse({k["anim"] for k in e["keys"]} & {0, 1, 4, 13}, e["png"])
 
     def test_idle_is_body_times_3_plus_shape(self):

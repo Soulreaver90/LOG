@@ -116,7 +116,7 @@ def plan(rom, alloc, frames: dict) -> tuple:
     for k, r in recs.items():
         by_hdr[r["header"]].append(k)
     obj = _obj_palette(rom)
-    gi_recs, gi_frames = art_records(log_paths.GI_BASE.name)
+    gi_recs, gi_frames = art_records(log_paths.GI_BASE)
     out = {}
     for k, f in sorted(frames.items()):
         if k not in recs:

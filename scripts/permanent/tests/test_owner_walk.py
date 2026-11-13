@@ -18,6 +18,7 @@ import log_paths
 
 # ===== constants =====
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 GOLDEN = log_paths.GOLDEN
 SPRITES = gi_art.SPRITES
 FORM_SET = {"base": "set56", "ssj": "set59", "ssj2": "set58"}
@@ -28,7 +29,7 @@ def armor(set_name: str, k: tuple) -> dict:
     return gi_art.frame_pixels(gi_art.by_key(SPRITES / set_name)[k])
 
 def gi(folder: str, k: tuple) -> dict:
-    return gi_art.frame_pixels(gi_art.by_key(ART / folder)[k])
+    return gi_art.frame_pixels(gi_art.by_key(GI / folder)[k])
 
 def convert(set_name: str, k: tuple, form: str = None) -> tuple:
     """(armor pixels, head mask, converted pixels, parts) of one armor frame."""
@@ -104,7 +105,7 @@ class ClassifierTests(unittest.TestCase):
     def test_parts_review_frames_fail_only_parts(self):     # a listed frame hides no other failure
         for name, keys in gi_art.PARTS_REVIEW.items():
             entries = {gi_art.key_str((q["anim"], q["dir"], q["index"])): m
-                       for m in gi_art.load_manifest(ART / name) for q in m["keys"]}
+                       for m in gi_art.load_manifest(GI / name) for q in m["keys"]}
             for ks in keys:
                 self.assertLessEqual(set(gi_art.failing(entries[ks])), {"parts"}, f"{name} {ks}")
 

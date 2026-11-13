@@ -25,6 +25,7 @@ from rom.webfoot_decompress import ROM_BASE, SET_TABLE, rom_ptr, unpack_frame
 # ===== constants =====
 BASE = log_paths.BASE_ROM
 ART = log_paths.ART
+GI = log_paths.GOHAN_ART        # a gi folder, keyed by its own name
 BASE_ROM = BASE.read_bytes()
 SETS = {53: 0x285234, 56: 0x299C48, 58: 0x2AB508, 59: 0x2B69C8}
 GEOMETRY = {log_paths.GI_BASE.name: (56,), log_paths.GI_SSJ.name: (59,), log_paths.GI_SSJ2.name: (58, 59)}   # first set that has the key wins
@@ -50,7 +51,7 @@ ALLOWED_INDICES = set().union(*(set(unpack_frame(BASE_ROM, h)[2]) for s in (53, 
 
 
 def manifest(name: str) -> list:
-    return json.loads((ART / name / "manifest.json").read_text(encoding="ascii"))
+    return json.loads((GI / name / "manifest.json").read_text(encoding="ascii"))
 
 
 def load(path: Path) -> Image.Image:
@@ -63,7 +64,7 @@ def gi_entries():
     """(folder, manifest entry, image) for every generated gi frame."""
     for name in GEOMETRY:
         for m in manifest(name):
-            yield name, m, load(ART / name / m["png"])
+            yield name, m, load(GI / name / m["png"])
 
 
 def hand(m: dict) -> bool:
@@ -143,7 +144,7 @@ class GiArtTests(unittest.TestCase):
     def test_gi_frames_differ_from_armor(self):            # the art was actually made
         for name in GEOMETRY:
             same = sum(1 for m in manifest(name)
-                       if load(ART / name / m["png"]).tobytes() == unpack_frame(BASE_ROM, m["header"])[2])
+                       if load(GI / name / m["png"]).tobytes() == unpack_frame(BASE_ROM, m["header"])[2])
             self.assertLess(same, 5, name)
 
     def test_manifest_checks_pass_or_have_a_reason(self):  # directions f, g, h, j, k
@@ -194,7 +195,7 @@ ARM_ONLY = {(5, 1, 1): (10, -7, 13, -5), (6, 1, 1): (11, -8, 14, -4)}   # the ar
 
 
 def gi_pixels(name: str, k: tuple) -> dict:
-    return gi_art.frame_pixels(gi_art.by_key(ART / name)[k])
+    return gi_art.frame_pixels(gi_art.by_key(GI / name)[k])
 
 
 def box(px: dict, b: tuple) -> set:
@@ -222,7 +223,7 @@ class OwnerReviewTests(unittest.TestCase):
         for name, (x0, x1) in GOLDEN_V.items():
             want = load(GOLDEN / f"golden_{name}_d0.png")
             for k in ((0, 0, 0), (0, 0, 1)):
-                got = load(ART / name / gi_art.by_key(ART / name)[k]["png"])
+                got = load(GI / name / gi_art.by_key(GI / name)[k]["png"])
                 for y in V_ROWS:
                     self.assertEqual([got.getpixel((x, y)) for x in range(x0, x1 + 1)],
                                      [want.getpixel((x, y)) for x in range(x0, x1 + 1)], f"{name} {k} row {y}")
@@ -230,7 +231,7 @@ class OwnerReviewTests(unittest.TestCase):
     def test_side_opening_matches_golden(self):
         name, (x0, x1) = GOLDEN_SIDE
         want = load(GOLDEN / f"golden_{name}_d2.png")
-        got = load(ART / name / gi_art.by_key(ART / name)[(0, 2, 0)]["png"])
+        got = load(GI / name / gi_art.by_key(GI / name)[(0, 2, 0)]["png"])
         for y in V_ROWS:
             self.assertEqual([got.getpixel((x, y)) for x in range(x0, x1 + 1)],
                              [want.getpixel((x, y)) for x in range(x0, x1 + 1)], f"{name} row {y}")
@@ -290,7 +291,7 @@ class TransformStepTests(unittest.TestCase):
 
     def test_step_sash_keeps_frame_0_row(self):             # the belt must not jump within the step
         for name in GEOMETRY:
-            gi = gi_art.by_key(ART / name)
+            gi = gi_art.by_key(GI / name)
             rows = [sash_row(gi_art.frame_pixels(gi[k])) for k in STEP]
             self.assertIsNotNone(rows[0], name)
             self.assertEqual(rows, [rows[0]] * 4, name)
@@ -310,7 +311,7 @@ class TransformStepTests(unittest.TestCase):
 
     def test_idle_sash_row_matches_golden(self):
         for name in (log_paths.GI_BASE.name, log_paths.GI_SSJ.name):
-            gi = gi_art.by_key(ART / name)
+            gi = gi_art.by_key(GI / name)
             for d in range(4):
                 rec = gi[(0, d, 0)]
                 want = load(GOLDEN / f"golden_{name}_d{d}.png")
@@ -426,10 +427,10 @@ class GoldenRuleTests(unittest.TestCase):
 
     def test_idle_slots_equal_goldens(self):                # me, 2026-10-18: byte for byte, all 4 dirs
         for name in gi_art.IDLE_GOLDEN:
-            gi = gi_art.by_key(ART / name)
+            gi = gi_art.by_key(GI / name)
             for d in range(4):
                 rec = gi[(0, d, 0)]
-                img = load(ART / name / rec["png"])
+                img = load(GI / name / rec["png"])
                 if rec["attr1"] & gi_art.HFLIP:
                     img = img.transpose(Image.FLIP_LEFT_RIGHT)
                 self.assertEqual(img.tobytes(), load(GOLDEN / f"golden_{name}_d{d}.png").tobytes(), f"{name} d{d}")
@@ -469,7 +470,7 @@ class OneBodyTests(unittest.TestCase):
     def test_no_pink_in_any_gi_folder(self):                # 239 and 240 came from the Rage set 58
         for name in GI_FOLDERS:
             for m in manifest(name):
-                self.assertFalse(set(load(ART / name / m["png"]).tobytes()) & gi_art.PINK, f"{name} {m['png']}")
+                self.assertFalse(set(load(GI / name / m["png"]).tobytes()) & gi_art.PINK, f"{name} {m['png']}")
 
     def test_stray_pink_rule(self):
         px = grid(". 20 20 .", "20 239 . .", ". . 23 .")              # touches the outside: cleared
@@ -502,7 +503,7 @@ class OneBodyTests(unittest.TestCase):
 
 class HudZ2Tests(unittest.TestCase):
     def icons(self):
-        return [((ART / f"hud_z2_{kind}.bin").read_bytes(), BASE_ROM[off:off + ICON_LEN])
+        return [((log_paths.ART_UI / f"hud_z2_{kind}.bin").read_bytes(), BASE_ROM[off:off + ICON_LEN])
                 for kind, off in (("usable", Z_USABLE), ("dim", Z_DIM))]
 
     def test_z2_format(self):
@@ -596,7 +597,7 @@ class GiPatchTests(unittest.TestCase):
                 kind, size, data, _ = unpack_frame(self.rom, r["header"])
                 self.assertEqual((kind, len(data)), (0, r["w"] * r["h"]), f"{set_id} {k}")
                 img = tiles_to_image(data, r["w"], r["h"], PALETTE)
-                self.assertEqual(img.tobytes(), load(ART / name / m["png"]).tobytes(), f"{set_id} {k}")
+                self.assertEqual(img.tobytes(), load(GI / name / m["png"]).tobytes(), f"{set_id} {k}")
 
     def test_every_gi_frame_fits_the_slot(self):            # Ruling 35, on the art folders
         for name in GI_IDS.values():

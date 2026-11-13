@@ -1,0 +1,14 @@
+GIMP Palette
+Name: LoG II anime skin and hair (goal ramp, owner 2026-10-19)
+Columns: 4
+#
+248 224 208	idx172 skin lit (new slot, needs portrait_skin patch)
+224 152 128	idx115 skin mid
+200 128  96	idx116 skin shadow
+176  96  56	idx117 skin deep
+248 248 184	idx44 hair lit
+240 216 168	idx16 hair light shade
+240 192 112	idx17 hair mid shade
+216 168  96	idx18 hair deep shade
+104  48  16	idx113 line
+128  80  24	idx23 hair line
