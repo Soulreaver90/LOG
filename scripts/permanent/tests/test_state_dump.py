@@ -14,7 +14,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import log_paths  # noqa: E402
 from rom import state_dump                                                # noqa: E402
 
-STATES = (log_paths.ARENA_V3_MOCKUPS)
+STATES = log_paths.ARENA_MOCKUPS
+# Name the version. The folder holds v1 to v7, and these measurements are v3's alone.
+V3 = "log2_poc_r41_arena_v3"
 
 
 def planted(pairs: list, size: int = 0x400) -> bytes:
@@ -71,7 +73,7 @@ class CurrentMap(unittest.TestCase):
         self.assertEqual(state_dump.current_map(b"\x06\x64"), (None, None))
 
 
-@unittest.skipUnless(STATES.is_dir() and any(STATES.glob("*.ss2")),
+@unittest.skipUnless((STATES / f"{V3}.ss2").is_file(),
                      "the owner's arena v3 states are not on this machine")
 class OwnerStates(unittest.TestCase):
     """The regression this tool exists for: state 2 holds the conversation's spots and state 3 does not.
@@ -87,7 +89,7 @@ class OwnerStates(unittest.TestCase):
         return iwram, state[wo:wo + wl]
 
     def spots(self, n: int) -> set:
-        iwram, wram = self.regions(next(STATES.glob(f"*.ss{n}")))
+        iwram, wram = self.regions(STATES / f"{V3}.ss{n}")
         return {(h["x"], h["y"]) for h in state_dump.find_actors(wram, state_dump.WRAM_BASE)}
 
     def test_state_2_holds_the_conversation_spots(self):
@@ -103,9 +105,9 @@ class OwnerStates(unittest.TestCase):
 
     def test_every_state_reads_the_arena_as_the_current_map(self):
         for n in (2, 3, 4, 5):
-            if not any(STATES.glob(f"*.ss{n}")):
+            if not (STATES / f"{V3}.ss{n}").is_file():
                 continue
-            iwram, _ = self.regions(next(STATES.glob(f"*.ss{n}")))
+            iwram, _ = self.regions(STATES / f"{V3}.ss{n}")
             self.assertEqual(state_dump.current_map(iwram), (6, 100), f"state {n}")
 
 

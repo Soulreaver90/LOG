@@ -75,7 +75,6 @@ FOLLOW_OFFSET, PLAYER_BOX, VIEW = (120, 84), (16, 8), (240, 160)
 LEFT_EDGE = (257, 385, 304, 424)            # map 9,1 region 1 rect (the Lookout's left edge), map item 0x08403FE8
 VIEW_W = 240
 LOG = Path(__file__).resolve().parents[3]
-BUILD = log_paths.BUILDS
 
 _CACHE = {}
 
@@ -399,7 +398,7 @@ class DiffTests(unittest.TestCase):
             self.assertTrue(any(a <= i < e for i in self.changed), hex(a))
 
     def test_r32_file_holds_this_scene(self):              # superperfect_cell writes none of these bytes
-        path = BUILD / "log2_poc_r32.gba"
+        path = log_paths.build_file("log2_poc_r32.gba")
         if not path.exists():
             self.skipTest("r32 not built")
         r32 = path.read_bytes()
@@ -420,7 +419,7 @@ class DiffTests(unittest.TestCase):
             self.assertEqual(set(self.rom[at + length:at + size]), {0xFF} if size > length else set(), i)
 
     def test_r30_to_r31_changes_only_records_31_35_44(self):
-        r30, r31 = BUILD / "log2_poc_r30.gba", BUILD / "log2_poc_r31.gba"
+        r30, r31 = log_paths.build_file("log2_poc_r30.gba"), log_paths.build_file("log2_poc_r31.gba")
         if not (r30.exists() and r31.exists()):
             self.skipTest("r30 or r31 missing")
         a, b = r30.read_bytes(), r31.read_bytes()
@@ -480,7 +479,7 @@ class WalkInTests(unittest.TestCase):
                                  (44, 54, (103, 312, 504)), (44, 54, (158, 344, 504))])
 
     def test_walk_op_bytes_against_r29(self):                       # r29 report section 4: 77 and 20 bytes
-        r29 = BUILD / "log2_poc_r29.gba"
+        r29 = log_paths.build_file("log2_poc_r29.gba")
         if not r29.exists():
             self.skipTest("r29 missing")
         old = r29.read_bytes()
@@ -645,7 +644,7 @@ class HandBackTests(unittest.TestCase):
         self.assertEqual(text[41:44], ["lsl r3,r1,#3", "add r1,r3,r1", "asr r1,r1,#7"])   # 9/128
 
     def test_player_box_in_the_states(self):
-        path = BUILD / "log2_poc_r29_chamber2.ss3"
+        path = log_paths.build_file("log2_poc_r29_chamber2.ss3")
         if not path.exists():
             self.skipTest("chamber2 ss3 missing")
         from rom import state_dump
@@ -721,7 +720,7 @@ class PlayableLinesTests(unittest.TestCase):
         self.assertEqual(self.rom[CHIME_RECORD:CHIME_RECORD + 8], self.base[CHIME_RECORD:CHIME_RECORD + 8])
 
     def test_r31_to_r32_changes_only_two_words_and_two_slots(self):
-        r31, r32 = BUILD / "log2_poc_r31.gba", BUILD / "log2_poc_r32.gba"
+        r31, r32 = log_paths.build_file("log2_poc_r31.gba"), log_paths.build_file("log2_poc_r32.gba")
         if not (r31.exists() and r32.exists()):
             self.skipTest("r31 or r32 missing")
         a, b = r31.read_bytes(), r32.read_bytes()
@@ -773,9 +772,9 @@ class CopyTests(unittest.TestCase):
                  (f"{new}.gba", f"{new}_chamber2.gba")]
         pairs += [(f"{old}.ss{k}", f"{new}.ss{k}") for k in range(1, 6)]
         for src, dst in pairs:
-            if not (BUILD / dst).exists():
+            if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
-            self.assertEqual((BUILD / src).read_bytes(), (BUILD / dst).read_bytes(), dst)
+            self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
 
     def test_r29_saves_and_states_are_r28_copies(self):
         self.assert_copies("log2_poc_r28", "log2_poc_r29")
@@ -787,9 +786,9 @@ class CopyTests(unittest.TestCase):
         self.assert_copies("log2_poc_r31", "log2_poc_r32")
         for src, dst in (("log2_poc_r31_scouter.sav", "log2_poc_r32_scouter.sav"),
                          ("log2_poc_r32.gba", "log2_poc_r32_scouter.gba")):
-            if not (BUILD / dst).exists():
+            if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
-            self.assertEqual((BUILD / src).read_bytes(), (BUILD / dst).read_bytes(), dst)
+            self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
 
 
 if __name__ == "__main__":

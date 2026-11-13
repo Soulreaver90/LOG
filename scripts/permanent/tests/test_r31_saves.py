@@ -18,7 +18,6 @@ import log_paths
 from rom.log2_save import SLOT_DATA, adler32, read_ram, slot_range
 from rom.thumb_dis import listing
 
-BUILD = log_paths.BUILDS
 CHAMBER_R30, CELLGAMES_R30, CHAMBER_R31 = "log2_poc_r30_chamber2.sav", "log2_poc_r30.sav", "log2_poc_r31_chamber2.sav"
 COPIES = [("log2_poc_r30.sav", "log2_poc_r31.sav"), ("log2_poc_r31.gba", "log2_poc_r31_chamber2.gba")]
 COPIES += [(f"log2_poc_r30.ss{k}", f"log2_poc_r31.ss{k}") for k in range(1, 6)]
@@ -27,7 +26,7 @@ SCOUTER_SAV = "log2_poc_r31_scouter.sav"
 
 
 def ram_of(name: str) -> bytearray:
-    path = BUILD / name
+    path = log_paths.build_file(name)
     if not path.exists():
         raise unittest.SkipTest(f"{name} missing")
     return read_ram(path.read_bytes())
@@ -36,9 +35,9 @@ def ram_of(name: str) -> bytearray:
 class CopyTests(unittest.TestCase):
     def test_r31_saves_states_and_rom_pair_are_byte_copies(self):
         for src, dst in COPIES:
-            if not (BUILD / dst).exists():
+            if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
-            self.assertEqual((BUILD / src).read_bytes(), (BUILD / dst).read_bytes(), dst)
+            self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
 
 
 class ChamberSaveTests(unittest.TestCase):

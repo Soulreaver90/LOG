@@ -63,7 +63,6 @@ ENEMY_FACTORY = 0x0800E77F                                       # spawn record 
 MENU_FONT, NAME_FIELD, LIST_WIDTH = 0x28724, (73, 166), 160      # info name ink between the frame borders
 VANILLA_52 = 0x6BAF30
 ART = log_paths.CELL_AURA_15
-BUILD = log_paths.BUILDS
 OWNER_52 = log_paths.SUPERPERFECT_OWNER / "sp52_owner_v3.png"
 OTHER_SETS = (30, 157, 158, 56, 59, 60, 61, 137)                 # vanilla tick, as before r30
 SEEDS = (0, 0x7B, 0xEE, 0xFFF0)
@@ -651,7 +650,7 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(names[i - 1:i + 1], ["piccolo_gi_scene", "superperfect_cell"])
 
     def test_r36_file_equals_the_build_and_r35_differs_by_portrait_52_only(self):
-        r35, r36 = BUILD / "log2_poc_r35.gba", BUILD / "log2_poc_r36.gba"
+        r35, r36 = log_paths.build_file("log2_poc_r35.gba"), log_paths.build_file("log2_poc_r36.gba")
         if not (r35.exists() and r36.exists()):
             self.skipTest("r35 or r36 not built")
         r36_rom = with_stats(self.rom, STATS_R35)                           # r38 raised the stats; r35, r36 have +10%
@@ -668,7 +667,7 @@ class DiffTests(unittest.TestCase):
             self.assertTrue(any(a <= i < a + n for i in changed), hex(a))
 
     def test_r32_to_r33_is_the_name_only(self):
-        r32, r33 = BUILD / "log2_poc_r32.gba", BUILD / "log2_poc_r33.gba"
+        r32, r33 = log_paths.build_file("log2_poc_r32.gba"), log_paths.build_file("log2_poc_r33.gba")
         if not (r32.exists() and r33.exists()):
             self.skipTest("r32 or r33 missing")
         a, b = r32.read_bytes(), r33.read_bytes()
@@ -682,7 +681,7 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(name, -(-end // 4) * 4)                            # the next word after the hook code
 
     def test_r33_to_r34_is_the_name_string_only(self):
-        r33, r34 = BUILD / "log2_poc_r33.gba", BUILD / "log2_poc_r34.gba"
+        r33, r34 = log_paths.build_file("log2_poc_r33.gba"), log_paths.build_file("log2_poc_r34.gba")
         if not (r33.exists() and r34.exists()):
             self.skipTest("r33 or r34 missing")
         a, b = r33.read_bytes(), r34.read_bytes()
@@ -693,7 +692,7 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(set(b[name + 19:name + 22]), {0xFF})               # the tail of r33's longer string is free
 
     def test_r34_to_r35_is_the_text_its_pointer_and_the_stats(self):   # r35 brief: diff proof
-        r34, r35 = BUILD / "log2_poc_r34.gba", BUILD / "log2_poc_r35.gba"
+        r34, r35 = log_paths.build_file("log2_poc_r34.gba"), log_paths.build_file("log2_poc_r35.gba")
         if not (r34.exists() and r35.exists()):
             self.skipTest("r34 or r35 missing")
         a, b = r34.read_bytes(), r35.read_bytes()
@@ -712,10 +711,9 @@ class DiffTests(unittest.TestCase):
             self.assertEqual((u32(rom, off + 4), rom[off + 0xC], rom[off + 0xD], rom[off + 0xE]), want)
 
     def test_r30_to_r31_outside_the_scene_is_the_scouter_only(self):   # scene slots: test_piccolo_gi_scene
-        build = log_paths.BUILDS
-        if not ((build / "log2_poc_r30.gba").exists() and (build / "log2_poc_r31.gba").exists()):
+        if not ((log_paths.build_file("log2_poc_r30.gba")).exists() and (log_paths.build_file("log2_poc_r31.gba")).exists()):
             self.skipTest("r30 or r31 missing")
-        a, b = (build / "log2_poc_r30.gba").read_bytes(), (build / "log2_poc_r31.gba").read_bytes()
+        a, b = (log_paths.build_file("log2_poc_r30.gba")).read_bytes(), (log_paths.build_file("log2_poc_r31.gba")).read_bytes()
         outside = [i for i in diff(a, b) if not 0x89AF38 <= i < 0x89B158]  # records 31-44 of piccolo_gi_scene
         self.assertEqual([(hex(i), a[i], b[i]) for i in outside], [("0x6f8fc4", 30, 58), ("0x6f8fc8", 40, 52)])
 
@@ -763,27 +761,27 @@ class CopyTests(unittest.TestCase):
         pairs += [(f"log2_poc_r32.ss{k}", f"log2_poc_r33.ss{k}") for k in range(1, 6)]
         pairs += [("log2_poc_r33.gba", "log2_poc_r33_chamber2.gba"), ("log2_poc_r33.gba", "log2_poc_r33_scouter.gba")]
         for src, dst in pairs:
-            if not (BUILD / dst).exists():
+            if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
-            self.assertEqual((BUILD / src).read_bytes(), (BUILD / dst).read_bytes(), dst)
+            self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
 
     def test_r34_saves_states_and_rom_pairs_are_copies(self):
         pairs = [(f"log2_poc_r33{s}", f"log2_poc_r34{s}") for s in (".sav", "_chamber2.sav", "_scouter.sav")]
         pairs += [(f"log2_poc_r33.ss{k}", f"log2_poc_r34.ss{k}") for k in range(1, 6)]
         pairs += [("log2_poc_r34.gba", "log2_poc_r34_chamber2.gba"), ("log2_poc_r34.gba", "log2_poc_r34_scouter.gba")]
         for src, dst in pairs:
-            if not (BUILD / dst).exists():
+            if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
-            self.assertEqual((BUILD / src).read_bytes(), (BUILD / dst).read_bytes(), dst)
+            self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
 
     def test_r35_saves_states_and_rom_pairs_are_copies(self):
         pairs = [(f"log2_poc_r34{s}", f"log2_poc_r35{s}") for s in (".sav", "_chamber2.sav", "_scouter.sav")]
         pairs += [(f"log2_poc_r34.ss{k}", f"log2_poc_r35.ss{k}") for k in range(1, 6)]
         pairs += [("log2_poc_r35.gba", "log2_poc_r35_chamber2.gba"), ("log2_poc_r35.gba", "log2_poc_r35_scouter.gba")]
         for src, dst in pairs:
-            if not (BUILD / dst).exists():
+            if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
-            self.assertEqual((BUILD / src).read_bytes(), (BUILD / dst).read_bytes(), dst)
+            self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
 
 
 class PinnedTestsNote(unittest.TestCase):

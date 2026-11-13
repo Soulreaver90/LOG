@@ -36,10 +36,9 @@ SEQ5, SEQ7, GOKU_LINE = 0x3B615C, 0x3B61A8, 0x3B627E
 SCOUTER = 0x6F8E40
 REVERSE_LITERAL = 0x42F0
 WARP_6_3 = (6, 3, 1, 272, 336)                         # Tien's win warp
-BUILD = log_paths.BUILDS
-R37, R37_SPAR_GBA, R37_SPAR_SAV = BUILD / "log2_poc_r37.gba", BUILD / "log2_poc_r37_spar.gba", \
-    BUILD / "log2_poc_r37_spar.sav"
-R36_SAV = BUILD / "log2_poc_r36.sav"
+R37, R37_SPAR_GBA, R37_SPAR_SAV = log_paths.build_file("log2_poc_r37.gba"), log_paths.build_file("log2_poc_r37_spar.gba"), \
+    log_paths.build_file("log2_poc_r37_spar.sav")
+R36_SAV = log_paths.build_file("log2_poc_r36.sav")
 
 _CACHE = {}
 
@@ -336,7 +335,7 @@ class DiffTests(unittest.TestCase):
         self.assert_only_sites(self.before, self.rom)
 
     def test_r37_file_equals_the_build_and_differs_from_r36_at_the_sites(self):
-        r36 = BUILD / "log2_poc_r36.gba"
+        r36 = log_paths.build_file("log2_poc_r36.gba")
         if not (R37.exists() and r36.exists()):
             self.skipTest("r36 or r37 not built")
         r37_rom = with_stats(self.rom, STATS_R35)               # r38 raised type 25's stats; r37 has the r35 values
@@ -344,7 +343,7 @@ class DiffTests(unittest.TestCase):
         self.assert_only_sites(r36.read_bytes(), r37_rom)
 
     def test_r38_file_equals_the_build_and_differs_from_r37_in_type_25_stats_only(self):
-        r38 = BUILD / "log2_poc_r38.gba"
+        r38 = log_paths.build_file("log2_poc_r38.gba")
         if not (R37.exists() and r38.exists()):
             self.skipTest("r37 or r38 not built")
         self.assertEqual(r38.read_bytes(), self.rom)
