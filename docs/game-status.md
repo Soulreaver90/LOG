@@ -114,6 +114,9 @@ This is the biggest single line of work and it is close to done.
 
 ## 8. Art
 
+Record-by-record detail, including which frames are reviewed and which are still the old sprite, is in
+[art-status.md](art-status.md).
+
 | Code | | What happens |
 |---|---|---|
 | ART-1 | **IN** | Gohan's gi across all four sets, including the aura shapes cycling on the idle. |

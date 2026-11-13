@@ -1,34 +1,19 @@
-# Status
+# LOG art status
 
-What is finished, what is waiting, and what is still being drawn. Updated whenever a build ships or a
-decision lands. `docs\CHANGELOG.md` says what the hack changes. This page says how far along each piece is.
+The state of the hand drawn art, record by record. This was `docs\STATUS.md` until
+2026-11-13, when the trackers split: [status.md](status.md) now owns the builds and the
+modules, [game-status.md](game-status.md) owns what the player sees, and this page keeps the
+art detail that neither of them should carry. Its old build hashes are gone, because they were
+stale and status.md reads them from the build log now.
+
+Game tracker codes: this page is the detail behind **ART-1** and **ART-2**.
 
 > [!IMPORTANT]
-> A thing is only "in the build" when it has been read back out of a built ROM. A file sitting in an art
-> or review folder is not in the build. On 2026-10-31 that difference hid twelve days of finished drawings,
-> so every art row below names the check that proves it.
+> A thing is only "in the build" when it has been read back out of a built ROM. A file sitting in
+> an art or review folder is not in the build. On 2026-10-31 that difference hid twelve days of
+> finished drawings, so every art row below names the check that proves it.
 
 ---
-
-## Builds
-
-| Build list | What it is | SHA-1 |
-|---|---|---|
-| `build_list.txt` | Golden master. Finished work only | `acf1b15f` |
-| `build_list_dev.txt` | Dev master. Golden plus the gi art being drawn | `ffbd2bfc` |
-| `build_list_core.txt` | The 25 shared modules. Both masters include it | not built alone |
-
-Both masters must rebuild to those SHA-1s from a clean ROM. If one does not, something changed that nobody
-declared, and the tests say what.
-
-## Code and scenes
-
-Everything in `docs\CHANGELOG.md` is finished, in both masters, and play tested. Nothing is part built.
-
-| Not in a master | State | Next step |
-|---|---|---|
-| `sprite_lab` | Finished, deliberately kept out | Stays on its own trial list. It is a sprite capture tool, not a game feature |
-| `gi_base_audit` | Superseded | It paints 103 reviewed frames. The reviewed set is now 150 and lives elsewhere. Retire it |
 
 ## Art: the gi
 

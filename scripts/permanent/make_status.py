@@ -126,7 +126,8 @@ def main() -> None:
            "Do not edit by hand: run the tool.", "",
            "Every SHA-1 here is the **last recorded** build from the build log, not a value measured "
            "now. Rebuild to confirm one.", "",
-           "What the PLAYER sees is in [game-status.md](game-status.md). This page is the machinery.",
+           "What the PLAYER sees is in [game-status.md](game-status.md). The hand drawn art, record by "
+           "record, is in [art-status.md](art-status.md). This page is the machinery.",
            "", "---", "", "## The two masters", "",
            "| Master | List | Modules | Last recorded SHA-1 |", "|---|---|---:|---|"]
     for name, path_name, mods in (("Golden", GOLDEN, golden), ("Dev", DEV, dev)):
