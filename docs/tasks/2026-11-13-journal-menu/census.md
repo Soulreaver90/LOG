@@ -33,6 +33,26 @@ finds four aligned words equal to `0x680` at `rom:0x289F0`, `0x28A2C`, `0x28ADC`
 **shape D proves no pc relative load reads any of them**, so they are data and not a sixth site. A
 site that forms `0x680` from another register appears in no shape here.
 
+> [!CAUTION]
+> **THIS COUNT OF FIVE IS WRONG. The real number is eight, and the method is the lesson.**
+>
+> Corrected 2026-11-13. Shape B decodes ADJACENT halfword pairs only. The compiler puts an unrelated
+> instruction between the `mov` and the `lsl` whenever a register is free, and every such site is
+> invisible to it. Three more `0x680` sites exist: `rom:0x19324` (five instructions between the
+> halves), `rom:0x197BC` and `rom:0x199A0`. The `0x280` count of two is really four, and the fourth,
+> `rom:0x1972A`, is an ADD CHAIN that no immediate shape of any kind can find.
+>
+> I verified all of this in the listing myself, and a second independent reading of the same
+> disassembly reached the same fourteen sites. The tool that sees the gapped form is now
+> `scripts\permanent\rom\gapscan.py`. It still cannot see an add chain, and it says so.
+>
+> Shape C is also short: the four aligned words are eight, because `rom:0x7FC08C` onward repeats
+> them byte for byte. None of the eight is read, so that conclusion survives.
+>
+> I wrote above that "a site that forms `0x680` from another register appears in no shape here", and
+> that sentence was the honest part of this page. The error was reporting a COUNT next to it as
+> though the shapes had bounded the category.
+
 **The cost if the design ships as written.** Four sites move and the fifth keeps writing at `+0x680`,
 which the grown list 2 now occupies. That is the silent late game overrun the design exists to stop.
 
@@ -54,10 +74,24 @@ which the grown list 2 now occupies. That is the silent late game overrun the de
 | `rom:0x4A48` | `add r2,#0x18` | **`+0x154`, the active list header** |
 | `rom:0x4A52` | `mov r0,#0x2b ; lsl r0,r0,#4` | **`+0x2B0`, the done list header** |
 | `rom:0x4A5C` | `add r0,#0xff` | `+0x3AF` |
-| `rom:0x4A5E` | `add r0,#0x5d` | **`+0x40C`, a tail field** |
+| `rom:0x4A5E` | `add r0,#0x5d` | **`+0x40C`, a text drawing sub-object** |
 | `rom:0x4AE2` | `cmp r6,#0x2b` | the loop bound, 43 |
 
 `0x2B0 - 0x154` is `0x15C`, which is `4 + 43 * 8` exactly. `0x40C - 0x2B0` is `0x15C` again.
+
+> [!WARNING]
+> **CORRECTED 2026-11-13, by me, in the listing.** I first called `+0x40C` a list, because I read
+> the store at `rom:0x4A60` as zeroing a count there. It does not. At `rom:0x4A60` the store goes
+> through **r2**, which still holds `object + 0x2B0`, the done list count. The `0x40C` that
+> `rom:0x4A5C` and `rom:0x4A5E` build sits in **r0**, and only reaches r5 at `rom:0x4A6A`. Nothing
+> writes a zero count to `+0x40C`. It is a text drawing sub-object of `0x38` bytes, and `+0x400` and
+> `+0x40C` reach the SAME sub-object, which is why both move by `0x10`.
+>
+> That `0x15C` coincidence is what made the wrong reading look right. A matching stride is not a
+> matching structure.
+>
+> Note also that `0x2B0 + 0xFF + 0x5D` is an ADD CHAIN. No `mov ; lsl` shape, gapped or adjacent,
+> can see `+0x40C` at all.
 
 ### The real site list, after shapes A to D
 
