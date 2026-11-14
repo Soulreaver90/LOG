@@ -32,7 +32,20 @@ Scanned with `scripts\one-time\2026-11-09-scouter-menu\layout_sites.py` over the
 | --- | --- |
 | `rom:0x1920A` | `mov r0,#0x6b ; lsl r0,r0,#4` |
 
-### `0x680`, the live block: FOUR sites
+### `0x680`, the live block: FIVE sites
+
+> [!WARNING]
+> **Corrected 2026-11-13. This table said FOUR. There are FIVE.** An image wide scan of all 8 MB for
+> the `mov ; lsl` pair found `rom:0x192DE` as well. The census below read one listing file per named
+> function, and the file for `sub_08019204` ends at `rom:0x192D6`, its declared size. The fifth site
+> is 8 bytes later, inside `sub_080192D6`, a function the family list never named. That function
+> reads the block it builds (`ldr r0,[r4,#0x28]`, `ldr r0,[r4,#0x1c]`), so it is a real reader.
+> Moving four sites and leaving the fifth is the silent late game overrun this design exists to stop.
+> Evidence and method: `docs\tasks\2026-11-13-journal-menu\census.md`.
+
+| Site | In | Shape |
+| --- | --- | --- |
+| `rom:0x192DE` | **`sub_080192D6`** | `mov r1,#0xd ; lsl r1,r1,#7` |
 
 | Site | In | Shape |
 | --- | --- | --- |
