@@ -112,3 +112,59 @@ The design priced a grow at about six edits against "replace a vanilla quest" at
 The grow is eight edits, it touches a tail field the design never saw, and eleven possible readers
 are still untraced. **The gap between the two options is wider than the design says.** The decision
 is still his, and it should be made with this number, not the old one.
+
+---
+
+## 5. The untraced readers, traced one step further. This may block the grow.
+
+`rom:0x6904` is inside **`List_RemoveValue`** (`0x080068CA` to `0x08006942`). Reading it settles
+what it is and raises a harder question than the one it answers.
+
+The function takes an object in `r0`. It searches a list at **`r0 + 0x4`**. If the value is not
+found there, it branches to `rom:0x6904` and searches a SECOND list at **`r0 + 0x40C`**:
+
+```
+080068ca  push {r3,r4,r5,r6,r7,lr}
+080068d4  add r5,r0,#0           ; r5 = the object
+080068d2  add r6,r0,#4           ; first list at +0x4
+...
+08006904  ldr r1,=0x0000040c
+08006906  add r5,r5,r1           ; second list at +0x40C
+08006908  ldr r3,[r5,#0x0]       ; its count
+```
+
+So `0x40C` here is a list offset in a SHARED helper, used by whatever object type is passed in.
+
+**The question this raises.** The journal menu object has `+0x0` as a vtable, and `sub_080049FC`
+writes zero to `+0x40C`, which is the shape of a list count. If the journal object is ever passed
+to `List_RemoveValue`, then `0x40C` is not the journal's private field. It is an offset a shared
+helper expects, and other object types expect it at `0x40C` too.
+
+**If that is true, the grow cannot move `+0x40C` at all.** Editing the helper would move the field
+for every object type that uses it. The design's whole plan rests on moving it.
+
+**This is now the deciding question for the journal half, and it is not answered.** It needs the
+CALLERS of `List_RemoveValue` traced, to see whether a journal menu object reaches it. Do that
+before anyone writes a byte, and before the owner is asked to choose between growing the object and
+replacing a vanilla quest. The answer may remove the grow option entirely.
+
+The scouter half is not affected. Its lists are at `+0x80` and `+0x284` inside a `0x6B0` object, and
+nothing here touches those.
+
+### The answer: the journal menu never calls that helper
+
+Every `bl` in the image whose target is `0x080068CA` was decoded. There are **57 callers**, from
+`rom:0xE5C` to `rom:0x1EB48`. Two of them, `rom:0x194D4` and `rom:0x19548`, are in the scouter menu.
+
+**Not one lies inside the journal menu range `rom:0x49FC` to `rom:0x4FEE`.** The nearest are
+`rom:0xE5C` and `rom:0x155E`, both far below it.
+
+So the journal menu's own code never calls `List_RemoveValue`, and the `+0x40C` in that helper
+belongs to a different object type that happens to use the same number. **The journal's `+0x40C` is
+private to its own functions, and the grow option stands.**
+
+What this shape cannot see: a caller somewhere else that holds a journal menu object and passes it
+in. Nothing suggests one, because the menu object is created and consumed inside its own family,
+but no shape used here rules it out.
+
+**Net effect on section 3: the eight edit price holds.** The eleven readers are not journal readers.
