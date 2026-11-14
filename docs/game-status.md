@@ -96,7 +96,7 @@ This is the biggest single line of work and it is close to done.
 | XFM-7 | **PLAY** | The power-up plays the **Buu's Fury aura**, gold for Vegeta and white for Piccolo, with ground dust. It starts on the charge loop so the wind-up stays clean, and an interrupt takes it away. |
 | XFM-8 | **PLAY** | The ki bar **ramps up** while the transformation plays instead of appearing full at the end. |
 | XFM-9 | **DESIGNED** | Piccolo's bar: plain green for base AND for Super Namek, with no ki pool. Only Z+ gets a pool, and it ramps to yellow and stays yellow. Decided 2026-11-13. Today Super Namek has a yellow pool and Z+ ramps orange then snaps to yellow, which is the bug you saw. |
-| XFM-10 | **OPEN** | Two versions of Vegeta Z+ exist. One unlocks it through the Time Chamber exit using the game's own data. The other gives his power-up your drawn frames. Both are saved. Which wins, or do they combine? |
+| XFM-10 | **OPEN** | Two versions of Vegeta Z+ exist. One unlocks it through the Time Chamber exit using the game's own data. The other gives his power-up your drawn frames. Both are saved. Which wins, or do they combine? **The live module today is the drawn frames one, and it has no story gate at all: Z+ is available whenever Super Vegeta is.** That is the one any build carries right now. |
 
 ---
 
