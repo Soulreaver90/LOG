@@ -35,12 +35,14 @@ Scanned with `scripts\one-time\2026-11-09-scouter-menu\layout_sites.py` over the
 ### `0x680`, the live block: FIVE sites
 
 > [!WARNING]
-> **Corrected 2026-11-13. This table said FOUR. There are FIVE.** An image wide scan of all 8 MB for
-> the `mov ; lsl` pair found `rom:0x192DE` as well. The census below read one listing file per named
+> **Corrected 2026-11-13. This table said FOUR. An image wide scan of this encoding finds FIVE.**
+> The fifth is `rom:0x192DE`. The census below read one listing file per named
 > function, and the file for `sub_08019204` ends at `rom:0x192D6`, its declared size. The fifth site
 > is 8 bytes later, inside `sub_080192D6`, a function the family list never named. That function
 > reads the block it builds (`ldr r0,[r4,#0x28]`, `ldr r0,[r4,#0x1c]`), so it is a real reader.
 > Moving four sites and leaving the fifth is the silent late game overrun this design exists to stop.
+> Four aligned words also hold `0x680`, and no pc relative load reads any of them, so they are data.
+> Five is the count for this encoding, not for every way a constant can be formed.
 > Evidence and method: `docs\tasks\2026-11-13-journal-menu\census.md`.
 
 | Site | In | Shape |
