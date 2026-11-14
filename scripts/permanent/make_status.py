@@ -24,7 +24,8 @@ import log_paths  # noqa: E402
 
 GOLDEN, DEV, CORE = "build_list.txt", "build_list_dev.txt", "build_list_core.txt"
 BUILD_LINE = re.compile(r"^- (\d{4}-\d\d-\d\d \d\d:\d\d) build (\S+\.gba) patches=(\S+) sha1=([0-9a-f]{40})")
-CODE_ROW = re.compile(r"^\|\s*([A-Z]{3}-\d+)\s*\|\s*([a-z0-9_, ]*)\s*\|$")
+CODE_ROW = re.compile(r"^\|\s*([A-Z]{3}-\d+)\s*\|([^|]*)\|$")
+MODULE_NAME = re.compile(r"^[a-z][a-z0-9_]*$")   # anything else is reported, never dropped
 OUT = log_paths.DOCS / "status.md"
 GAME = log_paths.DOCS / "game-status.md"
 
@@ -60,8 +61,12 @@ def feature_codes() -> dict:
 
     A row with no module is a feature nothing builds yet, which is a legitimate state and is reported
     rather than treated as an error.
+
+    The cell is matched loosely and each name is validated here, because an earlier version accepted
+    only [a-z0-9_, ]: one stray bracket made the WHOLE row fail to match, so that code vanished from
+    every health line at once rather than being reported. A guard against gaps must not have one.
     """
-    out, empty = {}, []
+    out, empty, bad = {}, [], []
     for line in GAME.read_text(encoding="utf-8").splitlines():
         m = CODE_ROW.match(line.strip())
         if not m:
@@ -70,8 +75,12 @@ def feature_codes() -> dict:
         if not names:
             empty.append(code)
         for name in names:
-            out.setdefault(name, []).append(code)
+            if MODULE_NAME.match(name):
+                out.setdefault(name, []).append(code)
+            else:
+                bad.append(f"{code} -> {name!r}")
     out["__unbuilt__"] = empty
+    out["__malformed__"] = bad
     return out
 
 
@@ -142,6 +151,7 @@ def main() -> None:
 
     codes = feature_codes()
     unbuilt = codes.pop("__unbuilt__")
+    malformed = codes.pop("__malformed__")
     out += ["", "---", "", "## Every module", "",
             "**Code** is the game-status.md item this module builds. `golden` and `dev` mean the module "
             "ships in that master. A module with no list is written but wired into nothing.", "",
@@ -167,6 +177,8 @@ def main() -> None:
     out.append(f"- **Codes naming a module that does not exist:** {', '.join(sorted(named)) or 'none'}"
                + ("  <- FIX THIS" if named else ""))
     out.append(f"- **Modules no feature claims:** {', '.join(f'`{m}`' for m in orphan) or 'none'}")
+    out.append(f"- **Reference rows that are not a module name:** {', '.join(malformed) or 'none'}"
+               + ("  <- FIX THIS" if malformed else ""))
     out.append("")
     OUT.write_text("\n".join(out), encoding="utf-8", newline="\r\n")
     print(f"wrote {OUT} ({len(every)} modules, {len(rows_for_lines(recorded))} build lists)")
