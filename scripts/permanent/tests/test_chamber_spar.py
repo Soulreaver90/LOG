@@ -2,7 +2,7 @@ r"""
 test_chamber_spar.py - Tests for patches.chamber_spar (r37): Gohan (Demon Clothes) vs Goku sparring in map 6,70.
 
 Run (from the LOG root):
-  py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_chamber_spar.py -v
+  py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_chamber_spar.py -v
 Builds build_list_dev.txt in memory: "before" = the list up to chamber_spar (r36), "rom" = before + chamber_spar (r37).
 Scripts are decoded with test_cellgames_ssj's decoder (ops, ext_sequence); the loss picker runs in a small flag
 evaluator here. Expected values are restated from docs\tasks\2026-10-24-chamber-proto\chamber-proto.md, chamber-fights-study-report.md
@@ -10,21 +10,20 @@ evaluator here. Expected values are restated from docs\tasks\2026-10-24-chamber-
 imported from the patch module, except I placeholder LINES (one source for the text).
 """
 import copy
-import hashlib
 import struct
 import unittest
-from pathlib import Path
+from unittest import mock
 
 import log2_build
 import log_paths
 from rom import log2_save
-from patches import chamber_spar
+from patches import chamber_spar, superperfect_cell
 from tests.test_cellgames_ssj import diff, ext_sequence, ops, u32, words_naming
-from tests.test_superperfect_cell import STATS_NEW, STATS_R35, TYPE25_STATS, with_stats
+from tests.test_superperfect_cell import STATS_NEW, STATS_OLD, STATS_R35, TYPE25_STATS, with_stats
 from rom.webfoot_decompress import ROM_BASE
 
 # ===== constants (study, brief, r36 reads) =====
-R36_SHA1 = "eb4a1b4155eca4fa408bafe8c47949c67f85aa3d"
+R36_LAST = "superperfect_cell"                         # the last module of the r36 list (build-lists r-tags)
 ENTRY_6_70 = 0x409368 + 56 * 175                       # map table entry 175
 OLD_REGIONS, OLD_SPAWNS = 0x3FB80C, 0x3FB7A4           # 4 {cond, item} pairs; 6 item words
 TIEN_NPC, TIEN_ENEMY, TIEN_REGION = 0x3FB6FC, 0x3FB784, 0x3FB7F8
@@ -97,6 +96,12 @@ def pick(rom: bytes, rec: int, flags: set):
         at = nxt
 
 
+def r35_stat_table() -> dict:
+    """superperfect_cell.STATS with the r35 values on the new side: the stats r37 shipped."""
+    return {4: (STATS_OLD[0].to_bytes(4, "little"), STATS_R35[0].to_bytes(4, "little")),
+            0xC: (bytes(STATS_OLD[1:]), bytes(STATS_R35[1:]))}
+
+
 def cond_flags(rom: bytes, cond: int) -> list:
     """The (ext, flag) pairs of a condition script and its final op list, for `flag a and flag b ; end`."""
     return [(op, arg) for _, op, arg in ops(rom, cond)]
@@ -106,8 +111,16 @@ def cond_flags(rom: bytes, cond: int) -> list:
 
 class BaseTests(unittest.TestCase):
     def test_before_is_r36(self):
-        before = with_stats(built()["before"], STATS_R35)       # r38 raised type 25's stats; r36 has the r35 values
-        self.assertEqual(hashlib.sha1(before).hexdigest(), R36_SHA1)
+        """The r36 ROM cannot be rebuilt, so check the MODULES: `before` is the r36 set and no more.
+
+        A later module that changes size moves every allocation after it, so the r36 SHA-1 can never
+        hold again. The module list and the notes the build recorded both still hold.
+        """
+        names = built()["names"]
+        before_names = names[:names.index("chamber_spar")]
+        self.assertEqual(before_names[-1], R36_LAST)
+        self.assertNotIn("chamber_spar", before_names)
+        self.assertEqual(sorted(built()["alloc_before"].notes), sorted(before_names))
 
     def test_build_list_has_chamber_spar_after_superperfect_cell(self):       # r39 appends bf_hud, bf_ki_pool
         names = built()["names"]
@@ -318,6 +331,13 @@ def named_sites(notes: dict, used_new: list) -> list:
             + list(used_new))
 
 
+def site_problems(a: bytes, b: bytes, sites: list) -> list:
+    """What breaks "a to b changes exactly these sites": stray bytes first, then sites that never changed."""
+    changed = diff(a, b)
+    return ([hex(i) for i in changed if not any(s <= i < s + n for s, n in sites)]
+            + [hex(s) for s, n in sites if not any(s <= i < s + n for i in changed)])
+
+
 class DiffTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -326,29 +346,31 @@ class DiffTests(unittest.TestCase):
         cls.sites = named_sites(b["notes"]["chamber_spar"], b["used"][len(b["alloc_before"].used()):])
 
     def assert_only_sites(self, a: bytes, b: bytes) -> None:
-        changed = diff(a, b)
-        self.assertEqual([hex(i) for i in changed if not any(s <= i < s + n for s, n in self.sites)], [])
-        for s, n in self.sites:
-            self.assertTrue(any(s <= i < s + n for i in changed), hex(s))
+        self.assertEqual(site_problems(a, b, self.sites), [])
 
     def test_only_named_sites_change(self):
         self.assert_only_sites(self.before, self.rom)
 
-    def test_r37_file_equals_the_build_and_differs_from_r36_at_the_sites(self):
-        r36 = log_paths.build_file("log2_poc_r36.gba")
-        if not (R37.exists() and r36.exists()):
-            self.skipTest("r36 or r37 not built")
-        r37_rom = with_stats(self.rom, STATS_R35)               # r38 raised type 25's stats; r37 has the r35 values
-        self.assertEqual(R37.read_bytes(), r37_rom)
-        self.assert_only_sites(r36.read_bytes(), r37_rom)
+    def test_r36_to_r37_is_the_named_sites_at_either_type_25_stat_set(self):
+        """The r36 and r37 ROMs carried the r35 type 25 stats, which r38 raised. Run the step at both
+        stat sets: chamber_spar writes the same sites and no stat byte, so the files are not needed."""
+        self.assert_only_sites(self.before, self.rom)
+        before35 = with_stats(self.before, STATS_R35)
+        rom35, alloc = bytearray(before35), copy.deepcopy(built()["alloc_before"])
+        chamber_spar.apply(rom35, alloc)
+        self.assertEqual(bytes(rom35), with_stats(self.rom, STATS_R35))
+        self.assert_only_sites(before35, bytes(rom35))
 
-    def test_r38_file_equals_the_build_and_differs_from_r37_in_type_25_stats_only(self):
-        r38 = log_paths.build_file("log2_poc_r38.gba")
-        if not (R37.exists() and r38.exists()):
-            self.skipTest("r37 or r38 not built")
-        self.assertEqual(r38.read_bytes(), self.rom)
+    def test_r37_to_r38_is_the_type_25_stats_only(self):
+        """r37 and r38 share one module list. Only superperfect_cell's stat table changed, so build the
+        r37 side by running the real module with the r35 values and diff the two builds."""
+        names = built()["names"]
+        with mock.patch.object(superperfect_cell, "STATS", r35_stat_table()):
+            r37_rom, _ = log2_build.assemble(log2_build.BASE, names[:names.index("chamber_spar")])
         off = TYPE25_STATS[0]
-        self.assertEqual([i - off for i in diff(R37.read_bytes(), self.rom)], [4, 5, 0xC, 0xD, 0xE])
+        self.assertEqual([i - off for i in diff(bytes(r37_rom), self.before)], [4, 5, 0xC, 0xD, 0xE])
+        self.assertEqual(r37_rom[off + 4:off + 8], STATS_R35[0].to_bytes(4, "little"))
+        self.assertEqual(r37_rom[off + 0xC:off + 0xF], bytes(STATS_R35[1:]))
         self.assertEqual(self.rom[off + 4:off + 8], STATS_NEW[0].to_bytes(4, "little"))
         self.assertEqual(self.rom[off + 0xC:off + 0xF], bytes(STATS_NEW[1:]))
 
@@ -407,6 +429,47 @@ class SaveTests(unittest.TestCase):
         allowed = set(range(log2_save.O_ZONE, log2_save.O_VAR + 1)) | {story + 26} | set(
             range(log2_save.O_POS, log2_save.O_POS + 4))
         self.assertEqual([i for i in changed if i not in allowed], [])
+
+
+class ControlTests(unittest.TestCase):
+    """site_problems reads its site list from the notes chamber_spar wrote, and the stat diff reads its
+    before side from a build. Both must be shown to go red. Every case works on a copy in memory: no ROM
+    file, save or state is written."""
+
+    @classmethod
+    def setUpClass(cls):
+        b = built()
+        cls.before, cls.rom = b["before"], b["rom"]
+        cls.sites = named_sites(b["notes"]["chamber_spar"], b["used"][len(b["alloc_before"].used()):])
+
+    def test_the_build_itself_reports_nothing(self):
+        self.assertEqual(site_problems(self.before, self.rom, self.sites), [])
+
+    def test_a_byte_changed_outside_every_site_is_reported(self):
+        rom = bytearray(self.rom)
+        rom[GAME_OVER + 4] ^= 0x01                              # loss table word 1: no site covers it
+        self.assertEqual(site_problems(self.before, bytes(rom), self.sites), [hex(GAME_OVER + 4)])
+
+    def test_a_site_the_patch_stopped_writing_is_reported(self):
+        rom = bytearray(self.rom)
+        at = ENTRY_6_70 + 3                                     # put the entry counts back to the r36 bytes
+        rom[at:at + 2] = self.before[at:at + 2]
+        self.assertEqual(site_problems(self.before, bytes(rom), self.sites), [hex(at)])
+
+    def test_the_same_list_builds_the_same_rom(self):
+        """The r37 to r38 stat diff is two builds of one list. Without the stat table it is empty, so the
+        five offsets it reports come from the table and from nothing else."""
+        names = built()["names"]
+        same, _ = log2_build.assemble(log2_build.BASE, names[:names.index("chamber_spar")])
+        self.assertEqual(diff(bytes(same), self.before), [])
+
+    def test_a_stat_written_elsewhere_in_entry_25_is_reported(self):
+        off, names = TYPE25_STATS[0], built()["names"]
+        table = r35_stat_table()
+        table[0x10] = (self.before[off + 0x10:off + 0x11], bytes([0x7F]))
+        with mock.patch.object(superperfect_cell, "STATS", table):
+            rom, _ = log2_build.assemble(log2_build.BASE, names[:names.index("chamber_spar")])
+        self.assertEqual([i - off for i in diff(bytes(rom), self.before)], [4, 5, 0xC, 0xD, 0xE, 0x10])
 
 
 if __name__ == "__main__":

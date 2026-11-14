@@ -2,7 +2,7 @@ r"""
 test_superperfect_cell.py - Tests for patches.superperfect_cell (r30-r38): Super Perfect Cell after the self-destruct.
 
 Run (from the LOG root):
-  py -3 -I -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_superperfect_cell.py -v
+  py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_superperfect_cell.py -v
 Builds build_list_dev.txt in memory: "before" = the list up to superperfect_cell (r29 plus the r30 scene edits) with the
 art tables minus id 52 (the r35 state: 52 vanilla), "rom" = the list up to and with superperfect_cell, with the
 tables as they are now (r36: my portrait 52, so "before" to "rom" also shows art_inject's word and slot for
@@ -37,11 +37,11 @@ from rom.webfoot_decompress import ROM_BASE, read_set, unpack_frame
 SET_LITERAL, BLOCK_LITERAL = 0x959C, 0xBE10
 CELL_HEADER, DEAD_58 = 0x242DBC, 0x2AB508
 RETURN_TABLE, DEATH_TABLE = 0x3EB704, 0x3EC758
-# fullpower_ssj allocates the post-Cell seq 20 copy. It sits 0x1C higher than in r36, because fullpower_ssj
-# now grows the chamber EXIT record (0xD2) where it used to grow the chamber DOOR record (0xB8).
-SEQ20 = 0x89AB68
-SITE_RECORDS = {0x3EACD0: 4, 0x3EB134: 8, 0x3EB21C: 2, 0x3EB6E8: 1, 0x3EB80C: 2, 0x3EBA4C: 1, 0x3EBC7E: 1,
-                0x3EBD7C: 3, SEQ20: 46}                          # record: actor bytes (cell_sites_r29.txt, 68)
+# fullpower_ssj allocates the post-Cell seq 20 copy, so its address is a build result and seq20() reads it
+# from the death table word the build repointed. The vanilla records below never move.
+VANILLA_SITE_RECORDS = {0x3EACD0: 4, 0x3EB134: 8, 0x3EB21C: 2, 0x3EB6E8: 1, 0x3EB80C: 2, 0x3EBA4C: 1,
+                        0x3EBC7E: 1, 0x3EBD7C: 3}                # record: actor bytes (cell_sites_r29.txt, 68)
+SEQ20_WORD, SEQ20_ACTOR_BYTES = 19, 46                           # death table word 19, its actor byte count
 SET_WORDS = (0x409108, 0x409204)                                 # type 25 spawn +0x10, map 14,4 NPC +0xC
 PORTRAIT_RECORDS = (0x3EAD70, 0x3EADF8, 0x3EB1C6, 0x3EB264, 0x3EB3D0,
                     0x3EB89E, 0x3EBA2A, 0x3EBC58, 0x3EBD68, 0x3EBDF0)   # study 4c: +3 = 40
@@ -82,6 +82,16 @@ def built() -> dict:
         rom, alloc = log2_build.assemble(log2_build.BASE, names[:i + 1])   # r36: the art tables hold 52
         _CACHE.update(rom=bytes(rom), notes=alloc.notes, used=alloc.used())
     return _CACHE
+
+
+def seq20() -> int:
+    """fullpower_ssj's post-Cell seq 20 copy, read from the death table word the build repointed."""
+    return u32(built()["before"], DEATH_TABLE + 4 * SEQ20_WORD) - ROM_BASE
+
+
+def site_records() -> dict:
+    """{record offset: actor bytes} of the 68 sites, with the seq 20 copy at the address this build gave."""
+    return {**VANILLA_SITE_RECORDS, seq20(): SEQ20_ACTOR_BYTES}
 
 
 def with_stats(rom: bytes, stats: tuple) -> bytes:
@@ -205,7 +215,7 @@ class SiteTests(unittest.TestCase):
 
     def test_each_record_changes_only_its_actor_bytes(self):
         total = 0
-        for rec, n in SITE_RECORDS.items():
+        for rec, n in site_records().items():
             end = ops(self.before, rec + 3)[-1][0] + 1                  # the record's last `end`
             changed = [i for i in range(rec, end) if self.before[i] != self.rom[i]]
             self.assertEqual(len(changed), n, hex(rec))
@@ -436,6 +446,13 @@ def text_of(rom: bytes, e: int) -> bytes:
     return rom[at:rom.index(b"\0", at)]
 
 
+def site_problems(a: bytes, b: bytes, sites: list) -> list:
+    """What breaks "a to b changes exactly these sites": stray bytes first, then sites that never changed."""
+    changed = diff(a, b)
+    return ([hex(i) for i in changed if not any(s <= i < s + n for s, n in sites)]
+            + [hex(s) for s, n in sites if not any(s <= i < s + n for i in changed)])
+
+
 def owner_text() -> str:
     """The approved text, quoted in the r35 brief, final decisions 1."""
     for line in BRIEF.read_text(encoding="utf-8").splitlines():
@@ -652,35 +669,36 @@ class DiffTests(unittest.TestCase):
         i = names.index("superperfect_cell")
         self.assertEqual(names[i - 1:i + 1], ["piccolo_gi_scene", "superperfect_cell"])
 
-    def test_r36_file_equals_the_build_and_r35_differs_by_portrait_52_only(self):
-        r35, r36 = log_paths.build_file("log2_poc_r35.gba"), log_paths.build_file("log2_poc_r36.gba")
-        if not (r35.exists() and r36.exists()):
-            self.skipTest("r35 or r36 not built")
-        r36_rom = with_stats(self.rom, STATS_R35)                           # r38 raised the stats; r35, r36 have +10%
-        self.assertEqual(r36.read_bytes(), r36_rom)
+    def test_r35_to_r36_is_the_portrait_52_word_and_slot(self):
+        """r35 and r36 ran ONE module list. Only art id 52 joined the table, so build both sides.
+
+        The shipped r35 and r36 ROMs cannot be rebuilt, because later modules moved every allocation
+        after them. The step itself re-derives on every run and needs no file.
+        """
         names = built()["names"]
         names = names[:names.index("superperfect_cell") + 1]               # the r36 list (r37 appends a patch)
         old, _ = log2_build.assemble(log2_build.BASE, names, {"art_input": art_input_without(52)})
-        self.assertEqual(r35.read_bytes(), with_stats(bytes(old), STATS_R35))   # r35 = the same list, 52 still vanilla
         word = u32(self.rom, BLOCK_LITERAL) - ROM_BASE + 4 + 4 * 52
         sites = [(word, 4), (art_inject.slot(52), art_inject.FRAME)]        # r36 brief: the 2 new sites
-        changed = diff(r35.read_bytes(), r36_rom)
-        self.assertEqual([hex(i) for i in changed if not any(a <= i < a + n for a, n in sites)], [])
-        for a, n in sites:
-            self.assertTrue(any(a <= i < a + n for i in changed), hex(a))
+        self.assertEqual(site_problems(bytes(old), self.rom, sites), [])
 
     def test_r32_to_r33_is_the_name_only(self):
+        """r32 and r33 are two versions of THIS module's source, and the r32 source is gone.
+
+        Neither side can be rebuilt, so the two frozen files are compared with each other. Every
+        address is read from the file that carries it, never from today's build, so nothing rots.
+        """
         r32, r33 = log_paths.build_file("log2_poc_r32.gba"), log_paths.build_file("log2_poc_r33.gba")
         if not (r32.exists() and r33.exists()):
             self.skipTest("r32 or r33 missing")
         a, b = r32.read_bytes(), r33.read_bytes()
-        name = self.notes["superperfect_cell"]["name_19"]                   # r33 and r34 share the address
+        name = u32(b, NAME_19) - ROM_BASE                                   # r33's own entry 19 name word
         sites = [(NAME_19, 4), (name, 22)]
-        changed = diff(a, b)
-        self.assertEqual([hex(i) for i in changed if not any(s <= i < s + n for s, n in sites)], [])
-        self.assertTrue(set(range(name, name + 22)) <= set(changed))
+        self.assertEqual(site_problems(a, b, sites), [])
+        self.assertTrue(set(range(name, name + 22)) <= set(diff(a, b)))      # every byte of the string is new
         self.assertEqual(set(a[name:name + 22]), {0xFF})                    # free space in r32
-        end = self.notes["superperfect_cell"]["code"] + self.notes["superperfect_cell"]["size"]
+        code = (tick_target(b, HOOKED[0]) & ~1) - ROM_BASE                  # r33's hook, from r33's own vtable
+        end = max(k for k in range(code, name) if a[k] != 0xFF) + 1         # its last byte, r32 pads with 0xFF
         self.assertEqual(name, -(-end // 4) * 4)                            # the next word after the hook code
 
     def test_r33_to_r34_is_the_name_string_only(self):
@@ -688,7 +706,8 @@ class DiffTests(unittest.TestCase):
         if not (r33.exists() and r34.exists()):
             self.skipTest("r33 or r34 missing")
         a, b = r33.read_bytes(), r34.read_bytes()
-        name = self.notes["superperfect_cell"]["name_19"]
+        name = u32(b, NAME_19) - ROM_BASE                                   # r34's own entry 19 name word
+        self.assertEqual(name, u32(a, NAME_19) - ROM_BASE)                  # r33 and r34 share the address
         self.assertEqual(len(a), len(b))
         self.assertEqual([hex(i) for i in diff(a, b) if not name <= i < name + 22], [])
         self.assertEqual(b[name:name + 19], SUPER.encode("ascii") + b"\0")
@@ -699,7 +718,7 @@ class DiffTests(unittest.TestCase):
         if not (r34.exists() and r35.exists()):
             self.skipTest("r34 or r35 missing")
         a, b = r34.read_bytes(), r35.read_bytes()
-        text = self.notes["superperfect_cell"]["text_19"]
+        text = u32(b, TEXT_19) - ROM_BASE                                   # r35's own entry 19 text word
         size = len(owner_text()) + 4 + 1                                   # 4 sentence gaps get a second space
         sites = [(text, size), (TEXT_19, 4)] + list(STAT_SITES)
         changed = diff(a, b)
@@ -721,6 +740,45 @@ class DiffTests(unittest.TestCase):
         self.assertEqual([(hex(i), a[i], b[i]) for i in outside], [("0x6f8fc4", 30, 58), ("0x6f8fc8", 40, 52)])
 
 
+class ControlTests(unittest.TestCase):
+    """site_problems reads the portrait slot from art_inject and the name address from the frozen file
+    that carries it. Both must be shown to go red. Every case works on a copy in memory: no ROM file,
+    save or state is written."""
+
+    @classmethod
+    def setUpClass(cls):
+        r32, r33 = log_paths.build_file("log2_poc_r32.gba"), log_paths.build_file("log2_poc_r33.gba")
+        if not (r32.exists() and r33.exists()):
+            raise unittest.SkipTest("r32 or r33 missing")
+        b = built()
+        cls.rom, cls.r32, cls.r33 = b["rom"], r32.read_bytes(), r33.read_bytes()
+        names = b["names"][:b["names"].index("superperfect_cell") + 1]
+        cls.without_52 = bytes(log2_build.assemble(log2_build.BASE, names,
+                                                   {"art_input": art_input_without(52)})[0])
+        cls.sites = [(u32(cls.rom, BLOCK_LITERAL) - ROM_BASE + 4 + 4 * 52, 4),
+                     (art_inject.slot(52), art_inject.FRAME)]
+
+    def test_the_two_builds_report_nothing(self):
+        self.assertEqual(site_problems(self.without_52, self.rom, self.sites), [])
+
+    def test_a_byte_changed_outside_both_sites_is_reported(self):
+        rom = bytearray(self.rom)
+        rom[PERFECT_AT] ^= 0x01                                   # a vanilla string byte no site covers
+        self.assertEqual(site_problems(self.without_52, bytes(rom), self.sites), [hex(PERFECT_AT)])
+
+    def test_a_portrait_slot_left_at_the_r35_pixels_is_reported(self):
+        rom, at = bytearray(self.rom), art_inject.slot(52)
+        rom[at:at + art_inject.FRAME] = self.without_52[at:at + art_inject.FRAME]
+        self.assertEqual(site_problems(self.without_52, bytes(rom), self.sites), [hex(at)])
+
+    def test_a_stray_byte_in_r33_is_reported(self):
+        """The r32 to r33 check reads its address from r33's own pointer word, so perturb r33."""
+        r33 = bytearray(self.r33)
+        r33[PERFECT_AT] ^= 0x01
+        name = u32(bytes(r33), NAME_19) - ROM_BASE
+        self.assertEqual(site_problems(self.r32, bytes(r33), [(NAME_19, 4), (name, 22)]), [hex(PERFECT_AT)])
+
+
 class FailClosedTests(unittest.TestCase):
     def fresh(self) -> tuple:
         b = built()
@@ -736,7 +794,7 @@ class FailClosedTests(unittest.TestCase):
         b = built()
         set_table = u32(b["before"], SET_LITERAL) - ROM_BASE
         block = u32(b["before"], BLOCK_LITERAL) - ROM_BASE
-        for off in (0x3EACD5, SEQ20 + 0x1C5, 0x3EB86C, SET_WORDS[0], SET_WORDS[1], PORTRAIT_RECORDS[9] + 3,
+        for off in (0x3EACD5, seq20() + 0x1C5, 0x3EB86C, SET_WORDS[0], SET_WORDS[1], PORTRAIT_RECORDS[9] + 3,
                     set_table + 4 * 51, set_table + 4 * 23, HOOKED[1] + 4 - ROM_BASE, block + 4 + 4 * 52 + 1,
                     RETURN_TABLE + 4 * 39, SCOUTER_19[0], SCOUTER + ENTRY * 15 + 8, NAME_19, PERFECT_AT + 7,
                     TEXT_19, TYPE25_STATS[0] + 4, TYPE25_STATS[0] + 5, TYPE25_STATS[0] + 0xC,

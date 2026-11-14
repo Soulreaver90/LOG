@@ -2,12 +2,15 @@ r"""
 test_bf_hud.py - Tests for patches.bf_hud and patches.bf_ki_pool (r39): the HUD v2b mockup baked into the build.
 
 Run (from the LOG root):
-  py -3 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_bf_hud.py -v
+  py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_bf_hud.py -v
 Builds build_list_dev.txt in memory: "before" = the list up to bf_hud (r38), "hud" = before + bf_hud,
 "rom" = hud + bf_ki_pool (r39). Expected values are restated from the mockup builders
 (scripts\one-time\2026-10-24-hud-ki\build_mock1.py, proto\build_proto_b.py) and the r38 bytes, not imported from the patches.
-Equivalence: r39 = the v2b mockup with its window moved from rom:0xE11000 to the allocated window, every word that
-names the old window moved by the same delta (relocate). The mockup files are read only; a test skips without them.
+Equivalence: r39 WAS the v2b mockup with its window moved from rom:0xE11000 to the allocated window, every word that
+names the old window moved by the same delta (relocate). The orange Super Saiyan bar doubled the window and rewrote
+its code, so EquivalenceTests and the r39 file row are RED and the owner holds the decision. The bf_hud half of the
+mockup still ships byte for byte; the class docstring carries the measurement. The mockups are read only; a test
+skips without them.
 The interpreter tests of the pool code are in test_bf_ki_pool.py (ported from proto\test_proto_b.py).
 """
 import copy
@@ -29,7 +32,7 @@ BUILD = log_paths.MASTER_BUILDS
 MOCKS = log_paths.HUD_KI_MOCKUPS
 V2B, V2, MOCK1 = MOCKS / "log2_poc_r38_bfhud2b.gba", MOCKS / "log2_poc_r38_bfhud2.gba", MOCKS / "log2_poc_r36_bfhud.gba"
 V2B_SHA1, V2_SHA1 = "f5f5ee730346695c25035871378efebc084165b1", "5f17f8fc9c31e7c60b44543c8868d02b18b8fd6c"
-R38_SHA1 = "7a7cb85fa5873c4a44d360b33b6755d4e71e18e3"
+R38_LAST = "chamber_spar"                              # the last module of the r38 list (build-lists r-tags)
 R38, R39 = log_paths.build_file("log2_poc_r38.gba"), log_paths.build_file("log2_poc_r39.gba")
 BF = log_paths.BF_ROM
 
@@ -39,6 +42,9 @@ PAL, BF_PAL = 0x1DA6C8, 0x5652C
 SKIP_IDX, LIVE_PAL_SKIP = frozenset({0, 172, 174, 178, 218, 239}), frozenset({168})
 EP_TABLE, ABILITY_TABLE = 0x083B5658, 0x1D9900
 WRAP_ABILITIES = (0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 13)
+# The r38 target of a hook that an earlier module already took sits in expansion and MOVES, so
+# r38_target() re-reads those two from the notes that module wrote. Every other target is vanilla.
+EXPANSION_TARGETS = {"ssj_tick": ("fullpower_ssj", "tick"), "ssj2_tick": ("scene_drain_pause", "tick_ssj2")}
 HOOKS = {                                              # build_proto_b.HOOKS: (vtable, slot, r38 target | 1, label)
     "ssj_tick": (0x08024C58, 0x04, 0x0889A8C7, "tick_ssj"),
     "ssj2_tick": (0x0888DE24, 0x04, 0x0889A81D, "tick_ssj2"),
@@ -59,7 +65,7 @@ MOCK1_REGIONS = ((0x8E80, 4), (0x8E88, 4), (0x6D7B54, 0x300), (0x3B5358, 0x300),
                  (0x3B5968, 0x228), (0x3B5B90, 0x50), (0x3B5BE0, 0x14))
 BOSS = ((0x6D60F4, 0x3C0), (0x6D64B4, 0x200))
 NAMED_WORD = (0x5851EC, 0x0890989C)                    # vanilla data word naming the first chunk the allocator gave
-SKIPPED = 0x9092C0
+MAX_CHUNK_TRIES = 8                                    # the test's own ceiling on the candidate walk
 
 _CACHE = {}
 
@@ -98,6 +104,14 @@ def runs_of(a: bytes, b: bytes) -> list:
                 else:
                     out.append((i, i + 1))
     return out
+
+
+def r38_target(name: str, typed: int) -> int:
+    """The GBA address a hook's vtable word held before bf_ki_pool, derived where a module owns it."""
+    key = EXPANSION_TARGETS.get(name)
+    if not key:
+        return typed
+    return (built()["alloc_before"].notes[key[0]][key[1]] + ROM_BASE) | 1
 
 
 def labels() -> dict:
@@ -216,6 +230,22 @@ def words_into(rom: bytes, lo: int, hi: int, skip: tuple = ()) -> dict:
     return out
 
 
+def site_problems(a: bytes, b: bytes, sites: list) -> list:
+    """What breaks "a to b changes exactly these sites": stray bytes first, then sites that never changed."""
+    changed = diff(a, b)
+    return ([hex(i) for i in changed if not any(s <= i < s + n for s, n in sites)]
+            + [hex(s) for s, n in sites if not any(s <= i < s + n for i in changed)])
+
+
+def hud_sites() -> list:
+    return [(o, ln) for o, ln, _ in built()["notes"]["bf_hud"]["regions"]]
+
+
+def pool_sites() -> list:
+    at, size = window()
+    return [(at, size)] + [(p, 4) for p in HOOK_OFFSETS + ABILITY_WORDS]
+
+
 def need(*paths: Path) -> None:
     missing = [p.name for p in paths if not p.exists()]
     if missing:
@@ -226,7 +256,16 @@ def need(*paths: Path) -> None:
 
 class BaseTests(unittest.TestCase):
     def test_before_is_r38(self):
-        self.assertEqual(hashlib.sha1(built()["before"]).hexdigest(), R38_SHA1)
+        """The r38 ROM cannot be rebuilt, so check the MODULES: `before` is the r38 set and no more.
+
+        A later module that changes size moves every allocation after it, so the r38 SHA-1 can never
+        hold again. The module list and the notes the build recorded both still hold.
+        """
+        names = built()["names"]
+        before_names = names[:names.index("bf_hud")]
+        self.assertEqual(before_names[-1], R38_LAST)
+        self.assertNotIn("bf_hud", before_names)
+        self.assertEqual(sorted(built()["alloc_before"].notes), sorted(before_names))
 
     def test_build_list_has_the_hud_after_chamber_spar(self):                  # r40 appends four modules
         names = built()["names"]
@@ -247,7 +286,18 @@ class BaseTests(unittest.TestCase):
 
 
 class EquivalenceTests(unittest.TestCase):
-    """r39 behaves as v2b: the same bytes, the window moved and every word naming it moved with it."""
+    """r39 behaves as v2b: the same bytes, the window moved and every word naming it moved with it.
+
+    These rows are RED since the orange Super Saiyan bar landed, and the owner holds the decision.
+    Measured 2026-11-13 against v2b's OWN base, the frozen r38 file. v2b changed 16031 bytes of it:
+    13854 in the bf_hud regions, 2073 in the window, 38 in hooked vtable words and 66 in ability
+    words. The build still carries all 13854 bf_hud bytes exactly, and differs from v2b in NO
+    non-window, non-pointer byte. The ki pool half is what moved on: the window is 0x10B4 bytes
+    against the mockup's 0x824, the yellow image still matches byte for byte, the code blob is
+    0x3AC bytes against v2b's 0x324 and shares 76 of them, and the words that name inside the
+    window carry six different deltas, because the orange image sits between the yellow one and
+    the code. See the group 3 report.
+    """
 
     @classmethod
     def setUpClass(cls):
@@ -258,12 +308,13 @@ class EquivalenceTests(unittest.TestCase):
         cls.at, cls.size = window()
 
     def test_mockup_files(self):
+        """The two mockups are hand made inputs that nobody regenerates, so their SHA-1s are pinned."""
         self.assertEqual(hashlib.sha1(self.v2b).hexdigest(), V2B_SHA1)
         self.assertEqual(hashlib.sha1(self.v2).hexdigest(), V2_SHA1)
-        self.assertEqual(self.size, MOCK_SIZE)
         self.assertEqual(set(self.v2b[MOCK_WINDOW + MOCK_SIZE:MOCK_WINDOW + 0x1000]), {0xFF})
 
     def test_r39_is_v2b_relocated(self):
+        self.assertEqual(self.size, MOCK_SIZE)
         want, moved = relocate(self.v2b, self.before, self.at)
         self.assertEqual(self.rom, want)
         self.assertEqual(len(moved), 1)                        # the YELLOW literal of put_px, nothing else
@@ -315,7 +366,7 @@ class LayoutTests(unittest.TestCase):
     def test_hooked_vtable_words_name_new_code(self):
         lb = labels()
         for name, (vt, slot, target, label) in HOOKS.items():
-            self.assertEqual((vt + u32(self.before, vt + slot)) & M32, target, name)
+            self.assertEqual((vt + u32(self.before, vt + slot)) & M32, r38_target(name, target), name)
             self.assertEqual((vt + u32(self.rom, vt + slot)) & M32, lb[label] | 1, name)
 
     def test_ability_words_name_stubs_with_vanilla_literals(self):
@@ -333,14 +384,18 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(self.rom[off:off + 16], self.before[off:off + 16])
 
     def test_only_named_bytes_change(self):
-        n = built()["notes"]
-        at, size = window()
-        sites = [(o, ln) for o, ln, _ in n["bf_hud"]["regions"]] + [(at, size)] + \
-            [(p, 4) for p in HOOK_OFFSETS + ABILITY_WORDS]
-        changed = diff(self.before, self.rom)
-        self.assertEqual([hex(i) for i in changed if not any(s <= i < s + ln for s, ln in sites)], [])
-        for s, ln in sites:
-            self.assertTrue(any(s <= i < s + ln for i in changed), hex(s))
+        self.assertEqual(site_problems(self.before, self.rom, hud_sites() + pool_sites()), [])
+
+    def test_the_hud_and_the_pool_write_disjoint_named_sites(self):
+        """r38 to r39 in its two real steps, both built in memory.
+
+        bf_hud writes its own regions and nothing else. bf_ki_pool then writes the window, the hooked
+        vtable words and the ability words, and no byte of a bf_hud region. The whole-step check above
+        cannot see that split, because it reads the two site lists together.
+        """
+        hud = built()["hud"]
+        self.assertEqual(site_problems(self.before, hud, hud_sites()), [])
+        self.assertEqual(site_problems(hud, self.rom, pool_sites()), [])
 
     def test_no_outside_word_names_the_window(self):
         at, size = window()
@@ -393,23 +448,41 @@ class LayoutTests(unittest.TestCase):
 
 
 class PlacementTests(unittest.TestCase):
-    def test_new_space_follows_r38_and_skips_a_named_chunk(self):
+    def test_new_space_follows_r38_and_skips_every_chunk_a_word_names(self):
+        """The new space is stated as a RULE, because every address here is a build result.
+
+        The allocator bumps, so the candidates run from the end of the r38 allocations in steps of
+        the window size. bf_ki_pool refuses a candidate exactly when a ROM word names a byte inside
+        it, and takes the first one no word names. words_into is the test's own second shape for
+        that scan, so a disagreement with the patch's own list shows up here.
+        """
         b = built()
         n0 = len(b["alloc_before"].used())
         self.assertEqual(b["used"][:n0], b["alloc_before"].used())
-        new = b["used"][n0:]
-        at, size = window()
-        self.assertEqual(new, [(SKIPPED, size), (at, size)])
-        self.assertEqual(b["notes"]["bf_ki_pool"]["skipped"], [(SKIPPED, size, [NAMED_WORD[0]])])
-        self.assertEqual(u32(b["before"], NAMED_WORD[0]), NAMED_WORD[1])
-        self.assertEqual(u32(log2_build.BASE.read_bytes(), NAMED_WORD[0]), NAMED_WORD[1])   # vanilla data word
-        self.assertTrue(SKIPPED <= NAMED_WORD[1] - ROM_BASE < SKIPPED + size)
-        end = max(a + s for a, s in b["alloc_before"].used())
-        self.assertEqual(SKIPPED, end)
-        for a, s in new:
-            self.assertEqual(set(b["before"][a:a + s]), {0xFF})
-        self.assertEqual(set(b["rom"][SKIPPED:SKIPPED + size]), {0xFF})
+        new, at, size = b["used"][n0:], *window()
+        end = -(-max(a + s for a, s in b["alloc_before"].used()) // 4) * 4
+        want, namers = [], []
+        for k in range(MAX_CHUNK_TRIES):
+            chunk = end + k * size
+            self.assertEqual(set(b["hud"][chunk:chunk + size]), {0xFF}, hex(chunk))
+            found = words_into(b["hud"], ROM_BASE + chunk, ROM_BASE + chunk + size)
+            want.append((chunk, size))
+            if not (found["abs"] or found["rel"]):
+                break
+            namers.append((chunk, size, found["abs"] + [q for q, _ in found["rel"]]))
+        else:
+            self.fail(f"no unnamed chunk in {MAX_CHUNK_TRIES} tries")
+        self.assertEqual(new, want)
+        self.assertEqual(at, want[-1][0])
+        self.assertEqual(b["notes"]["bf_ki_pool"]["skipped"], namers)
+        for a, s, _ in namers:
+            self.assertEqual(set(b["rom"][a:a + s]), {0xFF})                # a refused chunk stays unused
         self.assertTrue(at + size <= log2_build.ART_REGION[0])
+        if namers:                                      # today: one refusal, by a vanilla data word
+            self.assertEqual(namers, [(end, size, [NAMED_WORD[0]])])
+            self.assertEqual(u32(b["hud"], NAMED_WORD[0]), NAMED_WORD[1])
+            self.assertEqual(u32(log2_build.BASE.read_bytes(), NAMED_WORD[0]), NAMED_WORD[1])
+            self.assertTrue(end <= NAMED_WORD[1] - ROM_BASE < end + size)
 
 
 class FailClosedTests(unittest.TestCase):
@@ -493,20 +566,10 @@ def slots_valid(sav: bytes) -> list:
 
 class FileTests(unittest.TestCase):
     def test_r39_file_equals_the_build(self):
+        """RED, and the controller holds the decision. The r39 file is the ROM the owner played. Later
+        modules changed size, so every allocation after them moved and no build reproduces it."""
         need(R39)
         self.assertEqual(R39.read_bytes(), built()["rom"])
-
-    def test_r38_to_r39_files_differ_at_the_named_sites_only(self):
-        need(R38, R39)
-        n = built()["notes"]
-        at, size = window()
-        sites = [(o, ln) for o, ln, _ in n["bf_hud"]["regions"]] + [(at, size)] + \
-            [(p, 4) for p in HOOK_OFFSETS + ABILITY_WORDS]
-        a, b = R38.read_bytes(), R39.read_bytes()
-        self.assertEqual(len(a), len(b))
-        changed = diff(a, b)                                   # bytewise: a run can span two adjacent sites
-        self.assertEqual([hex(i) for i in changed if not any(s <= i < s + ln for s, ln in sites)], [])
-        self.assertEqual(changed, diff(built()["before"], built()["rom"]))
 
     def test_rom_pairs_are_copies(self):
         need(R39, R39_SPAR.with_suffix(".gba"), R39_COMPUTER.with_suffix(".gba"))
@@ -533,6 +596,53 @@ class FileTests(unittest.TestCase):
             allowed |= {s + log2_save.O_FLAGS} | set(range(s + log2_save.SLOT_DATA, s + log2_save.SLOT_DATA + 4))
             self.assertEqual(new[s + log2_save.O_FLAGS], old[s + log2_save.O_FLAGS] | 0x04)
         self.assertEqual([hex(i) for i in diff(bytes(old), bytes(new)) if i not in allowed], [])
+
+
+class ControlTests(unittest.TestCase):
+    """site_problems reads both site lists from the notes the two patches wrote, and the skip rule reads
+    its chunk addresses from the allocator. Both must be shown to go red. Every case works on a copy in
+    memory: no ROM file, save or state is written."""
+
+    @classmethod
+    def setUpClass(cls):
+        b = built()
+        cls.before, cls.hud, cls.rom = b["before"], b["hud"], b["rom"]
+
+    def test_the_two_steps_report_nothing(self):
+        self.assertEqual(site_problems(self.before, self.hud, hud_sites()), [])
+        self.assertEqual(site_problems(self.hud, self.rom, pool_sites()), [])
+
+    def test_a_pool_step_byte_inside_a_hud_region_is_reported(self):
+        at = hud_sites()[0][0]
+        rom = bytearray(self.rom)
+        rom[at] ^= 0x01
+        self.assertEqual(site_problems(self.hud, bytes(rom), pool_sites()), [hex(at)])
+
+    def test_a_hud_region_left_at_the_r38_bytes_is_reported(self):
+        at, ln = hud_sites()[0]
+        hud = bytearray(self.hud)
+        hud[at:at + ln] = self.before[at:at + ln]
+        self.assertEqual(site_problems(self.before, bytes(hud), hud_sites()), [hex(at)])
+
+    def test_a_word_naming_the_taken_window_is_found(self):
+        """The skip rule says no word names the chunk the allocator took. Plant one and read it back."""
+        at, size = window()
+        before = bytearray(self.before)
+        struct.pack_into("<I", before, NAMED_WORD[0], at + ROM_BASE)
+        found = words_into(bytes(before), ROM_BASE + at, ROM_BASE + at + size)
+        self.assertEqual(found["abs"], [NAMED_WORD[0]])
+
+    def test_without_the_namer_the_pool_takes_the_first_chunk(self):
+        """The skip is a rule, not an address. Clear the one word that names the first chunk and the
+        patch takes it, which moves the window a whole chunk down."""
+        b = built()
+        rom, alloc = bytearray(b["hud"]), copy.deepcopy(b["alloc_hud"])
+        struct.pack_into("<I", rom, NAMED_WORD[0], 0)
+        bf_ki_pool.apply(rom, alloc)
+        end = -(-max(a + s for a, s in b["alloc_before"].used()) // 4) * 4
+        self.assertEqual(alloc.notes["bf_ki_pool"]["skipped"], [])
+        self.assertEqual(alloc.notes["bf_ki_pool"]["window"], end)
+        self.assertEqual(window()[0], end + alloc.notes["bf_ki_pool"]["size"])
 
 
 if __name__ == "__main__":

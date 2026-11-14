@@ -9,10 +9,13 @@ Why:     on 2026-11-06 four entries in EXT_OPS were wrong and nobody could see i
 Source:  docs\research\scene-vm-ext-ops.json, generated from the byte-exact disassembly by
          scripts\permanent\disasm\ext_ops.py. Regenerate the page, never hand-edit it.
 Also:    table_length() against table_end(), because the first-END rule truncated 229 of 303 tables.
+Build:   dev_build() assembles the dev list up to fullpower_ssj IN MEMORY. The moved table tests need a
+         build, because only a build moves a table word. No ROM file is written.
 """
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import log2_build
 import log_paths
@@ -22,11 +25,34 @@ from scene import scene_lib as S
 PROFILE = log_paths.RESEARCH / "scene-vm-ext-ops.json"
 HANDLER_COUNT = 145                 # ext 0 to 144. Word 145 is 0x03000E90, IWRAM, not a handler.
 NOT_AN_OP = {145}                   # named by us (the chapter card) and past the end of the table
+ROM_BASE = 0x08000000
 BASE_ROM = log2_build.BASE.read_bytes()
 DENDE_TABLE, DENDE_FIRST_END = 0x3DD380, 3
 DENDE_LOOSE, DENDE_EXACT = 12, 11       # the 12th word is the next record's header
 PICCOLO_TABLE, PICCOLO_EXACT = 0x3E47F8, 8   # decoded by hand: 8 words, word 7 is END
-MOVED_TABLE, MOVED_LENGTH = 0x3DE6F4, 36      # map 9,3; fullpower_ssj moves word 32 into expansion
+# The vanilla death table. fullpower_ssj copies the post-Cell seq 20 record into expansion and repoints
+# word 19, so this table is the live proof that a build moves a table word. The record ADDRESS is read
+# from the build's own notes, never typed: the allocator moves it whenever an earlier module changes size.
+MOVED_TABLE, MOVED_WORD, MOVED_LENGTH = 0x3EC758, 19, 56
+MOVED_RECORD = ("fullpower_ssj", "post_cell_seq20")
+EXIT_RECORD = ("fullpower_ssj", "exit_seq3")
+
+_BUILD = {}
+
+
+def dev_build() -> tuple:
+    """(rom, alloc) of the dev list up to and with fullpower_ssj, built in memory. No file is written."""
+    if not _BUILD:
+        names = log2_build.read_build_list(log2_build.DEV_LIST)
+        rom, alloc = log2_build.assemble(log2_build.BASE, names[:names.index("fullpower_ssj") + 1])
+        _BUILD.update(rom=bytes(rom), alloc=alloc)
+    return _BUILD["rom"], _BUILD["alloc"]
+
+
+def moved_record(key: tuple) -> int:
+    """The GBA address a build gave one of fullpower_ssj's record copies."""
+    module, name = key
+    return dev_build()[1].notes[module]["records"][name] + ROM_BASE
 
 
 def profile() -> dict:
@@ -100,16 +126,38 @@ class RegionTests(unittest.TestCase):
     def test_a_moved_record_is_still_a_table_word(self):
         """A build moves records into expansion. A walker that knows only the vanilla script
         region stops at the first moved word and under-reads the table with no error."""
-        self.assertTrue(S.is_record_pointer(0x0889A9C0))      # fullpower_ssj, in expansion
+        exit_seq3 = moved_record(EXIT_RECORD)                 # fullpower_ssj's chamber exit copy
+        self.assertGreaterEqual(exit_seq3 - ROM_BASE, log2_build.BASE_SIZE)
+        self.assertTrue(S.is_record_pointer(exit_seq3))
         self.assertTrue(S.is_record_pointer(0x083EA3EC))      # vanilla, in the script region
         self.assertFalse(S.is_record_pointer(0x08F00000))     # the art region, never a record
         self.assertFalse(S.is_record_pointer(0x03001FC0))     # IWRAM
 
     def test_the_vanilla_table_the_build_moves_a_word_of(self):
-        """Base and build must agree on this table's length. The build run of the same check is
-        in test_battle_start, which builds the live ROM once and walks every table with it."""
+        """The premise is CHECKED here, not stated: this build really does move word MOVED_WORD.
+
+        fullpower_ssj copies the post-Cell seq 20 record into expansion and repoints the word. Base
+        and build must then agree on the table's length, or a walker that knows only the vanilla
+        script region under-reads the table with no error.
+        """
+        rom = dev_build()[0]
+        record = moved_record(MOVED_RECORD)
+        self.assertGreaterEqual(record - ROM_BASE, log2_build.BASE_SIZE)
+        self.assertEqual(S.table_words(rom, MOVED_TABLE, MOVED_LENGTH)[MOVED_WORD], record)
+        self.assertNotEqual(S.table_words(BASE_ROM, MOVED_TABLE, MOVED_LENGTH)[MOVED_WORD], record)
         self.assertEqual(S.table_length(BASE_ROM, MOVED_TABLE), MOVED_LENGTH)
         self.assertEqual(S.table_end(BASE_ROM, MOVED_TABLE), MOVED_LENGTH)
+        self.assertEqual(S.table_length(rom, MOVED_TABLE), MOVED_LENGTH)
+        self.assertEqual(S.table_end(rom, MOVED_TABLE), MOVED_LENGTH)
+
+    def test_a_walker_blind_to_expansion_under_reads_the_moved_table(self):
+        """The control. A walker that knows only the vanilla script region stops at the moved word,
+        so the table reads 19 words instead of 56 and every op site past it is lost."""
+        rom, lo_hi = dev_build()[0], S.EXPANSION_REGION
+        with mock.patch.object(S, "EXPANSION_REGION", (lo_hi[1], lo_hi[1])):
+            self.assertFalse(S.is_record_pointer(moved_record(MOVED_RECORD)))
+            self.assertEqual(S.table_length(rom, MOVED_TABLE), MOVED_WORD)
+        self.assertEqual(S.table_length(rom, MOVED_TABLE), MOVED_LENGTH)
 
 
 class OverRunTests(unittest.TestCase):

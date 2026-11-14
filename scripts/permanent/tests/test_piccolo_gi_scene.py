@@ -2,7 +2,7 @@ r"""
 test_piccolo_gi_scene.py - Tests for patches.piccolo_gi_scene (r29-r32): Piccolo gives Gohan the gi on the Lookout.
 
 Run (from the LOG root):
-  py -3 -I -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_piccolo_gi_scene.py -v
+  py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_piccolo_gi_scene.py -v
 Builds build_list_dev.txt in memory: "before" = the list up to piccolo_gi_scene with the art tables minus id 52 (the r28 bytes), "rom" = with it
 alone (later patches have their own tests). The scene is walked from the type 5 words by each record's next
 index, as scene_run 0x0800B520 does. Lines are laid out by the game's line breaker (test_rage_text.lines);
@@ -12,7 +12,6 @@ period), r31.md (Piccolo and Gohan stay, fly off after the last line, no cut bac
 playable" lines after the fly-off), never imported from the patch module.
 """
 import copy
-import hashlib
 import struct
 import unittest
 from pathlib import Path
@@ -29,7 +28,7 @@ from rom.thumb_dis import listing
 from rom.webfoot_decompress import ROM_BASE, decompress, read_set
 
 # ===== constants (brief and report) =====
-R28_SHA1 = "2d297ce8e26eac0990f7fefb26992599d6e14c87"   # moved: fullpower_ssj now sets Goku at the chamber EXIT
+R28_LAST = "fullpower_ssj"                              # the last module of the r28 list (build-lists r-tags)
 OLD_TABLE, OLD_WORDS, TYPE5 = 0x3DBDD4, 35, (0x3CF7E4, 0x3D1530)
 SEQ3 = 2                                                                # fullpower_ssj grows and moves seq 3
 REPLACED = {15: 0x3DB930, 20: 0x3DBABC, 31: 0x3DBD5C}                   # index: old record (seq 16, 21, 32)
@@ -63,9 +62,8 @@ R30_TABLE = 0x89B158
 # r32: r30's record 31 slot holds the walk-offs (40 bytes) and the tail (12 bytes in a 35-byte slot)
 R32_SLOTS = {29: (0x89AF38, 40), 31: (0x89AF60, 35), 35: (0x89AF84, 77), 44: (0x89B118, 61)}
 # R30_SLOTS, R30_TABLE and R32_SLOTS are the addresses in the SHIPPED r30, r31 and r32 files, which never move.
-# This build sits SHIFT higher: fullpower_ssj's chamber exit copy is 0x1C bigger than its old chamber door copy,
-# and piccolo's own seq 3 copy then grows 6 bytes. Measured on records 29, 31, 35, 44 and the table, not computed.
-SHIFT = 0x24
+# This build sits HIGHER, because modules before this one grew. shift() measures that gap from the table, so
+# no test types it. Records 29, 31, 35, 44 and the r29 records then carry the claim at that one gap.
 R32_LENGTHS = {29: 40, 31: 12, 44: 48}
 SCENE_CAMERA, GOKU_SPOT, PICCOLO_SPOT, GOHAN_SPOT = (232, 320), (384, 400), (312, 400), (344, 400)
 ARGS = {27: 1, 31: 3, 33: 1, 40: 1, 41: 1, 43: 1, 46: 1, 51: 3, 52: 1, 53: 3, 54: 3, 55: 2, 57: 2, 62: 3, 63: 0,
@@ -105,6 +103,44 @@ def replaced() -> dict:
 
 def table_of(rom: bytes) -> int:
     return u32(rom, TYPE5[0]) - ROM_BASE
+
+
+def relocation_problems(rom: bytes, old: bytes, sizes: dict, delta: int) -> list:
+    """What breaks "rom holds `old`'s scene, moved up by delta". One line per record and table word.
+
+    A record the build allocated moves by delta and keeps its bytes. A vanilla record does not move.
+    Record SEQ3 is this module's copy of fullpower_ssj's chamber exit record, and that source record
+    grew, so only SEQ3's step is checked here and its content is read as events instead.
+    """
+    out, here, there = [], dict(walk(rom)), dict(walk(old))
+    if sorted(here) != sorted(there):
+        return [f"walk order {sorted(here)} against {sorted(there)}"]
+    steps = {i: here[i] - there[i] for i in here}
+    for i, at in here.items():
+        if at not in sizes:
+            out += [f"vanilla record {i} moved by 0x{steps[i]:X}"] if steps[i] else []
+        elif i == SEQ3:
+            out += [] if steps[i] < delta else [f"record {i} did not grow: step 0x{steps[i]:X}"]
+        elif steps[i] != delta:
+            out.append(f"record {i} moved by 0x{steps[i]:X}, not 0x{delta:X}")
+        elif rom[at:at + sizes[at]] != old[there[i]:there[i] + sizes[at]]:
+            out.append(f"record {i} bytes differ")
+    t, t_old = table_of(rom), table_of(old)
+    for k in range(sizes[t] // 4):
+        w, w_old = u32(rom, t + 4 * k), u32(old, t_old + 4 * k)
+        step = steps.get(k, delta if w_old >= ROM_BASE + log2_build.BASE_SIZE else 0)
+        if w - w_old != step:
+            out.append(f"table word {k} moved by 0x{w - w_old:X}, not 0x{step:X}")
+    return out
+
+
+def shift() -> int:
+    """How far above the shipped r30 line this build places the scene, measured from the table.
+
+    A module before this one that changes size moves every later allocation, so the gap is a build
+    result and never a typed constant. The r30 table address is a fact of a frozen file.
+    """
+    return built()["notes"]["piccolo_gi_scene"]["table"] - R30_TABLE
 
 
 def walk(rom: bytes) -> list:
@@ -164,7 +200,17 @@ class SceneTableTests(unittest.TestCase):
         cls.table = table_of(cls.rom)
 
     def test_before_is_r28(self):
-        self.assertEqual(hashlib.sha1(self.before).hexdigest(), R28_SHA1)
+        """The r28 ROM cannot be rebuilt, so check the MODULES: `before` is the r28 set and no more.
+
+        A later module that changes size moves every allocation after it, so the r28 SHA-1 can never
+        hold again. The module list and the notes the build recorded both still hold.
+        """
+        names = built()["names"]
+        before_names = names[:names.index("piccolo_gi_scene")]
+        self.assertEqual(before_names[-1], R28_LAST)
+        self.assertNotIn("piccolo_gi_scene", before_names)
+        notes = built()["alloc_before"].notes           # art_input is the staged art table, not a module
+        self.assertEqual(sorted(set(notes) - {"art_input"}), sorted(before_names))
 
     def test_both_type5_words_name_the_new_table(self):
         self.assertEqual([u32(self.before, w) for w in TYPE5], [OLD_TABLE + ROM_BASE] * 2)
@@ -185,7 +231,7 @@ class SceneTableTests(unittest.TestCase):
                     self.assertNotEqual(new[i], old[i])
                 elif i == WALK_OFFS_AT:                                 # r32: the chime record drops out
                     self.assertEqual((old[i], new[i]),
-                                     (CHIME_RECORD + ROM_BASE, R32_SLOTS[i][0] + SHIFT + ROM_BASE))
+                                     (CHIME_RECORD + ROM_BASE, R32_SLOTS[i][0] + shift() + ROM_BASE))
                 else:
                     self.assertEqual(new[i], old[i])
         self.assertEqual(new[34], 0)                                    # END, resume index 0
@@ -401,9 +447,11 @@ class DiffTests(unittest.TestCase):
         self.assertEqual(names[i - 1:i + 2], ["fullpower_ssj", "piccolo_gi_scene", "superperfect_cell"])
 
     def test_earlier_allocations_unchanged(self):
-        n = len(built()["alloc_before"].used())
-        self.assertEqual(built()["used"][:n], built()["alloc_before"].used())
-        self.assertTrue(all(a >= 0x89ADB3 and a + s <= 0xF00000 for a, s in self.new_used))
+        used = built()["alloc_before"].used()
+        self.assertEqual(built()["used"][:len(used)], used)
+        end = max(a + s for a, s in used)                     # a build result: earlier modules move it
+        self.assertTrue(all(end <= a and a + s <= log2_build.EXPANSION[0][0] + log2_build.EXPANSION[0][1]
+                            for a, s in self.new_used))
 
     def test_only_named_sites_change(self):
         sites = [(w, w + 4) for w in TYPE5] + [(a, a + n) for a, n in self.new_used]
@@ -411,24 +459,46 @@ class DiffTests(unittest.TestCase):
         for a, e in sites:
             self.assertTrue(any(a <= i < e for i in self.changed), hex(a))
 
-    def test_r32_file_holds_this_scene(self):              # superperfect_cell writes none of these bytes
+    def test_r32_file_holds_this_scene(self):
+        """The shipped r32 ROM holds this scene, moved down by the gap shift() measures.
+
+        Modules before this one grew, so no slot sits at its r32 address any more. The scene itself did
+        not change: every record is byte equal at its r32 address, and the table names the same records.
+        Record SEQ3 is this module's copy of fullpower_ssj's chamber exit record, so it carries that
+        module's work and is read as events instead of bytes.
+        """
         path = log_paths.build_file("log2_poc_r32.gba")
         if not path.exists():
             self.skipTest("r32 not built")
-        r32 = path.read_bytes()
-        for a, n in [(w, 4) for w in TYPE5] + self.new_used:
-            self.assertEqual(r32[a:a + n], self.rom[a:a + n], hex(a))
+        r32, delta = path.read_bytes(), shift()
+        self.assertEqual(table_of(self.rom) - table_of(r32), delta)
+        for w in TYPE5:
+            self.assertEqual(u32(self.rom, w) - u32(r32, w), delta, hex(w))
+        self.assertEqual(relocation_problems(self.rom, r32, dict(self.new_used), delta), [])
+
+    def test_r32_runs_the_same_scene_plus_the_chamber_exit_line(self):
+        """Event for event this build is r32, with one ext 73 added inside fullpower_ssj's seq 3 record.
+
+        That call gives Goku his Super Saiyan set when he leaves the Time Chamber. It is the only change
+        the scene has seen since r32, and it comes from fullpower_ssj's record, which this module copies.
+        """
+        path = log_paths.build_file("log2_poc_r32.gba")
+        if not path.exists():
+            self.skipTest("r32 not built")
+        here, there = events(self.rom), events(path.read_bytes())
+        extra = (SEQ3, "ext", 73, (4, 61))                           # appearance(character 4, set 61)
+        at = here.index(extra)
+        self.assertEqual(here[:at] + here[at + 1:], there)
 
     def test_r32_keeps_every_r30_slot_size_at_a_shifted_base(self):   # r30's record 31 slot now holds two records
-        recs, notes = dict(walk(self.rom)), built()["notes"]["piccolo_gi_scene"]
-        self.assertEqual(notes["table"], R30_TABLE + SHIFT)
+        recs = dict(walk(self.rom))                       # shift() is read off the table, so the slots carry this
         for i, (at, size) in R32_SLOTS.items():
-            self.assertEqual(recs[i], at + SHIFT, i)
-            self.assertIn((at + SHIFT, size), self.new_used, i)
+            self.assertEqual(recs[i], at + shift(), i)
+            self.assertIn((at + shift(), size), self.new_used, i)
         self.assertEqual(sum(R32_SLOTS[i][1] for i in (WALK_OFFS_AT, TAIL_AT)), R30_SLOTS[31][1])
         self.assertEqual(R32_SLOTS[WALK_OFFS_AT][0], R30_SLOTS[31][0])
         for i, length in R32_LENGTHS.items():
-            at, size = R32_SLOTS[i][0] + SHIFT, R32_SLOTS[i][1]
+            at, size = R32_SLOTS[i][0] + shift(), R32_SLOTS[i][1]
             self.assertEqual(self.rom[at + length - 1], 0x11, i)            # end op, then the unused tail
             self.assertEqual(set(self.rom[at + length:at + size]), {0xFF} if size > length else set(), i)
 
@@ -500,7 +570,7 @@ class WalkInTests(unittest.TestCase):
         for i, length, changes in ((35, 77, {0x28: (51, 62), 0x38: (51, 62), 75: (54, 53)}), (42, 20, {11: (54, 53)})):
             rec = self.recs[i]
             r29_rec = u32(old, u32(old, TYPE5[0]) - ROM_BASE + 4 * i) - ROM_BASE
-            self.assertEqual(rec, r29_rec + SHIFT)                       # the r29 address, moved by SHIFT
+            self.assertEqual(rec, r29_rec + shift())                       # the r29 address, at the measured gap
             diff_at = {k: (old[r29_rec + k], self.rom[rec + k]) for k in range(length)
                        if old[r29_rec + k] != self.rom[rec + k]}
             self.assertEqual(diff_at, changes, i)                        # r30 walk (75, 11), r31 move (0x28, 0x38)
@@ -806,6 +876,48 @@ class CopyTests(unittest.TestCase):
             if not log_paths.build_file(dst).exists():
                 self.skipTest(f"{dst} missing")
             self.assertEqual(log_paths.build_file(src).read_bytes(), log_paths.build_file(dst).read_bytes(), dst)
+
+
+class ControlTests(unittest.TestCase):
+    """relocation_problems walks the build for its own addresses, so it must be shown to go red. Every
+    case works on a copy in memory: no ROM file, save or state is written."""
+
+    @classmethod
+    def setUpClass(cls):
+        b = built()
+        path = log_paths.build_file("log2_poc_r32.gba")
+        if not path.exists():
+            raise unittest.SkipTest("r32 not built")
+        cls.r32, cls.rom = path.read_bytes(), b["rom"]
+        cls.sizes = dict(b["used"][len(b["alloc_before"].used()):])
+
+    def problems(self, rom: bytes, delta: int = None) -> list:
+        return relocation_problems(rom, self.r32, self.sizes, shift() if delta is None else delta)
+
+    def test_the_build_itself_reports_nothing(self):
+        self.assertEqual(self.problems(self.rom), [])
+
+    def test_one_changed_record_byte_is_reported(self):
+        rom = bytearray(self.rom)
+        rom[dict(walk(self.rom))[35] + 8] ^= 0x01
+        self.assertEqual(self.problems(bytes(rom)), ["record 35 bytes differ"])
+
+    def test_a_table_word_that_does_not_follow_its_record_is_reported(self):
+        """Word 34 is the END entry, so the walk never reads it and only the word check can catch it."""
+        rom = bytearray(self.rom)
+        struct.pack_into("<I", rom, table_of(self.rom) + 4 * 34, 4)
+        self.assertEqual(self.problems(bytes(rom)), ["table word 34 moved by 0x4, not 0x0"])
+
+    def test_a_wrong_gap_reports_every_moved_record(self):
+        """shift() is measured from the table, so a wrong gap must not pass unnoticed."""
+        self.assertTrue(self.problems(self.rom, shift() + 4))
+
+    def test_a_second_chamber_exit_call_breaks_the_event_match(self):
+        """test_r32_runs_the_same_scene_plus_the_chamber_exit_line removes ONE event. Two would stay."""
+        here = events(self.rom)
+        here.insert(here.index((SEQ3, "ext", 73, (4, 61))), (SEQ3, "ext", 73, (4, 61)))
+        at = here.index((SEQ3, "ext", 73, (4, 61)))
+        self.assertNotEqual(here[:at] + here[at + 1:], events(self.r32))
 
 
 if __name__ == "__main__":
