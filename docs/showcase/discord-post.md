@@ -14,88 +14,104 @@ The forum shows the FIRST LINE of the body as the preview under the title, so th
 "Ascended Saiyan" is the canon name for the grade this hack adds, so the title says what the project
 does and sounds like the game it belongs to. It is short enough to survive the forum's title crop.
 
-Alternatives, if the owner prefers:
-
-- **The Legacy of Goku II: Perfect Edition** (Cell saga pun, promises completeness)
-- **The Legacy of Goku II: Broken Timeline** (leads on the Future Trunks work instead)
-- **Legacy of Goku II: Full Power** (leads on the transformation and HUD work)
+Alternatives: **Perfect Edition** (Cell saga pun, promises completeness), **Broken Timeline** (leads
+on the Future Trunks work), **Full Power** (leads on the transformations).
 
 ---
 
-## Short description (the preview line, keep it first)
+## The preview line (must be first in the body)
 
-Buu's Fury's systems carried backwards into Legacy of Goku II, and the Future Trunks ending rebuilt
-as fights you actually play.
+The Legacy of Goku II as you remember it, expanded: Buu's Fury systems brought backwards, new
+transformations, new cutscenes, and the Future Trunks ending rebuilt as fights you actually play.
 
 ---
 
 ## The goal
 
-Legacy of Goku II ends its best story beat in a cutscene. Trunks returns to his own time, and the
-game shows you Android 18, Android 17 and Cell being beaten. You never press a button.
+**This is the vanilla game, expanded. Not a remake, not a rebalance, not a difficulty patch.**
 
-The goal of this hack is twofold:
+Every map, every story beat and every fight you remember is still there and still plays the way it
+did. Nothing has been cut. The work goes in three directions on top of it.
 
-1. **Bring Buu's Fury forward into II.** Webfoot built better systems one game later: the ki pool,
-   the HUD, the aura, the transformation flow. This hack ports those back so II plays like the game
-   it grew into.
-2. **Make the Future Trunks ending playable.** Every one of those cutscene beatings becomes a real
-   fight on a real map, with its own arena, its own dialogue and its own ending.
+**1. Bring Buu's Fury backwards.** Webfoot built better systems one game later: the ki pool, the HUD,
+the aura, the transformation flow, the boss bar. Legacy of Goku II is the same engine a year
+younger. Those systems are ported back, so II plays like the game it grew into instead of the rough
+draft of it.
 
-Not a difficulty patch and not a rebalance. The aim is the game Legacy of Goku II should have been.
+**2. Finish what the game only showed you.** II ends its best story beat in a cutscene. Trunks
+returns to his own time, and the game SHOWS you Android 18, Android 17 and Cell being beaten. You
+never press a button. Those are now real fights, on real maps, with real bosses.
+
+**3. Give the cast what the show gave them.** Vegeta and Piccolo reach forms the game never let them
+have, with their own portraits, icons, auras and stat lines, built the way the game's own
+transformations are built rather than bolted on.
 
 ---
 
-## What is done
+## What is new
 
-### The Future Trunks ending, rebuilt
+### New battles
 
-- The Android 18 and Android 17 cutscene is now two separate fights, one after the other, and you
-  control Trunks for both.
-- The Imperfect Cell cutscene is now a real fight. Cell keeps his own stats and the ki blast still
-  finishes him.
-- That fight happens in a custom Capsule Corp arena, in the rain.
-- The Cell battle runs in two parts. Round two moves to a hand made plateau map with its own
-  dialogue and its own ending.
-- The finish: Trunks fires a gold beam straight up, Cell takes three hits with explosions and screen
-  rumble, then goes.
-- Lose to Cell and you get a custom game over card instead of "You have died!".
+- **Trunks against Future Android 18**, which was a cutscene. Now a real fight you control.
+- **Trunks against Future Android 17**, the same. Two separate fights, one after the other, with the
+  cutscene still playing between them.
+- **Trunks against Imperfect Cell**, which was a cutscene. Now a real boss fight. Cell keeps his own
+  stats and fights back, and the ki blast still finishes him.
+- **A second round against Cell** on an entirely new map, with its own dialogue and its own ending.
+- **A sparring fight, Gohan against Goku**, in the Capsule Corp training room. The first step toward
+  proper Time Chamber fights.
+- **Seven Cell Jrs instead of a scripted beating**: you fight one, then three at once, then three
+  more resolve in a scene before "You wretched child".
+
+### New cutscenes and story
+
+- **Piccolo gives Super Saiyan Gohan his gi on Dende's Lookout.** A new scene, written and staged
+  from scratch, that explains an outfit the game never explains.
+- **Vegeta goes Super Saiyan after his line to Android 19**, as a scene.
+- **Vegeta goes Super Saiyan when he attacks Super Perfect Cell.**
+- **A new arena in the rain at Capsule Corp**, built for the Trunks and Cell fight.
+- **A hand-made plateau map** for the second half of that fight.
+- **A new ending beat**: Trunks fires a gold beam straight up, Cell takes three hits with explosions
+  and screen rumble, then goes.
+- **A custom game over card** if Cell beats you in the final arena, instead of "You have died!".
+- **Chapter title cards** at each chapter's story point, on a new game and on Continue.
+
+### New transformations
+
+- **Vegeta Z+**, a second Super Saiyan grade reached from Super Saiyan, with the ascended stat line.
+- **Piccolo Z+**, a grade above Super Namek. Z+ gives +10 and healing, plain Z gives +6 and none.
+- **Super Saiyan 2 for Gohan**, usable once the story reaches it, with its stat bonus and its own
+  message.
+- **A power-up animation with the Buu's Fury aura**, gold for Vegeta and white for Piccolo, with
+  ground dust. Interrupt it and the aura goes with it.
+- **The ki bar fills during the transformation** instead of appearing full at the end, the way
+  Buu's Fury does it.
+
+### Systems brought back from Buu's Fury
+
+- One Super Saiyan ki pool, drawn over the energy row.
+- The player HUD and the boss bar in the Buu's Fury style.
+- Ki no longer drains while a scene plays.
+- A scripted fighter change clears the party transform cooldown.
+- Goku and Gohan stay Super Saiyan out of the Time Chamber, with no drain and no revert at zero ki.
+- Trunks reaches the Cell fight with a full pool instead of the energy he spent on the androids.
+
+### New art
+
+- **Gohan's purple gi across all four sets**, base, Super Saiyan, Super Saiyan 2 and Rage, with
+  matching portraits in cutscenes and on the status page. Cutscene Gohan keeps the armour until you
+  take control, then changes.
+- **Trunks in the tank top** instead of the jacket, in both forms, with no scabbard and no strap.
+- **Hand-drawn power-up frames** for Vegeta and Piccolo.
+- **Remastered portraits**, with all 89 originals exported and rebuilt on the right background model.
+
+### Quality of life
+
 - The scouter reads Future 17, Future 18 and Future Cell by name, with their own stats, and all
-  three appear in the scouter database list. That list was built for exactly 128 names, so it had to
-  be grown to fit them.
-
-### Transformations
-
-- One Super Saiyan ki pool drawn over the energy row, Buu's Fury style.
-- The ki bar fills during the transformation instead of appearing full at the end.
-- Ki does not drain while a scene plays.
-- **Vegeta Z+**, a second Super Saiyan grade reached from Super Saiyan.
-- **Piccolo Z+**, a grade above Super Namek, with his own icon and portrait.
-- The power up plays the Buu's Fury aura, gold for Vegeta and white for Piccolo, with ground dust.
-  An interrupt takes it away again.
-
-### Gohan and the gi
-
-- Piccolo gives Super Saiyan Gohan his purple gi on the Lookout, as a scene.
-- Gohan wears it once he is playable: base, Super Saiyan, Super Saiyan 2 and Rage, with matching
-  portraits in cutscenes and on the status page.
-- Cutscene Gohan keeps the armour until you take control, then changes.
-- Super Saiyan 2 is usable once the story reaches it, with its stat bonus and its own message.
-
-### The Cell Games
-
-- Goku stays Super Saiyan from arrival to death, as an NPC and when you control him.
-- Seven Cell Jrs in three waves: one, then three, then three more.
-- Cell returns from the self destruct as Super Perfect Cell with Super Saiyan 2 bolts.
-- The final scene has the beam struggle drawn as map art.
-
-### Presentation
-
-- Chapter title cards at each chapter's story point, Buu's Fury style.
-- The player HUD and the boss bar use the Buu's Fury look.
-- The status page shows the form bonus as a gold bar.
-- Trunks wears the tank top instead of the jacket, in both forms.
-- A sparring fight against Goku in the Capsule Corp training room.
+  three appear in the scouter database list. That list was built for exactly 128 names and had to be
+  grown to fit them.
+- Capsule Corp carries the goal star on the world map once the main story is over, like every other
+  major quest.
 
 ---
 
@@ -103,20 +119,19 @@ Not a difficulty patch and not a rebalance. The aim is the game Legacy of Goku I
 
 Say this plainly. The community respects it and it stops people expecting a finished patch.
 
-- The hand off from the end of the main game into controlling Trunks. This is the piece that ties
-  the ending together and it is the last big one.
+- The hand-off from the end of the main game into controlling Trunks. The last big piece.
 - Trunks Z+, waiting on art.
 - Proper Time Chamber fights.
-- Art is partly hand drawn and partly in progress, so some animation cycles mix new and old frames.
+- Some animation cycles mix new and old frames while the art is in progress.
 
 ---
 
 ## Notes before posting
 
 - **No ROM, no patch link.** Sharing a built ROM shares Webfoot's copyrighted game. If the community
-  expects a release, it should be a patch file against a known clean ROM, and that is the owner's
-  call to make separately.
-- Credit where art came from. Buu's Fury art is Webfoot's own and is ported, not redrawn.
-  Nothing in this project is taken from another modder's hack.
+  expects a release, the normal form is a patch file against a known clean ROM, and that is the
+  owner's call to make separately.
+- Credit where art came from. Buu's Fury art is Webfoot's own and is ported, not redrawn. Nothing in
+  this project is taken from another modder's hack.
 - A short clip of the Trunks versus Cell fight or the plateau round would do more than any paragraph
   here. The forum shows a thumbnail, and every other project in the channel has one.
