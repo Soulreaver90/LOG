@@ -109,7 +109,7 @@ SAVES = TEST_DATA / "saves"                                      # save files th
 # ===== scripts =====
 PERMANENT = SCRIPTS / "permanent"                                # the tools, patches, tests and build lists
 ONE_TIME = SCRIPTS / "one-time"                                  # history: one folder per finished task
-BUILD_LISTS = PERMANENT                                          # build_list*.txt, among the tools today
+BUILD_LISTS = PERMANENT / "build-lists"                          # build_list*.txt, their own folder
 PATCHES = PERMANENT / "patches"                                  # the build modules
 TESTS = PERMANENT / "tests"                                      # the suite
 SCENE = PERMANENT / "scene"                                      # map and scene readers

@@ -23,7 +23,7 @@ from rom.log2_sprites import image_to_tiles, set_records
 from rom.webfoot_decompress import ROM_BASE, SET_TABLE, rom_ptr, unpack_frame
 
 # ===== constants (the briefs, the manifest and the base ROM) =====
-LISTS = log_paths.PERMANENT
+LISTS = log_paths.BUILD_LISTS
 TRIAL_LIST = LISTS / "build_list_trial_trunkstank.txt"
 SPRITELAB_LIST = LISTS / "build_list_trial_spritelab.txt"
 ART = log_paths.TRUNKS_TANK

@@ -30,7 +30,7 @@ from rom.rom_sheet import live_set_offset, row_frames
 from rom.webfoot_decompress import ROM_BASE
 
 # ===== constants (report, r39 reads) =====
-LISTS = log_paths.PERMANENT
+LISTS = log_paths.BUILD_LISTS
 TRIAL_LIST, VEGETA_LIST = LISTS / "build_list_trial.txt", LISTS / "build_list_trial_vegeta.txt"
 BEFORE_LAST = "beam_struggle"                              # the r40 line ahead of this one
 R40_LAST = "vegeta_ssj_scene"                              # the last line of r40 (build_list_core.txt r-tags)

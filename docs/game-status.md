@@ -95,7 +95,7 @@ This is the biggest single line of work and it is close to done.
 | XFM-6 | **PLAY** | **Piccolo Z+**, a grade above Super Namek, with his own icon and your Kami portrait. Z+ gives +10 and healing; plain Z gives +6 and none. |
 | XFM-7 | **PLAY** | The power-up plays the **Buu's Fury aura**, gold for Vegeta and white for Piccolo, with ground dust. It starts on the charge loop so the wind-up stays clean, and an interrupt takes it away. |
 | XFM-8 | **PLAY** | The ki bar **ramps up** while the transformation plays instead of appearing full at the end. |
-| XFM-9 | **DESIGNED** | Piccolo's bar: plain green for base AND for Super Namek, with no ki pool. Only Z+ gets a pool, and it ramps to yellow and stays yellow. Decided 2026-11-13. Today Super Namek has a yellow pool and Z+ ramps orange then snaps to yellow, which is the bug you saw. |
+| XFM-9 | **PLAY** | Piccolo's bar: plain green for base AND for Super Namek, with no ki pool. Only Z+ gets a pool, and it ramps to yellow and stays yellow. Built 2026-11-13. The cause was that Super Namek and Z+ share one form object, so the bar could not tell them apart. It now asks which appearance entry you are in. Super Vegeta and Gohan's Super Saiyan 2 keep their orange pool. |
 | XFM-10 | **OPEN** | Two versions of Vegeta Z+ exist. One unlocks it through the Time Chamber exit using the game's own data. The other gives his power-up your drawn frames. Both are saved. Which wins, or do they combine? **The live module today is the drawn frames one, and it has no story gate at all: Z+ is available whenever Super Vegeta is.** That is the one any build carries right now. |
 
 ---
@@ -167,11 +167,16 @@ compares every frame PNG under `art\` against the art the build actually reads, 
 
 ## What is waiting on you, in one place
 
-1. **Push the repository.** 68 commits exist on this disk only, including every drawing now tracked.
-2. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
-3. **Play the future line (FUT-1 to FUT-9)** and the Z+ pair (XFM-5 to XFM-8), and say what is wrong.
-4. **The builds delete list**: 455 files, 2.13 GB.
-5. **XFM-10**, which Vegeta Z+ wins.
+1. **Play the rough master.** `builds\mockups\2026-11-13-rough-master\log2_poc_r43_rough.gba`, with its
+   save beside it. It is the dev master plus the whole future Trunks line and the whole Piccolo and
+   Vegeta Z+ line, 41 modules. Check Piccolo's bar first: base green, Super Namek green, Z+ ramping to
+   yellow and staying yellow.
+2. **Push the repository.** 95 commits exist on this disk only, including every drawing now tracked.
+3. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
+4. **The journal's 44th quest.** Growing the menu is possible and costs eight small edits. The other
+   way is to replace one of the 43 vanilla quests, and all 43 are real. Which way?
+5. **The builds delete list**: 455 files, 2.13 GB.
+6. **XFM-10**, which Vegeta Z+ wins. The live module today is the drawn frames one, with no story gate.
 7. **Rename the Trunks tank art folder?** It is your live folder, so nobody touches it.
 
 ---
@@ -219,7 +224,7 @@ report them as modules nothing claims.
 | XFM-6 | piccolo_zplus, piccolo_z_start |
 | XFM-7 | powerup_fx |
 | XFM-8 | ki_ramp |
-| XFM-9 | |
+| XFM-9 | piccolo_zplus, ki_ramp |
 | XFM-10 | vegeta_zplus |
 | PRS-1 | chapter_cards |
 | PRS-2 | status_bonus, status_portrait |
