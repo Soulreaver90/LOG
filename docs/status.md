@@ -113,6 +113,7 @@ One row per build list. **Extra modules** are what it adds on top of the core li
 
 Checked on every run, against the Reference table of [game-status.md](game-status.md).
 
-- **Features with no module yet:** CHM-3, FUT-10, ART-5
+- **Features with no module yet:** CHM-3, FUT-10, XFM-11, ART-5
 - **Codes naming a module that does not exist:** none
 - **Modules no feature claims:** none
+- **Reference rows that are not a module name:** none

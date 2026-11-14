@@ -97,6 +97,7 @@ This is the biggest single line of work and it is close to done.
 | XFM-8 | **PLAY** | The ki bar **ramps up** while the transformation plays instead of appearing full at the end. |
 | XFM-9 | **PLAY** | Piccolo's bar: plain green for base AND for Super Namek, with no ki pool. Only Z+ gets a pool, and it ramps to yellow and stays yellow. Built 2026-11-13. The cause was that Super Namek and Z+ share one form object, so the bar could not tell them apart. It now asks which appearance entry you are in. Super Vegeta and Gohan's Super Saiyan 2 keep their orange pool. |
 | XFM-10 | **OPEN** | Two versions of Vegeta Z+ exist. One unlocks it through the Time Chamber exit using the game's own data. The other gives his power-up your drawn frames. Both are saved. Which wins, or do they combine? **The live module today is the drawn frames one, and it has no story gate at all: Z+ is available whenever Super Vegeta is.** That is the one any build carries right now. |
+| XFM-11 | **OPEN** | **Trunks Z+**, the same second grade Vegeta has. **Waiting only on your drawing** of his grade 2 portrait. The portrait id that was believed to block this is NOT a blocker: measured 2026-11-14 in the r44 ROM, the live portrait list already runs to id 123, and Vegeta Z+ and Piccolo Z+ each added their own. Id 124 is free and the method is proven twice. |
 
 ---
 
@@ -176,7 +177,7 @@ compares every frame PNG under `art\` against the art the build actually reads, 
      answer: does the menu open at all, and does scrolling reach all three new names at the bottom?
    - `log2_poc_r43_rough.gba` beside it is last night's earlier build, before the scouter list work.
      Play r44.
-2. **Push the repository.** 113 commits exist on this disk only, including every drawing now tracked.
+2. **Push the repository.** 115 commits exist on this disk only, including every drawing now tracked.
 3. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
 4. **The journal's 44th quest. I now recommend REPLACING one line, not growing the menu.**
    We measured the quest table and it has exactly one reader in the whole game, which I confirmed
@@ -188,6 +189,7 @@ compares every frame PNG under `art\` against the art the build actually reads, 
    Say replace, or say grow, or say keep all 43 and drop the idea.
 5. **The builds delete list**: 455 files, 2.13 GB.
 6. **XFM-10**, which Vegeta Z+ wins. The live module today is the drawn frames one, with no story gate.
+6b. **Trunks Z+ needs one drawing from you**, his grade 2 portrait. Nothing else blocks it: the portrait list has room and the build method is proven. See XFM-11.
 7. **Rename the Trunks tank art folder?** It is your live folder, so nobody touches it.
 8. **The HUD mockup ruling, which is mine and you can overturn.** The orange Super Saiyan ki bar
    replaced the ki bar of the HUD mockup you approved on 2026-10-24. I ruled that the orange bar
@@ -243,6 +245,7 @@ report them as modules nothing claims.
 | XFM-8 | ki_ramp |
 | XFM-9 | piccolo_zplus, ki_ramp |
 | XFM-10 | vegeta_zplus |
+| XFM-11 | |
 | PRS-1 | chapter_cards |
 | PRS-2 | status_bonus, status_portrait |
 | PRS-3 | bf_ki_pool |
