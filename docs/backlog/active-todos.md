@@ -584,3 +584,23 @@ Every row below was checked against the real files, not relayed from the reviewe
 | 21 | **The status health check cannot see three kinds of drift**: item MARKS are never read, a code may name the WRONG module and pass if the file exists, and a Reference row with a third column or backticks vanishes from the regex silently. | fix the regex to fail loudly on a near-miss row first |
 | 22 | **Eight modules read as untested** because the Test column looks for `test_<module>.py` and they are tested under another name (`gohan_gi` in `test_gi.py`, `ssj2_form` in `test_ssj2.py`, and six more). | a one-line declaration in each test file beats guessing from the filename |
 | 23 | **Move B is cancelled, pending the owner.** Merging `docs\tasks\` with `scripts\one-time\` would put tracked and ignored content in one tree. Replacement: keep the boundary and add a test that the folder names pair up. | the owner asked for the merge; he has not seen the reason to cancel it |
+
+---
+
+## 2026-11-13: two agent findings checked and CLOSED, so they do not come back
+
+**1. `poke_rom.py` pins `0x0893BD68` with no test. CLOSED, false alarm.** The goku-exit agent
+reported this as an unverified pin. It is not a pin. The value appears twice in that file and both
+times inside a DOCSTRING, as an example of the `addr=value` argument format. The tool converts any
+`0x08` address at runtime, so there is nothing to go stale. No action.
+
+**2. `build_list_trial_piccolo.txt` and `build_list_trial_piccolo_z_art.txt` carry stale "option A"
+comments. CLOSED, does not reproduce.** The XFM-9 agent reported this. I read both lists. Neither
+holds an "option A" comment, and their claim that `piccolo_z_start` checks `bf_ki_pool`'s blob byte
+for byte is still TRUE: the module still verifies that blob and only stopped writing to it. What was
+worth saying is said: each list now carries a line explaining that Piccolo has no pool in it,
+because XFM-9 took the pool off Super Namek and neither list carries `piccolo_zplus`.
+
+**The rule both of these show.** An agent finding is a claim. Two of three findings handed to me
+tonight did not survive being read. The third, the fifth `+0x680` scouter site, was real and was
+mine to find, not an agent's.
