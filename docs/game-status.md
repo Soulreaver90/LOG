@@ -173,8 +173,14 @@ compares every frame PNG under `art\` against the art the build actually reads, 
    yellow and staying yellow.
 2. **Push the repository.** 103 commits exist on this disk only, including every drawing now tracked.
 3. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
-4. **The journal's 44th quest.** Growing the menu is possible and costs eight small edits. The other
-   way is to replace one of the 43 vanilla quests, and all 43 are real. Which way?
+4. **The journal's 44th quest. I now recommend REPLACING one line, not growing the menu.**
+   We measured the quest table and it has exactly one reader in the whole game, which I confirmed
+   myself two ways. Nothing counts your quests, checks them for an ending, or looks one up by
+   number. A journal entry is a line of text on a page, and nothing else.
+   So replacing one costs you one vanilla line, and the obvious one to give up is
+   "Talk to Dende on the Lookout". Growing the menu still works and still costs eight edits, but
+   nothing forces it yet, and if it is ever wrong it corrupts a late save silently.
+   Say replace, or say grow, or say keep all 43 and drop the idea.
 5. **The builds delete list**: 455 files, 2.13 GB.
 6. **XFM-10**, which Vegeta Z+ wins. The live module today is the drawn frames one, with no story gate.
 7. **Rename the Trunks tank art folder?** It is your live folder, so nobody touches it.
