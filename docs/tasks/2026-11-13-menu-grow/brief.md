@@ -109,3 +109,28 @@ Write the result to `docs\tasks\2026-11-13-menu-grow\journal-price.md`.
 - Write in ASD-STE100. No em dashes, no en dashes.
 
 One report message, then stop. Do not add a byte order mark.
+
+---
+
+## UPDATE, late on 2026-11-13. Read this before you start.
+
+Four things changed after this brief was written. None of them changes your job.
+
+1. **The build lists MOVED.** They are in `scripts\permanent\build-lists\` now, not
+   `scripts\permanent\`. Reach them through `log_paths.BUILD_LISTS` and never a literal path.
+2. **The suite baseline is different.** It is now **2152 tests with 4 failures and 0 errors**. All
+   four are in `test_bf_hud.py` and another agent owns them. Any OTHER failure is yours. Do not use
+   `docs\tasks\2026-11-13-xfm9\baseline-failures.md`: it is the old 21 row list and it is stale.
+3. **A new trial list exists**, `build_list_trial_rough.txt`. It is the dev master plus the whole
+   future Trunks line and the whole Piccolo and Vegeta Z+ line, and it carries `scouter_future`.
+   **Build it as well as the fx trials when you check your work**, because it is the ROM the owner
+   plays. Its SHA-1 before your change is `abdc640f947a06e3e3c49d03099ac4578c6accaf`.
+4. **XFM-9 landed.** `piccolo_z_start` no longer splices `pool_ref`, and `piccolo_zplus` now carries
+   a four byte splice and a `pool_gate` leaf. Neither touches the scouter or the journal, but the
+   bible rows B2458 to B2468 describe the new shape if you meet it.
+
+### One more thing I measured myself, which the half 2 notes already carry
+
+I decoded every `bl` in the image whose target is `List_RemoveValue` at `0x080068CA`. There are 57
+callers and not one is inside the journal menu range. That is why the grow option stands. If your own
+work finds a caller I missed, say so loudly: it would remove the grow option entirely.
