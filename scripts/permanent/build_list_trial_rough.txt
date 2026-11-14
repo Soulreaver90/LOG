@@ -1,0 +1,40 @@
+# Rough master, 2026-11-13. The owner asked for "a updated master rom with the new portraits, all
+# the changes so far with cell games/ future trunks, piccolo/vegeta z+. It will be a rough build."
+#
+# This is NOT build_list.txt. The golden master stays where it is until he plays this and says so.
+#
+# It is the DEV master plus the two finished lines of work that ship only in trial lists today:
+#   the future Trunks ending  (FUT-1 to FUT-9)
+#   Piccolo and Vegeta Z+     (XFM-5 to XFM-9)
+# The portraits, the Cell Games and the gi are already in the dev master, so they come with it.
+#
+# Left out on purpose, each for a stated reason:
+#   trunks_tank     ART-2, 20 of 288 frames drawn, so play would mix the tank top and the jacket
+#   sprite_lab      DEV-1, a developer lab, not a game feature
+#   gi_base_audit   DEV-1, a review harness
+#   file_select_dim PRS-5, he has never seen it and has not said whether he wants it
+#
+# ORDER. Each line below keeps the order its own trial list proved, and the two lines do not
+# interleave. Each module guards the order IT cares about, so a build that completes proves only
+# those orders. It is NOT evidence that the two lines agree. The cross line byte overlap check in
+# scripts\one-time\2026-11-13-rough-master\overlap.py is what answers that.
+include build_list_dev.txt
+
+# ---- the future Trunks ending, the order of build_list_trial_gameover.txt ----
+battle_arena         # the rain arena map 6,100; moves the map table, so it runs before ending_fight
+ending_fight         # Trunks against Imperfect Cell as a real fight
+future_androids      # Future 18 and Future 17 as two real fights; appends to the moved map table
+pool_refill          # a scripted form change gives a FULL pool; after bf_ki_pool and chapter_cards
+scouter_future       # Future 17, 18 and Cell get scouter entries; relocates the SCOUTER table
+plateau              # the owner's own map 7,100 and the round 2 split; after every map table move
+finale_blast         # the gold beam finish; copies the LIVE ext op table, so after pool_refill
+worldmap_star        # reads the LIVE map table, so it runs last in this line
+gameover_card        # reads the LIVE game-over table; needs plateau's map 7,100 to exist
+
+# ---- Piccolo and Vegeta Z+, the order of build_list_trial_piccolo_fx.txt ----
+piccolo_z_start      # Super Namek from the start; checks bf_ki_pool's blob byte for byte
+piccolo_powerup_art  # set 104 anim 9, his four drawn charge frames
+vegeta_zplus         # entry 23, Vegeta Z+, and dialog portrait 122
+piccolo_zplus        # entry 24, Piccolo Z+ from Super Namek, and dialog portrait 123
+powerup_fx           # the Buu's Fury aura and the ground dust
+ki_ramp              # LAST: it chains the state ticks and the HUD draw
