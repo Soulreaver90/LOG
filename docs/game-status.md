@@ -44,7 +44,7 @@ update it, not because the game changed.
 
 | Code | | What happens |
 |---|---|---|
-| CHM-1 | **IN** | Goku and Gohan stay Super Saiyan from the chamber until Cell is beaten. No drain, no revert at zero ki. |
+| CHM-1 | **IN** | Goku and Gohan stay Super Saiyan from the chamber until Cell is beaten. No drain, no revert at zero ki. Goku turns Super Saiyan as he LEAVES the chamber, not as he enters it (your call, 2026-11-13). |
 | CHM-2 | **IN** | A sparring fight, Gohan against Goku, in the Capsule Corp training room. This is the first step toward real Time Chamber fights. |
 | CHM-3 | **DESIGNED** | Proper Time Chamber fights. The spar proves the shape works. |
 
