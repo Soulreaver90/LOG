@@ -8,7 +8,9 @@ Rule:    changing a value here is a deliberate act. Name the build that moved it
          Never read these from docs\build-log.md. The build writes that log, so a build checked against
          it only agrees with itself. The pin is a hand edited tripwire. That is its whole job.
 Use:     from tests import masters, then masters.GOLDEN or masters.DEV.
+Moved:   2026-11-13, by moving Goku's Super Saiyan set from the chamber door record to the
+         chamber exit record. The insert grew two records, so every later allocation shifted.
 """
 
-GOLDEN = "acf1b15f46628255bdf00d025464b807ce7410a9"     # build_list.txt, the golden master (r41, 2026-10-31)
-DEV = "ffbd2bfc766f7766d6ebe8c0f1905a53e6c4ce07"        # build_list_dev.txt, the dev master (r41, 2026-10-31)
+GOLDEN = "778ccff59eddf7d34f432ece7e9a929595b2425f"     # build_list.txt, the golden master (2026-11-13)
+DEV = "49cdfd3c172d734956d74ecb6c6419d1a301da6e"        # build_list_dev.txt, the dev master (2026-11-13)
