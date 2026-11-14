@@ -171,13 +171,19 @@ compares every frame PNG under `art\` against the art the build actually reads, 
    save beside it. It is the dev master plus the whole future Trunks line and the whole Piccolo and
    Vegeta Z+ line, 41 modules. Check Piccolo's bar first: base green, Super Namek green, Z+ ramping to
    yellow and staying yellow.
-2. **Push the repository.** 95 commits exist on this disk only, including every drawing now tracked.
+2. **Push the repository.** 103 commits exist on this disk only, including every drawing now tracked.
 3. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
 4. **The journal's 44th quest.** Growing the menu is possible and costs eight small edits. The other
    way is to replace one of the 43 vanilla quests, and all 43 are real. Which way?
 5. **The builds delete list**: 455 files, 2.13 GB.
 6. **XFM-10**, which Vegeta Z+ wins. The live module today is the drawn frames one, with no story gate.
 7. **Rename the Trunks tank art folder?** It is your live folder, so nobody touches it.
+8. **The HUD mockup ruling, which is mine and you can overturn.** The orange Super Saiyan ki bar
+   replaced the ki bar of the HUD mockup you approved on 2026-10-24. I ruled that the orange bar
+   wins, because it is newer and you play with it. So four tests that said the build still matches
+   that mockup whole were rewritten to claim only what is still true. The HUD itself is untouched
+   and ships exactly as approved. If you want the mockup's ki bar back instead, say so and the
+   orange bar comes out.
 
 ---
 
