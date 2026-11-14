@@ -6,11 +6,10 @@ Run (from the LOG root):
 Builds build_list_dev.txt in memory: "before" = the list up to bf_hud (r38), "hud" = before + bf_hud,
 "rom" = hud + bf_ki_pool (r39). Expected values are restated from the mockup builders
 (scripts\one-time\2026-10-24-hud-ki\build_mock1.py, proto\build_proto_b.py) and the r38 bytes, not imported from the patches.
-Equivalence: r39 WAS the v2b mockup with its window moved from rom:0xE11000 to the allocated window, every word that
-names the old window moved by the same delta (relocate). The orange Super Saiyan bar doubled the window and rewrote
-its code, so EquivalenceTests and the r39 file row are RED and the owner holds the decision. The bf_hud half of the
-mockup still ships byte for byte; the class docstring carries the measurement. The mockups are read only; a test
-skips without them.
+Equivalence: the approved v2b mockup has two halves. The HUD half still ships byte for byte, and EquivalenceTests
+holds that guard. The ki pool half was superseded by the ORANGE Super Saiyan bar, which the owner approved later
+(game-status.md, PRS-3), so the window grew and its code was rewritten. The class docstring carries the measurement.
+The two mockups and the r38 and r39 files are frozen INPUTS. Their SHA-1s are pinned, and a test skips without them.
 The interpreter tests of the pool code are in test_bf_ki_pool.py (ported from proto\test_proto_b.py).
 """
 import copy
@@ -32,11 +31,14 @@ BUILD = log_paths.MASTER_BUILDS
 MOCKS = log_paths.HUD_KI_MOCKUPS
 V2B, V2, MOCK1 = MOCKS / "log2_poc_r38_bfhud2b.gba", MOCKS / "log2_poc_r38_bfhud2.gba", MOCKS / "log2_poc_r36_bfhud.gba"
 V2B_SHA1, V2_SHA1 = "f5f5ee730346695c25035871378efebc084165b1", "5f17f8fc9c31e7c60b44543c8868d02b18b8fd6c"
+R38_SHA1 = "7a7cb85fa5873c4a44d360b33b6755d4e71e18e3"   # v2b's OWN base: a frozen input of every v2b row
 R38_LAST = "chamber_spar"                              # the last module of the r38 list (build-lists r-tags)
 R38, R39 = log_paths.build_file("log2_poc_r38.gba"), log_paths.build_file("log2_poc_r39.gba")
 BF = log_paths.BF_ROM
 
 MOCK_WINDOW, MOCK_SIZE, YELLOW_LEN = 0xE11000, 0x824, 0x500
+V2B_FIX_STUB = 0xE1181C                                # the 8 byte state 46 stub v2b added inside its window
+HUD_REGION_BYTES, V2B_HUD_BYTES = 17888, 13854         # the bf_hud regions, and the part of them v2b changed
 RAM = 0x03003A00
 PAL, BF_PAL = 0x1DA6C8, 0x5652C
 SKIP_IDX, LIVE_PAL_SKIP = frozenset({0, 172, 174, 178, 218, 239}), frozenset({168})
@@ -61,6 +63,10 @@ HOOKS = {                                              # build_proto_b.HOOKS: (v
 }
 HOOK_OFFSETS = sorted(vt - ROM_BASE + slot for vt, slot, _, _ in HOOKS.values())
 ABILITY_WORDS = sorted(ABILITY_TABLE + 16 * n + k for n in WRAP_ABILITIES for k in (8, 12))
+# The ten hooks the v2b mockup itself installed, named. LATER_HOOKS came after it, so v2b never names them.
+V2B_HOOKS = ("hud_draw", "ssj_tick", "ssj2_tick", "transform_end", "revert_end",
+             "ki_blast", "beam48", "beam49", "ball51", "hold46")
+LATER_HOOKS = ("asc_tick", "xform_tick")               # the ascended grade, then the Z meter
 MOCK1_REGIONS = ((0x8E80, 4), (0x8E88, 4), (0x6D7B54, 0x300), (0x3B5358, 0x300), (0x3B5658, 0x310),
                  (0x3B5968, 0x228), (0x3B5B90, 0x50), (0x3B5BE0, 0x14))
 BOSS = ((0x6D60F4, 0x3C0), (0x6D64B4, 0x200))
@@ -124,26 +130,17 @@ def window() -> tuple:
     return n["window"], n["size"]
 
 
-def relocate(mockup: bytes, before: bytes, at: int, size: int = MOCK_SIZE) -> tuple:
-    """The mockup with its window moved to `at`; words naming the old window move by the same delta.
-    Returns (bytes, [file offsets of moved words inside the new window])."""
-    delta, lo, hi = at - MOCK_WINDOW, ROM_BASE + MOCK_WINDOW, ROM_BASE + MOCK_WINDOW + size
-    out = bytearray(mockup)
-    out[MOCK_WINDOW:MOCK_WINDOW + size] = before[MOCK_WINDOW:MOCK_WINDOW + size]
-    out[at:at + size] = mockup[MOCK_WINDOW:MOCK_WINDOW + size]
-    moved = []
-    for p in range(at, at + size, 4):
-        if lo <= u32(out, p) < hi:
-            struct.pack_into("<I", out, p, u32(out, p) + delta)
-            moved.append(p)
-    for vt, slot, _, _ in HOOKS.values():
-        p = vt - ROM_BASE + slot
-        if lo <= (vt + u32(out, p)) & M32 < hi:
-            struct.pack_into("<I", out, p, (u32(out, p) + delta) & M32)
-    for p in ABILITY_WORDS:
-        if lo <= u32(out, p) < hi:
-            struct.pack_into("<I", out, p, u32(out, p) + delta)
-    return bytes(out), moved
+def r38_file() -> bytes:
+    """The frozen r38 file, which is v2b's OWN base. Cached, because three rows read it."""
+    if "r38" not in _CACHE:
+        _CACHE["r38"] = R38.read_bytes()
+    return _CACHE["r38"]
+
+
+def hook_word(name: str) -> int:
+    """File offset of the vtable word a hook takes."""
+    vt, slot, _, _ = HOOKS[name]
+    return vt - ROM_BASE + slot
 
 
 # ===== shared models (ported from scripts\one-time\2026-10-24-hud-ki: common.py, hudsim.py, proto\bossim.py) =====
@@ -246,6 +243,22 @@ def pool_sites() -> list:
     return [(at, size)] + [(p, 4) for p in HOOK_OFFSETS + ABILITY_WORDS]
 
 
+def v2b_sites() -> list:
+    """Every site the v2b mockup changed in its own base: the bf_hud regions (the HUD half), its own
+    window and the words naming inside it (the ki pool half)."""
+    return (hud_sites() + [(MOCK_WINDOW, MOCK_SIZE)] + [(hook_word(n), 4) for n in V2B_HOOKS]
+            + [(p, 4) for p in ABILITY_WORDS])
+
+
+def hud_half_problems(rom: bytes, v2b: bytes) -> list:
+    """bf_hud regions where `rom` no longer carries the mockup's bytes.
+
+    It compares WHOLE regions, so it also reads the 4034 bytes v2b shares with its own base. A check
+    anchored on a diff of the two cannot see those.
+    """
+    return [hex(o) for o, ln in hud_sites() if rom[o:o + ln] != v2b[o:o + ln]]
+
+
 def need(*paths: Path) -> None:
     missing = [p.name for p in paths if not p.exists()]
     if missing:
@@ -286,63 +299,109 @@ class BaseTests(unittest.TestCase):
 
 
 class EquivalenceTests(unittest.TestCase):
-    """r39 behaves as v2b: the same bytes, the window moved and every word naming it moved with it.
+    """What the approved v2b mockup still proves about the build. Measured 2026-11-13.
 
-    These rows are RED since the orange Super Saiyan bar landed, and the owner holds the decision.
-    Measured 2026-11-13 against v2b's OWN base, the frozen r38 file. v2b changed 16031 bytes of it:
-    13854 in the bf_hud regions, 2073 in the window, 38 in hooked vtable words and 66 in ability
-    words. The build still carries all 13854 bf_hud bytes exactly, and differs from v2b in NO
-    non-window, non-pointer byte. The ki pool half is what moved on: the window is 0x10B4 bytes
-    against the mockup's 0x824, the yellow image still matches byte for byte, the code blob is
-    0x3AC bytes against v2b's 0x324 and shares 76 of them, and the words that name inside the
-    window carry six different deltas, because the orange image sits between the yellow one and
-    the code. See the group 3 report.
+    v2b has two halves. The HUD half is the 132 bf_hud regions, 17888 bytes, and the build carries
+    every one of them byte for byte. That guard is why this class exists. The ki pool half moved
+    on, because the owner later approved the ORANGE Super Saiyan bar (game-status.md, PRS-3). The
+    window is now 0x10B4 bytes against the mockup's 0x824, the code blob is 0x3AC bytes against
+    v2b's 0x324 and shares 76 of them, and the words naming inside the window carry six different
+    deltas, because the orange image sits between the yellow one and the code. The yellow image
+    itself still matches byte for byte, and one row holds that.
+    Against its OWN base, the frozen r38 file, v2b changed 16031 bytes: 13854 in the bf_hud
+    regions, 2073 in the window, 38 in ten hooked vtable words and 66 in 22 ability words. Eight
+    further pointer bytes hold the same value in the build by coincidence, and every one of them is
+    the top byte of a hook word. A split that counts bytes rather than regions therefore reads
+    13862 matching bytes, and that number is wrong.
     """
 
     @classmethod
     def setUpClass(cls):
         need(V2B, V2)
-        b = built()
-        cls.before, cls.rom = b["before"], b["rom"]
+        cls.rom = built()["rom"]
         cls.v2b, cls.v2 = V2B.read_bytes(), V2.read_bytes()
-        cls.at, cls.size = window()
+        cls.at = window()[0]
 
     def test_mockup_files(self):
-        """The two mockups are hand made inputs that nobody regenerates, so their SHA-1s are pinned."""
+        """The two mockups are hand made inputs that nobody regenerates, so their SHA-1s are pinned.
+
+        MOCK_SIZE is pinned from both sides here, against the mockup alone: v2b's window page holds
+        content up to MOCK_SIZE and 0xFF filler after it.
+        """
         self.assertEqual(hashlib.sha1(self.v2b).hexdigest(), V2B_SHA1)
         self.assertEqual(hashlib.sha1(self.v2).hexdigest(), V2_SHA1)
+        self.assertNotEqual(self.v2b[MOCK_WINDOW + MOCK_SIZE - 1], 0xFF)
         self.assertEqual(set(self.v2b[MOCK_WINDOW + MOCK_SIZE:MOCK_WINDOW + 0x1000]), {0xFF})
 
-    def test_r39_is_v2b_relocated(self):
-        self.assertEqual(self.size, MOCK_SIZE)
-        want, moved = relocate(self.v2b, self.before, self.at)
-        self.assertEqual(self.rom, want)
-        self.assertEqual(len(moved), 1)                        # the YELLOW literal of put_px, nothing else
-        self.assertEqual(u32(self.rom, moved[0]), self.at + ROM_BASE)
-        self.assertGreater(moved[0], labels()["put_px"] - ROM_BASE)
+    def test_the_hud_half_of_v2b_still_ships(self):
+        """Every byte of the HUD half of the approved mockup still ships, byte for byte.
+
+        This is the part of the old whole ROM compare that is still true, and it is the guard that
+        survives the orange Super Saiyan bar. The HUD half is the 132 bf_hud regions, 17888 bytes.
+        The compare reads WHOLE regions, so it also reads the 4034 bytes v2b shares with its own
+        base, which a diff of the two cannot see. It needs the mockup alone.
+        """
+        self.assertEqual(hud_half_problems(self.rom, self.v2b), [])
+        self.assertEqual(len({i for o, ln in hud_sites() for i in range(o, o + ln)}), HUD_REGION_BYTES)
         self.assertEqual(set(self.rom[MOCK_WINDOW:MOCK_WINDOW + 0x1000]), {0xFF})
 
-    def test_every_v2b_run_has_its_counterpart(self):
-        delta = self.at - MOCK_WINDOW
-        hooks = {vt - ROM_BASE + slot: vt for vt, slot, _, _ in HOOKS.values()}
-        for a, b in runs_of(self.before, self.v2b):
-            for x in range(a, b):
-                if MOCK_WINDOW <= x < MOCK_WINDOW + MOCK_SIZE:
-                    continue                                   # window bytes: test_r39_is_v2b_relocated
-                w = x & ~3
-                if w in hooks:
-                    vt = hooks[w]
-                    self.assertEqual((vt + u32(self.rom, w)) & M32, (vt + u32(self.v2b, w) + delta) & M32, hex(w))
-                elif w in ABILITY_WORDS:
-                    self.assertEqual(u32(self.rom, w), u32(self.v2b, w) + delta, hex(w))
-                else:
-                    self.assertEqual(self.rom[x], self.v2b[x], hex(x))
+    def test_the_yellow_bar_image_still_ships(self):
+        """The one part of the ki pool half the orange bar left byte for byte: the yellow bar image.
 
-    def test_v2_to_r39_is_the_state_46_word_and_stub(self):
-        """The v2 mockup relocated the same way differs from r39 only by the v2b fix (proto test_v2_to_v2b)."""
-        want, _ = relocate(self.v2, self.before, self.at)
-        fix = built()["notes"]["bf_ki_pool"]["fix"]
-        self.assertEqual([(a, b - a) for a, b in runs_of(want, self.rom)], [(0x258BC, 4), (fix, 8)])
+        It sits first in both windows, so each copy starts at its own window base. The code behind
+        it was rewritten to pick a colour, and no row compares that.
+        """
+        self.assertEqual(self.rom[self.at:self.at + YELLOW_LEN],
+                         self.v2b[MOCK_WINDOW:MOCK_WINDOW + YELLOW_LEN])
+
+    def test_v2b_changes_its_own_base_at_named_sites_only(self):
+        """v2b against ITS OWN base, the frozen r38 file: the claim 2 form, which no build stales.
+
+        v2b changes the bf_hud regions, its own window and exactly 32 named words: the ten vtable
+        words it hooked, and all 22 ability words. A NEW difference is a stray and fails here.
+        The site list comes from the bf_hud notes. 130 of the 132 regions sit at vanilla offsets.
+        The other two move with the ssj2_form allocation, as the ssj2_tick entry of HOOKS does.
+        This row also pins the r38 file, which is the input the 13854 count measures against.
+        """
+        need(R38)
+        r38 = r38_file()
+        self.assertEqual(hashlib.sha1(r38).hexdigest(), R38_SHA1)
+        sites = v2b_sites()
+        self.assertEqual(len(sites), len(hud_sites()) + 1 + len(V2B_HOOKS) + len(ABILITY_WORDS))
+        self.assertEqual(site_problems(r38, self.v2b, sites), [])
+        regions = {i for o, ln in hud_sites() for i in range(o, o + ln)}
+        self.assertEqual(len([x for x in diff(r38, self.v2b) if x in regions]), V2B_HUD_BYTES)
+        for name in LATER_HOOKS:                    # these two post-date v2b, so v2b never names them
+            self.assertNotIn((hook_word(name), 4), sites)
+
+    def test_v2_to_v2b_is_the_state_46_word_and_stub(self):
+        """The v2b fix, measured from the two pinned mockups alone (proto test_v2_to_v2b).
+
+        v2 left the state 46 hold hook at its vanilla handler. v2b points it at a new 8 byte stub
+        inside the mockup window.
+        """
+        vt, _, vanilla, _ = HOOKS["hold46"]
+        word = hook_word("hold46")
+        self.assertEqual([(a, b - a) for a, b in runs_of(self.v2, self.v2b)],
+                         [(word, 4), (V2B_FIX_STUB, 8)])
+        self.assertEqual((vt + u32(self.v2, word)) & M32, vanilla)
+        self.assertEqual((vt + u32(self.v2b, word)) & M32, (ROM_BASE + V2B_FIX_STUB) | 1)
+
+    def test_the_build_carries_the_state_46_fix(self):
+        """The same fix in the build, which bf_ki_pool records as its "fix" note.
+
+        The hold46 vtable word names the st46 stub. The stub loads the vanilla state 46 handler
+        address and branches to swap_state. v2b's own stub holds the same vanilla literal.
+        """
+        from rom.thumb_dis import listing
+        vt, _, vanilla, _ = HOOKS["hold46"]
+        lb, fix = labels(), built()["notes"]["bf_ki_pool"]["fix"]
+        self.assertEqual(fix, lb["st46"] - ROM_BASE)
+        self.assertEqual((vt + u32(self.rom, hook_word("hold46"))) & M32, lb["st46"] | 1)
+        self.assertEqual([t for _, t in listing(self.rom, lb["st46"], 2)],
+                         [f"ldr r3,={vanilla:#010x}", f"b {lb['swap_state']:#x}"])
+        self.assertEqual(u32(self.rom, fix + 4), vanilla)
+        self.assertEqual(u32(self.v2b, V2B_FIX_STUB + 4), vanilla)
 
     def test_rebase_equals_mockup_1(self):
         need(MOCK1)
@@ -544,6 +603,7 @@ class FailClosedTests(unittest.TestCase):
 
 # ===== the r39 files =====
 
+R39_SHA1 = "aa51dc16da5f6b633c0f50dc566864fe43f89ff0"   # the ROM he played: a record, never a build target
 R39_SAV, R39_SPAR, R39_COMPUTER = (log_paths.build_file(f"log2_poc_r39{s}")
                                    for s in (".sav", "_spar", "_computer"))
 R38_SCOUTER_SAV, R38_SPAR_SAV, R38_COMPUTER_SAV = (log_paths.build_file(f"log2_poc_r38{s}.sav")
@@ -565,11 +625,15 @@ def slots_valid(sav: bytes) -> list:
 
 
 class FileTests(unittest.TestCase):
-    def test_r39_file_equals_the_build(self):
-        """RED, and the controller holds the decision. The r39 file is the ROM the owner played. Later
-        modules changed size, so every allocation after them moved and no build reproduces it."""
+    def test_r39_file_is_the_pinned_record(self):
+        """The r39 file is a frozen INPUT pin, and this row is not a build check.
+
+        It is the ROM the owner played. Later modules changed size, so every allocation after them
+        moved and no build reproduces it. Its SHA-1 is pinned the way test_mockup_files pins the two
+        mockups. What the mockup still proves about the build lives in EquivalenceTests.
+        """
         need(R39)
-        self.assertEqual(R39.read_bytes(), built()["rom"])
+        self.assertEqual(hashlib.sha1(R39.read_bytes()).hexdigest(), R39_SHA1)
 
     def test_rom_pairs_are_copies(self):
         need(R39, R39_SPAR.with_suffix(".gba"), R39_COMPUTER.with_suffix(".gba"))
@@ -599,9 +663,9 @@ class FileTests(unittest.TestCase):
 
 
 class ControlTests(unittest.TestCase):
-    """site_problems reads both site lists from the notes the two patches wrote, and the skip rule reads
-    its chunk addresses from the allocator. Both must be shown to go red. Every case works on a copy in
-    memory: no ROM file, save or state is written."""
+    """site_problems and hud_half_problems read their site lists from the notes the two patches wrote,
+    and the skip rule reads its chunk addresses from the allocator. All three must be shown to go red.
+    Every case works on a copy in memory: no ROM file, save or state is written."""
 
     @classmethod
     def setUpClass(cls):
@@ -623,6 +687,18 @@ class ControlTests(unittest.TestCase):
         hud = bytearray(self.hud)
         hud[at:at + ln] = self.before[at:at + ln]
         self.assertEqual(site_problems(self.before, bytes(hud), hud_sites()), [hex(at)])
+
+    def test_a_hud_region_byte_that_leaves_v2b_is_reported(self):
+        """The HUD half guard must be shown to have teeth, or the build can decay into agreeing with
+        itself. The byte perturbed here is one v2b SHARES with its own base, which proves the whole
+        region compare sees more than a diff of the two does."""
+        need(R38, V2B)
+        v2b, at = V2B.read_bytes(), hud_sites()[0][0]
+        self.assertEqual(r38_file()[at], v2b[at])
+        self.assertEqual(hud_half_problems(self.rom, v2b), [])
+        rom = bytearray(self.rom)
+        rom[at] ^= 0x01
+        self.assertEqual(hud_half_problems(bytes(rom), v2b), [hex(at)])
 
     def test_a_word_naming_the_taken_window_is_found(self):
         """The skip rule says no word names the chunk the allocator took. Plant one and read it back."""

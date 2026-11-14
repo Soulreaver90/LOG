@@ -20,7 +20,9 @@ Method:  All writes are in place. No code byte, no repoint. Steps 1-4 are mockup
          also 168, which the Cell fight palette RAM changes); test_bf_hud.py re-derives it. Frozen, so a later
          palette edit recolors the HUD like every other OBJ and never reshuffles its indices.
 Rules:   Source: docs\tasks\2026-10-24-r39-build\r39.md, hud-ki-study-report.md section 5, hud-ki-proto-report.md; the mockup
-         builders scripts\one-time\2026-10-24-hud-ki\build_mock1.py and proto\build_proto_b.py (r39 equals v2b, test_bf_hud.py).
+         builders scripts\one-time\2026-10-24-hud-ki\build_mock1.py and proto\build_proto_b.py. The HUD half of
+         v2b still ships byte for byte (test_bf_hud.py); the pool half was superseded by the orange Super
+         Saiyan bar in bf_ki_pool, so r39 no longer equals v2b.
          Every region is checked against its r38 bytes (SHA-1) before the first write; a second run raises.
 """
 import hashlib
