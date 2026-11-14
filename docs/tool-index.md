@@ -92,6 +92,7 @@ Read and write the ROM: sprites, saves, compression, free space.
 |---|---|
 | `find_compressed.py` | Find GBA BIOS-compressed blocks (LZ77 type 0x10, RLE type 0x30) that contain a probe. |
 | `find_palettes.py` | Find 16-color GBA palettes in a ROM that match the colors of a ripped sprite sheet. |
+| `gapscan.py` | Shape E: `mov rX,#imm` then `lsl rD,rX,#sh` with a GAP between the two instructions. |
 | `item_index.py` | Every inventory item: its id, name, description and handler. |
 | `log2_save.py` | Read, check and write Dragon Ball Z: The Legacy of Goku II (USA, ALFE) EEPROM saves (mGBA .sav). |
 | `log2_sprites.py` | Export LoG II sprite sets to indexed PNGs, and clone a set with replaced frames. |
@@ -222,7 +223,7 @@ These derive approved art from vanilla plus a hand drawing. A stale one silently
 | `art\hand-fixes\snap_r19` | 2 |
 | `art\hand-fixes\tools` | 7 |
 
-### One-time work (157 dated folders, 1429 scripts)
+### One-time work (158 dated folders, 1430 scripts)
 
 Scripts written to answer one question, kept with the answers they printed. Not reusable by default, but check here before re-deriving a ROM fact: the answer may already be printed in a `.txt` beside the script. Newest first.
 
@@ -230,6 +231,7 @@ Scripts written to answer one question, kept with the answers they printed. Not 
 |---|---|---|
 | `2026-11-13-scratch` | 1 |  |
 | `2026-11-13-rough-master` | 1 |  |
+| `2026-11-13-menu-grow` | 1 |  |
 | `2026-11-13-journal-menu` | 3 |  |
 | `2026-11-13-goku-chamber` | 1 |  |
 | `2026-11-13-build-lists` | 1 |  |
@@ -267,6 +269,5 @@ Scripts written to answer one question, kept with the answers they printed. Not 
 | `2026-11-07-layer-offsets` | 13 |  |
 | `2026-11-07-gameover` | 5 |  |
 | `2026-11-07-future-androids` | 4 |  |
-| `2026-11-07-finale-testpath` | 4 |  |
 
-...and 117 older folders in `scripts\one-time\`.
+...and 118 older folders in `scripts\one-time\`.
