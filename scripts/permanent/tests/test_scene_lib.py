@@ -93,12 +93,16 @@ class DecoderTests(unittest.TestCase):
     """The decoder is checked against the lengths the patch modules declare, not against new numbers."""
 
     def test_type_0_record_length_matches_the_module_constants(self):
+        import patches.fullpower_ssj as fps
         import patches.piccolo_gi_scene as pgs
-        for index, (at, length, _sha) in pgs.SOURCES.items():
+        # Seq 3's base ROM length is fullpower_ssj's constant now, because piccolo_gi_scene copies its copy.
+        want = [(f"piccolo index {i}", at, n) for i, (at, n, _sha) in pgs.SOURCES.items() if at is not None]
+        want += [(f"fullpower {k}", at, n) for k, (at, n, *_rest) in fps.RECORDS.items() if isinstance(at, int)]
+        self.assertEqual(len(want), 4)                      # 3 piccolo sources plus fullpower_ssj's exit_seq3
+        for name, at, length in want:
             if BASE_ROM[at + 2] != S.TYPE_CODE:
                 continue
-            self.assertEqual(S.decode_record(BASE_ROM, at).length, length,
-                             f"table index {index} at rom:0x{at:X}")
+            self.assertEqual(S.decode_record(BASE_ROM, at).length, length, f"{name} at rom:0x{at:X}")
 
     def test_walk_offs_record_decodes_to_the_documented_ops(self):
         rec = S.decode_record(BASE_ROM, WALK_OFFS)

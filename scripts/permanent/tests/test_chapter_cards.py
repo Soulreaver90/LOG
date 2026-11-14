@@ -57,20 +57,23 @@ SCRIPT_REGION = (0x3B5000, 0x420000)
 WANT_CHAPTERS = [(1, "The Mysterious Youth", None), (2, "Preparation", 26), (3, "The Androids Appear", 68),
                  (4, "Into Gero's Lab", 86), (5, "A New Horror", 129), (6, "Perfection", 148),
                  (7, "The Cell Games", 158), (8, "The Champion's Hour", 195)]
+# piccolo_gi_scene's chamber exit table copy. It sits 0x24 higher than in r39, because fullpower_ssj now grows
+# the chamber EXIT record and piccolo_gi_scene's own copy of that record grows with it.
+CHAMBER_EXIT_TABLE = 0x89B17C
 SET_SITES = {26: 0x3BFDBF, 68: 0x3B8571, 86: 0x3D542A, 129: 0x3DF28F, 148: 0x3E605A,
              158: 0x3DBDAA, 195: 0x3EC6A2}                          # `00 NN 02 1B` (push NN ; ext 27 SET)
 # Story points (v5_records_probe.txt; card 5 v6_probe.txt): card: (record, length, table word in r39, op start the
 # card goes before). Card 4 left the post-20 record in v8 (V7_CARD4) for the landing scene.
 STORY_WANT = {2: (0x3BFDB4, 0x27, 0x3BFF38, 0x3BFDBF), 3: (0x3B8566, 0xA6, 0x3B88BC, 0x3B8571),
               5: (0x3DF28C, 0x82, 0x3DF764, 0x3DF297),
-              6: (0x3E5ED4, 0x47, 0x3E61CC, 0x3E5EDB), 7: (0x3DB4B0, 0x20, 0x89B158, 0x3DB4BF),
+              6: (0x3E5ED4, 0x47, 0x3E61CC, 0x3E5EDB), 7: (0x3DB4B0, 0x20, CHAMBER_EXIT_TABLE, 0x3DB4BF),
               8: (0x3EC678, 0x4D, 0x3EC81C, 0x3EC683)}
 FADE_BEFORE = {2: (0x3BFDBB, 120), 3: (0x3B856D, 240), 5: (0x3DF293, 90), 6: (0x3E5ED7, 180), 7: (0x3DB4BB, 240),
                8: (0x3EC67F, 240)}                                  # `00 VV 02 28` (push VV ; ext 40 fade out)
 # Real word 0 of each story table and the word that names it (v6_probe.txt; the word before word 0 can be a stray
 # small word, bible CH6 trap row). Card 7: the r39 chamber exit copy, named by the two type 5 words.
 TABLE0 = {2: (0x3BFDDC, 0x3F1E80), 3: (0x3B88A0, 0x3EDD64), 4: (0x3D5524, 0x3FD7A4), 5: (0x3DF720, 0x404478),
-          6: (0x3E6078, 0x4066E0), 7: (0x89B158, 0x3CF7E4), 8: (0x3EC758, 0x4090F4)}
+          6: (0x3E6078, 0x4066E0), 7: (CHAMBER_EXIT_TABLE, 0x3CF7E4), 8: (0x3EC758, 0x4090F4)}
 V5_CARD5 = (0x3D9864, 0x30, 0x3D9968)                                # v5 card 5 point (flag 127 fade): vanilla in v6
 A19_TABLE, A19_RECORDS = (0x3D40C8, 0xA8), (0x3D3810, 0x8B8)        # Android 19 table (vegeta_19_reveal), 42 words
 CARD_OP, EXT_TABLE, EXT_POOLS = 145, 0x3B5D28, (0x921C, 0x92DC)      # bible DS8: 145 code words, two names

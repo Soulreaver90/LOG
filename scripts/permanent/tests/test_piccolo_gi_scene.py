@@ -29,9 +29,10 @@ from rom.thumb_dis import listing
 from rom.webfoot_decompress import ROM_BASE, decompress, read_set
 
 # ===== constants (brief and report) =====
-R28_SHA1 = "eef01cf6aa37f660bbe0f07b87694d058252499c"
+R28_SHA1 = "2d297ce8e26eac0990f7fefb26992599d6e14c87"   # moved: fullpower_ssj now sets Goku at the chamber EXIT
 OLD_TABLE, OLD_WORDS, TYPE5 = 0x3DBDD4, 35, (0x3CF7E4, 0x3D1530)
-REPLACED = {2: 0x3DB59C, 15: 0x3DB930, 20: 0x3DBABC, 31: 0x3DBD5C}      # index: old record (seq 3, 16, 21, 32)
+SEQ3 = 2                                                                # fullpower_ssj grows and moves seq 3
+REPLACED = {15: 0x3DB930, 20: 0x3DBABC, 31: 0x3DBD5C}                   # index: old record (seq 16, 21, 32)
 WALK = list(range(0, 30)) + list(range(35, 45)) + [30, 31, 32, 33]      # indexes run in order; 34 is END
 # r32: word 29 names the walk-offs copy (index 28 skips the lines), word 31 the new tail (SET 158, sound 62)
 WALK_OFFS_AT, LINES_AT, TAIL_AT = 29, 30, 31
@@ -61,6 +62,10 @@ R30_SLOTS = {31: (0x89AF38, 75), 35: (0x89AF84, 77), 44: (0x89B118, 61)}
 R30_TABLE = 0x89B158
 # r32: r30's record 31 slot holds the walk-offs (40 bytes) and the tail (12 bytes in a 35-byte slot)
 R32_SLOTS = {29: (0x89AF38, 40), 31: (0x89AF60, 35), 35: (0x89AF84, 77), 44: (0x89B118, 61)}
+# R30_SLOTS, R30_TABLE and R32_SLOTS are the addresses in the SHIPPED r30, r31 and r32 files, which never move.
+# This build sits SHIFT higher: fullpower_ssj's chamber exit copy is 0x1C bigger than its old chamber door copy,
+# and piccolo's own seq 3 copy then grows 6 bytes. Measured on records 29, 31, 35, 44 and the table, not computed.
+SHIFT = 0x24
 R32_LENGTHS = {29: 40, 31: 12, 44: 48}
 SCENE_CAMERA, GOKU_SPOT, PICCOLO_SPOT, GOHAN_SPOT = (232, 320), (384, 400), (312, 400), (344, 400)
 ARGS = {27: 1, 31: 3, 33: 1, 40: 1, 41: 1, 43: 1, 46: 1, 51: 3, 52: 1, 53: 3, 54: 3, 55: 2, 57: 2, 62: 3, 63: 0,
@@ -92,6 +97,11 @@ def built() -> dict:
 
 
 # ===== scene helpers =====
+
+def replaced() -> dict:
+    """{table index: the record its word names in the r28 ROM}. Seq 3 is read, because fullpower_ssj moves it."""
+    return {SEQ3: u32(built()["before"], OLD_TABLE + 4 * SEQ3) - ROM_BASE, **REPLACED}
+
 
 def table_of(rom: bytes) -> int:
     return u32(rom, TYPE5[0]) - ROM_BASE
@@ -165,15 +175,17 @@ class SceneTableTests(unittest.TestCase):
         self.assertTrue(log2_build.BASE_SIZE <= self.table < 0xF00000)
 
     def test_new_table_keeps_every_other_word(self):
+        rep = replaced()
         new = [u32(self.rom, self.table + 4 * i) for i in range(45)]
         old = [u32(self.before, OLD_TABLE + 4 * i) for i in range(OLD_WORDS)]
         for i in range(OLD_WORDS):
             with self.subTest(index=i):
-                if i in REPLACED:
-                    self.assertEqual(old[i], REPLACED[i] + ROM_BASE)
+                if i in rep:
+                    self.assertEqual(old[i], rep[i] + ROM_BASE)
                     self.assertNotEqual(new[i], old[i])
                 elif i == WALK_OFFS_AT:                                 # r32: the chime record drops out
-                    self.assertEqual((old[i], new[i]), (CHIME_RECORD + ROM_BASE, R32_SLOTS[i][0] + ROM_BASE))
+                    self.assertEqual((old[i], new[i]),
+                                     (CHIME_RECORD + ROM_BASE, R32_SLOTS[i][0] + SHIFT + ROM_BASE))
                 else:
                     self.assertEqual(new[i], old[i])
         self.assertEqual(new[34], 0)                                    # END, resume index 0
@@ -182,7 +194,7 @@ class SceneTableTests(unittest.TestCase):
     def test_old_table_and_records_unchanged(self):
         self.assertEqual(self.rom[OLD_TABLE:OLD_TABLE + 4 * OLD_WORDS],
                          self.before[OLD_TABLE:OLD_TABLE + 4 * OLD_WORDS])
-        for rec in REPLACED.values():
+        for rec in replaced().values():
             self.assertEqual(self.rom[rec:rec + 0x60], self.before[rec:rec + 0x60], hex(rec))
 
     def test_walk_order(self):
@@ -240,15 +252,16 @@ class StoryboardTests(unittest.TestCase):
             self.assertEqual(depth, 0, i)
 
     def test_seq3_copy_is_armor_ssj_and_entry_0(self):
-        a = ext_sequence(self.before, REPLACED[2])
+        a = ext_sequence(self.before, replaced()[SEQ3])
         b = ext_sequence(self.rom, self.recs[2])
         swap = {(51, (56, 840, 432)): (51, (59, 840, 432)), (55, (56, 1)): (55, (59, 1)),
                 (73, (0, 158)): (73, (0, 53))}
         self.assertEqual(b, [swap.get(x, x) for x in a])
         self.assertTrue(all(k in a for k in swap))
+        self.assertIn((73, (4, 61)), b)         # fullpower_ssj's Goku set reaches the record the player runs
 
     def test_seq32_copy_is_the_trunks_and_vegeta_walk_offs_then_the_new_scene(self):
-        a = ext_sequence(self.before, REPLACED[31])
+        a = ext_sequence(self.before, replaced()[31])
         b = ext_sequence(self.rom, self.recs[WALK_OFFS_AT])
         tail = [(33, (0,)), (27, (158,)), (46, (62,))]
         self.assertEqual(a[-3:], tail)
@@ -261,7 +274,8 @@ class StoryboardTests(unittest.TestCase):
 
     def test_gohan_line_copies_change_only_the_portrait(self):
         for i, length in ((15, 0x64), (20, 0x54)):
-            old, new = self.before[REPLACED[i]:REPLACED[i] + length], self.rom[self.recs[i]:self.recs[i] + length]
+            at = replaced()[i]
+            old, new = self.before[at:at + length], self.rom[self.recs[i]:self.recs[i] + length]
             self.assertEqual((old[3], new[3]), (121, 62))
             self.assertEqual(old[:3] + old[4:], new[:3] + new[4:])
             self.assertEqual(self.recs[i] % 4, 0)                      # type 2 stream must stay 4-aligned
@@ -405,16 +419,16 @@ class DiffTests(unittest.TestCase):
         for a, n in [(w, 4) for w in TYPE5] + self.new_used:
             self.assertEqual(r32[a:a + n], self.rom[a:a + n], hex(a))
 
-    def test_r32_keeps_every_r30_address(self):           # r30's record 31 slot now holds two records
+    def test_r32_keeps_every_r30_slot_size_at_a_shifted_base(self):   # r30's record 31 slot now holds two records
         recs, notes = dict(walk(self.rom)), built()["notes"]["piccolo_gi_scene"]
-        self.assertEqual(notes["table"], R30_TABLE)
+        self.assertEqual(notes["table"], R30_TABLE + SHIFT)
         for i, (at, size) in R32_SLOTS.items():
-            self.assertEqual(recs[i], at, i)
-            self.assertIn((at, size), self.new_used, i)
+            self.assertEqual(recs[i], at + SHIFT, i)
+            self.assertIn((at + SHIFT, size), self.new_used, i)
         self.assertEqual(sum(R32_SLOTS[i][1] for i in (WALK_OFFS_AT, TAIL_AT)), R30_SLOTS[31][1])
         self.assertEqual(R32_SLOTS[WALK_OFFS_AT][0], R30_SLOTS[31][0])
         for i, length in R32_LENGTHS.items():
-            at, size = R32_SLOTS[i]
+            at, size = R32_SLOTS[i][0] + SHIFT, R32_SLOTS[i][1]
             self.assertEqual(self.rom[at + length - 1], 0x11, i)            # end op, then the unused tail
             self.assertEqual(set(self.rom[at + length:at + size]), {0xFF} if size > length else set(), i)
 
@@ -485,8 +499,10 @@ class WalkInTests(unittest.TestCase):
         old = r29.read_bytes()
         for i, length, changes in ((35, 77, {0x28: (51, 62), 0x38: (51, 62), 75: (54, 53)}), (42, 20, {11: (54, 53)})):
             rec = self.recs[i]
-            self.assertEqual(rec, u32(old, u32(old, TYPE5[0]) - ROM_BASE + 4 * i) - ROM_BASE)   # same address
-            diff_at = {k: (old[rec + k], self.rom[rec + k]) for k in range(length) if old[rec + k] != self.rom[rec + k]}
+            r29_rec = u32(old, u32(old, TYPE5[0]) - ROM_BASE + 4 * i) - ROM_BASE
+            self.assertEqual(rec, r29_rec + SHIFT)                       # the r29 address, moved by SHIFT
+            diff_at = {k: (old[r29_rec + k], self.rom[rec + k]) for k in range(length)
+                       if old[r29_rec + k] != self.rom[rec + k]}
             self.assertEqual(diff_at, changes, i)                        # r30 walk (75, 11), r31 move (0x28, 0x38)
             self.assertEqual(self.rom[rec + length - 1], 0x11, i)
 
@@ -501,7 +517,7 @@ class StayTests(unittest.TestCase):
         cls.ev = events(cls.rom)
 
     def test_walk_offs_are_the_vanilla_trunks_and_vegeta_bytes(self):
-        vanilla = self.before[REPLACED[31] + 0x14:REPLACED[31] + 0x38]      # sound 26 ; group 132, 137
+        vanilla = self.before[replaced()[31] + 0x14:replaced()[31] + 0x38]      # sound 26 ; group 132, 137
         rec = self.recs[WALK_OFFS_AT]
         self.assertEqual(self.rom[rec + 3:rec + 3 + len(vanilla)], vanilla)
         self.assertEqual(self.rom[rec + 3 + len(vanilla)], 0x11)
@@ -528,7 +544,7 @@ class StayTests(unittest.TestCase):
         self.assertEqual(moved, {60, PICCOLO, 53})                         # NPC Goku, Piccolo, Gohan
 
     def test_old_seq_32_is_named_only_by_the_dead_table(self):
-        self.assertEqual(words_naming(self.rom, REPLACED[31] + ROM_BASE), [OLD_TABLE + 4 * 31])
+        self.assertEqual(words_naming(self.rom, replaced()[31] + ROM_BASE), [OLD_TABLE + 4 * 31])
         self.assertEqual(words_naming(self.rom, OLD_TABLE + ROM_BASE), [])
 
 
@@ -552,8 +568,8 @@ class FlyOffTests(unittest.TestCase):
         self.assertEqual(seq[0], (46, (26,)))                            # the vanilla walk-off sound
 
     def test_direction_is_the_vanilla_walk_off_direction(self):      # vanilla seq 32: every flight goes down
-        starts = {args[-3]: args[-2:] for n, args in ext_sequence(self.before, REPLACED[2]) if n == 51}
-        for n, (set_id, x, y) in [(n, a) for n, a in ext_sequence(self.before, REPLACED[31]) if n == 54]:
+        starts = {args[-3]: args[-2:] for n, args in ext_sequence(self.before, replaced()[SEQ3]) if n == 51}
+        for n, (set_id, x, y) in [(n, a) for n, a in ext_sequence(self.before, replaced()[31]) if n == 54]:
             sx, sy = starts[set_id]
             self.assertGreater(y - sy, abs(x - sx), set_id)                 # facing 0, down (larger axis)
         here = {PICCOLO: PICCOLO_SPOT, GI_SSJ: GOHAN_SPOT}
@@ -744,7 +760,8 @@ class FailClosedTests(unittest.TestCase):
         self.assertEqual(bytes(rom), snap)
 
     def test_each_checked_site_refuses(self):
-        for off in (TYPE5[0], TYPE5[1], OLD_TABLE + 8, REPLACED[2] + 0x40, REPLACED[15] + 3, REPLACED[31] + 0x50,
+        rep = replaced()
+        for off in (TYPE5[0], TYPE5[1], OLD_TABLE + 8, rep[SEQ3] + 0x40, rep[15] + 3, rep[31] + 0x50,
                     0x3DBDA6, CHIME_RECORD + 4, LINES_RECORD):           # r32: the chime and the lines' next index
             with self.subTest(off=hex(off)):
                 rom, alloc = self.fresh()

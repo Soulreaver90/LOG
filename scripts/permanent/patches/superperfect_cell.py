@@ -62,7 +62,8 @@ ACTOR_SITES = {
     (DEATH_TABLE, 7): (0x3EBA4C, (0x7,)),
     (DEATH_TABLE, 11): (0x3EBC7E, (0x7,)),
     (DEATH_TABLE, 17): (0x3EBD7C, (0x37, 0x3D, 0x65)),
-    (DEATH_TABLE, 20): (0x89AB4C, (0x29, 0x32, 0x38, 0x5D, 0x61, 0x66, 0x70, 0x76, 0x8D, 0x92, 0x97, 0x9F, 0xA5,
+    # None: fullpower_ssj allocates seq 20, so its address comes from the notes and cannot go stale.
+    (DEATH_TABLE, 20): (None, (0x29, 0x32, 0x38, 0x5D, 0x61, 0x66, 0x70, 0x76, 0x8D, 0x92, 0x97, 0x9F, 0xA5,
                                    0xAE, 0xB4, 0xCC, 0xD1, 0xD6, 0xDC, 0xE4, 0xEA, 0xF2, 0xF8, 0x111, 0x116, 0x11B,
                                    0x121, 0x12B, 0x131, 0x138, 0x13E, 0x155, 0x15A, 0x160, 0x166, 0x16F, 0x175,
                                    0x18C, 0x191, 0x197, 0x19D, 0x1A4, 0x1AB, 0x1B5, 0x1BD, 0x1C5)),
@@ -140,6 +141,7 @@ def _sites(rom: bytearray, alloc) -> list:
     """File offsets of the 68 actor bytes, each checked to hold Cell's 30."""
     out = []
     for (table, seq), (rec, offs) in ACTOR_SITES.items():
+        rec = alloc.notes["fullpower_ssj"]["records"][SEQ20] if rec is None else rec
         if _record(rom, table, seq) != rec:
             raise ValueError(f"table rom:0x{table:X} seq {seq} names 0x{_record(rom, table, seq):X}, not 0x{rec:X}")
         if rom[rec + 1:rec + 3] != b"\0\0" or rom[rec] != seq:
@@ -148,8 +150,8 @@ def _sites(rom: bytearray, alloc) -> list:
             if rom[rec + o] not in NEW_BYTE or (rom[rec + o] == 0x1E and rom[rec + o - 1] != 0):
                 raise ValueError(f"rom:0x{rec + o:X} = {rom[rec + o]:02X} is not a push of Cell's 30")
             out.append(rec + o)
-    if alloc.notes["fullpower_ssj"]["records"][SEQ20] != ACTOR_SITES[(DEATH_TABLE, 20)][0]:
-        raise ValueError("fullpower_ssj moved seq 20 elsewhere")
+    # fullpower_ssj writes the table word and its note from one address, so the word check alone cannot catch a
+    # wrong record. The seq 20 header check and the 46 Cell pushes above are what prove rec is the right record.
     return out
 
 

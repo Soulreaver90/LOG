@@ -16,8 +16,9 @@ Method:  The stretch is flag 149 set (Goku walks into the chamber, Vegeta and Tr
             Goku 19 to 20 and Gohan 2 to 5 (Gohan only with Super Saiyan unlocked, record +0x14 bit 5).
          4. Knockout: state 0x21 enter (vtable 0x080254D8 +0) runs vanilla (form leave, revert, animation),
             then gives a Goku or Gohan leader back his Super Saiyan entry.
-         5. Scripts: Goku's record to 20 at the chamber door (ext 73 (4, 61) after SET 149); NPC Goku 60 to 61
-            and his raw portrait 63 to 65 in the chamber exit and Dende's ball talk; Gohan's chamber exit
+         5. Scripts: Goku's record to 20 in the chamber EXIT scene (ext 73 (4, 61) beside Gohan's own set in
+            seq 3), so he walks out Super Saiyan and walks in plain; NPC Goku 60 to 61 and his raw portrait
+            63 to 65 in the chamber exit and Dende's ball talk; Gohan's chamber exit
             ext 73 (0, 157) to (0, 158); Goku's record back to 19 when Cell is beaten (ext 73 (4, 60) after
             Gohan's post-Cell ext 73 (0, 157)); r27's Goku power-up in the arena entry scene removed (Goku
             arrives in Super Saiyan, and set 61 has no anim 9).
@@ -45,24 +46,28 @@ REVERT_SITE, REVERT_OLD = 0x3ED4, bytes.fromhex("30b49d4c00210278")
 REVERT_TABLE_LITERAL = 0x414C                               # vanilla revert's table literal (ssj2_form repoints it)
 CONTINUE_RET = 0x0800185D                                   # lr of `bl appearance_revert` in Continue @0x08001858
 
-# rom offset: (old byte, new byte)
-NPC_GOKU = {0x3DB5C3: (0x78, 0x7A), 0x3DB5CC: (0x78, 0x7A), 0x3DBBED: (0x3C, 0x3D),   # chamber exit 3, 3, 27
+# rom offset: (old byte, new byte). The chamber exit seq 3 sites live in RECORDS, because that record moves.
+NPC_GOKU = {0x3DBBED: (0x3C, 0x3D),                                                    # chamber exit seq 27
             0x3DD238: (0x78, 0x7A), 0x3DD241: (0x78, 0x7A), 0x3DD320: (0x78, 0x7A),   # Dende seq 4, 4, 7
             0x3DD328: (0x3C, 0x3D)}                                                    # Dende seq 7 remove
 GOKU_PORTRAITS = {r + 3: (63, 65) for r in (0x3DB6AC, 0x3DB720, 0x3DB780, 0x3DD27C)}
-GOHAN_EXIT = {0x3DB62A: (157, 158)}                         # chamber exit seq 3: push 0 ; push 157 ; ext 73
 
 GOKU_TRANSFORM = "0037022e1d0200120239000a022a0037022f0004003d0249000a022b"    # r27 cellgames_ssj insert
-# name: (record or the notes key, length or None for the notes size, table word, SHA-1, offset, old, new)
+# name: (record or the notes key, length or None for the notes size, table word, SHA-1, {offset: (old, new)}).
+# Each SHA-1 is the record AS THIS PATCH FINDS IT, not the base ROM: earlier patches rewrite these bytes.
 RECORDS = {
-    "door_seq33": (0x3DE620, 0xB2, 0x3DE774, "e894d9b3cca20bc754af321858f5c2c4cdb20d07",
-                   0x90, "00020246", "00020246" "0004003d0249"),   # leader(2), THEN ext 73 (4, 61):
-    # appearance_revert runs inside ext 70 and skips only the NEW leader, so a form set before the
-    # leader change is undone at once (bible B0554). Vanilla's own two ext 73 calls sit after it.
+    "exit_seq3": (0x3DB59C, 0xCC, 0x3DBDDC, "c3c35769e944e1511ad2df257cc3d07858eeadd0",
+                  {0x25: ("1d03788b508540", "1d037a8b508540"),       # NPC Goku spawns as set 61
+                   0x2E: ("1d027800", "1d027a00"),                   # and faces as set 61
+                   0x8B: ("0000009d0249", "0000009e0249" "0004003d0249")}),   # Gohan 158, THEN Goku 61:
+    # npc_gi already re-encoded Gohan's set from the zigzag form to the plain push form, so the anchor is
+    # the push pair, not the base ROM's `1d 02 00 70 02 49`. The scene's own leader change is leader(4) in
+    # seq 27, which makes Goku the NEW leader, and appearance_revert inside ext 70 spares the new leader
+    # (bible B0554). So entry 20 lives to the end of the scene.
     "entry_seq1": ("cellgames_ssj", None, 0x3E8D98, "3d7448a18e0238bdda65300baeddaa0c90e6a018",
-                   0xCF, GOKU_TRANSFORM + "0032", "0032"),                  # r27 power-up out
+                   {0xCF: (GOKU_TRANSFORM + "0032", "0032")}),              # r27 power-up out
     "post_cell_seq20": ("npc_gi", 0x261, 0x3EC7A4, "e3aedfa6c75e17a72995a79bbdbd228235409421",
-                        0x1DC, "0000009d0249", "0000009d0249" "0004003c0249"),  # then ext 73 (4, 60)
+                        {0x1DC: ("0000009d0249", "0000009d0249" "0004003c0249")}),  # then ext 73 (4, 60)
 }
 POST_CELL_SEQ20 = 0x3EBE1C                                  # npc_gi key of the post-Cell seq 20 copy
 
@@ -230,7 +235,7 @@ def _expect(rom: bytearray, off: int, want: bytes) -> None:
 
 
 def byte_sites() -> dict:
-    return {**NPC_GOKU, **GOKU_PORTRAITS, **GOHAN_EXIT}
+    return {**NPC_GOKU, **GOKU_PORTRAITS}
 
 
 def _record_source(notes: dict, name: str) -> tuple:
@@ -271,12 +276,12 @@ def apply(rom: bytearray, alloc) -> None:
     for off, (old, _) in byte_sites().items():
         _expect(rom, off, bytes([old]))
     copies = {}
-    for name, (_, _, word, sha, at, old, new) in RECORDS.items():
+    for name, (_, _, word, sha, edits) in RECORDS.items():
         rec, length = _record_source(alloc.notes, name)
         _expect(rom, word, _word(rec + ROM_BASE))
         if hashlib.sha1(rom[rec:rec + length]).hexdigest() != sha:
             raise ValueError(f"record rom:0x{rec:X} ({name}) differs from the r27 bytes")
-        copies[name] = relocate(rom, rec, length, {rec + at: (old, new)})
+        copies[name] = relocate(rom, rec, length, {rec + at: v for at, v in edits.items()})
 
     # allocate and assemble; nothing is written until every size is checked
     size = len(assemble(CODE, ROM_BASE, syms)[0])

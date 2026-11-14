@@ -37,8 +37,11 @@ from rom.webfoot_decompress import ROM_BASE, read_set, unpack_frame
 SET_LITERAL, BLOCK_LITERAL = 0x959C, 0xBE10
 CELL_HEADER, DEAD_58 = 0x242DBC, 0x2AB508
 RETURN_TABLE, DEATH_TABLE = 0x3EB704, 0x3EC758
+# fullpower_ssj allocates the post-Cell seq 20 copy. It sits 0x1C higher than in r36, because fullpower_ssj
+# now grows the chamber EXIT record (0xD2) where it used to grow the chamber DOOR record (0xB8).
+SEQ20 = 0x89AB68
 SITE_RECORDS = {0x3EACD0: 4, 0x3EB134: 8, 0x3EB21C: 2, 0x3EB6E8: 1, 0x3EB80C: 2, 0x3EBA4C: 1, 0x3EBC7E: 1,
-                0x3EBD7C: 3, 0x89AB4C: 46}                       # record: actor bytes (cell_sites_r29.txt, 68)
+                0x3EBD7C: 3, SEQ20: 46}                          # record: actor bytes (cell_sites_r29.txt, 68)
 SET_WORDS = (0x409108, 0x409204)                                 # type 25 spawn +0x10, map 14,4 NPC +0xC
 PORTRAIT_RECORDS = (0x3EAD70, 0x3EADF8, 0x3EB1C6, 0x3EB264, 0x3EB3D0,
                     0x3EB89E, 0x3EBA2A, 0x3EBC58, 0x3EBD68, 0x3EBDF0)   # study 4c: +3 = 40
@@ -733,7 +736,7 @@ class FailClosedTests(unittest.TestCase):
         b = built()
         set_table = u32(b["before"], SET_LITERAL) - ROM_BASE
         block = u32(b["before"], BLOCK_LITERAL) - ROM_BASE
-        for off in (0x3EACD5, 0x89AB4C + 0x1C5, 0x3EB86C, SET_WORDS[0], SET_WORDS[1], PORTRAIT_RECORDS[9] + 3,
+        for off in (0x3EACD5, SEQ20 + 0x1C5, 0x3EB86C, SET_WORDS[0], SET_WORDS[1], PORTRAIT_RECORDS[9] + 3,
                     set_table + 4 * 51, set_table + 4 * 23, HOOKED[1] + 4 - ROM_BASE, block + 4 + 4 * 52 + 1,
                     RETURN_TABLE + 4 * 39, SCOUTER_19[0], SCOUTER + ENTRY * 15 + 8, NAME_19, PERFECT_AT + 7,
                     TEXT_19, TYPE25_STATS[0] + 4, TYPE25_STATS[0] + 5, TYPE25_STATS[0] + 0xC,

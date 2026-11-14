@@ -32,12 +32,13 @@ ENTRY_HELPER = 0x0800E130                                               # first 
 VEGETA, TRUNKS = 2, 3
 SET_195 = 0x3EC6A2                                                      # push 195 ; ext 27 (post-Cell scene)
 
-# rom offset: (r27 byte, r28 byte)
-NPC_GOKU = {0x3DB5C3: (0x78, 0x7A), 0x3DB5CC: (0x78, 0x7A), 0x3DBBED: (0x3C, 0x3D), 0x3DD238: (0x78, 0x7A),
+# rom offset: (r27 byte, r28 byte). The chamber exit seq 3 sites moved into the relocated record.
+NPC_GOKU = {0x3DBBED: (0x3C, 0x3D), 0x3DD238: (0x78, 0x7A),
             0x3DD241: (0x78, 0x7A), 0x3DD320: (0x78, 0x7A), 0x3DD328: (0x3C, 0x3D)}
 PORTRAITS = {0x3DB6AF: (63, 65), 0x3DB723: (63, 65), 0x3DB783: (63, 65), 0x3DD27F: (63, 65)}
-GOHAN_EXIT = {0x3DB62A: (157, 158)}
-WORDS = {0x3DE774: "door_seq33", 0x3E8D98: "entry_seq1", 0x3EC7A4: "post_cell_seq20"}
+EXIT_WORD, DOOR_WORD = 0x3DBDDC, 0x3DE774              # chamber exit seq 3; chamber entry seq 33
+WORDS = {EXIT_WORD: "exit_seq3", 0x3E8D98: "entry_seq1", 0x3EC7A4: "post_cell_seq20"}
+EXIT_SEQ3_NPC = {0x25: ("1d03788b508540", "1d037a8b508540"), 0x2E: ("1d027800", "1d027a00")}   # NPC Goku 60 to 61
 CHAMBER_EXIT, DENDE = {0x3DBDD4: 36}, {0x3DD380: 10}                   # scene tables: word count
 GOKU_POWER_UP = [(46, (55,)), (57, (0, 9)), (42, (10,)), (47, (55,)), (73, (4, 61)), (43, (10,))]
 CHAMBER_SAVE = log_paths.BUILD_VARIANTS / "log2_poc_r28_chamber" / "log2_poc_r28_chamber.sav"
@@ -163,13 +164,20 @@ class StretchFlagTests(unittest.TestCase):
                 ep, _, msgs = run_tick(self.rom, GOKU, 20, flags, 1, 0xFFF0)
                 self.assertEqual((ep, msgs), (1, []) if on else (0, [0x24]))
 
-    def test_start_flag_set_with_gokus_record_at_the_door(self):
-        seq = ext_sequence(self.rom, record_of(self.rom, 0x3DE774))
-        leader = seq.index((70, (2,)))
-        # AFTER the leader change. appearance_revert runs inside ext 70 and spares only the NEW
-        # leader, so Goku set before it is reverted to entry 19 at once (bible B0554).
-        self.assertEqual(seq[leader + 1], (73, (4, 61)))
-        self.assertLess(seq.index((27, (START_FLAG,))), leader)         # the flag still precedes it
+    def test_the_door_still_sets_the_start_flag_and_leaves_goku_plain(self):
+        """The entry scene keeps SET 149 and its own two ext 73 calls, and never names Goku (character 4)."""
+        seq = ext_sequence(self.rom, record_of(self.rom, DOOR_WORD))
+        self.assertEqual(seq, ext_sequence(self.before, record_of(self.before, DOOR_WORD)))
+        self.assertIn((27, (START_FLAG,)), seq)
+        self.assertEqual([a for n, a in seq if n == 73], [(3, 129), (2, 138)])
+        self.assertLess(seq.index((27, (START_FLAG,))), seq.index((70, (2,))))
+
+    def test_goku_turns_super_saiyan_in_the_chamber_exit(self):
+        """Goku's set 61 sits beside Gohan's own set in the exit record, and no ext 70 precedes it there."""
+        seq = ext_sequence(self.rom, record_of(self.rom, EXIT_WORD))
+        gohan = seq.index((73, (0, 158)))
+        self.assertEqual(seq[gohan + 1], (73, (4, 61)))
+        self.assertNotIn(70, [n for n, _ in seq[:gohan + 2]])
 
     def test_end_flag_site_unchanged_and_goku_base_when_cell_is_beaten(self):
         self.assertEqual(self.rom[SET_195:SET_195 + 4], bytes([0, END_FLAG, 2, 27]))
@@ -332,8 +340,16 @@ class ScriptTests(unittest.TestCase):
         cls.rom, cls.before, cls.notes = b["rom"], b["before"], b["notes"]
 
     def test_in_place_bytes_old_and_new(self):
-        for off, (old, new) in {**NPC_GOKU, **PORTRAITS, **GOHAN_EXIT}.items():
+        for off, (old, new) in {**NPC_GOKU, **PORTRAITS}.items():
             self.assertEqual((self.before[off], self.rom[off]), (old, new), hex(off))
+
+    def test_npc_goku_moved_with_the_exit_record_not_in_place(self):
+        """Seq 3's NPC Goku bytes ride in the relocated copy, so the dead vanilla record keeps set 60."""
+        old, new = record_of(self.before, EXIT_WORD), record_of(self.rom, EXIT_WORD)
+        for at, (was, now) in EXIT_SEQ3_NPC.items():
+            self.assertEqual(self.before[old + at:old + at + len(was) // 2].hex(), was, hex(at))
+            self.assertEqual(self.rom[new + at:new + at + len(now) // 2].hex(), now, hex(at))
+            self.assertEqual(self.rom[old + at:old + at + len(was) // 2].hex(), was, hex(at))
 
     def test_relocated_records_have_one_word_each(self):
         moved = self.notes["fullpower_ssj"]["records"]
@@ -345,11 +361,19 @@ class ScriptTests(unittest.TestCase):
                 self.assertEqual(words_naming(self.rom, moved[name] + ROM_BASE), [word])
                 self.assertEqual(self.rom[old:old + 0x80], self.before[old:old + 0x80])   # old one unchanged
 
-    def test_door_record_is_old_plus_gokus_record(self):
-        a = ext_sequence(self.before, record_of(self.before, 0x3DE774))
-        b = ext_sequence(self.rom, record_of(self.rom, 0x3DE774))
-        i = a.index((70, (2,)))                                        # insert after the leader change
-        self.assertEqual(b, a[:i + 1] + [(73, (4, 61))] + a[i + 1:])
+    def test_exit_record_is_old_plus_gokus_record(self):
+        a = ext_sequence(self.before, record_of(self.before, EXIT_WORD))
+        b = ext_sequence(self.rom, record_of(self.rom, EXIT_WORD))
+        npc = {(51, (60, 744, 352)): (51, (61, 744, 352)), (55, (60, 0)): (55, (61, 0))}   # NPC Goku 60 to 61
+        want = [npc.get(call, call) for call in a]
+        self.assertEqual(len(npc), sum(call in npc for call in a))
+        i = want.index((73, (0, 157)))                                 # Gohan's own set, bumped to 158
+        self.assertEqual(b, want[:i] + [(73, (0, 158)), (73, (4, 61))] + want[i + 1:])
+
+    def test_the_door_record_is_untouched(self):
+        door = record_of(self.before, DOOR_WORD)
+        self.assertEqual(record_of(self.rom, DOOR_WORD), door)         # no copy, no repoint
+        self.assertEqual(self.rom[door:door + 0xB2], self.before[door:door + 0xB2])
 
     def test_arena_entry_without_gokus_power_up(self):
         a = ext_sequence(self.before, record_of(self.before, 0x3E8D98))
@@ -373,10 +397,12 @@ class ScriptTests(unittest.TestCase):
 
     def test_npc_goku_is_61_in_the_chamber_exit_and_dende_talk(self):
         tables = {**CHAMBER_EXIT, **DENDE}
-        before = sorted(s for _, _, s in set_hits(self.before, tables, {60, 61}))
-        after = sorted(s for _, _, s in set_hits(self.rom, tables, {60, 61}))
+        before = sorted(set_hits(self.before, tables, {60, 61}))
+        after = sorted(set_hits(self.rom, tables, {60, 61}))
         self.assertTrue(before)
-        self.assertEqual((set(before), after), ({60}, [61] * len(before)))
+        self.assertEqual({s for _, _, s in before}, {60})
+        goku = (min(CHAMBER_EXIT), 73, 61)                  # new: Goku's own ext 73 (4, 61) in the exit scene
+        self.assertEqual(after, sorted([(t, n, 61) for t, n, _ in before] + [goku]))
 
     @staticmethod
     def portraits(rom: bytes) -> dict:
@@ -409,7 +435,7 @@ class DiffTests(unittest.TestCase):
         cls.changed = diff(cls.before, cls.rom)
 
     def sites(self) -> list:
-        s = [(o, o + 1, "byte") for o in list(NPC_GOKU) + list(PORTRAITS) + list(GOHAN_EXIT)]
+        s = [(o, o + 1, "byte") for o in list(NPC_GOKU) + list(PORTRAITS)]
         s += [(w, w + 4, "table word") for w in WORDS]
         s += [(0x3ED4, 0x3EDC, "revert jump"), (0x24C5C, 0x24C60, "tick slot"), (0x254D8, 0x254DC, "knockout slot"),
               (ABILITY_12 + 8, ABILITY_12 + 0xC, "test word")]
@@ -454,8 +480,8 @@ class FailClosedTests(unittest.TestCase):
     def test_any_old_byte_slot_or_record_change_refuses_before_writing(self):
         b = built()
         notes = b["alloc_before"].notes
-        sites = list(NPC_GOKU) + list(PORTRAITS) + list(GOHAN_EXIT) + list(WORDS) + [
-            0x3ED4, 0x414C, 0x24C5C, 0x254D8, ABILITY_12 + 8, 0x3DE620 + 0x40,
+        sites = list(NPC_GOKU) + list(PORTRAITS) + list(WORDS) + [
+            0x3ED4, 0x414C, 0x24C5C, 0x254D8, ABILITY_12 + 8, 0x3DB59C + 0x40,
             notes["cellgames_ssj"]["records"]["entry_seq1"] + 0x10, notes["npc_gi"]["records"][0x3EBE1C] + 0x10]
         for off in sites:
             rom, alloc = bytearray(b["before"]), copy.deepcopy(b["alloc_before"])

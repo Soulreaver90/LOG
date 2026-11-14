@@ -22,7 +22,8 @@ Method:  The chamber exit is one scene table (rom:0x3DBDD4, 34 records and an EN
          expansion area, appends records 35-44 and points both type 5 words at the copy. Words 2, 15, 20 and 29 of
          the copy name edited copies; the old table and records stay unchanged (a state paused in the old scene
          ends it):
-         - seq 3: NPC Gohan set 56 to 59 (armor Super Saiyan); Gohan's record write ext 73 (0, 158) becomes
+         - seq 3: its source is fullpower_ssj's grown copy, read from table word 2, so the address never rots;
+           NPC Gohan set 56 to 59 (armor Super Saiyan); Gohan's record write ext 73 (0, 158) becomes
            ext 73 (0, 53), entry 0, so the cutscene portrait hook leaves raw 62 (armor Super Saiyan) as it is;
          - seq 16, 21 (Gohan's lines): raw portrait 121 to 62;
          - seq 32 (copy at word 29): the Trunks and Vegeta walk-offs only, next index 35. Its tail is split:
@@ -44,7 +45,9 @@ from scene.scene_lib import relocate
 
 # ===== constants =====
 ROM_BASE = 0x08000000
-TABLE, TABLE_WORDS, TABLE_SHA1 = 0x3DBDD4, 35, "a9d3c557eb06d09555dc94a1aa5097e883b70528"   # 34 records + END
+TABLE, TABLE_WORDS = 0x3DBDD4, 35                     # 34 records and an END word
+MOVED = 2                                             # fullpower_ssj grows seq 3, so word 2 names its copy
+TABLE_SHA1 = "81bcd40f5088f00b6d1673112e956ae7f5177401"   # the table with word MOVED zeroed, so it cannot rot
 TYPE5_WORDS = (0x3CF7E4, 0x3D1530)                    # +4 of the type 5 records rom:0x3CF7E0, rom:0x3D152C
 REVERSE_LITERAL, ENTRY = 0x42F0, 20                   # reverse lookup copy: entry e +1 is the set ext 73 names
 ARMOR_SSJ, GI_SSJ, PICCOLO, DEMON = 59, 158, 103, 53  # sets
@@ -54,14 +57,17 @@ CHIME_RECORD = (0x3DBD10, "1e0000001c022e11")         # vanilla word 29: sound 2
 LINES_HEAD = (0x3DBD18, "1f000200")                   # vanilla word 30: next 31, type 2, no portrait
 SYSTEM_CHIME, JOURNAL_CHIME = 28, 62                  # vanilla plays 28 before "@^" lines, 62 before the Journal
 
-# table index: (record, length, SHA-1 of the r28 bytes)
-SOURCES = {2: (0x3DB59C, 0xCC, "5e92ee50d43e4913930bcd448e1f72d770128aa2"),     # seq 3
+# table index: (record or None for a record read from its table word, length, SHA-1 of the r28 bytes)
+# Seq 3's hash moved with fullpower_ssj's three edits: Goku's new ext 73 (4, 61), NPC Goku 60 to 61 and
+# Gohan's set 157 to 158. Its record moved too, so the address is read and only the hash stays a tripwire.
+SOURCES = {2: (None, 0xD2, "06800a2001364e9675b94875844d1d74bd7a5d6f"),        # seq 3, fullpower_ssj's copy
            15: (0x3DB930, 0x64, "beed617bb64ce66fe37c6f3cf019dbbbf4e5bed5"),    # seq 16, type 2
            20: (0x3DBABC, 0x54, "afad60b0a6cc6ebaee5cb4bd6b8235d70b1fe25a"),    # seq 21, type 2
            31: (0x3DBD5C, 0x57, "7314f769d4fb82bbc176ad22d8ea12f1a6eb5e5e")}    # seq 32
-SEQ3_EDITS = {0x3DB5D0: ("1d03708d108660", "1d03768d108660"),   # push 56,840,432 ; ext 51 (spawn)
-              0x3DB5D9: ("1d027002", "1d027602"),               # push 56,1 ; ext 55
-              0x3DB629: ("009e", "0035")}                       # push 0 ; push 158 ; ext 73
+# Record offsets, not ROM offsets: seq 3 moves. fullpower_ssj appends to seq 3 after +0x91, so these hold.
+SEQ3_EDITS = {0x34: ("1d03708d108660", "1d03768d108660"),       # push 56,840,432 ; ext 51 (spawn)
+              0x3D: ("1d027002", "1d027602"),                   # push 56,1 ; ext 55
+              0x8D: ("009e", "0035")}                           # push 0 ; push 158 ; ext 73
 SEQ32_TAIL_AT = 0x3DBDA6
 SEQ32_TAIL = bytes.fromhex("00000221" "009e021b" "003e022e" "11")  # ext 33 (0) ; SET 158 ; ext 46 (62) ; end
 SEQ32_DROPS = {0x3DBD5F: ("001a022e" "1d03708d1087400236" "00380234", ""),     # sound 26 ; Gohan flies, leaves
@@ -133,15 +139,30 @@ def _expect(rom: bytearray, off: int, want: bytes) -> None:
         raise ValueError(f"rom:0x{off:X} is {bytes(rom[off:off + len(want)]).hex()}, expected {want.hex()}")
 
 
+def _source(rom: bytes, i: int) -> tuple:
+    """(record, length) of table index i. A pinned record is a constant; a moved one is read from its word."""
+    rec, length, _ = SOURCES[i]
+    return (_u32(rom, TABLE + 4 * i) - ROM_BASE if rec is None else rec), length
+
+
+def _table_sha(rom: bytes) -> str:
+    """The table with the moved word blanked. An allocator address in the hash would go stale every build."""
+    words = bytearray(rom[TABLE:TABLE + 4 * TABLE_WORDS])
+    words[4 * MOVED:4 * MOVED + 4] = bytes(4)
+    return hashlib.sha1(words).hexdigest()
+
+
 def _check(rom: bytearray) -> None:
     for w in TYPE5_WORDS:
         _expect(rom, w, _word(TABLE + ROM_BASE))
-    if hashlib.sha1(rom[TABLE:TABLE + 4 * TABLE_WORDS]).hexdigest() != TABLE_SHA1:
+    if _table_sha(rom) != TABLE_SHA1:
         raise ValueError(f"scene table rom:0x{TABLE:X} differs from the r28 bytes")
     for i, (rec, length, sha) in SOURCES.items():
-        _expect(rom, TABLE + 4 * i, _word(rec + ROM_BASE))
-        if hashlib.sha1(rom[rec:rec + length]).hexdigest() != sha:
-            raise ValueError(f"record rom:0x{rec:X} (table index {i}) differs from the r28 bytes")
+        if rec is not None:
+            _expect(rom, TABLE + 4 * i, _word(rec + ROM_BASE))
+        at, _ = _source(rom, i)
+        if hashlib.sha1(rom[at:at + length]).hexdigest() != sha:
+            raise ValueError(f"record rom:0x{at:X} (table index {i}) differs from the r28 bytes")
     _expect(rom, SEQ32_TAIL_AT, SEQ32_TAIL)
     for at, want in (CHIME_RECORD, LINES_HEAD):
         _expect(rom, at, bytes.fromhex(want))
@@ -152,10 +173,10 @@ def _check(rom: bytearray) -> None:
 
 def _copies(rom: bytearray) -> dict:
     """{table index: record bytes} for the four edited copies (the walk-offs go to word 29)."""
-    rec, length, _ = SOURCES[2]
-    out = {2: relocate(rom, rec, length, SEQ3_EDITS)}
+    rec, length = _source(rom, 2)
+    out = {2: relocate(rom, rec, length, {rec + at: v for at, v in SEQ3_EDITS.items()})}
     for i in (15, 20):
-        rec, length, _ = SOURCES[i]
+        rec, length = _source(rom, i)
         data = bytearray(rom[rec:rec + length])
         _expect(rom, rec + 3, bytes([GOHAN_LINE_PORTRAIT[0]]))
         data[3] = GOHAN_LINE_PORTRAIT[1]
@@ -175,6 +196,7 @@ def apply(rom: bytearray, alloc) -> None:
     if "piccolo_gi_scene" in alloc.notes:
         raise ValueError("piccolo_gi_scene already ran")
     _check(rom)
+    sources = {i: _source(rom, i)[0] for i in SOURCES}       # read before the table word moves
     records = {**_copies(rom), **scene()}
     words = [_u32(rom, TABLE + 4 * i) for i in range(TABLE_WORDS)] + [0] * (LAST_NEW + 1 - TABLE_WORDS)
 
@@ -188,4 +210,4 @@ def apply(rom: bytearray, alloc) -> None:
     for w in TYPE5_WORDS:
         rom[w:w + 4] = _word(table + ROM_BASE)
     alloc.notes["piccolo_gi_scene"] = {"table": table, "words": len(words), "records": placed,
-                                       "sources": {i: s[0] for i, s in SOURCES.items()}}
+                                       "sources": {i: sources[i] for i in SOURCES}}
