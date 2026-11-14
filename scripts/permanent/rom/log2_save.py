@@ -5,6 +5,7 @@ Usage:   py -3 -I log2_save.py info    <file.sav> [--flags]
          py -3 -I log2_save.py journal <file.sav> <rom.gba>
          py -3 -I log2_save.py build   <base.sav> <out.sav>
                                        [--set cellgames|cellgames2|cellgames2_arena|postcell|spritelab]
+                                       [--set chamber_exit]
                                        [--set farewell|farewell_test]
          py -3 -I log2_save.py set     <in.sav> <out.sav> <slot 1-3> key=value [key=value ...]
 Keys:    leader=0-5  map=zone,area,var  pos=x,y  flag+=N  flag-=N  item=id,count  visited=all|none
@@ -47,7 +48,11 @@ O_LEADER, O_FLAGS, O_ZONE, O_AREA, O_VAR = 0x00, 0x01, 0x02, 0x03, 0x04
 O_CHARS, CHAR_SIZE = 0x0C, 28            # six 28-byte records (default table ROM 0x081D9548)
 O_STORY, STORY_BITS = 0xB4, 400          # story flags, get/set 0x08003E42/0x08003E5E
 O_VISITED, VISITED_BITS = 0xE7, 297      # map visited bits, table 0x086F6D8C (0x080040EE)
-O_SCOUTER, SCOUTER_BITS = 0x11A, 128     # Scouter database entries, table 0x086F8E40
+O_SCOUTER, SCOUTER_BITS = 0x11A, 131     # Scouter database entries, table 0x086F8E40
+# 131, not 128. Vanilla's table holds 128 and its bits end at byte 0x129. patches/scouter_future.py
+# grows the table to 131, and the scan screen sets bit (n & 7) of 0x11A + (n >> 3) with NO upper
+# bound, so entries 128 to 130 land in byte 0x12A, which is free (proved over 862 real save slots).
+# Counting 131 is right for a build and harmless on a vanilla save, where those three bits are 0.
 O_ITEMS, ITEM_COUNT = 0x12B, 50          # item counts, item table 0x086ADE24
 O_POS = 0x160                            # s16 x, s16 y (read by ldsh at 0x0800C58A)
 
@@ -96,6 +101,15 @@ POSTCELL_FLAGS = [(0, 9), (11, 20), (22, 23), (26, 26), (28, 31), (33, 70), (73,
 # Before the Cell Games: the post-Cell set minus 192-195, whose only SET sites are Cell Games scripts
 # (193 0x083E8D92, 192 0x083E93E0, 194 0x083E9BBB, 195 0x083EC6A2). 191 is set at 0x083DD32B. LIKELY.
 CELLGAMES_FLAGS = POSTCELL_FLAGS[:-1] + [(185, 191)]
+# Before the chamber exit, which is the scene that carries the Piccolo gi handoff.
+# Measured out of builds/variants/log2_poc_r35_chamber2 slot 3, not composed by hand.
+# Why this point triggers the scene (bible B0671, B0828): flag 151 is SET and 157 is CLEAR, which is
+# the condition on the map 6,16 region, so its TV scene fires and SETS 157. Flag 156 is already set,
+# and the chamber exit table rom:0x3DBDD4 starts once 156 and 157 are both set. 158 is still clear,
+# so the exit has not run. One scene trigger from the gi handoff.
+CHAMBER_FLAGS = [(0, 9), (11, 20), (22, 23), (26, 26), (28, 31), (33, 70), (73, 100), (108, 113),
+                 (117, 132), (134, 134), (136, 146), (148, 156), (171, 171), (176, 176), (181, 181),
+                 (189, 190)]
 # Story items that keep the journal consistent: Dragon Radar (quest "Get the Dragon Radar" is done
 # only while item 45 is held, given at 0x083CF62B) and Scouter (item 22, given at 0x083CF4A3 and 0x083D0C4B).
 # The Dragon Balls 29-35 are gone at flag 191 (ext 76 = count - 1, record 0x083DD2F0). LIKELY.
@@ -168,6 +182,7 @@ STORIES = {
     "cellgames2": (CELLGAMES_FLAGS, LV40_RECORDS[:5] + [HERCULE_DEFAULT]),
     "spritelab": (POSTCELL_FLAGS + [(LAB_FLAG, LAB_FLAG)], LAB_RECORDS),
     "farewell_test": (POSTCELL_FLAGS, TEST_RECORDS),
+    "chamber": (CHAMBER_FLAGS, LV40_RECORDS[:5] + [HERCULE_DEFAULT]),
 }
 UNVISITED = {"cellgames2": ARENA_VISITED}   # story -> visited bits left clear
 PRESET_SETS = {
@@ -234,6 +249,17 @@ PRESET_SETS["farewell"] = [
 PRESET_SETS["farewell_test"] = [
     (f"Automation only: the farewell spot with a {TEST_HP} HP party (map 9,1)",
      "farewell_test", 0, 9, 1, 1, *FAREWELL_SPOT)] * 3
+# ===== The chamber exit: the Piccolo gi handoff =====
+# The gi scene is part of the chamber exit scene table, so no save can sit inside it. This is the step
+# before the trigger. Vegeta leads on map 6,16 at (200,236), which is the slot the measured save held.
+# Slots 1 and 2 are spares at the Capsule Corp save point, because the scene plays once and a lost run
+# means replaying to it.
+PRESET_SETS["chamber_exit"] = [
+    ("Time Chamber floor, one scene from the Piccolo gi handoff (map 6,16)",
+     "chamber", 2, 6, 16, 1, 200, 236),
+    ("Capsule Corporation save point, spare (map 6,1)", "chamber", 0, 6, 1, 1, 432, 591),
+    ("Time Chamber floor again, the spare run (map 6,16)", "chamber", 2, 6, 16, 1, 200, 236),
+]
 DEFAULT_SET = "cellgames"
 
 # ===== Journal (quest table, CONFIRMED: loop 0x08004A86-0x08004AE4) =====

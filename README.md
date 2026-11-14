@@ -93,6 +93,7 @@ The notes use the game's own vocabulary. These are the words that come up first 
 | `scripts\permanent\scene\` | Tools for cutscenes: read one, write one, draw a map, run one in a test |
 | `scripts\permanent\disasm\` | A disassembler written for this project, for reading the game's code |
 | `scripts\one-time\` | Scripts written to answer one question, kept with the answers they printed |
+| `saves\` | Save points: jump to a moment in the game on any build. Start at its README |
 | `test-data\saves\` | Save files the tests load |
 | `archive\` | Old copies kept by date, in case something needs to be looked at again |
 | `scratch\` | Throwaway. Anything here can be deleted and remade by running a command |
