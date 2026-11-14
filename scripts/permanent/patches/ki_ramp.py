@@ -12,10 +12,20 @@ Method:  1. SCHEDULE. Buu's Fury ramps its pool LINEARLY, every tick of the tran
             SWI 6 and stores it. Ours is the same shape on the drawn overlay: `49 x tick / limit`,
             through the game's own divide. The 7 entry gradation table in the draw is a palette ramp,
             not a schedule.
-         2. WHICH BAR. Buu's Fury picks the pool from the appearance entry the leader is LEAVING: bit 0
-            of entry +0 set means he is already in a super form, so the SECOND (orange) pool ramps, else
-            the first (yellow) one. We latch the same test into RAM before the chained tick runs,
-            because the landing writes the new entry from inside that tick (bible B2418).
+         2. WHICH BAR. The ramp paints the bar the landed form will have, so it asks bf_ki_pool's own
+            pool_ref rule what that form gets. `transform(player, 1)` moves the record to the entry at
+            +4 of the entry he is leaving (bible B0539), so bar_colour reads +4, then reads that entry's
+            form object at +0x10, which is the word pool_ref reads: the Super Saiyan 2 object or the
+            ascended grade 0x030021E8 paint orange, the Super Saiyan 0x030021EC paints yellow, and
+            piccolo_zplus's entry 24 paints yellow by entry, as its pool_ref splice accepts it. Any
+            other form has NO pool, and then no ramp runs at all, because a bar that lands on nothing
+            would flash and vanish. The colour is latched into RAM before the chained tick runs, because
+            the landing writes the new entry from inside that tick (bible B2418). Buu's Fury instead
+            tests bit 0 of the entry he is LEAVING (bible B2433), which is a Saiyan rule: it says orange
+            for Piccolo's Super Namek to Z+ step, whose bar pool_ref paints yellow.
+            The r28 full-power stretch is the one pool_ref gate this does not mirror. It takes the pool
+            off a PLAIN Super Saiyan for leaders 0 and 4 only. The leaving-entry rule did not mirror it
+            either, so the ramp behaves there exactly as it did before.
          3. WHERE IT DRAWS. The overlay is a draw, never a value: the pool still arrives in one store at
             the landing frame, so nothing about gameplay changes. The HUD hook calls the live draw first,
             which paints the green EP row and, on a second transformation, the yellow pool bar under us.
@@ -23,12 +33,6 @@ Method:  1. SCHEDULE. Buu's Fury ramps its pool LINEARLY, every tick of the tran
             set to the latched colour. So yellow goes over green and orange goes over yellow. The byte
             is put back afterwards, because fullpower_hud enters the draw without calling pool_ref and
             would otherwise inherit our colour.
-         3b. PICCOLO'S Z+ BAR. His Z+ keeps the Namek form object, so pool_ref draws it the same yellow
-            as Super Namek, and the orange ramp would snap back to yellow when the form lands. With no
-            ramp live and the leader in entry 24, the steps the live draw just painted (hud_key leaves
-            the count at RAM 0x03003A00 +0xC) are repainted orange over themselves. It is paint only:
-            pool_ref, the drain and the revert are untouched, and a shrinking bar is already erased by
-            bf_ki_pool's own +0xC key.
          4. INTERRUPTION. Buu's Fury zeroes the ramped pool when the transform state leaves without
             completing (`BF 0x0801C552`, +0xC of the sibling transform vtable `0x0804DCA4`). Ours cannot
             hook a leave word it has not measured, so the ramp carries a WATCHDOG instead: the tick
@@ -38,8 +42,10 @@ Method:  1. SCHEDULE. Buu's Fury ramps its pool LINEARLY, every tick of the tran
          5. TWO STATES. The Saiyan transform is state 35 (`0x08025D9C +4`, 0xA0 ticks) and Piccolo's
             first one is state 0x25 (`0x08025CE0 +4`, 0x40 ticks); both count the actor's own u16 at
             +0x12 and both end by calling their vtable +0x14 (bible B2416, both ticks read again here).
-            State 0x25 is hooked ONLY when piccolo_z_start ran, because without it Super Namek has no
-            pool and a ramp would have nothing to land on.
+            State 0x25 is hooked ONLY when piccolo_z_start ran. Under the owner's 2026-11-13 decision
+            Super Namek has no pool either way, so that hook ramps nothing today: bar_colour reports no
+            pool for entry 7, and the tick clears the watchdog instead of stamping it. The hook stays,
+            so a Namek form that is given a pool later ramps with no new code.
          RAM 0x03003A14, two words past piccolo_zplus's heal accumulator: +0 u16 watchdog stamp,
          +2 u8 ramp steps, +3 u8 bar colour, +4 u8 steps last drawn (the repaint key).
 Rules:   Every hook word is read live and chained, never assumed, so this module cannot run out of order
@@ -49,6 +55,7 @@ Rules:   Every hook word is read live and chained, never assumed, so this module
 """
 import struct
 
+from patches import bf_ki_pool as pool_patch
 from patches.bf_hud import EP
 from patches.ssj2_form import assemble
 from patches.vegeta_zplus import namers
@@ -68,6 +75,7 @@ XFORM_VTABLE, XFORM_SLOT, XFORM_LIMIT = 0x08025D9C, 0x04, 0xA0    # state 35, th
 NAMEK_VTABLE, NAMEK_SLOT, NAMEK_LIMIT = 0x08025CE0, 0x04, 0x40    # state 0x25, Piccolo's first one
 VANILLA_NAMEK_TICK = 0x0801560F       # its vanilla tick, which piccolo_z_start leaves alone
 NO_ENTRY = 0xFF                       # an appearance entry nothing holds: without piccolo_zplus there is no Z+
+NO_POOL = 2                           # bar_colour's third answer: the landed form draws no pool bar
 
 # ===== new code (ARMv4T Thumb). Symbols in caps are filled in at assembly =====
 CODE = """
@@ -89,8 +97,10 @@ ramp_tick:                  ; r2 = the tick the form lands on, r3 = the tick we 
     bl leader
     add r7,r0,#0            ; the leader record
     ldrb r0,[r7,#0x8]
-    bl super_entry          ; the entry he is LEAVING, as Buu's Fury reads it
+    bl bar_colour           ; what pool_ref will paint on the form he is stepping INTO
     ldr r3,=RAMP
+    cmp r0,#NO_POOL
+    beq rt_off              ; that form has no pool, so a ramp would flash and vanish
     strb r0,[r3,#0x3]       ; latched here: the landing rewrites the entry inside the chained tick
     ldrh r0,[r5,#0x12]
     add r0,#0x1             ; the chained tick adds this one
@@ -107,6 +117,11 @@ rt_fill:
     strb r0,[r3,#0x2]
     ldr r0,=LIVE
     strh r0,[r3,#0x0]       ; the watchdog the draw spends: a tick that stops takes the bar off
+    b rt_chain
+rt_off:
+    mov r0,#0x0
+    strh r0,[r3,#0x0]       ; no pool to land on: no ramp, and a stale stamp goes now
+rt_chain:
     ldrb r6,[r7,#0x8]       ; the entry, to tell a landing from an interruption
     ldr r0,[sp,#0x0]
     add r1,r5,#0
@@ -143,17 +158,9 @@ hr_call:
     bl via_r3               ; the live draw: the green EP row, and the pool bar we ramp over
     push {r0}
     cmp r6,#0x0
-    bne hr_mine
-    bl zplus_steps          ; no ramp: Piccolo's Z+ bar is repainted in its own colour
-    add r6,r0,#0
-    cmp r6,#0x0
     beq hr_done
-    mov r0,#0x1
-    b hr_colour
-hr_mine:
     ldr r3,=RAMP
     ldrb r0,[r3,#0x3]
-hr_colour:
     ldr r3,=RAM
     ldrb r2,[r3,#0xe]
     push {r2}               ; the colour the live draw used, to put back after
@@ -204,19 +211,6 @@ rn_spend:
 rn_none:
     mov r0,#0x0
     bx lr
-zplus_steps:                ; r0 = the pool steps the live draw just painted, in Piccolo's Z+ only
-    push {r4,lr}
-    bl leader
-    ldrb r0,[r0,#0x8]
-    mov r1,#ZPLUS_ENTRY
-    cmp r0,r1
-    bne zs_none
-    ldr r3,=RAM
-    ldrb r0,[r3,#0xc]       ; hud_key leaves the steps it painted here, every frame
-    pop {r4,pc}
-zs_none:
-    mov r0,#0x0
-    pop {r4,pc}
 leader:                     ; r0 = the leader record, as bf_ki_pool's pool_ref reads it
     ldr r0,=SAVE_PTR
     ldr r0,[r0,#0x4]
@@ -227,15 +221,37 @@ leader:                     ; r0 = the leader record, as bf_ki_pool's pool_ref r
     add r0,r0,r2
     add r0,#0xc
     bx lr
-super_entry:                ; r0 = an appearance entry, returns 1 when it is already a super form
+bar_colour:                 ; r0 = the entry he is LEAVING; 0 yellow, 1 orange, NO_POOL no bar at all
     lsl r1,r0,#2
     add r1,r1,r0
     lsl r1,r1,#2            ; entry x 20
-    ldr r0,=TABLE
-    add r0,r0,r1
-    ldrb r0,[r0,#0x0]
-    lsl r0,r0,#31
-    lsr r0,r0,#31           ; +0 bit 0, the bit Buu's Fury tests
+    ldr r2,=TABLE
+    add r1,r1,r2
+    ldrb r0,[r1,#0x4]       ; +4: the entry transform(player,1) writes to the record (bible B0539)
+    lsl r1,r0,#2
+    add r1,r1,r0
+    lsl r1,r1,#2
+    add r1,r1,r2
+    ldr r2,[r1,#0x10]       ; its form object: the word pool_ref reads, from the same table
+    ldr r1,=SSJ2_OBJ
+    cmp r2,r1
+    beq bc_orange
+    ldr r1,=SSJ_OBJ
+    sub r1,#0x4             ; the ascended grade 0x030021E8, off the Super Saiyan literal, as pool_ref does
+    cmp r2,r1
+    beq bc_orange
+    add r1,#0x4
+    cmp r2,r1
+    beq bc_yellow           ; a plain Super Saiyan
+    cmp r0,#ZPLUS_ENTRY     ; pool_ref's entry test: Z+ shares Super Namek's form object
+    beq bc_yellow
+    mov r0,#NO_POOL
+    bx lr
+bc_orange:
+    mov r0,#0x1
+    bx lr
+bc_yellow:
+    mov r0,#0x0
     bx lr
 via_r3:
     bx r3
@@ -296,11 +312,13 @@ def apply(rom: bytearray, alloc) -> None:
     namers(rom, RAMP, alloc.used())        # raises when any ROM word already names our RAM block
 
     # 1. allocate; nothing is written until the code size is checked
+    ps = pool_patch.syms(alloc.notes, alloc.notes["bf_ki_pool"]["window"] + ROM_BASE)
     syms = {"XFORM_LIMIT": XFORM_LIMIT, "NAMEK_LIMIT": NAMEK_LIMIT, "STEPS": STEPS, "DIV": DIV,
             "CHAIN35": chain35, "CHAIN25": chain25 if namek else 0, "RAMP": RAMP, "RAM": RAM,
             "LIVE": LIVE, "OLD_HUD": old_hud, "PUT_PX": pool["put_px"] | 1, "SAVE_PTR": SAVE_PTR,
             "ZPLUS_ENTRY": alloc.notes["piccolo_zplus"]["entry"] if zplus else NO_ENTRY,
-            "EP_TABLE": EP + ROM_BASE, "VRAM_OBJ": VRAM_OBJ,
+            "EP_TABLE": EP + ROM_BASE, "VRAM_OBJ": VRAM_OBJ, "NO_POOL": NO_POOL,
+            "SSJ_OBJ": ps["SSJ_OBJ"], "SSJ2_OBJ": ps["SSJ2_OBJ"],   # the two objects pool_ref compares
             "TABLE": _u32(rom, TABLE_LITERAL)}
     size = len(assemble(CODE, ROM_BASE, syms)[0])
     code = alloc.alloc(size)
@@ -326,4 +344,4 @@ def apply(rom: bytearray, alloc) -> None:
         "limits": {"state35": XFORM_LIMIT, "state25": NAMEK_LIMIT if namek else None},
         "zplus_entry": alloc.notes["piccolo_zplus"]["entry"] if zplus else None,
         "labels": {k: v - ROM_BASE for k, v in labels.items()
-                   if not k.startswith(("rt_", "hr_", "rn_", "zs_"))}}
+                   if not k.startswith(("rt_", "hr_", "rn_", "bc_"))}}

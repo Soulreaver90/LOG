@@ -16,6 +16,8 @@ from art import art_tables as at
 import log_paths
 from patches import piccolo_zplus
 from rom.webfoot_decompress import ROM_BASE
+from tests.test_bf_hud import labels
+from tests.test_bf_ki_pool import RAM, STOPS, cpu
 
 # ===== constants (live table bytes and handlers read 2026-11-12) =====
 TRIAL_LIST = log_paths.BUILD_LISTS / "build_list_trial_piccolo_fx.txt"
@@ -33,6 +35,9 @@ ABILITY_11_ACTION, VANILLA_ACTION = 0x1D99BC, 0x080134C1
 NAMEK_VTABLE, VANILLA_APPLY = 0x08024ABC, 0x080173AB
 HEAL_RATE, HEAL_STEP = 0x290, 0x0CCD                    # the vanilla Namek tick's own constants
 TRANSFORM_MESSAGE = 0x23                                # state 35, not the Namek state 0x25
+SUPER_SAIYAN, ASCENDED, SSJ2 = 5, 10, 22                # the forms pool_ref already took, as controls
+RET, STACK = 0x0EEE0000, 0x03007E00
+PICCOLO, GOHAN, VEGETA = 1, 0, 2
 
 _CACHE = {}
 
@@ -159,6 +164,63 @@ class PiccoloZplusTests(unittest.TestCase):
         stray = [i for i in range(log2_build.BASE_SIZE)
                  if self.rom[i] != self.before[i] and not any(a <= i < a + 4 for a in allowed)]
         self.assertEqual(stray, [], f"{len(stray)} base ROM bytes changed outside the hook words")
+
+    # ===== the ki pool: the Namek object, in entry 24 only =====
+
+    def ref(self, rom, entry, leader=PICCOLO):
+        """r0 and the bar colour byte from one live pool_ref call on a leader wearing `entry`."""
+        cp = cpu(leader=leader, entry=entry, data=rom)
+        cp.store(RAM + 0xE, 1, 0xEE)
+        cp.r[13], cp.r[14] = STACK, RET | 1
+        self.assertEqual(cp.run(labels()["pool_ref"], STOPS), "ret")
+        return cp.r[0], cp.load(RAM + 0xE, 1)
+
+    def test_before_this_module_the_namek_object_gets_no_pool_in_either_entry(self):
+        """The baseline. Entry 24 does not exist yet, and entry 7 is read with no pool."""
+        self.assertEqual(self.ref(self.before, NAMEK), (0, 0))
+
+    def test_only_entry_24_gets_the_pool_and_it_is_yellow(self):
+        """Entries 7 and 24 share the Namek form object, so an object compare cannot tell them
+        apart. The splice tests the ENTRY, which register r3 still holds at the compare."""
+        self.assertEqual(self.ref(self.rom, NAMEK), (0, 0))
+        self.assertEqual(self.ref(self.rom, ZPLUS), (RAM, 0))
+
+    def test_every_saiyan_pool_form_keeps_the_pool_and_the_colour_it_had(self):
+        for entry, leader in ((SUPER_SAIYAN, GOHAN), (SSJ2, GOHAN), (ASCENDED, VEGETA),
+                              (VEGETA_ZPLUS, VEGETA)):
+            with self.subTest(entry=entry):
+                self.assertEqual(self.ref(self.rom, entry), self.ref(self.before, entry))
+
+    def test_the_splice_is_four_bytes_in_pool_ref_and_the_table_literal_is_the_only_other_move(self):
+        """A whole-blob write would send pool_ref back to the appearance table vegeta_zplus left,
+        which has no entry 24. Only the changed bytes go in, beside the literal repoint every
+        module that relocates the table already makes."""
+        ki = built()["all_notes"]["bf_ki_pool"]
+        blob = range(ki["code"], ki["code"] + ki["code_len"])
+        literals = set()
+        for off in self.notes["table_namers"]:
+            if off in blob:
+                literals |= set(range(off, off + 4))
+        moved = {i for i in blob if self.rom[i] != self.before[i]}
+        self.assertTrue(literals, "the table literal inside the blob did not move with the table")
+        self.assertEqual(sorted(moved - literals), self.notes["pool_splice"])
+        self.assertEqual(len(self.notes["pool_splice"]), 4)
+        at, end = labels()["pool_ref"] - ROM_BASE, labels()["fill_end"] - ROM_BASE
+        self.assertTrue(all(at <= i < end for i in self.notes["pool_splice"]))
+
+    def test_the_splice_is_a_bl_to_the_entry_test(self):
+        at = self.notes["pool_splice"][0]
+        self.assertEqual(_bl_target(self.rom, at, 0), self.notes["pool_gate"] + ROM_BASE)
+
+    def test_the_table_literal_inside_the_pool_blob_still_names_the_live_table(self):
+        """pool_ref indexes the appearance table itself, so a stale literal there would read entry
+        24 off the end of the old table."""
+        ki = built()["all_notes"]["bf_ki_pool"]
+        live = _u32(self.rom, TABLE_LITERAL)
+        words = [o for o in range(ki["code"], ki["code"] + ki["code_len"], 4)
+                 if _u32(self.rom, o) == live]
+        self.assertTrue(words)
+        self.assertEqual(live - ROM_BASE, self.notes["table"])
 
     # ===== the icon and the portrait =====
 

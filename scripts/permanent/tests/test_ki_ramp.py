@@ -31,6 +31,8 @@ RET, STACK = 0x0EEE0000, 0x03007E00
 ACTOR, STATE, HUD, OAM = 0x02010000, 0x02010400, 0x02011000, 0x02011100
 HUD_TILE = 0x200
 PICCOLO_BASE, NAMEK, ZPLUS = 6, 7, 24      # entry 6 is not a super form, 7 and 24 are
+SAIYAN_BASE, SUPER_SAIYAN, SSJ2 = 2, 5, 22    # Gohan's chain: base, Super Saiyan, Super Saiyan 2
+YELLOW, ORANGE, NO_POOL = 0, 1, 2          # bar_colour's three answers
 TABLE_LITERAL = 0x1954
 
 _CACHE = {}
@@ -98,8 +100,8 @@ class KiRampTests(unittest.TestCase):
             self.assertIn(self.notes[chain], pool)
 
     def test_the_vegeta_trial_leaves_the_namek_state_alone(self):
-        """Without piccolo_z_start, Super Namek has no ki pool, so a ramp there would fill a bar that
-        is not drawn when the form lands. Only state 35 is hooked in that build."""
+        """Without piccolo_z_start there is no Namek transform to reach, so only state 35 is hooked
+        in that build."""
         v = built(VEGETA_LIST)
         self.assertEqual(vtable_target(v["rom"], NAMEK_VTABLE, TICK_SLOT), VANILLA_NAMEK_TICK)
         self.assertIsNone(v["notes"]["chain25"])
@@ -142,28 +144,76 @@ class KiRampTests(unittest.TestCase):
         for tick in (0, 1, 0x20, 0x50, 0x7F, 0x9F):
             cp = self._tick("tick35", XFORM_LIMIT, NAMEK, tick)
             self.assertEqual(cp.load(RAMP + 2, 1), STEPS * (tick + 1) // XFORM_LIMIT, f"tick {tick}")
-        for tick in (0, 0x10, 0x3F):
-            cp = self._tick("tick25", NAMEK_LIMIT, PICCOLO_BASE, tick)
-            self.assertEqual(cp.load(RAMP + 2, 1), STEPS * (tick + 1) // NAMEK_LIMIT, f"namek tick {tick}")
+            cp = self._tick("tick35", XFORM_LIMIT, SAIYAN_BASE, tick)
+            self.assertEqual(cp.load(RAMP + 2, 1), STEPS * (tick + 1) // XFORM_LIMIT, f"saiyan {tick}")
 
-    def test_the_last_tick_of_each_state_is_a_full_bar(self):
+    def test_the_last_tick_is_a_full_bar(self):
         self.assertEqual(self._tick("tick35", XFORM_LIMIT, NAMEK, XFORM_LIMIT - 1).load(RAMP + 2, 1), STEPS)
-        self.assertEqual(self._tick("tick25", NAMEK_LIMIT, PICCOLO_BASE, NAMEK_LIMIT - 1).load(RAMP + 2, 1), STEPS)
 
-    def test_the_bar_colour_is_the_entry_he_is_leaving(self):
-        """Buu's Fury picks the second pool when bit 0 of the entry he is LEAVING is set, which is
-        what makes the orange ramp the second transformation's."""
+    def test_the_bar_colour_is_what_pool_ref_will_paint_on_the_form_he_enters(self):
+        """transform(player, 1) writes the entry at +4 of the entry he is leaving (bible B0539), so
+        that entry's form object is the word pool_ref will read. Super Namek to Z+ is the case that
+        moved: the Buu's Fury rule, bit 0 of the entry he is LEAVING, said orange, and pool_ref
+        paints the Z+ bar yellow."""
         table = _u32(self.rom, TABLE_LITERAL) - ROM_BASE
-        self.assertEqual(self.rom[table + 20 * PICCOLO_BASE] & 1, 0)
-        self.assertEqual(self.rom[table + 20 * NAMEK] & 1, 1)
-        self.assertEqual(self._tick("tick25", NAMEK_LIMIT, PICCOLO_BASE, 8).load(RAMP + 3, 1), 0)
-        self.assertEqual(self._tick("tick35", XFORM_LIMIT, NAMEK, 8).load(RAMP + 3, 1), 1)
+        self.assertEqual(self.rom[table + 20 * NAMEK] & 1, 1)       # the old rule would say orange
+        self.assertEqual(self.rom[table + 20 * NAMEK + 4], ZPLUS)
+        self.assertEqual(self._tick("tick35", XFORM_LIMIT, NAMEK, 8).load(RAMP + 3, 1), YELLOW)
+        self.assertEqual(self.rom[table + 20 * SAIYAN_BASE + 4], SUPER_SAIYAN)
+        self.assertEqual(self._tick("tick35", XFORM_LIMIT, SAIYAN_BASE, 8).load(RAMP + 3, 1), YELLOW)
+        self.assertEqual(self.rom[table + 20 * SUPER_SAIYAN + 4], SSJ2)
+        self.assertEqual(self._tick("tick35", XFORM_LIMIT, SUPER_SAIYAN, 8).load(RAMP + 3, 1), ORANGE)
 
     def test_the_colour_is_latched_before_the_chained_tick_runs(self):
         """The landing writes the new entry from inside the chained tick (bible B2418). Reading the
-        entry after it would turn the last frame of a first transformation orange."""
-        cp = self._tick("tick25", NAMEK_LIMIT, PICCOLO_BASE, NAMEK_LIMIT - 1, land_as=NAMEK)
-        self.assertEqual(cp.load(RAMP + 3, 1), 0)
+        entry after it would read the colour of the form he already reached."""
+        cp = self._tick("tick35", XFORM_LIMIT, SUPER_SAIYAN, XFORM_LIMIT - 1, land_as=SSJ2)
+        self.assertEqual(cp.load(RAMP + 3, 1), ORANGE)
+
+    def _colour(self, leaving):
+        """bar_colour's own answer for a leader LEAVING appearance entry `leaving`."""
+        cp = cpu(self.rom, entry=leaving)
+        cp.r[0] = leaving
+        self.assertEqual(cp.run(self.labels["bar_colour"] & ~1, {RET: "done"}, limit=600), "done")
+        return cp.r[0]
+
+    def _pool_ref(self, entry, leader=1):
+        """YELLOW, ORANGE or NO_POOL from one LIVE pool_ref call on a leader wearing `entry`."""
+        cp = cpu(self.rom, entry=entry, leader=leader)
+        cp.store(RAM + 0xE, 1, 0xEE)
+        at = built()["all"]["bf_ki_pool"]["labels"]["pool_ref"]
+        self.assertEqual(cp.run(at & ~1, {RET: "done"}, limit=4000), "done")
+        return cp.load(RAM + 0xE, 1) if cp.r[0] else NO_POOL
+
+    def test_bar_colour_agrees_with_pool_ref_on_every_entry_in_the_table(self):
+        """The whole point of the change: the ramp and the bar read one word, the form object of
+        the entry at +4. Leader 1 runs the pool_ref side, because the r28 full-power stretch is the
+        one gate bar_colour does not mirror and it reaches leaders 0 and 4 only."""
+        table = _u32(self.rom, TABLE_LITERAL) - ROM_BASE
+        seen = set()
+        for leaving in range(self.notes["zplus_entry"] + 1):
+            want = self._pool_ref(self.rom[table + 20 * leaving + 4])
+            self.assertEqual(self._colour(leaving), want, f"leaving entry {leaving}")
+            seen.add(want)
+        self.assertEqual(sorted(seen), [YELLOW, ORANGE, NO_POOL], f"only {sorted(seen)} appeared")
+
+    def test_a_form_with_no_pool_never_ramps(self):
+        """Piccolo's base to Super Namek step. The owner keeps that bar plain green, so pool_ref
+        gives entry 7 no pool and a ramp there would fill a bar and then vanish."""
+        table = _u32(self.rom, TABLE_LITERAL) - ROM_BASE
+        self.assertEqual(self.rom[table + 20 * PICCOLO_BASE + 4], NAMEK)
+        for tick in (0, 0x10, 0x3F):
+            cp = self._tick("tick25", NAMEK_LIMIT, PICCOLO_BASE, tick)
+            self.assertEqual(cp.load(RAMP, 2), 0, f"namek tick {tick} stamped the watchdog")
+
+    def test_a_stale_stamp_is_cleared_by_a_tick_that_has_no_pool_to_land_on(self):
+        cp = cpu(self.rom, entry=PICCOLO_BASE, tick=4)
+        cp.store(RAMP, 2, LIVE)
+        cp.store(RAMP + 2, 1, 20)
+        chain = self.notes["chain25"]
+        stops = {RET: "done", DIV: lambda c: c.r[1] // c.r[0], chain & ~1: lambda c: 0}
+        self.assertEqual(cp.run(self.labels["tick25"] & ~1, stops, limit=600), "done")
+        self.assertEqual(cp.load(RAMP, 2), 0)
 
     def test_the_chained_tick_gets_the_state_and_the_actor_unchanged(self):
         cp = self._tick("tick35", XFORM_LIMIT, NAMEK, 4)
@@ -229,16 +279,15 @@ class KiRampTests(unittest.TestCase):
 
     # ===== Piccolo's own Z+ bar =====
 
-    def test_the_zplus_bar_is_repainted_orange_with_no_ramp_live(self):
-        """His Z+ keeps the Namek form object, so pool_ref draws it the same yellow as Super Namek.
-        The orange ramp would snap back to yellow on the landing frame without this."""
-        cp = cpu(self.rom, entry=ZPLUS)
-        cp.store(RAM + 0xE, 1, 0)
-        cp.store(RAMP, 2, 0)
-        painted = self._draw(cp, pool_steps=9)
-        want = [(_u32(self.rom, EP_TABLE - ROM_BASE + 16 * s + w), 1) for s in range(9) for w in (0, 4, 8)]
-        self.assertEqual(painted, want)
-        self.assertEqual(cp.load(RAM + 0xE, 1), 0)
+    def test_a_landed_form_is_never_repainted_by_this_module(self):
+        """The ramp is the only thing this module draws. pool_ref now paints every landed bar in
+        its own colour, so the orange repaint of the Z+ bar is gone with the mismatch it covered."""
+        for entry in (PICCOLO_BASE, NAMEK, ZPLUS):
+            cp = cpu(self.rom, entry=entry)
+            cp.store(RAM + 0xE, 1, 0)
+            cp.store(RAMP, 2, 0)
+            self.assertEqual(self._draw(cp, pool_steps=9), [], f"entry {entry} was repainted")
+            self.assertEqual(cp.load(RAM + 0xE, 1), 0)
 
     # ===== the whole chain, with nothing stubbed out between us and OBJ VRAM =====
 
@@ -249,7 +298,7 @@ class KiRampTests(unittest.TestCase):
 
         Every other draw test stubs the chained draw, so none of them can see what colour the bar
         ENDS as. That is the gap the owner's eye found: a module that paints nothing in the landed
-        form passes them all and still leaves his Z+ bar yellow.
+        form passes them all and still leaves his Z+ bar the wrong colour.
         """
         cp = cpu(self.rom, entry=entry, leader=leader)
         r = record(self.rom, leader)
@@ -266,10 +315,9 @@ class KiRampTests(unittest.TestCase):
             self.assertEqual(cp.run(self.labels["hud_ramp"] & ~1, stops, limit=200000), "done")
         return cp
 
-    def test_the_landed_zplus_bar_is_the_orange_image_in_vram(self):
-        """End to end: his Z+ keeps the Namek form object, so the live draw paints the yellow image
-        and the repaint must put the orange one over it. Read back from OBJ VRAM, where the screen
-        reads it, not from the calls the repaint makes."""
+    def test_the_landed_zplus_bar_is_the_yellow_image_in_vram(self):
+        """End to end, and the owner's own words: the Z+ bar ramps yellow and STAYS yellow. Read
+        back from OBJ VRAM, where the screen reads it, not from the calls the draw makes."""
         pool = built()["all"]["bf_ki_pool"]
         yellow, orange = pool["yellow"], pool["orange"]
         base = VRAM_OBJ + HUD_TILE * 32
@@ -279,37 +327,32 @@ class KiRampTests(unittest.TestCase):
             for word in (0, 4, 8):
                 off = _u32(self.rom, EP_TABLE - ROM_BASE + 16 * step + word)
                 got = cp.load(base + off, 1)
-                self.assertEqual(got, self.rom[orange + off],
-                                 f"step {step} pixel {off:#x} is not the orange image")
+                self.assertEqual(got, self.rom[yellow + off],
+                                 f"step {step} pixel {off:#x} is not the yellow image")
                 if self.rom[orange + off] != self.rom[yellow + off]:
                     differ += 1
-                    wrong += got == self.rom[yellow + off]
+                    wrong += got == self.rom[orange + off]
         self.assertGreater(differ, 0, "the two images are the same here, so this proves nothing")
         self.assertEqual(wrong, 0)
 
-    def test_super_namek_leaves_the_yellow_image_in_vram(self):
-        """The control, and the reason the repaint is gated on entry 24: Super Namek carries the same
-        form object and must keep the yellow bar."""
-        pool = built()["all"]["bf_ki_pool"]
+    def test_super_namek_writes_no_pool_pixel_at_all(self):
+        """The control, and the whole point of the decision: entry 7 carries the same form object
+        as entry 24 and still draws no bar, because pool_ref tests the ENTRY."""
         base = VRAM_OBJ + HUD_TILE * 32
+        offs = [_u32(self.rom, EP_TABLE - ROM_BASE + 16 * s + w)
+                for s in range(STEPS) for w in (0, 4, 8)]
         cp = self._real_draw(NAMEK)
-        for step in range(STEPS):
-            off = _u32(self.rom, EP_TABLE - ROM_BASE + 16 * step)
-            self.assertEqual(cp.load(base + off, 1), self.rom[pool["yellow"] + off],
-                             f"step {step} is not the yellow image")
+        self.assertEqual([o for o in offs if cp.load(base + o, 1)], [], "Super Namek drew a bar")
+        zp = self._real_draw(ZPLUS)
+        painted = [o for o in offs if zp.load(base + o, 1)]
+        self.assertGreater(len(painted), 0, "Z+ drew nothing either, so this proves nothing")
 
     def test_the_whole_chain_puts_the_bar_colour_byte_back(self):
         """fullpower_hud enters bf_ki_pool's draw without calling pool_ref, so a colour left behind
         paints Gohan's full-power row orange. pool_ref writes 0 for Piccolo's form object."""
         self.assertEqual(self._real_draw(ZPLUS).load(RAM + 0xE, 1), 0)
 
-    def test_super_namek_and_the_other_forms_are_not_repainted(self):
-        for entry in (PICCOLO_BASE, NAMEK):
-            cp = cpu(self.rom, entry=entry)
-            cp.store(RAMP, 2, 0)
-            self.assertEqual(self._draw(cp, pool_steps=9), [], f"entry {entry} was repainted")
-
-    def test_the_vegeta_trial_repaints_nothing(self):
+    def test_the_vegeta_trial_knows_of_no_zplus_entry(self):
         """Without piccolo_zplus there is no entry 24, so the symbol is an entry nothing holds."""
         self.assertIsNone(built(VEGETA_LIST)["notes"]["zplus_entry"])
 

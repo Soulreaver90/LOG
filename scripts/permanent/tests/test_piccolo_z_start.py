@@ -1,6 +1,6 @@
 r"""
 test_piccolo_z_start.py - Tests for patches.piccolo_z_start (trial 2026-11-12, phase 1 of two): Super Namek
-                          from the start, with the Super Namek HP heal removed.
+                          from the start, with the Super Namek HP heal removed and no ki pool.
 
 Run (from the LOG root):
   py -3.14 -P -m unittest discover -s scripts\permanent\tests -t scripts\permanent -p test_piccolo_z_start.py -v
@@ -45,7 +45,8 @@ FLAG_132 = (STRUCT + 0xB4 + 132 // 8, 1 << (132 % 8))    # the Kami fusion flag 
 HEAL_STEP = 0x290                                        # max HP x 0x290 >> 16, about 1 % (bible B0543)
 DRAIN_STEP = 0x0CCD                                      # 1 every 20 frames
 BASE_RUNS = (0x024AC0, 0x025CF4, 0x1D9578)   # base ROM: Namek vtable +4, state 0x25 vtable +0x14, record +0x14
-ACCEPT_AT = 0x18                             # the fourth run, measured from bf_ki_pool's allocated code start
+CD_SET = 0x500                               # 0xA0 transform frames x 8: what the vanilla anim would reach
+SUPER_SAIYAN, GOHAN = 5, 0                   # the control pool form, and the leader who wears it
 MOCKUP = log_paths.PICCOLO_Z_MOCKUPS
 WEST_CITY, WEST_CITY_POS = (4, 6, 1), (656, 368)     # the 6,1 warp landing, bible B1186
 
@@ -90,14 +91,14 @@ def changed_runs(before: bytes, after: bytes) -> tuple:
     return tuple((at, n) for at, n in runs)
 
 
-def run_problems(before: bytes, after: bytes, pool_code: int) -> list:
-    """Why the diff between the two ROMs is not the four writes this module is allowed to make.
+def run_problems(before: bytes, after: bytes) -> list:
+    """Why the diff between the two ROMs is not the three writes this module is allowed to make.
 
-    The fourth write lands in bf_ki_pool's allocated code, so its address moves with every earlier
-    module. Typing it froze this test against one build."""
-    want = BASE_RUNS + (pool_code + ACCEPT_AT,)
+    All three are pointer-level writes in the base ROM. The module writes no byte of bf_ki_pool's
+    allocated blob, because Super Namek gets no ki pool (owner, 2026-11-13)."""
     got = tuple(at for at, _ in changed_runs(before, after))
-    problems = [] if got == want else [f"runs {[hex(a) for a in got]}, expected {[hex(a) for a in want]}"]
+    problems = [] if got == BASE_RUNS else [f"runs {[hex(a) for a in got]}, "
+                                            f"expected {[hex(a) for a in BASE_RUNS]}"]
     problems += [f"save code changed at rom:0x{at:X}: {name}"
                  for at, size, name in SAVE_PATHS if after[at:at + size] != before[at:at + size]]
     return problems
@@ -285,35 +286,50 @@ class Tick(unittest.TestCase):
         self.assertEqual(cp.load(rec(PICCOLO), 2), 500 + (906 * HEAL_STEP >> 16))
         self.assertEqual(cp.load(rec(PICCOLO) + 4, 2), 119)
 
-    def test_the_pool_tick_drains_and_never_touches_hp(self):
+    def test_the_pool_tick_gives_super_namek_no_pool_and_never_touches_hp(self):
+        """The owner's 2026-11-13 decision: base AND Super Namek keep the plain green EP bar. pool_ref
+        refuses the Namek form object, so the tick runs the vanilla base tick and stops."""
         cp = piccolo(hp=500, ep=120, pool=50)
         cp.store(RAM + 8, 4, 0x10000 - DRAIN_STEP)
         run_tick(cp, labels()["tick_ssj"], 0x030021F0)
-        self.assertEqual(cp.load(RAM, 2), 49)
+        self.assertEqual(cp.load(RAM, 2), 50)
         self.assertEqual(cp.load(rec(PICCOLO), 2), 500)
 
-    def test_hp_is_unchanged_over_a_run_of_drain_steps(self):
+    def test_nothing_moves_over_a_run_of_would_be_drain_steps(self):
         cp = piccolo(hp=500, ep=120, pool=50)
         for _ in range(8):
             cp.store(RAM + 8, 4, 0x10000 - DRAIN_STEP)
             run_tick(cp, labels()["tick_ssj"], 0x030021F0)
-        self.assertEqual(cp.load(RAM, 2), 42)
+        self.assertEqual(cp.load(RAM, 2), 50)
         self.assertEqual(cp.load(rec(PICCOLO), 2), 500)
+        self.assertEqual(cp.states, [])
 
-    def test_the_drain_still_ends_the_form(self):
+    def test_super_namek_never_reverts_on_its_own(self):
+        """With no pool there is nothing to empty, so the form lasts until B drops it."""
         cp = piccolo(hp=500, ep=120, pool=0)
-        cp.store(RAM + 8, 4, 0x10000 - DRAIN_STEP)
-        run_tick(cp, labels()["tick_ssj"], 0x030021F0)
-        self.assertEqual(cp.states, [(PLAYER, 0x24)])
-
-    def test_a_knocked_out_piccolo_does_not_revert(self):
-        cp = piccolo(hp=0, ep=120, pool=0)
         cp.store(RAM + 8, 4, 0x10000 - DRAIN_STEP)
         run_tick(cp, labels()["tick_ssj"], 0x030021F0)
         self.assertEqual(cp.states, [])
 
-    def test_the_transform_end_fills_the_pool(self):
-        cp = piccolo(ep=10, mep=134, pool=3, tag=0)
+    def test_the_super_saiyan_pool_still_drains_and_still_reverts(self):
+        """The control. The same tick runs for Gohan, and taking the Namek form off it must leave
+        every Saiyan pool exactly as bf_ki_pool built it."""
+        cp = cpu(leader=GOHAN, entry=SUPER_SAIYAN, hp=500, ep=120, pool=50, data=built()["rom"])
+        cp.store(RAM + 8, 4, 0x10000 - DRAIN_STEP)
+        run_tick(cp, labels()["tick_ssj"], 0x030021EC)
+        self.assertEqual(cp.load(RAM, 2), 49)
+        self.assertEqual(cp.load(rec(GOHAN), 2), 500)
+        cp = cpu(leader=GOHAN, entry=SUPER_SAIYAN, hp=500, ep=120, pool=0, data=built()["rom"])
+        cp.store(RAM + 8, 4, 0x10000 - DRAIN_STEP)
+        run_tick(cp, labels()["tick_ssj"], 0x030021EC)
+        self.assertEqual(cp.states, [(PLAYER, 0x24)])
+
+    def test_the_transform_end_clears_the_tag_and_empties_the_charge_meter(self):
+        """fill_end still runs on the Namek transform. With no pool it leaves the pool alone, but it
+        clears a stale tag, it clears the bar colour byte, and it empties the Z charge meter in one
+        step, which is the order the Saiyan transform already uses."""
+        cp = piccolo(ep=10, mep=134, pool=3, tag=0x8000 | PICCOLO << 8 | PICCOLO_ENTRY)
+        cp.store(RAM + 0xE, 1, 1)
         cp.r[0], cp.r[1], cp.r[13], cp.r[14] = 0x03002188, PLAYER, STACK, RET | 1
         seen = {}
 
@@ -325,11 +341,13 @@ class Tick(unittest.TestCase):
         stops = {**STOPS, VANILLA_TRANSFORM_END & ~1: vanilla}
         self.assertEqual(cp.run(labels()["fill_end"], stops), "ret")
         self.assertTrue(seen.get("ran"))
-        self.assertEqual(cp.load(RAM, 2), 134)
-        self.assertEqual(cp.load(RAM + 2, 2), 0x8000 | PICCOLO << 8 | SUPER_NAMEK)
+        self.assertEqual(cp.load(RAM, 2), 3)
+        self.assertEqual(cp.load(RAM + 2, 2), 0)
+        self.assertEqual(cp.load(RAM + 0xE, 1), 0)
+        self.assertEqual(cp.load(STRUCT + 8, 4), CD_SET)
 
 
-# ===== 3. pool_ref: the Namek accept, and every other form as before =====
+# ===== 3. pool_ref: Super Namek gets nothing, and every other form is as before =====
 
 class PoolRefAccept(unittest.TestCase):
     def ref(self, entry: int, leader: int = PICCOLO) -> int:
@@ -338,8 +356,15 @@ class PoolRefAccept(unittest.TestCase):
         self.assertEqual(cp.run(labels()["pool_ref"], STOPS), "ret")
         return cp.r[0]
 
-    def test_super_namek_now_gets_the_pool(self):
-        self.assertEqual(self.ref(SUPER_NAMEK), RAM)
+    def test_super_namek_gets_no_pool(self):
+        """The bar stays plain green through Super Namek (owner, 2026-11-13). piccolo_zplus gives
+        the pool to entry 24 alone, and this module leaves bf_ki_pool's blob untouched."""
+        self.assertEqual(self.ref(SUPER_NAMEK), 0)
+
+    def test_the_pool_blob_is_byte_equal_to_the_dev_master(self):
+        b = built()
+        at, size = b["ki_pool"]["code"], b["ki_pool"]["code_len"]
+        self.assertEqual(b["rom"][at:at + size], b["dev"][at:at + size])
 
     def test_the_saiyan_forms_are_unchanged(self):
         self.assertEqual(self.ref(5, leader=0), RAM)      # Gohan Super Saiyan
@@ -360,9 +385,9 @@ class PoolRefAccept(unittest.TestCase):
 # ===== 4. old saves =====
 
 class Saves(unittest.TestCase):
-    def test_the_patch_writes_four_runs_and_none_of_them_is_save_code(self):
+    def test_the_patch_writes_three_runs_and_none_of_them_is_save_code(self):
         b = built()
-        self.assertEqual([], run_problems(b["dev"], b["rom"], b["ki_pool"]["code"]))
+        self.assertEqual([], run_problems(b["dev"], b["rom"]))
 
     def test_the_save_image_layout_is_untouched(self):
         """No new save field: the slot is still 0x164 data bytes of six 28-byte records plus the flags."""
@@ -431,41 +456,44 @@ class DemoSaves(unittest.TestCase):
 
 
 class ControlTests(unittest.TestCase):
-    """`run_problems` reads the fourth run address from the allocator, so it must be shown to go red.
+    """`run_problems` must be shown to go red, or "no problems" means nothing.
 
     A check that reads its expectation from the build can decay into "the build agrees with itself".
     Every case here works on copies in memory: no file and no cache is changed."""
 
-    def accept_run(self) -> tuple:
-        """(start, length) of the one write this module makes in allocated space."""
-        at = built()["ki_pool"]["code"] + ACCEPT_AT
-        return next((s, n) for s, n in changed_runs(built()["dev"], built()["rom"]) if s == at)
-
     def test_the_live_build_reports_nothing(self):
         b = built()
-        self.assertEqual([], run_problems(b["dev"], b["rom"], b["ki_pool"]["code"]))
+        self.assertEqual([], run_problems(b["dev"], b["rom"]))
 
-    def test_a_moved_fourth_run_is_reported(self):
+    def test_a_moved_run_is_reported(self):
         b = built()
-        at, size = self.accept_run()
+        at = BASE_RUNS[0]
         rom = bytearray(b["rom"])
-        rom[at:at + size] = b["dev"][at:at + size]                 # undo the real write
-        for k in range(size):                                      # and put one 0x40 bytes further on
+        rom[at:at + 4] = b["dev"][at:at + 4]                       # undo the real write
+        for k in range(4):                                         # and put one 0x40 bytes further on
             rom[at + 0x40 + k] ^= 0xFF
-        self.assertTrue(run_problems(b["dev"], bytes(rom), b["ki_pool"]["code"]))
+        self.assertTrue(run_problems(b["dev"], bytes(rom)))
 
-    def test_a_missing_fourth_run_is_reported(self):
+    def test_a_missing_run_is_reported(self):
         b = built()
-        at, size = self.accept_run()
+        at = BASE_RUNS[0]
         rom = bytearray(b["rom"])
-        rom[at:at + size] = b["dev"][at:at + size]
-        self.assertTrue(run_problems(b["dev"], bytes(rom), b["ki_pool"]["code"]))
+        rom[at:at + 4] = b["dev"][at:at + 4]
+        self.assertTrue(run_problems(b["dev"], bytes(rom)))
+
+    def test_a_write_into_the_pool_blob_is_reported(self):
+        """The module must not touch bf_ki_pool's allocated code at all. piccolo_zplus owns the one
+        splice there now, and a stray byte here would move it."""
+        b = built()
+        rom = bytearray(b["rom"])
+        rom[b["ki_pool"]["code"] + 0x18] ^= 0xFF
+        self.assertTrue(run_problems(b["dev"], bytes(rom)))
 
     def test_a_write_into_save_code_is_reported(self):
         b = built()
         rom = bytearray(b["rom"])
         rom[SAVE_PATHS[0][0]] ^= 0x01
-        problems = run_problems(b["dev"], bytes(rom), b["ki_pool"]["code"])
+        problems = run_problems(b["dev"], bytes(rom))
         self.assertTrue(any("save code" in p for p in problems), problems)
 
 

@@ -18,10 +18,13 @@ Method:  1. Appearance table: copy the live table and append entry 24, a copy of
             live block holds ids 0-122, vegeta_zplus's 122 being the last). Id 123's art is the
             owner's own drawing, checked the way a table portrait is checked: at most 64 colours for
             the status page pool, and the outer 3 px frame read against id 121's.
-         3. Form object: entry 24 keeps the Namek form object 0x030021F0. pool_ref accepts that object
-            and the Super Saiyan one and nothing else (piccolo_z_start's fixed size accept), so a Z+
-            object of its own would need that code changed. Sharing it keeps the ki pool, the bar and
-            the revert working for both grades with no edit to another module's blob.
+         3. Form object and the ki pool. Entry 24 keeps the Namek form object 0x030021F0, which entry 7
+            also holds, so an object compare cannot tell Z+ from Super Namek. The owner wants a pool for
+            Z+ alone (2026-11-13), so pool_ref gets an ENTRY test: its `ldr r5,=SSJ_OBJ ; cmp r0,r5` pair
+            becomes `bl zp_ref`, the same four bytes, and zp_ref returns the Z flag that the following
+            `bne ref_none` already reads. It accepts the Super Saiyan object, or any object in entry 24.
+            Only those four bytes are written, because by now vegeta_zplus and this module have repointed
+            the appearance table literal that sits inside that same blob.
          4. Stats: the Namek apply 0x080173AA adds 6 to STR, POW and END. Z+ wants 10 (owner,
             2026-11-12), so the apply is wrapped: run the vanilla one, then add 4 more to the three
             bytes it just wrote, but only while the leader wears entry 24.
@@ -52,6 +55,8 @@ import struct
 
 from art import art_tables as at
 import log_paths
+from patches import bf_ki_pool as pool
+from patches import piccolo_z_start as zstart
 from patches import vegeta_zplus as veg
 from patches.art_inject import FRAME, RAW_HEADER, slot
 from patches.ssj2_form import TABLE_LITERALS, assemble
@@ -82,6 +87,10 @@ ABILITY_TABLE_GBA = 0x081D9900                # the same table, as the HUD hook 
 BLOCK_LITERAL, ZPLUS_PORTRAIT, REF_ID = 0xBE10, 123, 121   # the live block holds ids 0-122; 121 is the border
 PORTRAIT_PNG = log_paths.TABLE_PORTRAITS / "123_piccolo_zplus.png"
 
+# The pool_ref entry test: the same four bytes, so every label, literal and later address is unchanged.
+POOL_OLD = "    ldr r5,=SSJ_OBJ\n    cmp r0,r5\n    bne ref_none\n"
+POOL_NEW = "    bl POOL_GATE            ; the Super Saiyan object, or entry 24\n    bne ref_none\n"
+
 # ===== new code (ARMv4T Thumb). Symbols in caps are filled in at assembly =====
 CODE = """
 ; ===== 1. is the leader in Z+? r0 = 1 when he is. Leaf: uses r0, r1, r2
@@ -101,6 +110,16 @@ in_zplus:
     bx lr
 zp_yes:
     mov r0,#0x1
+    bx lr
+; ===== 1b. pool_gate: bf_ki_pool's own accept, spliced into pool_ref. Z set = this form has a pool.
+;     pool_ref calls it with r0 = the form object and r3 = the appearance entry, and reads the Z flag
+;     through the `bne ref_none` that already follows. Keeps r1 and r4; uses r2 and the flags.
+pool_gate:
+    cmp r3,#ZPLUS_ENTRY
+    beq pg_done             ; Z+ shares the Namek object, so the ENTRY is what tells it from entry 7
+    ldr r2,=SSJ_OBJ
+    cmp r0,r2
+pg_done:
     bx lr
 ; ===== 2. apply: the vanilla +6, then +4 more in Z+ (r0 = form object, r1 = actor)
 apply_zp:
@@ -268,6 +287,36 @@ def _vword(target: int, vtable: int) -> bytes:
     return struct.pack("<I", (target - vtable) & M32)
 
 
+def _pool_splice(rom: bytearray, notes: dict, gate: int) -> list:
+    """[(file offset, byte)] that turn pool_ref's object compare into the entry test, checked first.
+
+    Only the changed bytes are listed. The whole blob cannot be written back, because vegeta_zplus and
+    this module repoint the appearance table literal that lives inside it, and a full write would send
+    pool_ref back to a table that has no entry 24.
+    """
+    if pool.CODE.count(POOL_OLD) != 1:
+        raise ValueError("bf_ki_pool pool_ref source changed: the entry test no longer applies")
+    ki = notes["bf_ki_pool"]
+    plain, plain_labels = zstart.pool_code(notes)
+    blob, labels = zstart.pool_code(notes, pool.CODE.replace(POOL_OLD, POOL_NEW), {"POOL_GATE": gate})
+    if len(blob) != len(plain):
+        raise ValueError(f"the entry test assembled to 0x{len(blob):X} bytes, window is 0x{len(plain):X}")
+    moved = sorted(k for k, v in labels.items() if plain_labels.get(k) != v)
+    if moved:
+        raise ValueError("the entry test moved a label: " + ", ".join(moved))
+    changed = [i for i in range(len(blob)) if blob[i] != plain[i]]
+    if not changed:
+        raise ValueError("the entry test changed no byte")
+    first, last = ki["code"] + ROM_BASE + changed[0], ki["code"] + ROM_BASE + changed[-1]
+    if not plain_labels["pool_ref"] <= first <= last < plain_labels["fill_end"]:
+        raise ValueError(f"the entry test changed bytes outside pool_ref: {[hex(c) for c in changed]}")
+    stale = [i for i in changed if rom[ki["code"] + i] != plain[i]]
+    if stale:
+        raise ValueError("the ki pool code in this ROM is not bf_ki_pool's own at "
+                         + ", ".join(f"rom:0x{ki['code'] + i:X}" for i in stale))
+    return [(ki["code"] + i, blob[i]) for i in changed]
+
+
 def _portrait(rom: bytearray, block: int) -> bytes:
     """The owner's Z+ portrait pixels, checked the way art_inject checks a table portrait.
 
@@ -356,12 +405,14 @@ def apply(rom: bytearray, alloc) -> None:
             "VANILLA_APPLY": VANILLA_APPLY, "VANILLA_ACTION": VANILLA_ACTION, "POOL_TICK": pool_tick,
             "SAVE_PTR": SAVE_PTR, "HEAL_RAM": HEAL_RAM, "HEAL_STEP": HEAL_STEP, "HEAL_RATE": HEAL_RATE,
             "ABILITY_ID": ABILITY_11, "ABILITY_TABLE": ABILITY_TABLE_GBA, "OLD_HUD": old_hud,
+            "SSJ_OBJ": pool.SSJ_OBJ,          # the one object pool_ref took before the entry test
             "ICON_OK": usable + ROM_BASE, "ICON_DIM": dim + ROM_BASE}
     size = len(assemble(CODE, ROM_BASE, syms)[0])
     code = alloc.alloc(size)
     blob, labels = assemble(CODE, code + ROM_BASE, syms)
     if len(blob) != size:                     # a size change would shift every later ROM byte
         raise ValueError(f"code assembled to 0x{len(blob):X} bytes, allocated 0x{size:X}")
+    splice = _pool_splice(rom, alloc.notes, labels["pool_gate"])
 
     # 2. appearance table with entry 24, and entry 7 stepping into it
     entry = bytearray(rom[table + ENTRY * NAMEK:table + ENTRY * (NAMEK + 1)])
@@ -390,11 +441,22 @@ def apply(rom: bytearray, alloc) -> None:
     rom[ABILITY_11_ACTION:ABILITY_11_ACTION + 4] = _word(labels["gate"] | 1)
     rom[HUD_LITERAL:HUD_LITERAL + 4] = _word(labels["hud"] | 1)
 
+    # 5. the pool_ref entry test, four bytes inside bf_ki_pool's blob
+    for off, value in splice:
+        rom[off] = value
+    ki = alloc.notes["bf_ki_pool"]
+    inside = [o for o in range(ki["code"], ki["code"] + ki["code_len"], 4)
+              if _u32(rom, o) == new_table + ROM_BASE]
+    if not inside:
+        raise ValueError("the appearance table literal inside the ki pool blob no longer names the "
+                         "live table: pool_ref would read entry 24 off the end of the old one")
+
     alloc.notes["piccolo_zplus"] = {
         "table": new_table, "entry": ZPLUS, "code": code, "code_len": size,
+        "pool_splice": [off for off, _ in splice],
         "apply_word": ap, "tick_word": tk, "action": ABILITY_11_ACTION, "chained": pool_tick,
         "table_namers": table_namers, "heal_ram": HEAL_RAM, "block": block, "frame": frame,
         "portrait": ZPLUS_PORTRAIT, "block_namers": block_namers, "zplus": usable, "zplus_dim": dim,
         "chained_hud": old_hud,
         **{k: v - ROM_BASE for k, v in labels.items()
-           if not k.startswith(("zp_", "ap_", "tk_", "ga_", "zo_", "hu_"))}}
+           if not k.startswith(("zp_", "ap_", "tk_", "ga_", "zo_", "hu_", "pg_"))}}
