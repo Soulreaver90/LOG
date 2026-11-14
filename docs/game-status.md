@@ -75,7 +75,7 @@ This is the biggest single line of work and it is close to done.
 | FUT-3 | **PLAY** | That fight happens in **Capsule Corp in the rain**, a custom arena map built for it. |
 | FUT-4 | **PLAY** | The Cell battle is **two parts**. Round two moves to **your own hand-made plateau map**, with its own dialogue and its own ending. |
 | FUT-5 | **PLAY** | The last beat: Trunks fires a gold beam straight up, Cell takes three hits with explosions and screen rumble, then explodes. |
-| FUT-6 | **PLAY** | The scouter reads Future 17, Future 18 and Future Cell by name, with their own weakened stats, instead of showing nothing. |
+| FUT-6 | **PLAY** | The scouter reads Future 17, Future 18 and Future Cell by name, with their own weakened stats, instead of showing nothing. **New on 2026-11-14:** all three now also appear in the scouter **database list**, which was built for exactly 128 names and had no room for them. Two things there need your eye, because no test can see them: that the menu opens at all, and that scrolling reaches all 131 rows. |
 | FUT-7 | **PLAY** | Trunks keeps a full Super Saiyan pool going into the Cell fight, instead of carrying the energy he spent on the androids. |
 | FUT-8 | **PLAY** | Capsule Corp carries the goal star on the world map once the main story is over, like every other major quest. |
 | FUT-9 | **PLAY** | Lose to Cell in the final arena and the game-over screen shows your own card instead of "You have died!". |
@@ -167,10 +167,15 @@ compares every frame PNG under `art\` against the art the build actually reads, 
 
 ## What is waiting on you, in one place
 
-1. **Play the rough master.** `builds\mockups\2026-11-13-rough-master\log2_poc_r43_rough.gba`, with its
+1. **Play the rough master.** `builds\mockups\2026-11-13-rough-master\log2_poc_r44_rough.gba`, with its
    save beside it. It is the dev master plus the whole future Trunks line and the whole Piccolo and
-   Vegeta Z+ line, 41 modules. Check Piccolo's bar first: base green, Super Namek green, Z+ ramping to
-   yellow and staying yellow.
+   Vegeta Z+ line, 41 modules.
+   - Check **Piccolo's bar** first: base green, Super Namek green, Z+ ramping to yellow and staying yellow.
+   - Then open the **scouter database list**. It was rebuilt overnight to hold 131 names instead of
+     128, so Future 17, Future 18 and Future Cell can appear in it. Two things only your eye can
+     answer: does the menu open at all, and does scrolling reach all three new names at the bottom?
+   - `log2_poc_r43_rough.gba` beside it is last night's earlier build, before the scouter list work.
+     Play r44.
 2. **Push the repository.** 103 commits exist on this disk only, including every drawing now tracked.
 3. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
 4. **The journal's 44th quest. I now recommend REPLACING one line, not growing the menu.**

@@ -378,6 +378,9 @@ and Wolf twice each. So an entry maps one set id to a name, a bio, a portrait an
 
 ## 2026-11-08: the three new scouter entries do NOT show in the database list menu
 
+> [!NOTE]
+> **CLOSED 2026-11-14.** The menu object was grown from 128 to 131 entries, 14 sites, commit `194b727`. Three independent enumerations agreed on the site count after the first two came back short. Bible rows B2469 to B2484. Still unproven by any test, and waiting on a play-test: that the allocator grants the larger object at run time, and that the menu renders 131 rows.
+
 `scouter_future` ships in `build_list_trial_plateau.txt` (future_v2). Entries 128, 129 and 130 are
 Future 17, Future 18 and Future Cell, and they SCAN in battle, which is what the owner asked for.
 They do not appear in the scouter DATABASE LIST menu, and that is deliberate.
@@ -409,6 +412,9 @@ bound. The "free save bits" row above counts entry indices, which is still the r
 entry-shape row is wrong and anything built on it would name the wrong field.
 
 ## Scouter database list: get the three future entries into the menu
+
+> [!NOTE]
+> **CLOSED 2026-11-14.** The menu object was grown from 128 to 131 entries, 14 sites, commit `194b727`. Three independent enumerations agreed on the site count after the first two came back short. Bible rows B2469 to B2484. Still unproven by any test, and waiting on a play-test: that the allocator grants the larger object at run time, and that the menu renders 131 rows.
 
 Owner, 2026-11-08: "the scouter etnries are good. would be good to add to cpmputer but put that in
 the backlog."
