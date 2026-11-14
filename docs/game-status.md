@@ -176,7 +176,7 @@ compares every frame PNG under `art\` against the art the build actually reads, 
      answer: does the menu open at all, and does scrolling reach all three new names at the bottom?
    - `log2_poc_r43_rough.gba` beside it is last night's earlier build, before the scouter list work.
      Play r44.
-2. **Push the repository.** 103 commits exist on this disk only, including every drawing now tracked.
+2. **Push the repository.** 113 commits exist on this disk only, including every drawing now tracked.
 3. **FUT-10, the Trunks hand-off**, Gohan at the tower to controlling Trunks. The ending needs it.
 4. **The journal's 44th quest. I now recommend REPLACING one line, not growing the menu.**
    We measured the quest table and it has exactly one reader in the whole game, which I confirmed
