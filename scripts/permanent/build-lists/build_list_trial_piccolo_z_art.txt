@@ -1,4 +1,6 @@
 # Trial list: Super Namek from the start, PLUS the power-up animation the owner drew for set 104.
+# NOTE 2026-11-13: XFM-9 took the ki pool off Super Namek on purpose. This list has no
+# piccolo_zplus, so Piccolo here has NO pool in any form, and a plain green bar throughout.
 # This is the playable pair. build_list_trial_piccolo_art.txt is art only and shows nothing in game,
 # because no form reaches set 104's new row without piccolo_z_start opening the transform.
 # piccolo_z_start runs first: it allocates nothing and checks bf_ki_pool's blob byte for byte, so it
